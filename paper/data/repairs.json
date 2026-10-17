@@ -1,0 +1,271 @@
+{
+ "about": "Global-mean surface temperature of each test run against its baseline over the README's stated years, from the runs' yearly summaries (progress.json); repairs, the cloud-water bracket's upper bound, and two tests of PlaSim's Earth-tuned cloud settings",
+ "sources": [
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A/progress.json",
+   "sha256": "b832b428891da3ac70d21911897b95dad5d8796e79f44497bbd67c4ace814a25"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A28_corrected_970/progress.json",
+   "sha256": "e3c614bd8748a22eff4c19570955d77933dee4eac238f80da6d4a3c7d5d20345"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A28_corrected_970_lw_ice/progress.json",
+   "sha256": "47034869bfbedab54deafafc0093df6872aedaa693ae3bcd3d1337c7c24bb4b4"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A28_dim5/progress.json",
+   "sha256": "619f3de9adeafa38803e60fc4b311278f9c3bf9f681adcc1f69c05b9b16d8e61"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A28_dim5_moon/progress.json",
+   "sha256": "d287252f152cb52f5b9f07f35f1e51fca87bddab6226fd960a1c35bdfc31be6d"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A28_dim5_moon_geometry/progress.json",
+   "sha256": "9db22a96a8041eeb5ec4e95d5b88785557eefe7476c11b81aec4e23cd53b7de1"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A28_dim5_moon_geometry_gases/progress.json",
+   "sha256": "03427b49b543ec88b8622e598df7d6f2cea4f01db6ff914a84f4d41c96cb013c"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A28_dim5_moon_low_cloud/progress.json",
+   "sha256": "70d99b435197860c97635f010dc1e87e0df3adc4b1008a7cdc38e12d78bbfe82"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A28_dim5_moon_thin_convective/progress.json",
+   "sha256": "69537a8b4d486df400c78b8c10f75120ac9c5fc219265bd86c58fa291813ffe1"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A_corrected_clouds/progress.json",
+   "sha256": "9c36b2781971781b7246b5eb8c4121cdd284757e2a2c7303231b9569234ecdd2"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A_earth_path_clouds/progress.json",
+   "sha256": "017d18de9e8899778b72bc5c0065da9886569cb40e54a1ba07c5eb497c98e067"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A_full_column_clouds/progress.json",
+   "sha256": "aa1a093b52da1f0bb959f2b5b5065133d076cddf97fcbecbb9bc93f08067cb8c"
+  }
+ ],
+ "rows": [
+  {
+   "label": "Cloud water counted in pressure terms",
+   "kind": "repair",
+   "baseline": {
+    "run": "A",
+    "years": [
+     30,
+     39
+    ],
+    "surface_k": 295.511,
+    "n": 10
+   },
+   "test": {
+    "run": "A_earth_path_clouds",
+    "years": [
+     10,
+     14
+    ],
+    "surface_k": 297.812,
+    "n": 5
+   },
+   "change_k": 2.301,
+   "note": "settles near 298.0 K"
+  },
+  {
+   "label": "Convective cover per Earth day",
+   "kind": "repair",
+   "baseline": {
+    "run": "A_earth_path_clouds",
+    "years": [
+     10,
+     14
+    ],
+    "surface_k": 297.812,
+    "n": 5
+   },
+   "test": {
+    "run": "A_corrected_clouds",
+    "years": [
+     10,
+     14
+    ],
+    "surface_k": 299.576,
+    "n": 5
+   },
+   "change_k": 1.764,
+   "note": "settles near 299.6 K"
+  },
+  {
+   "label": "The Sun's clock, the Moon's tilt and the sunlight split",
+   "kind": "repair",
+   "baseline": {
+    "run": "A28_dim5",
+    "years": [
+     15,
+     24
+    ],
+    "surface_k": 294.311,
+    "n": 10
+   },
+   "test": {
+    "run": "A28_dim5_moon",
+    "years": [
+     20,
+     29
+    ],
+    "surface_k": 294.897,
+    "n": 10
+   },
+   "change_k": 0.586,
+   "note": ""
+  },
+  {
+   "label": "Curved air: twilight, cone and slant path",
+   "kind": "repair",
+   "baseline": {
+    "run": "A28_dim5_moon",
+    "years": [
+     20,
+     29
+    ],
+    "surface_k": 294.897,
+    "n": 10
+   },
+   "test": {
+    "run": "A28_dim5_moon_geometry",
+    "years": [
+     10,
+     19
+    ],
+    "surface_k": 294.243,
+    "n": 10
+   },
+   "change_k": -0.654,
+   "note": ""
+  },
+  {
+   "label": "CO2 and O2 in the sunlight",
+   "kind": "repair",
+   "baseline": {
+    "run": "A28_dim5_moon_geometry",
+    "years": [
+     10,
+     19
+    ],
+    "surface_k": 294.243,
+    "n": 10
+   },
+   "test": {
+    "run": "A28_dim5_moon_geometry_gases",
+    "years": [
+     10,
+     19
+    ],
+    "surface_k": 292.015,
+    "n": 10
+   },
+   "change_k": -2.228,
+   "note": "still cooling 0.3 K a decade"
+  },
+  {
+   "label": "Longwave by height with ice optics",
+   "kind": "repair",
+   "baseline": {
+    "run": "A28_corrected_970",
+    "years": [
+     10,
+     19
+    ],
+    "surface_k": 295.023,
+    "n": 10
+   },
+   "test": {
+    "run": "A28_corrected_970_lw_ice",
+    "years": [
+     10,
+     19
+    ],
+    "surface_k": 306.524,
+    "n": 10
+   },
+   "change_k": 11.501,
+   "note": "settles at 306.8-307.1 K"
+  },
+  {
+   "label": "Cloud water at the full-column bound",
+   "kind": "bracket",
+   "baseline": {
+    "run": "A",
+    "years": [
+     30,
+     39
+    ],
+    "surface_k": 295.511,
+    "n": 10
+   },
+   "test": {
+    "run": "A_full_column_clouds",
+    "years": [
+     10,
+     14
+    ],
+    "surface_k": 292.3,
+    "n": 5
+   },
+   "change_k": -3.211,
+   "note": "settles near 292.0 K"
+  },
+  {
+   "label": "Thinner convective cloud",
+   "kind": "cloud setting",
+   "baseline": {
+    "run": "A28_dim5_moon",
+    "years": [
+     20,
+     29
+    ],
+    "surface_k": 294.897,
+    "n": 10
+   },
+   "test": {
+    "run": "A28_dim5_moon_thin_convective",
+    "years": [
+     5,
+     14
+    ],
+    "surface_k": 296.607,
+    "n": 10
+   },
+   "change_k": 1.71,
+   "note": "settles near 297.1 K"
+  },
+  {
+   "label": "More low cloud",
+   "kind": "cloud setting",
+   "baseline": {
+    "run": "A28_dim5_moon",
+    "years": [
+     20,
+     29
+    ],
+    "surface_k": 294.897,
+    "n": 10
+   },
+   "test": {
+    "run": "A28_dim5_moon_low_cloud",
+    "years": [
+     5,
+     14
+    ],
+    "surface_k": 289.915,
+    "n": 10
+   },
+   "change_k": -4.982,
+   "note": "settles near 289.0 K"
+  }
+ ]
+}

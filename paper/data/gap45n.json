@@ -1,0 +1,83 @@
+{
+ "about": "Layer-mean air temperature over the 45 N ring's second lunar day in CM1, without and with the GCM's sideways heat and vapour imposed, against the GCM design case's row (A28_corrected_970, years 10-19)",
+ "sources": [
+  {
+   "path": "/home/kir/Documents/Projects/terluna/climate/results/crm/heat_budget_ring_45n_corrected.json",
+   "sha256": "f123ba990f43c9e9933e86221864aa99f46cfc4ee7ff9512874213c4f4f942fd"
+  },
+  {
+   "path": "/home/kir/Documents/Projects/terluna/climate/results/crm/heat_budget_ring_45n_corrected_sideways.json",
+   "sha256": "947691ebff69b836040abc9b5edde06af09d2193b51400a6fc2a6533673c2934"
+  }
+ ],
+ "cases": {
+  "ring_45n_corrected": [
+   {
+    "km": [
+     0.0,
+     1.77
+    ],
+    "ring_c": 25.646810368103502,
+    "gcm_c": 19.774762510953927
+   },
+   {
+    "km": [
+     1.77,
+     6.53
+    ],
+    "ring_c": 24.088586310863434,
+    "gcm_c": 18.3183548018659
+   },
+   {
+    "km": [
+     6.53,
+     13.74
+    ],
+    "ring_c": 16.475149419523405,
+    "gcm_c": 13.737399943475783
+   },
+   {
+    "km": [
+     13.74,
+     23.06
+    ],
+    "ring_c": 6.528510358574067,
+    "gcm_c": 5.86007983772414
+   }
+  ],
+  "ring_45n_corrected_sideways": [
+   {
+    "km": [
+     0.0,
+     1.77
+    ],
+    "ring_c": 23.478353985154115,
+    "gcm_c": 19.774762510953927
+   },
+   {
+    "km": [
+     1.77,
+     6.53
+    ],
+    "ring_c": 22.305203640117327,
+    "gcm_c": 18.3183548018659
+   },
+   {
+    "km": [
+     6.53,
+     13.74
+    ],
+    "ring_c": 15.376872799132911,
+    "gcm_c": 13.737399943475783
+   },
+   {
+    "km": [
+     13.74,
+     23.06
+    ],
+    "ring_c": 6.093250140311852,
+    "gcm_c": 5.86007983772414
+   }
+  ]
+ }
+}

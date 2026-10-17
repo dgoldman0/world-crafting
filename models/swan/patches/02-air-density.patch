@@ -1,0 +1,19 @@
+SWAN 41.51 patch 02: compiled-in air density PWIND(16) = 1.40390062332 kg/m3 (was 1.28).
+Origin: Terluna climate/waves/build.py:117-132 (patch_air_density), commit 186b294;
+value from climate/waves/results/forcing.json (CM1 equatorial water columns, 75-103 E).
+Source: swanmain.ftn sha256 d89c664cddb06de60b84655e8523e04fb8b17dc342ff5add158579369bfb568a
+Result: swanmain.ftn sha256 fd5b493749cd9264081b2094f61fcaff64b41a6e0f624bd68d89300bcd85fc43
+Apply from the swan4151 source root: patch -p1 < 02-air-density.patch
+See models/swan/README.md.
+
+--- a/swanmain.ftn
++++ b/swanmain.ftn
+@@ -1737,7 +1737,7 @@
+ !     *** Charnock: Von Karman constant ***
+       PWIND(15) = 0.41
+ !     *** rho air (density) ****
+-      PWIND(16) = 1.28
++      PWIND(16) = 1.40390062332
+ !     *** rho water (density) ***
+       PWIND(17) = RHO
+       PWIND(9)  = PWIND(16) / RHO

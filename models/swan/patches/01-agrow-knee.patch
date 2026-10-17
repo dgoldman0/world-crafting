@@ -1,0 +1,20 @@
+SWAN 41.51 patch 01: AGROW frequency knee at fixed frequency/gravity.
+Origin: Terluna climate/waves/build.py:68-91 (patch_agrow), commit 186b294.
+Source: swancom3.ftn sha256 b164c7b9ac8f94672b637e114dbacad503b624c8c1c8ae50339b80c0083558af
+Result: swancom3.ftn sha256 809b4aa2fb020a9170a5a49bb0caa101889dc27939ecbeca4e07893346601acc
+Apply from the swan4151 source root: patch -p1 < 01-agrow-knee.patch
+See models/swan/README.md.
+
+--- a/swancom3.ftn
++++ b/swancom3.ftn
+@@ -1797,7 +1797,9 @@
+             TEMP3  = ( UFRIC *  MAX( 0. , COSDIF))**4                     40.41
+             SWINEA = MAX( 0. , TEMP2 * TEMP3 * FILTER )
+ !           see above remarks for rationale on reduction above 1 Hz
+-            FREQ1 = SIGMA/PI2                                             40.88
++!     Terluna sensitivity: keep the arbitrary AGROW knee at fixed f/g.
++!     This is a numerical choice, not lunar empirical validation.
++            FREQ1 = (SIGMA/PI2) * (9.80665/GRAV)
+             IF ( FREQ1.GT.1. ) THEN
+               REDUC = FREQ1**(-3)
+             ELSE

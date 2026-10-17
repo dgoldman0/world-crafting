@@ -1,0 +1,77 @@
+{
+ "about": "The design column's absorbed sunlight by GCM layer, global means in W/m2: the line-by-line pseudo-spherical column against PlaSim's arithmetic on the same column as run and with the CO2 and O2 bands (Terluna climate/gcm/README.md lines 1088-1100 at 186b294)",
+ "sources": [
+  {
+   "path": "/home/kir/Documents/Projects/terluna/climate/gcm/README.md",
+   "sha256": "267413c2aa248c3b7581d796ef83de826fbe6764d6d03c9abd1677fee03150fb"
+  }
+ ],
+ "rows": [
+  {
+   "layer": "112\u2013575 km",
+   "line_by_line": 2.52,
+   "as_run": 0.0,
+   "with_bands": 2.19
+  },
+  {
+   "layer": "85\u2013112 km",
+   "line_by_line": 1.69,
+   "as_run": 0.01,
+   "with_bands": 1.25
+  },
+  {
+   "layer": "66\u201385 km",
+   "line_by_line": 4.49,
+   "as_run": 2.24,
+   "with_bands": 3.12
+  },
+  {
+   "layer": "49\u201366 km",
+   "line_by_line": 11.95,
+   "as_run": 14.06,
+   "with_bands": 13.87
+  },
+  {
+   "layer": "35\u201349 km",
+   "line_by_line": 16.53,
+   "as_run": 18.6,
+   "with_bands": 17.81
+  },
+  {
+   "layer": "24\u201335 km",
+   "line_by_line": 16.56,
+   "as_run": 18.61,
+   "with_bands": 17.6
+  },
+  {
+   "layer": "14\u201324 km",
+   "line_by_line": 14.71,
+   "as_run": 15.88,
+   "with_bands": 14.92
+  },
+  {
+   "layer": "7\u201314 km",
+   "line_by_line": 11.79,
+   "as_run": 12.36,
+   "with_bands": 11.56
+  },
+  {
+   "layer": "2\u20137 km",
+   "line_by_line": 8.11,
+   "as_run": 8.16,
+   "with_bands": 7.61
+  },
+  {
+   "layer": "0\u20132 km",
+   "line_by_line": 3.19,
+   "as_run": 2.73,
+   "with_bands": 2.54
+  },
+  {
+   "layer": "Whole column",
+   "line_by_line": 91.54,
+   "as_run": 92.65,
+   "with_bands": 92.47
+  }
+ ]
+}
