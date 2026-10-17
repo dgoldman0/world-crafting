@@ -1,0 +1,32 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Upstream sources and builds are fetched or linked locally, never committed.
+/upstream/
+/build/
+
+# Inputs the reference models download (hash-checked by their fetchers).
+/python/atmosphere/radiative_convective/inputs
+/python/atmosphere/radiative_convective/cache
+/python/atmosphere/middle_atmosphere/inputs
+/python/atmosphere/middle_atmosphere/cache
+/python/illumination/sky/data
+/python/illumination/sky/work
+
+# Full-text originals of cited sources: kept for reading, outside Git for redistribution rights.
+/paper/sources/originals/
+
+# LaTeX build products.
+/paper/build/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
