@@ -259,7 +259,7 @@ radiation. The same hook carries any infrared source above the air: a host plane
 | Earth's σ levels | The top three layers span 0–9, 9–20 and 20–32 kPa (above 107 km, 81–107 km, 63–81 km); each spans about 25 K and ice saturation changes 55-fold across the 81–107 km layer, where the coldest, most saturated air lies | More levels in the upper troposphere and tropopause region |
 | Instant rain-out | No fall or evaporation of rain; CM1 finds 85% of the falling water evaporating at lunar gravity | Rain evaporation with fall time; CRM calibration |
 | Two layers in the lowest 6.5 km | The boundary layer's day–night shape is unresolved; the GCM stays stable by day where CM1 mixes 14–19 km deep | More levels; a boundary-layer scheme tested on long days |
-| Constant gravity and a thin shell | The column holds about 5% more air per unit area than p_s/g_s (the radiative–convective model's g(z) column); constant-g heights read about 5% low at 86 km; g there is 10% lower | Deep-atmosphere dynamics (White et al. 2005); or correct the mass and heights |
+| Constant gravity and a thin shell | The column holds about 5% more air per unit area than p_s/g_s (the radiative–convective model's g(z) column); constant-g heights read about 5% low at 86 km; g there is 9% lower | Deep-atmosphere dynamics (White et al. 2005); or correct the mass and heights |
 | Top layer from 112 km to the top of the air (575 km for 0.1 Pa) | One layer carries the whole upper atmosphere's radiation | A higher-resolution top; the middle-atmosphere model for the base of the thermosphere |
 | Sasamori longwave, Lacis–Hansen shortwave | Calibrated near the design column only | k-distributions from the same spectroscopy |
 

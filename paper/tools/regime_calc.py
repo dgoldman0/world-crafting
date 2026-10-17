@@ -10,11 +10,14 @@ what the models do.
 """
 from __future__ import annotations
 
+import csv
 import json
 import math
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parents[1] / 'data' / 'regime_calc.json'
+PROFILE = (Path(__file__).resolve().parents[2] / 'python' / 'atmosphere' / 'middle_atmosphere' / 'results'
+           / 'profiles' / 'moon_1.2atm_titania_stack.csv')
 
 G0 = 9.80665                      # standard gravity, m/s2
 CM1_G_EARTH = 9.81                # CM1's and Morrison's Earth gravity
@@ -97,8 +100,20 @@ def main() -> dict:
         rho = math.exp(-z / h_moon)
         num += rho * dz
         den += rho * (MOON_R / (MOON_R + z)) ** 2 * dz
-    out['column_with_falling_gravity'] = dict(mass_over_ps_over_gs=num / den,
-                                              formula='int rho dz / int rho (R/r)^2 dz, exponential rho')
+    # The same from the reference model's design column (python/atmosphere/middle_atmosphere/results/profiles/
+    # moon_1.2atm_titania_stack.csv: 100 layers to 0.1 Pa, heights with g(z)), whose cooling with height
+    # shortens the scale height aloft; layer masses dp/g(z) with interfaces at the layers' geometric means
+    rows = list(csv.DictReader(PROFILE.open()))
+    p = [float(r['p_pa']) for r in rows]
+    z = [float(r['z_km']) * 1e3 for r in rows]
+    edges = [P_MOON] + [math.sqrt(p[i] * p[i + 1]) for i in range(len(p) - 1)] + [0.0]
+    mass = [(edges[i] - edges[i + 1]) / g_moon(z[i]) for i in range(len(p))]
+    out['column_with_falling_gravity'] = dict(
+        exponential=num / den, design_profile=sum(mass) / (P_MOON / gm),
+        design_profile_mass_mean_height_km=sum(m * h for m, h in zip(mass, z)) / sum(mass) / 1e3,
+        formula='int rho dz / int rho (R/r)^2 dz for an exponential rho; sum(dp/g(z)) / (p_s/g_s) for the profile')
+    out['constant_g_height_error'] = {f'{h:.0f}km': 1 - MOON_R / (MOON_R + h * 1e3) for h in (86, 150)}
+    out['constant_g_height_error']['formula'] = 'z_const = R z/(R+z): heights from geopotential at surface g'
 
     # Gravity's scalings
     rg = gm / CM1_G_EARTH

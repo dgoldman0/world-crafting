@@ -151,8 +151,8 @@ can resolve (above). Shells above the model's 150 km top are left out with the a
 
 ## Constant gravity and a thin shell
 
-CM1, like PlaSim, holds gravity constant with height. The cases reach 150 km, where lunar gravity is 16%
-lower than at the ground and constant-g heights read about 9% low. Terluna's radiative–convective model,
+CM1, like PlaSim, holds gravity constant with height. The cases reach 150 km, where lunar gravity is 15%
+lower than at the ground and constant-g heights read about 8% low. Terluna's radiative–convective model,
 which uses g(z), finds the column holding about 5% more air per unit area than p_s/g_s.
 
 ## Improvements in order of value

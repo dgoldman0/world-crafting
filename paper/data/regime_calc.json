@@ -49,8 +49,15 @@
   "formula": "(r/R)^2; g(z) = GM/(R+z)^2"
  },
  "column_with_falling_gravity": {
-  "mass_over_ps_over_gs": 1.058664349916867,
-  "formula": "int rho dz / int rho (R/r)^2 dz, exponential rho"
+  "exponential": 1.058664349916867,
+  "design_profile": 1.053112952935119,
+  "design_profile_mass_mean_height_km": 46.8643588799005,
+  "formula": "int rho dz / int rho (R/r)^2 dz for an exponential rho; sum(dp/g(z)) / (p_s/g_s) for the profile"
+ },
+ "constant_g_height_error": {
+  "86km": 0.04716463749040256,
+  "150km": 0.07947440924022464,
+  "formula": "z_const = R z/(R+z): heights from geopotential at surface g"
  },
  "fall_speed_slowdown": {
   "cloud_droplets_B2": 6.039826369197293,

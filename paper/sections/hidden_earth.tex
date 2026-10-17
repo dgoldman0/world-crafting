@@ -103,6 +103,18 @@ most likely from the spectral transform over steep terrain.\claim{H27} Earth's p
 two small and SWAN's usual configuration hides the third; the Moon's slow rotation and small tilt made the
 first two large.
 
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/fig_sun_clock.pdf}
+\caption{Sunlight at the top of the air along the equator, by longitude, over its row mean. Under PlaSim's
+own Sun clock (run \code{A28\_dim5}, years 15--24) the Sun sweeps 392.5\textdegree\ each model day and skips
+back 32.5\textdegree, leaving 270--57\textdegree~E 8.3\% short and the far side up to 17\% over; the circles
+rebuild that pattern from PlaSim's solar-position arithmetic alone. Under the synodic clock
+(\code{A28\_dim5\_sun\_test}) the row varies only by the 0.991--1.017 that 12.1 lunar days in a model year
+give.}
+\label{fig:sunclock}
+\end{figure}
+
 \textbf{Defects of the adaptation.} The adaptation made defects of its own, and checks of the kinds set
 out under Verification found them. The GCM runner first extended the solar spectrum past its 2.73~\textmu m
 end at its last value, an invented infrared tail that put 86\% of the sunlight in the near infrared and

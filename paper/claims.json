@@ -89,11 +89,13 @@
   },
   {
    "id": "S10",
-   "text": "Gravity at the 86 km tropopause 9% below the surface's; a constant-area column with falling gravity holds about 6% more air than p_s/g_s",
+   "text": "Gravity at the 86 km tropopause 9% below the surface's; a constant-area column with falling gravity holds about 5% more air than p_s/g_s (5.3% on the design profile; 5.5% on the ledger's moist column), and the spherical shells 11.5% more per square metre of ground (84,876 against 76,096 kg/m2)",
    "source": [
     "terluna:climate/gcm/README.md#L823",
     "repo:paper/data/regime_calc.json#shell",
-    "repo:paper/data/regime_calc.json#column_with_falling_gravity"
+    "repo:paper/data/regime_calc.json#column_with_falling_gravity",
+    "terluna:atmosphere/radiative_convective/METHODS.md#L42-44",
+    "repo:python/climate/results/gcm/twilight.json#column.mass_kg_m2"
    ],
    "state": "calculation"
   },
@@ -450,6 +452,157 @@
     "terluna:climate/crm/README.md#L1125-1128"
    ],
    "state": "finding"
+  },
+  {
+   "id": "R01",
+   "text": "Ten ExoPlaSim patches with identity defaults and three settings; CM1 gravity, CO2 and O2 as preprocessor constants and var1-var20; SWAN's knee identity at Earth's g; series rebuild the deployed sources byte for byte",
+   "source": [
+    "repo:models/exoplasim/README.md",
+    "repo:models/cm1/README.md",
+    "repo:models/swan/README.md",
+    "repo:models/check_patches.sh",
+    "repo:PROVENANCE.md"
+   ],
+   "state": "reproduction"
+  },
+  {
+   "id": "R02",
+   "text": "V = aD^b scales as g^((b+1)/3): droplets 6.04x, rain 2.94x, graupel 2.27x slower at lunar gravity",
+   "source": [
+    "repo:paper/data/regime_calc.json#fall_speed_slowdown",
+    "terluna:climate/crm/README.md#L30-36",
+    "repo:notes/cm1.md#L59-69"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "R03",
+   "text": "Rayleigh damping x g/9.81 and l_inf x 9.81/g; WRF-ELEC sub-step 0.75 -> 6.8 s keeps graupel settling ~1% of a 2 km layer at 0.44 of Earth's speed",
+   "source": [
+    "terluna:climate/crm/README.md#L134-137",
+    "terluna:climate/crm/README.md#L1623-1630",
+    "repo:models/cm1/README.md",
+    "repo:notes/electrification.md#L66"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "R04",
+   "text": "SWAN's knee at f g_E/g reproduces stock at Earth's g; sixfold similarity error 5.44% -> 0.303% in Hs and 3.91% -> 0.326% in mean period",
+   "source": [
+    "terluna:climate/waves/first_experiments.md#L33-37",
+    "terluna:climate/waves/audit.md#L45-60",
+    "repo:models/swan/README.md"
+   ],
+   "state": "similarity"
+  },
+  {
+   "id": "R05",
+   "text": "The ledger: 10,697 channels within 1% of absorbed energy and the beam's loss by layer; 282 scattering channels below 1,250 nm; cone -6.5 W/m2 net; curved light and escape +0.7",
+   "source": [
+    "terluna:climate/gcm/README.md#L975-1016",
+    "repo:notes/reference_radiation.md#L290-410",
+    "repo:python/climate/results/gcm/twilight.json"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "R06",
+   "text": "Terms at 167 elevations from -40 to 90 deg for PlaSim layers and CM1 shells, infrared escape scaled with T^4; slant fits within 0.30% (water) and 0.08% (air)",
+   "source": [
+    "repo:models/exoplasim/README.md",
+    "repo:models/cm1/README.md",
+    "repo:notes/reference_radiation.md#L370-386",
+    "repo:python/climate/results/gcm/twilight.json"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "R07",
+   "text": "With the Sun overhead the spherical solver's ground takes 1.3% less than the two-stream's: part of the daytime term is a solver difference",
+   "source": [
+    "terluna:climate/gcm/README.md#L1011-1013",
+    "repo:notes/reference_radiation.md#L398-405"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "R08",
+   "text": "The reference: line-by-line on HITRAN2020, MT_CKD 4.3, CIA, Rayleigh, g = GM/r^2, pseudo-spherical beam; correlated-k OLR within 0.4 W/m2 at 288-290 K and 1.4 W/m2 for a saturated 330 K lunar column",
+   "source": [
+    "terluna:atmosphere/radiative_convective/README.md#L129-135",
+    "repo:notes/reference_radiation.md#L36-123",
+    "repo:notes/verification_record.md#L141-148"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "R09",
+   "text": "First calibration: albedo within ~0.007 and OLR within ~2 W/m2; after the Sun repair the air was 8.1 points short and the water multiplier brought it within 0.3 points rms on 11 columns",
+   "source": [
+    "terluna:climate/gcm/README.md#L222-252",
+    "terluna:climate/gcm/README.md#L280-302",
+    "repo:notes/verification_record.md#L153-154"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "R10",
+   "text": "PlaSim put ~nothing above 85 km against line-by-line's 4.2 W/m2; three gas bands within 0.13% of band energy; layers 1.71 -> 0.97 W/m2 rms",
+   "source": [
+    "terluna:climate/gcm/README.md#L1065-1112",
+    "repo:python/climate/results/gcm/shortwave_gases.json",
+    "repo:paper/data/layers.json"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "R11",
+   "text": "The longwave correction, fitted on ~2,100 cloud-free 3-day means over land and sea and scaled with T^4, removes each layer's mean error, leaving 1-5 W/m2 column to column",
+   "source": [
+    "terluna:climate/gcm/README.md#L767-797",
+    "repo:python/climate/results/gcm/longwave_A28_corrected_970_heating.json"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "R12",
+   "text": "Ice optics below -38 C (Ebert-Curry, delta two-stream, Kristjansson-Mitchell radius); the WRF-ELEC graft: NSSL with charge, FFT/tridiagonal Poisson solver, cylindrical and branched lightning on a wrapping domain, screening",
+   "source": [
+    "repo:models/exoplasim/README.md",
+    "repo:models/cm1/README.md",
+    "repo:notes/electrification.md#L8-28"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "R13",
+   "text": "Leakage through a computed conductivity column, point discharge, a leader's crossing at 1 kV/m at sea-level density placing ground strikes between the stopping-field and -7 C bounds",
+   "source": [
+    "repo:notes/electrification.md#L61-70",
+    "repo:notes/defect_log.md#B5",
+    "repo:notes/defect_log.md#A7"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "R14",
+   "text": "Rings and boxes with their own Sun and Coriolis; nudging only above 8-16 km; the GCM's vertical wind through CM1's large-scale advection",
+   "source": [
+    "repo:models/cm1/README.md",
+    "repo:notes/cm1.md#L101-108"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "R15",
+   "text": "Local-time heating and moistening; terrain forcing by column height; SWAN forced by GCM stress through an inverted Wu law, spherical at the lunar radius, band scaled by g/g_E; SWASH unmodified",
+   "source": [
+    "repo:models/cm1/README.md",
+    "repo:notes/waves.md#L30-42",
+    "terluna:climate/waves/review.md#L21-30"
+   ],
+   "state": "documented"
   }
  ]
 }

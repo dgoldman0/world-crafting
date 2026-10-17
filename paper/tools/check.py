@@ -9,6 +9,8 @@
     repo:<path>[#...]      a file in this repository;
     drive:<path>           a file on Terluna's research drive (a warning when the drive is absent);
     calc:<text>            a calculation stated in the claim (its script or formula named in the text).
+Evidence states: observation, calculation, conditional model, calibration, reproduction, identity, sensitivity,
+documented, finding, similarity, benchmark.
 These are completeness checks; they establish nothing about whether a claim is right.
 """
 from __future__ import annotations
@@ -88,7 +90,8 @@ def main() -> int:
             elif kind != 'calc':
                 errors.append(f'claim {cid}: unknown source kind {kind!r}')
         if c.get('state') not in ('observation', 'calculation', 'conditional model', 'calibration', 'reproduction',
-                                  'identity', 'sensitivity', 'documented', 'finding'):
+                                  'identity', 'sensitivity', 'documented', 'finding', 'similarity',
+                                  'benchmark'):
             errors.append(f"claim {cid}: unknown evidence state {c.get('state')!r}")
     unused = sorted(set(register) - used_claims)
     print(f'{len(files)} TeX files; {len(cited)} cited keys of {len(keys)} in references.bib; '

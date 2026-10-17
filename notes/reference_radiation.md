@@ -120,7 +120,9 @@ widening of its shells. The ledger records three masses for the design column (`
 | Spherical shells | 84,876 kg/m² |
 | PlaSim's constant-gravity ps/gs | 74,861 kg/m² |
 
-This model therefore sits between the GCM's constant-gravity column and the true geometry.
+This model therefore sits between the GCM's constant-gravity column and the true geometry. The ledger's column stands at a
+moist surface pressure of 123,596 Pa against the GCM's dry 121,590 Pa; against its own ps/gs (76,096 kg/m²) the
+flat column holds 5.5% more air and the spherical shells 11.5% more over each square metre of ground.
 
 ### 1.3 Where the GCM and CM1 work uses it
 
