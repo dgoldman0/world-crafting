@@ -1,0 +1,21 @@
+--- a/src/param.F	2026-10-17 14:56:05.992767527 -0400
++++ b/src/param.F	2026-10-17 14:56:06.014767124 -0400
+@@ -1208,7 +1208,8 @@
+         doimpl = 0
+       ENDIF
+       !-----
+-      IF( do_lsnudge .and. (do_lsnudge_u .or. do_lsnudge_v .or. do_lsnudge_th) .and. irdamp.eq.1 )THEN
++      IF( do_lsnudge .and. (do_lsnudge_u .or. do_lsnudge_v .or. do_lsnudge_th) .and. irdamp.eq.1 &
++          .and. .not. terrain_flag )THEN   ! Terluna: over terrain the Rayleigh layer damps toward the initial state
+         if(myid.eq.0)then
+         print *,'  -------------------------------- '
+         print *
+@@ -5187,7 +5188,7 @@
+       IF( var13.gt.0.5 ) dolsw = .true.   ! Terluna: large-scale vertical wind from terluna_wls.txt
+ 
+       if( dolsw )then
+-        if( terrain_flag  .or.  axisymm.eq.1  )then
++        if( axisymm.eq.1 )then   ! Terluna: large-scale vertical wind allowed over terrain
+           print *
+           print *,'  Cannot use large-scale vertical velocity with terrain or axisymmetric model '
+           print *

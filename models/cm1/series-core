@@ -1,0 +1,17 @@
+patches/core/01-gravity-set-at-build-time.patch
+patches/core/02-gravity-for-rrtmg.patch
+patches/core/03-gravity-for-cape.patch
+patches/core/04-fall-speeds-at-the-host-gravity.patch
+patches/core/05-a-solar-day-of-var19-s.patch
+patches/core/06-the-design-air-longwave.patch
+patches/core/07-the-design-air-shortwave.patch
+patches/core/08-land-and-water-along-x.patch
+patches/core/09-above-var14-m-only.patch
+patches/core/10-large-scale-vertical-wind-from-terluna-wls-txt.patch
+patches/core/11-the-large-scale-vertical-wind-from-terluna-wls-t.patch
+patches/core/12-large-scale-vertical-wind-by-column.patch
+patches/core/13-large-scale-vertical-advection-as-in-wsub.patch
+patches/core/14-w-by-column.patch
+patches/core/15-the-coriolis-parameter-along-a-great-circle.patch
+patches/core/16-acting-on-departures-from-the-base-state-wind.patch
+patches/core/17-large-scale-horizontal-advection-by-local-time.patch

@@ -1,0 +1,122 @@
+--- a/src/morrison.F	2026-09-10 15:39:12.372523020 -0400
++++ b/src/morrison.F	2026-10-17 14:56:05.934768590 -0400
+@@ -182,6 +182,7 @@
+ 
+      REAL, PRIVATE ::      AI,AC,AS,AR,AG ! 'A' PARAMETER IN FALLSPEED-DIAM RELATIONSHIP
+      REAL, PRIVATE ::      BI,BC,BS,BR,BG ! 'B' PARAMETER IN FALLSPEED-DIAM RELATIONSHIP
++     REAL, PRIVATE ::      VCAPR,VCAPS,VCAPG,VCAPI ! Terluna: fall-speed caps
+      REAL, PRIVATE ::      R           ! GAS CONSTANT FOR AIR
+      REAL, PRIVATE ::      RV          ! GAS CONSTANT FOR WATER VAPOR
+      REAL, PRIVATE ::      CP          ! SPECIFIC HEAT AT CONSTANT PRESSURE FOR DRY AIR
+@@ -302,6 +303,7 @@
+ 
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ SUBROUTINE GRAUPEL_INIT(cm1hail,cm1inum,cm1ndcnst,cm1db)
++      use constants, only : terluna_g_host => g
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ ! THIS SUBROUTINE INITIALIZES ALL PHYSICAL CONSTANTS AMND PARAMETERS 
+ ! NEEDED BY THE MICROPHYSICS SCHEME.
+@@ -458,6 +460,18 @@
+ ! AA revision 4/1/11
+          F2R = 0.308
+          G = 9.81
++         ! Terluna: fall speeds at the host gravity. A regime V = A D^B has Re ~ X^((B+1)/3) with the
++         ! Best number X proportional to g, so V ~ g^((B+1)/3) at a fixed size; the Stokes law for
++         ! cloud droplets takes G itself. The caps on mean fall speeds scale the same way.
++         G = terluna_g_host
++         AI = AI*(G/9.81)**((BI+1.)/3.)
++         AS = AS*(G/9.81)**((BS+1.)/3.)
++         AR = AR*(G/9.81)**((BR+1.)/3.)
++         AG = AG*(G/9.81)**((BG+1.)/3.)
++         VCAPR = 9.1*(G/9.81)**((BR+1.)/3.)
++         VCAPS = 1.2*(G/9.81)**((BS+1.)/3.)
++         VCAPG = 20.*(G/9.81)**((BG+1.)/3.)
++         VCAPI = 1.2*(G/9.81)**((BI+1.)/3.)
+          QSMALL = 1.E-14
+          QTHR = 1.E-10
+          EII = 0.1
+@@ -2148,10 +2162,10 @@
+ ! SET REASLISTIC LIMITS ON FALLSPEEDS
+ ! bug fix, 10/08/09
+             dum=(rhosu/rho(k))**0.54
+-            UMS=MIN(UMS,1.2*dum)
+-            UNS=MIN(UNS,1.2*dum)
+-            UMR=MIN(UMR,9.1*dum)
+-            UNR=MIN(UNR,9.1*dum)
++            UMS=MIN(UMS,VCAPS*dum)
++            UNS=MIN(UNS,VCAPS*dum)
++            UMR=MIN(UMR,VCAPR*dum)
++            UNR=MIN(UNR,VCAPR*dum)
+ 
+ ! hm fix, 3/4/13
+ ! for above freezing conditions to get accelerated melting of snow,
+@@ -2193,10 +2207,10 @@
+ ! SET REASLISTIC LIMITS ON FALLSPEEDS
+ ! bug fix, 10/08/09
+             dum=(rhosu/rho(k))**0.54
+-            UMG=MIN(UMG,20.*dum)
+-            UNG=MIN(UNG,20.*dum)
+-            UMR=MIN(UMR,9.1*dum)
+-            UNR=MIN(UNR,9.1*dum)
++            UMG=MIN(UMG,VCAPG*dum)
++            UNG=MIN(UNG,VCAPG*dum)
++            UMR=MIN(UMR,VCAPR*dum)
++            UNR=MIN(UNR,VCAPR*dum)
+ 
+ ! PRACG IS MIXING RATIO OF RAIN PER SEC COLLECTED BY GRAUPEL/HAIL
+             PRACG(K) = CONS41*(((1.2*UMR-0.95*UMG)**2+                   &
+@@ -3267,10 +3281,10 @@
+ ! SET REASLISTIC LIMITS ON FALLSPEEDS
+ ! bug fix, 10/08/09
+             dum=(rhosu/rho(k))**0.54
+-            UMS=MIN(UMS,1.2*dum)
+-            UNS=MIN(UNS,1.2*dum)
+-            UMR=MIN(UMR,9.1*dum)
+-            UNR=MIN(UNR,9.1*dum)
++            UMS=MIN(UMS,VCAPS*dum)
++            UNS=MIN(UNS,VCAPS*dum)
++            UMR=MIN(UMR,VCAPR*dum)
++            UNR=MIN(UNR,VCAPR*dum)
+ 
+             PRACS(K) = CONS41*(((1.2*UMR-0.95*UMS)**2+                   &
+                   0.08*UMS*UMR)**0.5*RHO(K)*                      &
+@@ -3323,10 +3337,10 @@
+ ! SET REASLISTIC LIMITS ON FALLSPEEDS
+ ! bug fix, 10/08/09
+             dum=(rhosu/rho(k))**0.54
+-            UMG=MIN(UMG,20.*dum)
+-            UNG=MIN(UNG,20.*dum)
+-            UMR=MIN(UMR,9.1*dum)
+-            UNR=MIN(UNR,9.1*dum)
++            UMG=MIN(UMG,VCAPG*dum)
++            UNG=MIN(UNG,VCAPG*dum)
++            UMR=MIN(UMR,VCAPR*dum)
++            UNR=MIN(UNR,VCAPR*dum)
+ 
+             PRACG(K) = CONS41*(((1.2*UMR-0.95*UMG)**2+                   &
+                   0.08*UMG*UMR)**0.5*RHO(K)*                      &
+@@ -4601,16 +4615,16 @@
+ 
+ ! bug fix, 10/08/09
+         dum=(rhosu/rho(k))**0.54
+-        UMS=MIN(UMS,1.2*dum)
+-        UNS=MIN(UNS,1.2*dum)
++        UMS=MIN(UMS,VCAPS*dum)
++        UNS=MIN(UNS,VCAPS*dum)
+ ! v3 5/27/11
+ ! fix for correction by AA 4/6/11
+-        UMI=MIN(UMI,1.2*(rhosu/rho(k))**0.35)
+-        UNI=MIN(UNI,1.2*(rhosu/rho(k))**0.35)
+-        UMR=MIN(UMR,9.1*dum)
+-        UNR=MIN(UNR,9.1*dum)
+-        UMG=MIN(UMG,20.*dum)
+-        UNG=MIN(UNG,20.*dum)
++        UMI=MIN(UMI,VCAPI*(rhosu/rho(k))**0.35)
++        UNI=MIN(UNI,VCAPI*(rhosu/rho(k))**0.35)
++        UMR=MIN(UMR,VCAPR*dum)
++        UNR=MIN(UNR,VCAPR*dum)
++        UMG=MIN(UMG,VCAPG*dum)
++        UNG=MIN(UNG,VCAPG*dum)
+ 
+       FR(K) = UMR
+       FI(K) = UMI

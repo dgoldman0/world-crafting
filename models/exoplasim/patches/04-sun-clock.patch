@@ -1,0 +1,45 @@
+--- a/plasim/src/radmod.f90	2026-10-17 14:54:13.237834715 -0400
++++ b/plasim/src/radmod.f90	2026-10-17 14:54:13.270834110 -0400
+@@ -117,6 +117,7 @@
+       real :: zsolar2 = 0.483    ! spectral partitioning 2 (wl > 0.75mue)
+       real :: rcoeff = 1.0       ! Rayleigh scattering coefficient for cross section dependence
+       real :: rayscale = 1.0     ! Terluna: multiplier on rcoeff, calibrated against line-by-line
++      integer :: nsunclock = 0   ! Terluna: the Sun's clock (0 PlaSim's, 1 a turn per model day, 2 synodic)
+       
+ !
+ !     2.5 orbital parameters
+@@ -610,7 +611,7 @@
+      &               ,a0o3,a1o3,aco3,bo3,co3,toffo3,o3scale,newrsc,necham,necham6   &
+      &               ,nsol,nclouds,nswrcl,nrscat,rcl1,rcl2,acl2,clgray,tpofmt   &
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+-     &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale
++     &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -795,6 +796,7 @@
+       call mpbci(nstarfile)
+       call mpbcr(minwavel)
+       call mpbcr(rayscale)
++      call mpbci(nsunclock)
+       
+       call mpbci(l_aerorad)
+ 
+@@ -1395,6 +1397,9 @@
+       zdawn = sin(dawn * PI / 180.0) ! compute dawn/dusk angle 
+       zrlon = TWOPI / NLON           ! scale lambda to radians
+       zrtim = rotspd * TWOPI / 1440.0         ! scale time   to radians
++      if (nsunclock == 1) zrtim = TWOPI / (ntspd * mpstep) ! Terluna: one turn per model day
++      if (nsunclock == 2) zturns = mod(real(nstep) * mpstep * 60.0                              &
++     &    * (1.0 / sidereal_day - 1.0 / sidereal_year), 1.0) ! Terluna: synodic turns since step 0
+       zmins = ihou * 60 + imin
+       
+       if (nfixed==1) then
+@@ -1411,6 +1416,7 @@
+          jhor = jhor + 1
+          zhangle = zmins * zrtim + jlon * zrlon - PI
+          if (ngenkeplerian==1) zhangle = zhangle - rasc
++         if (nsunclock == 2) zhangle = zturns * TWOPI + jlon * zrlon - PI ! Terluna: synodic clock
+          if (zhangle < -PI) zhangle = zhangle + TWOPI
+          if (zhangle > PI) zhangle = zhangle - TWOPI
+          

@@ -1,0 +1,21 @@
+--- a/src/init3d.F	2026-09-22 09:07:34.402474623 -0400
++++ b/src/init3d.F	2026-10-17 14:56:06.182764045 -0400
+@@ -345,15 +345,15 @@
+       do i=ibp,iep
+         if(n.eq.1)then
+           pta(i,j,k,n)=0.0
+-          if(zh(i,j,k).lt.3000.0) pta(i,j,k,n)=0.001
++          if(zh(i,j,k).lt.3000.0) pta(i,j,k,n)=0.0   ! Terluna: the tracers carry charge
+         endif
+         if(n.eq.2)then
+           pta(i,j,k,n)=0.0
+-          if(zh(i,j,k).gt.3000.0.and.zh(i,j,k).lt.6000.0) pta(i,j,k,n)=0.001
++          if(zh(i,j,k).gt.3000.0.and.zh(i,j,k).lt.6000.0) pta(i,j,k,n)=0.0   ! Terluna: the tracers carry charge
+         endif
+         if(n.eq.3)then
+           pta(i,j,k,n)=0.0
+-          if(zh(i,j,k).gt.6000.0.and.zh(i,j,k).lt.9000.0) pta(i,j,k,n)=0.001
++          if(zh(i,j,k).gt.6000.0.and.zh(i,j,k).lt.9000.0) pta(i,j,k,n)=0.0   ! Terluna: the tracers carry charge
+         endif
+       enddo
+       enddo

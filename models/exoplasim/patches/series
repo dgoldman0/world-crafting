@@ -1,0 +1,10 @@
+01-rayleigh-scale.patch
+02-cloud-water-gravity.patch
+03-convective-day.patch
+04-sun-clock.patch
+05-water-shortwave-absorptivity.patch
+06-top-infrared.patch
+07-curved-air.patch
+08-gas-bands.patch
+09-longwave-by-height.patch
+10-ice-optics.patch

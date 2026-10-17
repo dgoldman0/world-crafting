@@ -1,0 +1,135 @@
+--- a/plasim/src/radmod.f90	2026-10-17 14:54:13.277833982 -0400
++++ b/plasim/src/radmod.f90	2026-10-17 14:54:13.280833927 -0400
+@@ -132,6 +132,10 @@
+       integer :: ntwilw = 0      ! Terluna: 1 adds the curved air's extra infrared escape (twilight.dat)
+       real :: twlw(NLEV+1) = 0.0 ! Terluna: extra infrared to space from each layer and the ground
+       real :: twlt(NLEV+1) = 0.0 ! Terluna: the temperatures it is given at
++      integer :: ngasbands = 0   ! Terluna: 1 adds CO2 and O2 to the sunlight's absorbers
++      real :: zgasq(5,3) = 0.0   ! Terluna: their fits (a, b, c, d, n): CO2 and O2 near infrared, O2 visible
++      real :: zgasw(2) = 0.0     ! Terluna: the mass fractions of CO2 and O2
++      real :: zmairlunar(3) = 0.0 ! Terluna: the Moon's slant factor for well-mixed air (0: the water's)
+       
+ !
+ !     2.5 orbital parameters
+@@ -626,7 +630,7 @@
+      &               ,nsol,nclouds,nswrcl,nrscat,rcl1,rcl2,acl2,clgray,tpofmt   &
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+      &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale,irtopday,irtopnight  &
+-     &               ,ntwilight,zmlunar,ntwilw
++     &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -818,6 +822,10 @@
+       call mpbci(ntwilight)
+       call mpbcrn(zmlunar,3)
+       call mpbci(ntwilw)
++      call mpbci(ngasbands)   ! Terluna: CO2 and O2 in the sunlight
++      call mpbcrn(zgasq,15)
++      call mpbcrn(zgasw,2)
++      call mpbcrn(zmairlunar,3)
+       if (ntwilight == 1 .or. ntwilw == 1) then   ! Terluna: the curved air's twilight table
+        if (mypid == NROOT) then
+         open(47,file='twilight.dat',form='formatted',status='old')
+@@ -1661,6 +1669,9 @@
+       real zywvt(NHOR)             ! total effective water vapor amount (top-sfc)
+       real ztwv(NHOR),ztwvu(NHOR)  ! water vapor trasmissivity (d/u)
+       real ztwvt(NHOR),ztwvtu(NHOR)! total water vapor transmissivities (d/u)
++      real zgu(NHOR,3),zgut(NHOR,3),zgyt(NHOR,3)  ! Terluna: CO2 and O2 paths: layer, total, effective total
++      real zgul(NHOR,NLEV,3),zgyl(NHOR,NLEV,3)   ! Terluna: their amounts above each layer's bottom
++      real ztgt(NHOR,3),ztgtu(NHOR,3),ztg(NHOR),ztgu(NHOR),zgp(NHOR),zmg(NHOR)
+ !
+       real zra1(NHOR),zra2(NHOR)   ! reflexivities combined layer (direct)
+       real zra1s(NHOR),zra2s(NHOR) ! reflexivities combined layer (scatterd)
+@@ -1833,6 +1844,15 @@
+        zxo3t(:)=0.
+        zwvt(:)=0.
+        zywvt(:)=0.
++       zmg(:)=merge((zmu0(:)+zmairlunar(1))                                   &
++     &             /max(zmu0(:)*zmu0(:)+zmairlunar(2)*zmu0(:)+zmairlunar(3),1.e-12) &
++     &             ,zm(:),zmairlunar(3) > 0.) ! Terluna: the slant path for CO2 and O2
++       zgut(:,1)=0.
++       zgyt(:,1)=0.
++       zgut(:,2)=0.
++       zgyt(:,2)=0.
++       zgut(:,3)=0.
++       zgyt(:,3)=0.
+       endwhere
+       do jlev=1,NLEV
+        where(losun(:))
+@@ -1849,6 +1869,21 @@
+      &          +(1.-zcs(:))*(zywvt(:)+zbetta*zwv(:))
+         zwvl(:,jlev)=zwvt(:)
+         zywvl(:,jlev)=zywvt(:)
++        zgu(:,1)=dsigma(jlev)*dp(:)/ga*zgasw(1)*(sigma(jlev)*dp(:)/1.e5)**zgasq(5,1)
++        zgut(:,1)=zgut(:,1)+zgu(:,1)
++        zgyt(:,1)=zcs(:)*(zgyt(:,1)+zmg(:)*zgu(:,1))+(1.-zcs(:))*(zgyt(:,1)+zbetta*zgu(:,1))
++        zgul(:,jlev,1)=zgut(:,1)
++        zgyl(:,jlev,1)=zgyt(:,1)
++        zgu(:,2)=dsigma(jlev)*dp(:)/ga*zgasw(2)*(sigma(jlev)*dp(:)/1.e5)**zgasq(5,2)
++        zgut(:,2)=zgut(:,2)+zgu(:,2)
++        zgyt(:,2)=zcs(:)*(zgyt(:,2)+zmg(:)*zgu(:,2))+(1.-zcs(:))*(zgyt(:,2)+zbetta*zgu(:,2))
++        zgul(:,jlev,2)=zgut(:,2)
++        zgyl(:,jlev,2)=zgyt(:,2)
++        zgu(:,3)=dsigma(jlev)*dp(:)/ga*zgasw(2)*(sigma(jlev)*dp(:)/1.e5)**zgasq(5,3)
++        zgut(:,3)=zgut(:,3)+zgu(:,3)
++        zgyt(:,3)=zcs(:)*(zgyt(:,3)+zmg(:)*zgu(:,3))+(1.-zcs(:))*(zgyt(:,3)+zbetta*zgu(:,3))
++        zgul(:,jlev,3)=zgut(:,3)
++        zgyl(:,jlev,3)=zgyt(:,3)
+         zcs(:)=zcs(:)*(1.-dcc(:,jlev)*nclouds)
+         zrcs(:,jlev) = (aa/(1.+bb*zmu0(:))*zcs+c0*(1.-zcs(:)-dcc(:,NLEV)*nclouds))   &
+      &                  *dsigma(jlev)*(dp(:)/101100.0)*(9.80665/ga)*nrscat*newrsc
+@@ -1960,6 +1995,15 @@
+        zwv(:)=zywvt(:)+zbetta*zwvt(:)
+        ztwvtu(:)=max(0.001,1.-swh2oscale*2.9*zwv(:)/((1.+141.5*zwv(:))**0.635+5.925*zwv(:))  &
+      &            /zsolar2) ! Terluna: calibrated absorptivity
++       ztgt(:,1)=1.
++       zgp(:)=zgyt(:,1)+zbetta*zgut(:,1)
++       ztgtu(:,1)=1.-zgasq(1,1)*zgp(:)/((1.+zgasq(2,1)*zgp(:))**zgasq(3,1)+zgasq(4,1)*zgp(:))
++       ztgt(:,2)=1.
++       zgp(:)=zgyt(:,2)+zbetta*zgut(:,2)
++       ztgtu(:,2)=1.-zgasq(1,2)*zgp(:)/((1.+zgasq(2,2)*zgp(:))**zgasq(3,2)+zgasq(4,2)*zgp(:))
++       ztgt(:,3)=1.
++       zgp(:)=zgyt(:,3)+zbetta*zgut(:,3)
++       ztgtu(:,3)=1.-zgasq(1,3)*zgp(:)/((1.+zgasq(2,3)*zgp(:))**zgasq(3,3)+zgasq(4,3)*zgp(:))
+ !
+ !     clear sky scattering (Rayleigh scatterin lower most level only)
+ !
+@@ -2021,6 +2065,14 @@
+      &              +1.082*zo3(:)/((1.+138.6*zo3(:))**0.805)            &
+      &              +0.0658*zo3(:)/(1.+(103.6*zo3(:))**3))/zsolar1)
+         zto3tu(:)=zto3tu(:)/zto3u(:)
++        zgp(:)=zgyl(:,jlev,3)
++        ztg(:)=(1.-zgasq(1,3)*zgp(:)/((1.+zgasq(2,3)*zgp(:))**zgasq(3,3)+zgasq(4,3)*zgp(:)))/ztgt(:,3)
++        ztgt(:,3)=ztgt(:,3)*ztg(:)
++        zgp(:)=zgyt(:,3)+zbetta*(zgut(:,3)-zgul(:,jlev,3))
++        ztgu(:)=ztgtu(:,3)/(1.-zgasq(1,3)*zgp(:)/((1.+zgasq(2,3)*zgp(:))**zgasq(3,3)+zgasq(4,3)*zgp(:)))
++        ztgtu(:,3)=ztgtu(:,3)/ztgu(:)
++        zto3(:)=zto3(:)*ztg(:)
++        zto3u(:)=zto3u(:)*ztgu(:)
+ !
+ !     total T = 1-(A(ozon)+R(rayl.))*(1-dcc)-R(cloud)*dcc
+ !
+@@ -2065,6 +2117,22 @@
+      &         /max(0.001,1.-swh2oscale*2.9*zwv(:)/((1.+141.5*zwv(:))**0.635+5.925*zwv(:))  &
+      &            /zsolar2)
+        ztwvtu(:)=ztwvtu(:)/ztwvu(:)
++        zgp(:)=zgyl(:,jlev,1)
++        ztg(:)=(1.-zgasq(1,1)*zgp(:)/((1.+zgasq(2,1)*zgp(:))**zgasq(3,1)+zgasq(4,1)*zgp(:)))/ztgt(:,1)
++        ztgt(:,1)=ztgt(:,1)*ztg(:)
++        zgp(:)=zgyt(:,1)+zbetta*(zgut(:,1)-zgul(:,jlev,1))
++        ztgu(:)=ztgtu(:,1)/(1.-zgasq(1,1)*zgp(:)/((1.+zgasq(2,1)*zgp(:))**zgasq(3,1)+zgasq(4,1)*zgp(:)))
++        ztgtu(:,1)=ztgtu(:,1)/ztgu(:)
++        ztwv(:)=ztwv(:)*ztg(:)
++        ztwvu(:)=ztwvu(:)*ztgu(:)
++        zgp(:)=zgyl(:,jlev,2)
++        ztg(:)=(1.-zgasq(1,2)*zgp(:)/((1.+zgasq(2,2)*zgp(:))**zgasq(3,2)+zgasq(4,2)*zgp(:)))/ztgt(:,2)
++        ztgt(:,2)=ztgt(:,2)*ztg(:)
++        zgp(:)=zgyt(:,2)+zbetta*(zgut(:,2)-zgul(:,jlev,2))
++        ztgu(:)=ztgtu(:,2)/(1.-zgasq(1,2)*zgp(:)/((1.+zgasq(2,2)*zgp(:))**zgasq(3,2)+zgasq(4,2)*zgp(:)))
++        ztgtu(:,2)=ztgtu(:,2)/ztgu(:)
++        ztwv(:)=ztwv(:)*ztg(:)
++        ztwvu(:)=ztwvu(:)*ztgu(:)
+ !
+ !     total T = 1-A(water vapor)*(1.-dcc)-(A(cloud)+R(cloud))*dcc
+ !

@@ -1,0 +1,29 @@
+--- a/src/param.F	2026-10-17 14:56:05.975767839 -0400
++++ b/src/param.F	2026-10-17 14:56:05.992767527 -0400
+@@ -765,7 +765,7 @@
+ 
+       ! Cannot use beta plane for axisymmetric simulations, 
+       ! or 2d (x,z) simulations:
+-      if( axisymm.eq.1 .or. ny.le.3 )  betaplane = 0
++      if( axisymm.eq.1 .or. ( ny.le.3 .and. var12.le.0.0 ) )  betaplane = 0   ! Terluna: kept on a tilted ring, where f varies along x
+ 
+       if(imove.eq.0) umove=0.0
+       if(imove.eq.0) vmove=0.0
+@@ -9728,6 +9728,17 @@
+ 
+       endif
+ 
++      if( var12.gt.0.0 )then
++        ! Terluna: the Coriolis parameter along a great circle tilted var12 degrees to the equator, x from its
++        ! northward equator crossing and var16 m round: fcor (twice the rotation rate) times sin(latitude)
++        do j=jb,je
++        do i=ib,ie
++          f2d(i,j) = fcor*sin(var12*pi/180.0)*sin(2.0*pi*xh(i)/var16)
++        enddo
++        enddo
++        if( myid.eq.0 ) print *,'  Terluna tilted ring: f2d at columns 1 and ni/4: ',f2d(1,1),f2d(max(1,ni/4),1)
++      endif
++
+     if( lspgrad.eq.3 )then
+       ! for lspgrad = 3
+       hurr_angle = dble(hurr_rotate) * ( pi_dp / 180.0d0 )

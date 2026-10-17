@@ -1,0 +1,180 @@
+--- a/plasim/src/radmod.f90	2026-10-17 14:54:13.275834018 -0400
++++ b/plasim/src/radmod.f90	2026-10-17 14:54:13.277833982 -0400
+@@ -121,6 +121,17 @@
+       real :: swh2oscale = 1.0   ! Terluna: multiplier on water vapour's shortwave absorptivity
+       real :: irtopday = 0.0     ! Terluna: infrared from space at the top of the air by day, W/m2
+       real :: irtopnight = 0.0   ! Terluna: and by night
++      integer :: ntwilight = 0   ! Terluna: 1 adds the curved air's twilight and side light (twilight.dat)
++      real :: zmlunar(3) = 0.0   ! Terluna: the Moon's slant water path (mu+a)/(mu^2+b mu+c); 0 keeps Earth's
++      integer, parameter :: NTWLMAX = 400 ! Terluna: elevations the twilight table may hold
++      integer :: ntwl = 0        ! Terluna: elevations it holds
++      real :: twlel(NTWLMAX) = 0.0       ! Terluna: solar elevation, degrees
++      real :: twlg(NTWLMAX) = 0.0        ! Terluna: added to the ground, per unit sunlight at the beam
++      real :: twlq(NLEV,NTWLMAX) = 0.0   ! Terluna: added to each layer, the same
++      real :: gmuz(NHOR) = 0.0   ! Terluna: cosine of the solar zenith angle, below the horizon too
++      integer :: ntwilw = 0      ! Terluna: 1 adds the curved air's extra infrared escape (twilight.dat)
++      real :: twlw(NLEV+1) = 0.0 ! Terluna: extra infrared to space from each layer and the ground
++      real :: twlt(NLEV+1) = 0.0 ! Terluna: the temperatures it is given at
+       
+ !
+ !     2.5 orbital parameters
+@@ -614,7 +625,8 @@
+      &               ,a0o3,a1o3,aco3,bo3,co3,toffo3,o3scale,newrsc,necham,necham6   &
+      &               ,nsol,nclouds,nswrcl,nrscat,rcl1,rcl2,acl2,clgray,tpofmt   &
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+-     &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale,irtopday,irtopnight
++     &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale,irtopday,irtopnight  &
++     &               ,ntwilight,zmlunar,ntwilw
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -803,6 +815,28 @@
+       call mpbcr(swh2oscale)
+       call mpbcr(irtopday)
+       call mpbcr(irtopnight)
++      call mpbci(ntwilight)
++      call mpbcrn(zmlunar,3)
++      call mpbci(ntwilw)
++      if (ntwilight == 1 .or. ntwilw == 1) then   ! Terluna: the curved air's twilight table
++       if (mypid == NROOT) then
++        open(47,file='twilight.dat',form='formatted',status='old')
++        read(47,*) ntwl
++        if (ntwl < 2 .or. ntwl > NTWLMAX) stop 'twilight.dat: too few or too many elevations'
++        do jtwl = 1, ntwl
++         read(47,*) twlel(jtwl),twlg(jtwl),(twlq(jlev,jtwl),jlev=1,NLEV)
++        enddo
++        read(47,*) (twlw(jlev),jlev=1,NLEV+1)
++        read(47,*) (twlt(jlev),jlev=1,NLEV+1)
++        close(47)
++       endif
++       call mpbci(ntwl)
++       call mpbcrn(twlel,NTWLMAX)
++       call mpbcrn(twlg,NTWLMAX)
++       call mpbcrn(twlq,NLEV*NTWLMAX)
++       call mpbcrn(twlw,NLEV+1)
++       call mpbcrn(twlt,NLEV+1)
++      endif
+       
+       call mpbci(l_aerorad)
+ 
+@@ -1399,6 +1433,7 @@
+ !**   3) compute zenith angle
+ !
+       gmu0(:) = 0.0
++      gmuz(:) = 0.0 ! Terluna: the cosine below the horizon too
+       zmuz    = 0.0
+       zdawn = sin(dawn * PI / 180.0) ! compute dawn/dusk angle 
+       zrlon = TWOPI / NLON           ! scale lambda to radians
+@@ -1430,6 +1465,7 @@
+          
+          zmuz=sin(zdecl)*sid(jlat)+cola(jlat)*cos(zdecl)*cos(zhangle)
+          if (zmuz > zdawn) gmu0(jhor) = zmuz
++         gmuz(jhor) = zmuz
+         enddo
+        enddo
+       else
+@@ -1447,6 +1483,7 @@
+           zmuz=solslatsdec+solclatcdec/PI
+          endif
+          if (zmuz > zdawn) gmu0(jhor) = zmuz
++         gmuz(jhor) = zmuz
+         enddo
+        enddo
+       endif
+@@ -1785,6 +1822,9 @@
+ !
+       where(losun(:))
+        zm(:)=35./SQRT(1.+1224.*zmu0(:)*zmu0(:))
++       zm(:)=merge((zmu0(:)+zmlunar(1))                                       &
++     &            /max(zmu0(:)*zmu0(:)+zmlunar(2)*zmu0(:)+zmlunar(3),1.e-12)    &
++     &            ,zm(:),zmlunar(3) > 0.) ! Terluna: the Moon's slant path
+ !
+ !     absorber amount and clear sky fraction
+ !
+@@ -2127,9 +2167,51 @@
+        endwhere
+       enddo
+ !
++      if (ntwilight == 1) call twilight_term ! Terluna: the curved air's twilight and side light
+       return
+       end subroutine swr
+ 
++      subroutine twilight_term
++      use radmod
++      implicit none
++!
++!     Terluna: the sunlight the Moon's curved air adds to the flat column (climate/gcm/twilight.py), by the
++!     solar elevation at each point, below the horizon too: to each layer and, in the column's clear share,
++!     to the ground, carried down from the top as net downward flux
++!
++      integer :: jhor, jlev, jlo, jhi, jmid
++      real :: zel, zu, zsum, zclear, zsun
++      zsun = gsol0 * gdist2
++      do jhor = 1, NHOR
++       zel = asin(max(-1.0, min(1.0, gmuz(jhor)))) * 180.0 / PI
++       if (zel < twlel(1) .or. zel > twlel(ntwl)) cycle
++       jlo = 1
++       jhi = ntwl
++       do while (jhi - jlo > 1)
++        jmid = (jlo + jhi) / 2
++        if (twlel(jmid) > zel) then
++         jhi = jmid
++        else
++         jlo = jmid
++        endif
++       enddo
++       zu = (zel - twlel(jlo)) / (twlel(jhi) - twlel(jlo))
++       zclear = 1.0
++       do jlev = 1, NLEV
++        zclear = zclear * (1.0 - dcc(jhor,jlev) * nclouds)
++       enddo
++       zsum = zsun * ((1.0 - zu) * twlg(jlo) + zu * twlg(jhi)) * zclear
++       dswfl(jhor,NLEP) = dswfl(jhor,NLEP) + zsum
++       dfd(jhor,NLEP) = dfd(jhor,NLEP) + zsum
++       do jlev = NLEV, 1, -1
++        zsum = zsum + zsun * ((1.0 - zu) * twlq(jlev,jlo) + zu * twlq(jlev,jhi))
++        dswfl(jhor,jlev) = dswfl(jhor,jlev) + zsum
++        dfd(jhor,jlev) = dfd(jhor,jlev) + zsum
++       enddo
++      enddo
++      return
++      end subroutine twilight_term
++
+ !     ==============
+ !     SUBROUTINE LWR
+ !     ==============
+@@ -2471,10 +2553,34 @@
+ !     total longwave radiation
+ !
+       dlwfl(:,:)=dftu(:,:)+dftd(:,:)
++      if (ntwilw == 1) call twilight_lw ! Terluna: the curved air's extra infrared escape
+ !
+       return
+       end subroutine lwr
+ 
++      subroutine twilight_lw
++      use radmod
++      implicit none
++!
++!     Terluna: the infrared the Moon's curved air loses beyond a flat column (climate/gcm/twilight.py): each
++!     layer's and the ground's extra escape to space at the design column's temperatures, scaled with their
++!     own to the fourth power, carried up to the top as upward flux (negative in PlaSim)
++!
++      integer :: jhor, jlev
++      real :: zsum
++      do jhor = 1, NHOR
++       zsum = twlw(NLEP) * (dt(jhor,NLEP) / twlt(NLEP))**4
++       dftu(jhor,NLEP) = dftu(jhor,NLEP) - zsum
++       dlwfl(jhor,NLEP) = dlwfl(jhor,NLEP) - zsum
++       do jlev = NLEV, 1, -1
++        zsum = zsum + twlw(jlev) * (dt(jhor,jlev) / twlt(jlev))**4
++        dftu(jhor,jlev) = dftu(jhor,jlev) - zsum
++        dlwfl(jhor,jlev) = dlwfl(jhor,jlev) - zsum
++       enddo
++      enddo
++      return
++      end subroutine twilight_lw
++
+ !     **********************
+ !     Generic Orbit Routines
+ !     **********************

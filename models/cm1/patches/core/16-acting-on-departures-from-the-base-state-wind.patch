@@ -1,0 +1,20 @@
+--- a/src/solve2.F	2026-09-22 09:09:11.676075287 -0400
++++ b/src/solve2.F	2026-10-17 14:56:05.996767454 -0400
+@@ -719,12 +719,13 @@
+             do j=1,nj+1
+             do i=1,ni+1
+               ! beta plane:
++              ! Terluna: acting on departures from the base-state wind, whose balancing pressure gradient is implied
+               uten(i,j,k)=uten(i,j,k)+0.125*(f2d(i,j)+f2d(i-1,j))           &
+-                                           *( (v3d(i  ,j,k)+v3d(i  ,j+1,k)) &
+-                                             +(v3d(i-1,j,k)+v3d(i-1,j+1,k)) )
++                         *( (v3d(i  ,j,k)-v0(i  ,j,k)+v3d(i  ,j+1,k)-v0(i  ,j+1,k)) &
++                           +(v3d(i-1,j,k)-v0(i-1,j,k)+v3d(i-1,j+1,k)-v0(i-1,j+1,k)) )
+               vten(i,j,k)=vten(i,j,k)-0.125*(f2d(i,j)+f2d(i,j-1))           &
+-                                           *( (u3d(i,j  ,k)+u3d(i+1,j  ,k)) &
+-                                             +(u3d(i,j-1,k)+u3d(i+1,j-1,k)) )
++                         *( (u3d(i,j  ,k)-u0(i,j  ,k)+u3d(i+1,j  ,k)-u0(i+1,j  ,k)) &
++                           +(u3d(i,j-1,k)-u0(i,j-1,k)+u3d(i+1,j-1,k)-u0(i+1,j-1,k)) )
+             enddo
+             enddo
+             enddo

@@ -1,0 +1,10 @@
+--- a/src/init_surface.F	2026-10-17 14:56:06.022766978 -0400
++++ b/src/init_surface.F	2026-10-17 14:56:06.046766538 -0400
+@@ -177,6 +177,7 @@
+           do j=jb,je
+           do i=ib,ie
+             tsk(i,j) = terluna_tsk(modulo(floor(xh(i)/dx),terluna_nx)+1,modulo(floor(yh(j)/dy),terluna_ny)+1)
++            xland(i,j) = merge(2.0,1.0,terluna_lu(modulo(floor(xh(i)/dx),terluna_nx)+1,modulo(floor(yh(j)/dy),terluna_ny)+1).eq.16)   ! Terluna: the two-dimensional surface water columns are sea
+           enddo
+           enddo
+           do j=jbl,jel

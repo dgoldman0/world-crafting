@@ -1,0 +1,80 @@
+--- a/src/module_ra_rrtmg_lw.F	2026-09-17 14:45:04.294841882 -0400
++++ b/src/module_ra_rrtmg_lw.F	2026-10-17 14:56:05.951768279 -0400
+@@ -1,3 +1,10 @@
++#ifndef TERLUNA_CO2
++#define TERLUNA_CO2 400.e-6
++#endif
++#ifndef TERLUNA_O2
++#define TERLUNA_O2 0.209488
++#endif
++! Terluna: the design air, longwave
+ !MODULE module_ra_rrtmg_lw
+ 
+       module parkind
+@@ -11761,32 +11768,32 @@
+ !!!    data co2 / 348.e-6 /    ! rcemip
+ ! methane (1774 ppbv)
+     real :: ch4
+-    data ch4 / 1774.e-9 / 
++    data ch4 / 0.0 / 
+ !!!    data ch4 / 1650.e-9 /    ! rcemip
+ ! nitrous oxide (319 ppbv)
+     real :: n2o
+-    data n2o / 319.e-9 / 
++    data n2o / 0.0 / 
+ !!!    data n2o / 306.e-9 /    ! rcemip
+ ! cfc-11 (251 ppt)
+     real :: cfc11
+-    data cfc11 / 0.251e-9 / 
++    data cfc11 / 0.0 / 
+ !!!    data cfc11 / 0.0 /    ! rcemip
+ ! cfc-12 (538 ppt)
+     real :: cfc12
+-    data cfc12 / 0.538e-9 / 
++    data cfc12 / 0.0 / 
+ !!!    data cfc12 / 0.0 /    ! rcemip
+ #endif
+ ! cfc-22 (169 ppt)
+     real :: cfc22
+-    data cfc22 / 0.169e-9 / 
++    data cfc22 / 0.0 / 
+ !!!    data cfc22 / 0.0 /    ! rcemip
+ ! ccl4 (93 ppt)
+     real :: ccl4
+-    data ccl4 / 0.093e-9 / 
++    data ccl4 / 0.0 / 
+ !!!    data ccl4 / 0.0 /    ! rcemip
+ ! Set oxygen volume mixing ratio (for o2mmr=0.23143)
+     real :: o2
+-    data o2 / 0.209488 /
++    data o2 / TERLUNA_O2 /
+ 
+     integer :: iplon, irng, permuteseed
+     integer :: nb
+@@ -11906,7 +11913,7 @@
+ ! Pressures are in mb
+ !
+ ! Annual function for co2 in WRF v4.2
+-      co2 = (280. + 90.*exp(0.02*(yr-2000)))*1.e-6
++      co2 = TERLUNA_CO2
+       co2out = co2
+ 
+ !ccc Read time-varying trace gases concentrations and interpolate them to run date.
+@@ -12398,7 +12405,7 @@
+ ! Steven Cavallo: Changed to nlayers from kte+1
+         if(present(o33d)) then
+          do k = kts, nlayers
+-            o3vmr(ncol,k) = o3mmr(k) * amdo
++            o3vmr(ncol,k) = 0.0*o3mmr(k) * amdo
+             IF ( PRESENT( O33D ) ) THEN
+             if(o3input .eq. 2)then
+                if(k.le.kte)then
+@@ -12415,7 +12422,7 @@
+          enddo
+         else
+          do k = kts, nlayers
+-            o3vmr(ncol,k) = o3mmr(k) * amdo
++            o3vmr(ncol,k) = 0.0*o3mmr(k) * amdo
+          enddo
+         endif
+ 

@@ -1,0 +1,287 @@
+{
+ "schema": "world-crafting.cm1-builds/1",
+ "note": "Deployed builds checked 2026-10-17: applying the listed patches with GNU patch to pristine cm1r22.0 reproduces every Fortran source of moon_omp_twilight, moon_omp_terrain, moon_omp_terrain_sea, moon_omp_terrain_sea_twilight, moon_omp_earth_fall, moon_omp_elec, moon_omp_o3 and moon_omp_o3_strict; their Makefiles differ only in the build-label comment on the OPTS line. moon_omp was compiled on 2026-09-28 at -O2, before the -O3 default, and was never rebuilt. earth_g_omp_elec predates the 2026-10-06 ventilation scaling, which is the identity at Earth gravity. The MPI builds moon and earth_g (2026-09-26) predate core patches 10-17 and no recorded case ran them. moon_omp_o2 was never built.",
+ "compile": "make TERLUNA=\"-DTERLUNA_G=<g> -DTERLUNA_CO2=<mole fraction> -DTERLUNA_O2=<mole fraction>\"",
+ "builds": [
+  {
+   "label": "earth_g",
+   "gravity": "Earth 9.81",
+   "parallel": "mpi",
+   "compile_flags": "-O2 (CM1 default)",
+   "apply": [
+    "makefile-gnu-mpi.patch",
+    "series-core"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 9.81,
+    "optimization": "-O2 (CM1 default)",
+    "executable_sha256_16": "5750706af75179ca",
+    "cases_recorded": []
+   }
+  },
+  {
+   "label": "earth_g_omp",
+   "gravity": "Earth 9.81",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 9.81,
+    "optimization": "-O2 (CM1 default)",
+    "executable_sha256_16": "ea022cd2599d09bd",
+    "cases_recorded": [
+     "supercell_nssl"
+    ]
+   }
+  },
+  {
+   "label": "earth_g_omp_elec",
+   "gravity": "Earth 9.81",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "series-elec",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [
+    "WRF-ELEC elec/module_mp_nssl_2mom_elec.F -> src/module_mp_nssl_2mom.F",
+    "WRF-ELEC elec/module_discharge_msz.F",
+    "fortran/terluna_*.F"
+   ],
+   "deployed": {
+    "gravity_m_s2": 9.81,
+    "optimization": "-O3 -march=native",
+    "executable_sha256_16": "0decd94533568f34",
+    "cases_recorded": []
+   }
+  },
+  {
+   "label": "moon",
+   "gravity": "lunar GM/R^2",
+   "parallel": "mpi",
+   "compile_flags": "-O2 (CM1 default)",
+   "apply": [
+    "makefile-gnu-mpi.patch",
+    "series-core"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O2 (CM1 default)",
+    "executable_sha256_16": "d5e7b3d53888a126",
+    "cases_recorded": []
+   }
+  },
+  {
+   "label": "moon_omp",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O2 (CM1 default)",
+    "executable_sha256_16": "e7b9a4a0706891b7",
+    "cases_recorded": [
+     "ring_45n_corrected",
+     "ring_45n_corrected_sideways"
+    ]
+   }
+  },
+  {
+   "label": "moon_omp_earth_fall",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "series-earth-fall",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O3 -march=native",
+    "executable_sha256_16": "047bd5f0bbdedbc1",
+    "cases_recorded": [
+     "box_0e_small_earth_fall"
+    ]
+   }
+  },
+  {
+   "label": "moon_omp_elec",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "series-elec",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [
+    "WRF-ELEC elec/module_mp_nssl_2mom_elec.F -> src/module_mp_nssl_2mom.F",
+    "WRF-ELEC elec/module_discharge_msz.F",
+    "fortran/terluna_*.F"
+   ],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O3 -march=native",
+    "executable_sha256_16": "638b02a4dac2bd96",
+    "cases_recorded": [
+     "box_0e_elec_corrected",
+     "box_0e_elec_corrected_storms_first",
+     "box_0e_elec_corrected_storms_second"
+    ]
+   }
+  },
+  {
+   "label": "moon_omp_o2",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O2",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core"
+   ],
+   "whole_files": [],
+   "deployed": null
+  },
+  {
+   "label": "moon_omp_o3",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O3 -march=native",
+    "executable_sha256_16": "a14e2074bc9cc35c",
+    "cases_recorded": []
+   }
+  },
+  {
+   "label": "moon_omp_o3_strict",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native -ffp-contract=off -nostdinc",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O3 -march=native -ffp-contract=off -nostdinc -I/usr/lib/gcc/x86_64-linux-gnu/13/finclude -fintrinsic-modules-path /usr/lib/gcc/x86_64-linux-gnu/13/finclude",
+    "executable_sha256_16": "6dd20ed513a7dc24",
+    "cases_recorded": []
+   }
+  },
+  {
+   "label": "moon_omp_terrain",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "series-terrain",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O3 -march=native",
+    "executable_sha256_16": "2c2c275a777a579e",
+    "cases_recorded": [
+     "box_highland_own_height"
+    ]
+   }
+  },
+  {
+   "label": "moon_omp_terrain_sea",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "series-terrain",
+    "series-sea",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O3 -march=native",
+    "executable_sha256_16": "76d637f8df9bb40d",
+    "cases_recorded": []
+   }
+  },
+  {
+   "label": "moon_omp_terrain_sea_twilight",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "series-terrain",
+    "series-sea",
+    "series-twilight",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O3 -march=native",
+    "executable_sha256_16": "8c7949708f0b8295",
+    "cases_recorded": [
+     "box_jura"
+    ]
+   }
+  },
+  {
+   "label": "moon_omp_twilight",
+   "gravity": "lunar GM/R^2",
+   "parallel": "omp",
+   "compile_flags": "-O3 -march=native",
+   "apply": [
+    "makefile-gnu-omp.patch",
+    "series-core",
+    "series-twilight",
+    "makefile-omp-O3-march-native.patch"
+   ],
+   "whole_files": [],
+   "deployed": {
+    "gravity_m_s2": 1.6242188765608128,
+    "optimization": "-O3 -march=native",
+    "executable_sha256_16": "f51a3ffac2ca09bc",
+    "cases_recorded": [
+     "ring_45n_corrected_twilight",
+     "ring_45n_lsw_twilight",
+     "ring_45s_corrected_twilight"
+    ]
+   }
+  }
+ ]
+}

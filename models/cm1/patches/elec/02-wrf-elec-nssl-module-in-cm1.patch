@@ -1,0 +1,271 @@
+--- a/src/module_mp_nssl_2mom.F	2026-10-17 14:56:06.103765493 -0400
++++ b/src/module_mp_nssl_2mom.F	2026-10-17 14:56:06.136764888 -0400
+@@ -1,3 +1,4 @@
++! Terluna: WRF-ELEC NSSL module in CM1 (MicroTed/wrf4-elec e43041b), patched by climate/crm/cm1_elec.py
+ !WRF:MODEL_LAYER:PHYSICS
+ ! prepocessed on "Apr 29 2025" at "14:31:26"
+ 
+@@ -229,13 +230,13 @@
+   integer  :: icorrectfddbz = 1 ! =1 to adjust graupel/FD number conc. from rain freezing to keep correct Z
+ ! microphysics
+ 
+-  real, private :: rho_qr = 1000., cnor = 8.0e5  ! cnor is set in namelist!!  rain params
+-  real, private :: rho_qs =  100., cnos = 3.0e6  ! set in namelist!!  snow params
+-  real, private :: rho_qh =  500., cnoh = 4.0e5  ! set in namelist!!  graupel params
+-  real, private :: rho_qhl=  800., cnohl = 4.0e4 ! set in namelist!!  hail params
++  real, public :: rho_qr = 1000., cnor = 8.0e5  ! cnor is set in namelist!!  rain params
++  real, public :: rho_qs =  100., cnos = 3.0e6  ! set in namelist!!  snow params
++  real, public :: rho_qh =  500., cnoh = 4.0e5  ! set in namelist!!  graupel params
++  real, public :: rho_qhl=  800., cnohl = 4.0e4 ! set in namelist!!  hail params
+ 
+   real, private :: hdnmn  = 170.0  ! minimum graupel density (for variable density graupel)
+-  real, private :: hldnmn = 500.0  ! minimum hail density (for variable density hail)
++  real, public :: hldnmn = 500.0  ! minimum hail density (for variable density hail)
+ 
+   real :: cnohmn  = 1.e-2 ! minimum intercept for 2-moment graupel (alphah < 0.5)
+   real :: cnohlmn = 1.e-2 ! minimum intercept for 2-moment hail (alphahl < 0.5)
+@@ -245,7 +246,7 @@
+   real   , private :: qcmincwrn      = 2.0e-3    ! qc threshold for autonconversion (LFO; for 10ICE use qminrncw for ircnw != 5)
+   real   , private :: cwdiap         = 20.0e-6   ! threshold diameter of cloud drops (Ferrier 1994 autoconversion)
+   real   , private :: cwdisp         = 0.15      ! assume droplet dispersion parameter (can be 0.3 for maritime)
+-  real   , private :: ccn            = 0.6e+09   ! set in namelist!! Central plains CCN value
++  real   , public :: ccn            = 0.6e+09   ! set in namelist!! Central plains CCN value
+   real   , private :: ccnuf          = 0        ! set in namelist!! Central plains CCN value
+   real   , public  :: qccn, qccnuf               ! ccn "mixing ratio"
+   real   , private :: old_qccn = -1.0
+@@ -282,7 +283,7 @@
+                                                          ! if false, reuse fall speeds on multiple steps (can have a noticeable speedup)
+                                                          ! Mainly is an issue for small dz near the surface. 
+   integer, private :: interval_sedi_vt = 1 ! interval for recalculating Vt in sedimentation subloop (only when do_accurate_sedimentation = .true.)
+-  integer, private :: infall = 4   ! 0 -> uses number-wgt for N; NO correction applied (results in excessive size sorting)
++  integer, public :: infall = 4   ! 0 -> uses number-wgt for N; NO correction applied (results in excessive size sorting)
+                           ! 1 -> uses mass-weighted fallspeed for N ALWAYS
+                           ! 2 -> uses number-wgt for N and mass-weighted correction for N (Method II in Mansell, 2010 JAS)
+                           ! 3 -> uses number-wgt for N and Z-weighted correction for N (Method I in Mansell, 2010 JAS)
+@@ -295,9 +296,9 @@
+   real, private    :: graupelfallfac = 1.0 ! factor to adjust graupel fall speed
+   real, private    :: hailfallfac = 1.0 ! factor to adjust hail fall speed
+   integer, private :: icefallopt = 3 ! 1= default, 2 = Ferrier ice fall speed; 3 = adjusted Ferrier (slightly high Vt)
+-  integer, private :: icdx = 6 ! (graupel) 0=Ferrier; 1=leave drag coef. cd fixed; 2=vary by density, 4=set by user with cdxmin,cdxmax,etc.
++  integer, public :: icdx = 6 ! (graupel) 0=Ferrier; 1=leave drag coef. cd fixed; 2=vary by density, 4=set by user with cdxmin,cdxmax,etc.
+                                ! 6= Milbrandt and Morrison (2013) density-based fall speed
+-  integer, private :: icdxhl = 6 ! (hail) 0=Ferrier; 1=leave drag coef. cd fixed; 2=vary by density, 4=set by user with cdxmin,cdxmax,etc.
++  integer, public :: icdxhl = 6 ! (hail) 0=Ferrier; 1=leave drag coef. cd fixed; 2=vary by density, 4=set by user with cdxmin,cdxmax,etc.
+                                ! 6= Milbrandt and Morrison (2013) density-based fall speed
+   real    :: axh = 75.7149, bxh = 0.5
+   real    :: axf = 75.7149, bxf = 0.5
+@@ -317,7 +318,7 @@
+ 
+   integer, private :: ndebug = -1, ncdebug = 0
+   integer, private :: ipconc = 5
+-  integer, private :: inucopt = 0
++  integer, public :: inucopt = 0
+   integer, private :: ichaff = 0
+   integer, parameter :: ilimit = 0
+   
+@@ -350,7 +351,7 @@
+                              ! (first nucleation is done with a KW sat. adj. step)
+   integer, private :: issfilt = 0     ! flag to turn on filtering of supersaturation field
+   integer, private :: icnuclimit = 0  ! limit droplet nucleation based on Konwar et al. (2012) and Chandrakar et al. (2016)
+-  integer, private :: irenuc = 5      ! =1 to always allow renucleation of droplets within the cloud (do no use, obsolete)
++  integer, public :: irenuc = 5      ! =1 to always allow renucleation of droplets within the cloud (do no use, obsolete)
+                                       ! =2 renucleation following Twomey/Cohard&Pinty
+                                       ! =5 Similar to 7 but can produce extra activated nuclei from the 'smaller' CCN at higher SS
+                                       ! =7 New renucleation that requires prediction of the number of activated nuclei
+@@ -406,18 +407,18 @@
+   real   , private :: fscni = 1.0         ! factor for calculating cscni
+   logical, private :: imeyers5 = .false.  ! .false.=off, true=on for Meyers ice nucleation for temp > -5 C
+   real   , private :: dmincw = 15.0e-6    ! minimum droplet diameter for collection for iehw=3
+-  integer, private :: iehw = 1            ! 0 -> ehw=ehw0; 1 -> old ehw; 2 -> test ehw with Mason table data
++  integer, public :: iehw = 1            ! 0 -> ehw=ehw0; 1 -> old ehw; 2 -> test ehw with Mason table data
+   integer, private :: iefw = 1            ! 0 -> ehw=ehw0; 1 -> old ehw; 2 -> test ehw with Mason table data
+-  integer, private :: iehlw = 1           ! 0 -> ehlw=ehlw0; 1 -> old ehlw; 2 -> test ehlw with Mason table data
++  integer, public :: iehlw = 1           ! 0 -> ehlw=ehlw0; 1 -> old ehlw; 2 -> test ehlw with Mason table data
+                                  ! For ehw/ehlw = 1, ehw0/ehlw0 act as maximum limit on collection efficiency (defaults are 1.0)
+   integer, private :: ierw = 1            ! for single-moment rain (LFO/Z)
+   integer, private :: iehr0c = 0          ! 0 -> no collection for T > 0C;  1 -> turn on collection/shedding for T > 0C
+   integer, private :: iehlr0c = 0         ! 0 -> no collection for T > 0C;  1 -> turn on collection/shedding for T > 0C
+   real   , private :: eiw0 = 0.5          ! constant or max assumed ice-crystal-droplet collection efficiency
+   real   , private :: esw0 = 0.5          ! constant or max assumed snow-droplet collection efficiency
+-  real   , private :: ehw0 = 0.9 ! 0.5          ! constant or max assumed graupel-droplet collection efficiency
++  real   , public :: ehw0 = 0.9 ! 0.5          ! constant or max assumed graupel-droplet collection efficiency
+   real   , private :: erw0 = 1.0          ! constant assumed rain-droplet collection efficiency
+-  real   , private :: ehlw0 = 0.9 ! 0.75        ! constant or max assumed hail-droplet collection efficiency
++  real   , public :: ehlw0 = 0.9 ! 0.75        ! constant or max assumed hail-droplet collection efficiency
+   real   , private :: efw0 = 0.5          ! constant or max assumed graupel-droplet collection efficiency
+   real    :: ehr0 = 1.0          ! constant or max assumed graupel-rain collection efficiency
+   real    :: efr0 = 1.0          ! constant or max assumed graupel-rain collection efficiency
+@@ -489,7 +490,7 @@
+                           ! icond = 2 does not work (intended to calc. dep in loop with droplet cond.)
+   integer, private :: iqis0 = 2    ! = 1 for normal qis; = 2 to set qis to use T = 0C when T > 0C  
+   
+-  real   , private :: dfrz = 0.15e-3 ! 0.25e-3  ! minimum diameter of frozen drops from Bigg freezing (used for vfrz) for iacr > 1
++  real   , public :: dfrz = 0.15e-3 ! 0.25e-3  ! minimum diameter of frozen drops from Bigg freezing (used for vfrz) for iacr > 1
+                             ! and for ciacrf for iacr=4
+   real   , private :: dmlt = 3.0e-3  ! maximum diameter for rain melting from graupel and hail
+   real   , private :: dshd = 1.0e-3  ! nominal diameter for rain drops shed from graupel/hail
+@@ -551,7 +552,7 @@
+ 
+   real, parameter :: alpharmax = 8. ! limited for rwvent calculation
+   
+-  integer, private ::  ihlcnh = -1  ! which graupel -> hail conversion to use
++  integer, public ::  ihlcnh = -1  ! which graupel -> hail conversion to use
+                           ! 1 = Milbrandt and Yau (2005) using Ziegler 1985 wet growth diameter
+                           ! 2 = Straka and Mansell (2005) conversion using size threshold
+                           ! 3 = Conversion using wet growth diameter
+@@ -572,14 +573,14 @@
+   real    :: fddenthresh = 500. ! if ifddenfac > 0, then hail from FD with lower density are considered to come from graupel
+   integer :: icvhl2h = 0   ! allow conversion of hail back to graupel when hail density gets close to minimum allowed
+ 
+-  integer, private :: imurain = 1 ! 3 for gamma-volume, 1 for gamma-diameter DSD for rain.
++  integer, public :: imurain = 1 ! 3 for gamma-volume, 1 for gamma-diameter DSD for rain.
+   integer, private :: imusnow = 3 ! 3 for gamma-volume, 1 for gamma-diameter DSD for snow (=1 NOT IMPLEMENTED!!).
+   integer, private :: iturbenhance = 0 ! warm-rain collision enhancement
+                               ! 1 = enhance autoconversion only
+                               ! 2 = add rain collection of cloud
+                               ! 3 = add rain self-collection
+   integer, private :: isedonly = 0 ! 1= only do sedimentation and skip other microphysics
+-  integer, private :: iferwisventr = 2 ! =1 for Ferrier rwvent, =2 for Wisner rwvent (imurain=1)
++  integer, public :: iferwisventr = 2 ! =1 for Ferrier rwvent, =2 for Wisner rwvent (imurain=1)
+   integer, private :: izwisventr   = 2 ! =1 for old Ziegler rwvent, =2 for Wisner-style rwvent (imurain=3)
+   integer :: iresetmoments = 0 ! if >0, then set all moments to zero when one of them is zero (3-moment only)
+   integer, private :: imaxdiaopt = 3 
+@@ -598,7 +599,7 @@
+   real    :: drsmall        = 1.e-3 ! size of small drops from breakup (irainbreak = 11)
+   real    :: qrbrthresh1    = 0.1e-3 ! lower threshold rain content (kg/m^3) for large drop breakup (irainbreak=11)
+   real    :: qrbrthresh2    = 1.0e-3 ! upper threshold rain content (kg/m^3) for large drop breakup (irainbreak=11)
+-  integer, private :: dmrauto       = 0 
++  integer, public :: dmrauto       = 0 
+                               ! = -1 no limiter on crcnw
+                               ! =  0 limit crcnw when qr > 1.2*L (Cohard-Pinty 2002)
+                               ! =  1 DTD version based on MY code
+@@ -623,7 +624,7 @@
+   integer :: ivhmltsoak = 1   ! 0=off, 1=on : flag to simulate soaking (graupel/hail) during melting 
+                          ! when liquid fraction is not predicted
+   logical, private :: iwetsoak = .true. ! soak and freeze during wet growth or not
+-  integer, private :: ioldlimiter = 0 ! test switch for new(=0) or old(=1) size limiter at the end of GS for 3-moment categories
++  integer, public :: ioldlimiter = 0 ! test switch for new(=0) or old(=1) size limiter at the end of GS for 3-moment categories
+   integer, private :: isnowfall = 2   ! Option for choosing between snow fall speed parameters
+                          ! 1 = original Zrnic et al. (Mansell et al. 2010)
+                          ! 2 = Ferrier 1994 (results in slower fall speeds)
+@@ -688,7 +689,7 @@
+   integer, private :: lf = 0
+   integer, private :: lhl = 0
+ 
+-  integer, private  :: lccn = 9 ! 0 or 9, other indices adjusted accordingly
++  integer, public  :: lccn = 9 ! 0 or 9, other indices adjusted accordingly
+   integer, private :: lccnuf = 0
+   integer, private :: lccna = 0
+   integer, private :: lccnaco = 0
+@@ -773,8 +774,8 @@
+   real    :: alphai  = 0.0 ! shape parameter for ZIEG ice crystals ! not currently used
+   real    :: alphas  = 0.0 ! shape parameter for ZIEG snow         ! used only for single moment
+   real    :: alphar  = 0.0 ! shape parameter for rain (imurain=1 only)
+-  real, private    :: alphah  = 0.0 ! set in namelist!! shape parameter for ZIEG graupel
+-  real, private    :: alphahl = 1.0 ! set in namelist!! shape parameter for ZIEG hail
++  real, public    :: alphah  = 0.0 ! set in namelist!! shape parameter for ZIEG graupel
++  real, public    :: alphahl = 1.0 ! set in namelist!! shape parameter for ZIEG hail
+ 
+   real    :: dmuh    = 1.0  ! power in exponential part (graupel)
+   real    :: dmuhl   = 1.0  ! power in exponential part (hail)
+@@ -1292,7 +1293,7 @@
+      & nssl_ccn_opt, &
+      & infileunit, &
+      & compute_dualpol, &
+-     & myrank, mpiroot &
++     & myrank, mpiroot, eqtset_tmp, ipelec_tmp, isaund_tmp &
+      )
+ 
+   implicit none
+@@ -1330,6 +1331,7 @@
+ 
+ 
+    integer, intent(in) :: ipctmp,mixphase
++   integer, optional, intent(in) :: eqtset_tmp, ipelec_tmp, isaund_tmp ! Terluna: from CM1
+    integer, optional, intent(in) :: ihvol
+    logical, optional, intent(in) :: idoniconlytmp
+ 
+@@ -1458,6 +1460,9 @@
+ 
+ 
+     ipconc = ipctmp
++    IF ( present( eqtset_tmp ) ) eqtset = eqtset_tmp ! Terluna: as CM1's copy
++    IF ( present( ipelec_tmp ) ) ipelec = ipelec_tmp ! Terluna: charging on or off
++    IF ( present( isaund_tmp ) ) isaund = isaund_tmp ! Terluna: the non-inductive charging law
+     
+ 
+     IF ( ihlcnh <= 0 ) THEN
+@@ -1504,7 +1509,7 @@
+ #endif
+       ENDIF
+         IF ( wrf_dm_on_monitor() .and. .not. wrote_namelist ) THEN
+-          open(15,file='namelist.output',status='old',action='readwrite', position='append',form='formatted')
++          open(15,file='namelist.output',status='unknown',action='readwrite', position='append',form='formatted') ! Terluna: CM1 writes none
+           write(15,NML=nssl_mp_params)
+           close(15)
+           wrote_namelist = .true.
+@@ -3053,6 +3058,21 @@
+           thproclocal(:,:) = 0.0
+ 
+ 
++#if defined(OPENMP)
++! Terluna: the slabs in parallel, as in CM1's copy of the module
++!$OMP PARALLEL DO DEFAULT(SHARED) &
++!$OMP PRIVATE(ix,jy,kz,il,loopcnt,xfall,axtra2d,an,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t00,t77,dbz2d,vzf2d,dn1,pn,wn, &
++!$OMP dz2d,dz2dinv,ltemq,ssival,dp1,elec2,sciona2d,t8s,t9s,ssat,qvapor,ssifac,rainprod2d,evapprod2d,kediagloc, &
++!$OMP alpha2d,hailmax1d,hailmaxk1,tmp,tmpchg,dv,dv1,c1,temp1,refl,flag) &
++!$OMP FIRSTPRIVATE(ancuten,thproclocal,tke2d) &
++!$OMP REDUCTION(+:chgiona1,chgiona2,chgiona3,chgneg1,chgpos1,chgneg2,chgpos2,chgneg3,chgpos3,sctot3, &
++!$OMP scwtot,scrtot,scitot,scstot,schtot,schltot,cwmass1,cwmass2,rwmass1,rwmass2,icemass1,icemass2, &
++!$OMP swmass1,swmass2,grmass1,grmass2,hlmass1,hlmass2,wvol5,wvol10,ctswin,ctswip,ctswwn,ctswwp, &
++!$OMP ctghsn,ctghsp,ctghin,ctghip,ctghwn,ctghwp,ctgsn,ctgsp,ctgin,ctgip,cthsn,cthsp,cthin,cthip, &
++!$OMP timesed1,timesed2,timesed3,timesetvt,timevtcalc) &
++!$OMP REDUCTION(max:scwmax,scrmax,scimax,scsmax,schmax,schlmax,sctotmax,scionmax,zmaxsed) &
++!$OMP REDUCTION(min:scwmin,scrmin,scimin,scsmin,schmin,schlmin,sctotmin,scionmin)
++#endif
+      DO jy = jts,jye
+      
+ !     write(0,*) 'N2M: load an, jy,lccn = ',jy,lccn,qccn
+@@ -4696,6 +4716,20 @@
+           ancuten(its:ite,1,kts:kte,:) = 0.0
+           thproclocal(:,:) = 0.0
+ 
++#if defined(OPENMP)
++! Terluna: the slabs in parallel, as in the microphysics driver
++!$OMP PARALLEL DO DEFAULT(SHARED) &
++!$OMP PRIVATE(ix,jy,kz,il,xfall,axtra2d,an,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t00,t77,dbz2d,vzf2d,dn1,pn,wn, &
++!$OMP dz2d,dz2dinv,ltemq,elec2,sciona2d,kediagloc,alpha2d,hailmax1d,hailmaxk1,tmp,tmpchg,dv,dv1,refl) &
++!$OMP FIRSTPRIVATE(ancuten,thproclocal) &
++!$OMP REDUCTION(+:chgiona1,chgiona2,chgiona3,chgneg1,chgpos1,chgneg2,chgpos2,chgneg3,chgpos3,sctot3, &
++!$OMP scwtot,scrtot,scitot,scstot,schtot,schltot,cwmass1,cwmass2,rwmass1,rwmass2,icemass1,icemass2, &
++!$OMP swmass1,swmass2,grmass1,grmass2,hlmass1,hlmass2,wvol5,wvol10,ctswin,ctswip,ctswwn,ctswwp, &
++!$OMP ctghsn,ctghsp,ctghin,ctghip,ctghwn,ctghwp,ctgsn,ctgsp,ctgin,ctgip,cthsn,cthsp,cthin,cthip, &
++!$OMP timesed,timesed1,timesed2,timesed3,timesetvt,timevtcalc,timegs,timenucond) &
++!$OMP REDUCTION(max:scwmax,scrmax,scimax,scsmax,schmax,schlmax,sctotmax,scionmax,zmaxsed) &
++!$OMP REDUCTION(min:scwmin,scrmin,scimin,scsmin,schmin,schlmin,sctotmin,scionmin)
++#endif
+      DO jy = jts,jye
+      
+      xfall(:,:,:) = 0.0
+@@ -5031,10 +5065,10 @@
+         DO kz = kts,kte
+           DO ix = its,ite
+              re_cloud(ix,kz,jy) = MAX(2.51E-6, MIN(t1(ix,1,kz), 50.E-6))
+-             re_ice(ix,kz,jy)   = MAX(10.01E-6, MIN(t2(ix,1,kz), 200.E-6))
++             re_ice(ix,kz,jy)   = MAX(10.01E-6, MIN(t2(ix,1,kz), 1.E-2)) ! Terluna: capped in terluna_elec.F
+              re_snow(ix,kz,jy)  = MAX(25.E-6, MIN(t3(ix,1,kz), 999.E-6))
+              ! check for case where snow needs to be treated as cloud ice (for rrtmg radiation)
+-             IF ( .not. present(qi) ) re_ice(ix,kz,jy)  = MAX(10.E-6, MIN(t3(ix,1,kz), 200.E-6))
++             IF ( .not. present(qi) ) re_ice(ix,kz,jy)  = MAX(10.E-6, MIN(t3(ix,1,kz), 1.E-2)) ! Terluna
+           ENDDO
+          ENDDO
+ 
+@@ -5349,7 +5383,7 @@
+ 
+          IF ( present(scw) .and. ipelec > 0 .and. mytask == 0 ) THEN !{
+ #else
+-         IF ( present(scw) .and. ipelec > 0 ) THEN !{
++         IF ( present(scw) .and. ipelec > 0 .and. lastlooptmp ) THEN !{ ! Terluna
+ #endif
+            iunit = 6
+          IF ( mytask == 0 ) THEN

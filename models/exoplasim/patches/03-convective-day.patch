@@ -1,0 +1,35 @@
+--- a/plasim/src/rainmod.f90	2026-10-17 14:54:13.241834642 -0400
++++ b/plasim/src/rainmod.f90	2026-10-17 14:54:13.267834165 -0400
+@@ -41,6 +41,7 @@
+       real :: clwfac    = 0. ! smothing for cloud suppression
+       real :: cwgref    = 0. ! Terluna: gravity for the cloud-water heights (0: the planet's)
+       real :: cwscale   = 1. ! Terluna: multiplier on the diagnosed cloud water
++      real :: convday   = 0. ! Terluna: seconds per day in the convective cloud formula (0: solar day)
+       real :: time4rain = 0. ! CPU time needed for rainmod
+       real :: time4prl  = 0. ! CPU time spent for large scale precip
+       real :: time4prc  = 0. ! CPU time spent for convective precip
+@@ -72,7 +73,7 @@
+ !
+       namelist/rainmod_nl/kbeta,nprl,nprc,ndca,ncsurf,nmoment,nshallow  &
+      &       ,nstorain,rcrit,clwcrit1,clwcrit2,pdeep,rkshallow,gamma    &
+-     &       ,nclouds,pdeepth,nevapprec,nbeta,rhbeta,rbeta,rcritmod,rcritslope,cwgref,cwscale      
++     &       ,nclouds,pdeepth,nevapprec,nbeta,rhbeta,rbeta,rcritmod,rcritslope,cwgref,cwscale,convday      
+ !
+ !     reset defaults (according to general setup... tuning)
+ !
+@@ -124,6 +125,7 @@
+       call mpbcr(gamma)
+       call mpbcr(cwgref)
+       call mpbcr(cwscale)
++      call mpbcr(convday)
+       call mpbcrn(rcrit,NLEV)
+       call mpbcrn(rcrit,NLEV)
+ !
+@@ -1895,6 +1897,7 @@
+ !
+ 
+       zrfac = solar_day * 1000.0 ! convert m/s into mm/day
++      if(convday > 0.) zrfac = convday * 1000.0 ! Terluna: per convday seconds
+       where(dprc(:) > 0.)
+        zcctot(:)=zcca+zccb*log(dprc(:)*zrfac)
+        zcctot(:)=AMIN1(zccmax,AMAX1(zccmin,zcctot(:)))

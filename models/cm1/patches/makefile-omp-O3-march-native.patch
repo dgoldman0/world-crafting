@@ -1,0 +1,11 @@
+--- a/src/Makefile	2026-10-17 14:56:06.189763917 -0400
++++ b/src/Makefile	2026-10-17 14:56:06.190763899 -0400
+@@ -78,7 +78,7 @@
+ #  multiple processors, shared memory (OpenMP), GNU compiler
+ # Terluna: GNU compiler with OpenMP
+ FC   = gfortran
+-OPTS = -ffree-form -ffree-line-length-none -O2 -finline-functions --param=max-vartrack-size=0 -fopenmp
++OPTS = -ffree-form -ffree-line-length-none -O3 -march=native -finline-functions --param=max-vartrack-size=0 -fopenmp   # Terluna: optimisation for moon_omp
+ CPP  = cpp -C -P -traditional -Wno-invalid-pp-token -ffreestanding
+ OMP  = -DOPENMP
+ #-----------------------------------------------------------------------------

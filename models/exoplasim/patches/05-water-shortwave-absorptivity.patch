@@ -1,0 +1,56 @@
+--- a/plasim/src/radmod.f90	2026-10-17 14:54:13.270834110 -0400
++++ b/plasim/src/radmod.f90	2026-10-17 14:54:13.272834073 -0400
+@@ -118,6 +118,7 @@
+       real :: rcoeff = 1.0       ! Rayleigh scattering coefficient for cross section dependence
+       real :: rayscale = 1.0     ! Terluna: multiplier on rcoeff, calibrated against line-by-line
+       integer :: nsunclock = 0   ! Terluna: the Sun's clock (0 PlaSim's, 1 a turn per model day, 2 synodic)
++      real :: swh2oscale = 1.0   ! Terluna: multiplier on water vapour's shortwave absorptivity
+       
+ !
+ !     2.5 orbital parameters
+@@ -611,7 +612,7 @@
+      &               ,a0o3,a1o3,aco3,bo3,co3,toffo3,o3scale,newrsc,necham,necham6   &
+      &               ,nsol,nclouds,nswrcl,nrscat,rcl1,rcl2,acl2,clgray,tpofmt   &
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+-     &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock
++     &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -797,6 +798,7 @@
+       call mpbcr(minwavel)
+       call mpbcr(rayscale)
+       call mpbci(nsunclock)
++      call mpbcr(swh2oscale)
+       
+       call mpbci(l_aerorad)
+ 
+@@ -1912,8 +1914,8 @@
+      &           +0.0658*zo3(:)/(1.+(103.6*zo3(:))**3))/zsolar1
+        ztwvt(:)=1.
+        zwv(:)=zywvt(:)+zbetta*zwvt(:)
+-       ztwvtu(:)=1.-2.9*zwv(:)/((1.+141.5*zwv(:))**0.635+5.925*zwv(:))  &
+-     &            /zsolar2
++       ztwvtu(:)=max(0.001,1.-swh2oscale*2.9*zwv(:)/((1.+141.5*zwv(:))**0.635+5.925*zwv(:))  &
++     &            /zsolar2) ! Terluna: calibrated absorptivity
+ !
+ !     clear sky scattering (Rayleigh scatterin lower most level only)
+ !
+@@ -2007,7 +2009,7 @@
+ !     downward beam
+ !
+        zwv(:)=zywvl(:,jlev)
+-       ztwv(:)=(1.-2.9*zwv(:)/((1.+141.5*zwv(:))**0.635+5.925*zwv(:))   &
++       ztwv(:)=max(0.001,1.-swh2oscale*2.9*zwv(:)/((1.+141.5*zwv(:))**0.635+5.925*zwv(:))   &
+      &            /zsolar2)                                             &
+      &        /ztwvt(:)
+        ztwvt(:)=ztwvt(:)*ztwv(:)
+@@ -2016,7 +2018,7 @@
+ !
+        zwv(:)=zywvt(:)+zbetta*(zwvt(:)-zwvl(:,jlev))
+        ztwvu(:)=ztwvtu(:)                                               &
+-     &         /(1.-2.9*zwv(:)/((1.+141.5*zwv(:))**0.635+5.925*zwv(:))  &
++     &         /max(0.001,1.-swh2oscale*2.9*zwv(:)/((1.+141.5*zwv(:))**0.635+5.925*zwv(:))  &
+      &            /zsolar2)
+        ztwvtu(:)=ztwvtu(:)/ztwvu(:)
+ !

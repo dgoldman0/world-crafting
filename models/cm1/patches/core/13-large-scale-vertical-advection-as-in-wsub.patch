@@ -1,0 +1,78 @@
+--- a/src/adv_routines.F	2025-11-25 14:40:23.800338000 -0500
++++ b/src/adv_routines.F	2026-10-17 14:56:05.983767692 -0400
+@@ -8,7 +8,7 @@
+   public :: hadv_flx2,hadv_flx3,hadv_flx4,hadv_flx5,hadv_flx6,hadv_flx7,hadv_flx8,hadv_flx9,hadv_flx10
+   public :: vadv_flx2,vadv_flx3,vadv_flx4,vadv_flx5,vadv_flx6,vadv_flx7,vadv_flx8,vadv_flx9,vadv_flx10
+   public :: advsaxi,advuaxi,advvaxi,advwaxi,vadv_axiu
+-  public :: movesfc,wsub,zsgrad
++  public :: movesfc,wsub,zsgrad,terluna_wsub
+ 
+ 
+     !-----------------------------------------------------!
+@@ -8918,6 +8918,66 @@
+     end subroutine wsub
+ 
+ 
++    subroutine terluna_wsub(ix  ,jy  ,kz  ,a  ,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs,ustag)
++    ! Terluna: large-scale vertical advection as in wsub, with each column's own vertical wind (terluna_w2,
++    ! on w levels, averaged to u points when ustag = 1) once one has been read; otherwise wsub itself.
++    use input, only : ib,ie,jb,je,kb,ke,ngxy,ngz,nk,rdz,terluna_w2
++    implicit none
++
++    integer, intent(in) :: ix,jy,kz,ustag
++    real, intent(in), dimension(1-ngxy:ix+ngxy,1-ngxy:jy+ngxy,1-ngz:kz+ngz)   :: a
++    real, intent(in), dimension(kb:ke) :: wprof
++    real, intent(in), dimension(ib:ie,jb:je,kb:ke) :: c1,c2,mh,rr0,rf0
++    double precision, intent(in) :: weps
++    real, intent(inout), dimension(ib:ie,jb:je,kb:ke) :: dumz,subs
++
++    integer :: i,j,k
++    real :: div,wk,wk1
++
++    if( .not. allocated(terluna_w2) )then
++      call wsub(ix,jy,kz,a,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs)
++      return
++    endif
++
++    DO j=1,jy
++      do k=2,(nk-1)
++        do i=1,ix
++          wk = terluna_w2(i,k)
++          if( ustag.eq.1 ) wk = 0.5*( terluna_w2(i-1,k) + terluna_w2(i,k) )
++          if( wk.le.0.0 )then
++            dumz(i,j,k) = rf0(1,1,k)*wk*upstrpd(a(i,j,k+1),a(i,j,k  ),a(i,j,k-1),weps)
++          elseif( k.eq.2 )then
++            dumz(i,j,k) = rf0(1,1,k)*wk*(c1(i,j,k)*a(i,j,k-1)+c2(i,j,k)*a(i,j,k))
++          else
++            dumz(i,j,k) = rf0(1,1,k)*wk*upstrpd(a(i,j,k-2),a(i,j,k-1),a(i,j,k  ),weps)
++          endif
++        enddo
++      enddo
++      do i=1,ix
++        wk = terluna_w2(i,nk)
++        if( ustag.eq.1 ) wk = 0.5*( terluna_w2(i-1,nk) + terluna_w2(i,nk) )
++        dumz(i,j,nk) = rf0(1,1,nk)*wk*(c1(i,j,nk)*a(i,j,nk-1)+c2(i,j,nk)*a(i,j,nk))
++        dumz(i,j,1) = 0.0
++        dumz(i,j,nk+1) = 0.0
++      enddo
++      do k=1,nk
++        do i=1,ix
++          wk = terluna_w2(i,k)
++          wk1 = terluna_w2(i,k+1)
++          if( ustag.eq.1 )then
++            wk = 0.5*( terluna_w2(i-1,k) + terluna_w2(i,k) )
++            wk1 = 0.5*( terluna_w2(i-1,k+1) + terluna_w2(i,k+1) )
++          endif
++          div = (rf0(1,1,k+1)*wk1-rf0(1,1,k)*wk)*rdz*mh(1,1,k)
++          subs(i,j,k) = ( -(dumz(i,j,k+1)-dumz(i,j,k))*rdz*mh(1,1,k)   &
++                          +a(i,j,k)*div )*rr0(1,1,k)
++        enddo
++      enddo
++    ENDDO
++
++    end subroutine terluna_wsub
++
++
+ !-----------------------------------------------------------------------------------------------
+ !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ !-----------------------------------------------------------------------------------------------

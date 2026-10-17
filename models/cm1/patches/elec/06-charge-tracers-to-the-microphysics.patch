@@ -1,0 +1,27 @@
+--- a/src/cm1.F	2026-09-22 09:13:07.186239666 -0400
++++ b/src/cm1.F	2026-10-17 14:56:06.174764192 -0400
+@@ -32,6 +32,7 @@
+       use solve3_module, only : solve3
+       use pdcomp_module, only : pidcomp
+       use mp_driver_module, only : mp_driver
++      use terluna_elec_module, only : terluna_elec_restart_write   ! Terluna: the field kept with each restart
+       use diff2_module, only : diff2def
+       use turb_module, only : sfc_and_turb
+       use statpack_module, only : statpack,setup_stat_vars
+@@ -3743,7 +3744,7 @@
+                          p3a,p3o,effc,effi,effs,effr,effg,effis,    &
+                          tdiag,qdiag,out2d,out3d,tmp2d,tmp1d,  &
+                          dowriteout,dorad,dotdwrite,doazimwrite,dorestart,  &
+-                         getdbz,getvt,getsed,getqdiags,dotbud,doqbud)
++                         getdbz,getvt,getsed,getqdiags,dotbud,doqbud,pt3d,mtime)   ! Terluna: charge tracers to the microphysics
+       endif
+ 
+       ENDIF
+@@ -4658,6 +4659,7 @@
+                                ntavg,rtavg,tavg,timavg,sfctavg,sfctimavg,               &
+                                dum1,dat1,dat2,dat3,reqt,myi1p,myi2p,myj1p,myj2p,confignum)
+           ! end_restart_write
++        call terluna_elec_restart_write(mtime)   ! Terluna: the field kept with each restart
+         if(myid.eq.0) print *,'  next rsttim = ',rsttim
+         IF( nrst.eq.0 )THEN
+           ! 150820:  Write restart file if rstfrq=0 and stop

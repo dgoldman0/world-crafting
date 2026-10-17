@@ -1,0 +1,54 @@
+--- a/src/init_surface.F	2025-09-24 14:58:47.497545387 -0400
++++ b/src/init_surface.F	2026-10-17 14:56:05.969767949 -0400
+@@ -33,6 +33,8 @@
+ 
+       integer :: i,j,k,l
+       real :: x1,x2,xcoast
++      integer :: nseg,slu
++      real :: sx1,sx2,sxl,stsk,stmn
+ 
+ !-----------------------------------------------------------------------
+ !  BEGIN user settings
+@@ -127,6 +129,33 @@
+ !----------
+ !  if initsfc is not 1,2:
+ 
++      ELSEIF( initsfc.eq.9 )THEN
++
++        ! Terluna: land and water along x from terluna_surface.txt: a segment count, then one line
++        ! per segment: x_west (m), x_east (m), xland (1 land, 2 water), land-use index, tsk (K), tmn (K)
++        open(unit=97,file='terluna_surface.txt',status='old',action='read')
++        read(97,*) nseg
++        do l=1,nseg
++          read(97,*) sx1,sx2,sxl,slu,stsk,stmn
++          do j=jb,je
++          do i=ib,ie
++            if( xh(i).ge.sx1 .and. xh(i).lt.sx2 )then
++              xland(i,j) = sxl
++              tsk(i,j) = stsk
++            endif
++          enddo
++          enddo
++          do j=jbl,jel
++          do i=ibl,iel
++            if( xh(i).ge.sx1 .and. xh(i).lt.sx2 )then
++              lu_index(i,j) = slu
++              tmn(i,j) = stmn
++            endif
++          enddo
++          enddo
++        enddo
++        close(unit=97)
++
+       ELSEIF( initsfc.ne.1 .and. initsfc.ne.2 )THEN
+ 
+         ! build your own initial conditions here:
+@@ -152,7 +181,7 @@
+     IF( sfcmodel.eq.2 .or. sfcmodel.eq.3 .or. sfcmodel.eq.4 .or. sfcmodel.eq.6 .or. sfcmodel.eq.7 )THEN
+ 
+       IF (num_soil_layers.NE.1)THEN
+-      slab_dzs(1)=.01
++      slab_dzs(1)=.05   ! Terluna: layers of 5-80 cm
+       slab_zs(1)=.5*slab_dzs(1)
+       DO l=2,num_soil_layers
+          slab_dzs(l)=2*slab_dzs(l-1)

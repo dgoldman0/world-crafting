@@ -1,0 +1,76 @@
+--- a/src/solve1.F	2026-10-17 14:56:05.972767894 -0400
++++ b/src/solve1.F	2026-10-17 14:56:05.998767418 -0400
+@@ -232,6 +232,11 @@
+       real :: delqv,delpi,delth,delt,fac,epsd,dheat,dz1,xs
+       real :: foo1,foo2
+       real :: dttmp,rtime,rdt,tem,tem0,tem1,tem2,thrad,prad,terluna_w
++      integer, save :: terluna_nb = 0, terluna_nl = 0   ! Terluna: large-scale horizontal advection by local time
++      real, dimension(:), allocatable, save :: terluna_az
++      real, dimension(:,:), allocatable, save :: terluna_ath,terluna_aqv
++      real :: terluna_h,terluna_f,terluna_th,terluna_qv
++      integer :: terluna_b0,terluna_b1,terluna_l,terluna_m
+       real :: r1,r2,tnew,pnew,pinew,thnew,qvnew
+       real :: gamm,aiu,fr
+       real :: qv,qli,cpli,cpm,cvm,qmax
+@@ -1889,6 +1894,61 @@
+     ENDIF
+ 
+ 
++!--------------------------------------------------------------------
++!  Terluna: large-scale horizontal advection by local time (var11 = 1), the heating and moistening the
++!  planet-wide day-night circulation brings to a site. terluna_lsadv.txt holds the local-time bin count
++!  and the level count, the level heights (m), then for each bin, evenly spaced in hour angle from -180
++!  degrees, the theta tendency (K/s) and the vapour tendency (kg/kg/s) at each level. They are applied
++!  the same across the domain, linear in local time between bin centres (round the day) and in height,
++!  and zero outside the levels. The hour angle is the radiation's, var18 + 360 mtime / var19 degrees.
++
++    IF( var11.gt.0.5 )THEN
++      if( terluna_nb.eq.0 )then
++        open(unit=96,file='terluna_lsadv.txt',status='old',action='read')
++        read(96,*) terluna_nb,terluna_nl
++        allocate( terluna_az(terluna_nl) , terluna_ath(terluna_nl,terluna_nb) , terluna_aqv(terluna_nl,terluna_nb) )
++        read(96,*) terluna_az
++        do terluna_m=1,terluna_nb
++          read(96,*) terluna_ath(:,terluna_m)
++          read(96,*) terluna_aqv(:,terluna_m)
++        enddo
++        close(unit=96)
++        if( myid.eq.0 ) print *,'  Terluna: large-scale horizontal advection by local time; bins, levels = ',terluna_nb,terluna_nl
++      endif
++      terluna_h = modulo( var18 + 360.0*real(mtime/var19) + 180.0 , 360.0 )*real(terluna_nb)/360.0 - 0.5
++      terluna_m = int(floor(terluna_h))
++      terluna_f = terluna_h - real(terluna_m)
++      terluna_b0 = modulo(terluna_m,terluna_nb) + 1
++      terluna_b1 = modulo(terluna_m+1,terluna_nb) + 1
++      do k=1,nk
++        terluna_th = 0.0
++        terluna_qv = 0.0
++        if( zh(1,1,k).ge.terluna_az(1) .and. zh(1,1,k).le.terluna_az(terluna_nl) )then
++          terluna_l = 1
++          do terluna_m=1,terluna_nl-1
++            if( zh(1,1,k).ge.terluna_az(terluna_m) ) terluna_l = terluna_m
++          enddo
++          tem = (zh(1,1,k)-terluna_az(terluna_l))/(terluna_az(terluna_l+1)-terluna_az(terluna_l))
++          terluna_th = (1.0-terluna_f)*((1.0-tem)*terluna_ath(terluna_l,terluna_b0)+tem*terluna_ath(terluna_l+1,terluna_b0))  &
++                      +terluna_f*((1.0-tem)*terluna_ath(terluna_l,terluna_b1)+tem*terluna_ath(terluna_l+1,terluna_b1))
++          terluna_qv = (1.0-terluna_f)*((1.0-tem)*terluna_aqv(terluna_l,terluna_b0)+tem*terluna_aqv(terluna_l+1,terluna_b0))  &
++                      +terluna_f*((1.0-tem)*terluna_aqv(terluna_l,terluna_b1)+tem*terluna_aqv(terluna_l+1,terluna_b1))
++        endif
++        do j=1,nj
++        do i=1,ni
++          thten1(i,j,k) = thten1(i,j,k) + terluna_th
++        enddo
++        enddo
++        if( imoist.eq.1 )then
++          do j=1,nj
++          do i=1,ni
++            qten(i,j,k,nqv) = qten(i,j,k,nqv) + terluna_qv
++          enddo
++          enddo
++        endif
++      enddo
++    ENDIF
++
+ !-------------------------------------------------------------------
+ !    NOTE:  now ok to change dum7,dum8
+ !-------------------------------------------------------------------

@@ -1,0 +1,11 @@
+--- a/src/lsnudge.F	2025-07-15 12:12:23.700041203 -0400
++++ b/src/lsnudge.F	2026-10-17 14:56:06.017767069 -0400
+@@ -65,7 +65,7 @@
+       if(dowr) write(outfile,*) 'Inside READ_LSNUDGE '
+       if(dowr) write(outfile,*)
+ 
+-      if( terrain_flag )then
++      if( terrain_flag .and. .false. )then   ! Terluna: nudged column by column over terrain (solve1.F)
+         if(myid.eq.0)then
+         print *
+         print *,'  cannot use lsnudge with terrain (for now)  '

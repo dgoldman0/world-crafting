@@ -1,0 +1,10 @@
+--- a/src/param.F	2026-09-22 08:02:31.979314206 -0400
++++ b/src/param.F	2026-10-17 14:56:05.975767839 -0400
+@@ -5184,6 +5184,7 @@
+       IF( testcase.eq.5 ) dolsw = .true.
+       IF( testcase.eq.6 ) dolsw = .true.
+       IF( testcase.eq.7 ) dolsw = .true.
++      IF( var13.gt.0.5 ) dolsw = .true.   ! Terluna: large-scale vertical wind from terluna_wls.txt
+ 
+       if( dolsw )then
+         if( terrain_flag  .or.  axisymm.eq.1  )then

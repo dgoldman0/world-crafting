@@ -1,0 +1,9 @@
+patches/terrain/01-over-terrain-the-rayleigh-layer-damps-toward-the.patch
+patches/terrain/02-nudged-column-by-column-over-terrain.patch
+patches/terrain/03-nudging-over-terrain.patch
+patches/terrain/04-every-column-s-ground.patch
+patches/terrain/05-over-terrain-each-column-takes-the-forcing-at-it.patch
+patches/terrain/06-large-scale-vertical-wind-at-each-column-s-own-h.patch
+patches/terrain/07-the-large-scale-vertical-wind-against-height-fro.patch
+patches/terrain/08-each-column-s-own-wind-staggered-once.patch
+patches/terrain/09-v-points-take-each-column-s-own-wind.patch

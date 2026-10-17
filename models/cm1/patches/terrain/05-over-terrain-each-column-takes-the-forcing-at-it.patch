@@ -1,0 +1,102 @@
+--- a/src/solve1.F	2026-10-17 14:56:06.019767033 -0400
++++ b/src/solve1.F	2026-10-17 14:56:06.024766941 -0400
+@@ -243,6 +243,9 @@
+       real, dimension(:,:), allocatable, save :: terluna_ath,terluna_aqv
+       real :: terluna_h,terluna_f,terluna_th,terluna_qv
+       integer :: terluna_b0,terluna_b1,terluna_l,terluna_m
++      integer, dimension(:,:,:), allocatable, save :: terluna_al   ! Terluna: each column's own height
++      real, dimension(:,:,:), allocatable, save :: terluna_at
++      integer :: terluna_ii,terluna_jj,terluna_iq,terluna_jq
+       real :: r1,r2,tnew,pnew,pinew,thnew,qvnew
+       real :: gamm,aiu,fr
+       real :: qv,qli,cpli,cpm,cvm,qmax
+@@ -2026,32 +2029,68 @@
+       terluna_f = terluna_h - real(terluna_m)
+       terluna_b0 = modulo(terluna_m,terluna_nb) + 1
+       terluna_b1 = modulo(terluna_m+1,terluna_nb) + 1
+-      do k=1,nk
+-        terluna_th = 0.0
+-        terluna_qv = 0.0
+-        if( zh(1,1,k).ge.terluna_az(1) .and. zh(1,1,k).le.terluna_az(terluna_nl) )then
+-          terluna_l = 1
+-          do terluna_m=1,terluna_nl-1
+-            if( zh(1,1,k).ge.terluna_az(terluna_m) ) terluna_l = terluna_m
+-          enddo
+-          tem = (zh(1,1,k)-terluna_az(terluna_l))/(terluna_az(terluna_l+1)-terluna_az(terluna_l))
+-          terluna_th = (1.0-terluna_f)*((1.0-tem)*terluna_ath(terluna_l,terluna_b0)+tem*terluna_ath(terluna_l+1,terluna_b0))  &
+-                      +terluna_f*((1.0-tem)*terluna_ath(terluna_l,terluna_b1)+tem*terluna_ath(terluna_l+1,terluna_b1))
+-          terluna_qv = (1.0-terluna_f)*((1.0-tem)*terluna_aqv(terluna_l,terluna_b0)+tem*terluna_aqv(terluna_l+1,terluna_b0))  &
+-                      +terluna_f*((1.0-tem)*terluna_aqv(terluna_l,terluna_b1)+tem*terluna_aqv(terluna_l+1,terluna_b1))
+-        endif
++      ! Terluna: over terrain each column takes the forcing at its own height above sea level, its levels
++      ! found once and kept; the corner, the lowest and the highest column's lowest forced level are printed
++      if( .not. allocated(terluna_al) )then
++        allocate( terluna_al(ni,nj,nk) , terluna_at(ni,nj,nk) )
++        terluna_al = 0
++        terluna_at = 0.0
+         do j=1,nj
+         do i=1,ni
+-          thten1(i,j,k) = thten1(i,j,k) + terluna_th
++        do k=1,nk
++          if( zh(i,j,k).ge.terluna_az(1) .and. zh(i,j,k).le.terluna_az(terluna_nl) )then
++            terluna_l = 1
++            do terluna_m=1,terluna_nl-1
++              if( zh(i,j,k).ge.terluna_az(terluna_m) ) terluna_l = terluna_m
++            enddo
++            terluna_al(i,j,k) = terluna_l
++            terluna_at(i,j,k) = (zh(i,j,k)-terluna_az(terluna_l))/(terluna_az(terluna_l+1)-terluna_az(terluna_l))
++          endif
+         enddo
+         enddo
+-        if( imoist.eq.1 )then
+-          do j=1,nj
+-          do i=1,ni
+-            qten(i,j,k,nqv) = qten(i,j,k,nqv) + terluna_qv
+-          enddo
+-          enddo
++        enddo
++        terluna_ii = 1
++        terluna_jj = 1
++        terluna_iq = 1
++        terluna_jq = 1
++        do j=1,nj
++        do i=1,ni
++          if( zh(i,j,1).lt.zh(terluna_ii,terluna_jj,1) )then
++            terluna_ii = i
++            terluna_jj = j
++          endif
++          if( zh(i,j,1).gt.zh(terluna_iq,terluna_jq,1) )then
++            terluna_iq = i
++            terluna_jq = j
++          endif
++        enddo
++        enddo
++        if( myid.eq.0 )then
++          print *,'  Terluna: day-night forcing at each column''s own height; levels from ',terluna_az(1),' to ',  &
++                  terluna_az(terluna_nl),' m'
++          print *,'  Terluna: corner column, lowest level at ',zh(1,1,1),' m, forced level index ',terluna_al(1,1,1)
++          print *,'  Terluna: lowest column ',terluna_ii,terluna_jj,', lowest level at ',zh(terluna_ii,terluna_jj,1),   &
++                  ' m, forced level index ',terluna_al(terluna_ii,terluna_jj,1)
++          print *,'  Terluna: highest column ',terluna_iq,terluna_jq,', lowest level at ',zh(terluna_iq,terluna_jq,1),  &
++                  ' m, forced level index ',terluna_al(terluna_iq,terluna_jq,1)
+         endif
++      endif
++      !$omp parallel do default(shared) private(i,j,k,terluna_l,tem)
++      do k=1,nk
++      do j=1,nj
++      do i=1,ni
++        terluna_l = terluna_al(i,j,k)
++        if( terluna_l.gt.0 )then
++          tem = terluna_at(i,j,k)
++          thten1(i,j,k) = thten1(i,j,k)                                                                          &
++              +(1.0-terluna_f)*((1.0-tem)*terluna_ath(terluna_l,terluna_b0)+tem*terluna_ath(terluna_l+1,terluna_b0))  &
++              +terluna_f*((1.0-tem)*terluna_ath(terluna_l,terluna_b1)+tem*terluna_ath(terluna_l+1,terluna_b1))
++          if( imoist.eq.1 ) qten(i,j,k,nqv) = qten(i,j,k,nqv)                                                     &
++              +(1.0-terluna_f)*((1.0-tem)*terluna_aqv(terluna_l,terluna_b0)+tem*terluna_aqv(terluna_l+1,terluna_b0))  &
++              +terluna_f*((1.0-tem)*terluna_aqv(terluna_l,terluna_b1)+tem*terluna_aqv(terluna_l+1,terluna_b1))
++        endif
++      enddo
++      enddo
+       enddo
+     ENDIF
+ 

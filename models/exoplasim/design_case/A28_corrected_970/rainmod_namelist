@@ -1,0 +1,7 @@
+ &rainmod_nl
+ CONVDAY = 86400.0 
+ CWSCALE = 0.16562423218538572 
+ CWGREF = 9.80665 
+ NCLOUDS     =     1
+ NSTORAIN    =     0
+ /END

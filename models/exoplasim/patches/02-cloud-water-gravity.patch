@@ -1,0 +1,76 @@
+--- a/plasim/src/rainmod.f90	2020-02-01 19:00:00.000000000 -0500
++++ b/plasim/src/rainmod.f90	2026-10-17 14:54:13.241834642 -0400
+@@ -39,6 +39,8 @@
+ !
+ 
+       real :: clwfac    = 0. ! smothing for cloud suppression
++      real :: cwgref    = 0. ! Terluna: gravity for the cloud-water heights (0: the planet's)
++      real :: cwscale   = 1. ! Terluna: multiplier on the diagnosed cloud water
+       real :: time4rain = 0. ! CPU time needed for rainmod
+       real :: time4prl  = 0. ! CPU time spent for large scale precip
+       real :: time4prc  = 0. ! CPU time spent for convective precip
+@@ -70,7 +72,7 @@
+ !
+       namelist/rainmod_nl/kbeta,nprl,nprc,ndca,ncsurf,nmoment,nshallow  &
+      &       ,nstorain,rcrit,clwcrit1,clwcrit2,pdeep,rkshallow,gamma    &
+-     &       ,nclouds,pdeepth,nevapprec,nbeta,rhbeta,rbeta,rcritmod,rcritslope      
++     &       ,nclouds,pdeepth,nevapprec,nbeta,rhbeta,rbeta,rcritmod,rcritslope,cwgref,cwscale      
+ !
+ !     reset defaults (according to general setup... tuning)
+ !
+@@ -120,6 +122,8 @@
+       call mpbcr(pdeepth)
+       call mpbcr(rkshallow)
+       call mpbcr(gamma)
++      call mpbcr(cwgref)
++      call mpbcr(cwscale)
+       call mpbcrn(rcrit,NLEV)
+       call mpbcrn(rcrit,NLEV)
+ !
+@@ -1873,6 +1877,7 @@
+       real zrcrit(NHOR),zccconv(NHOR),zcctot(NHOR)
+       real zwfac(NHOR),zcc(NHOR)
+       real zzf(NHOR,NLEV),zzh(NHOR),zdh(NHOR)
++      real zgc ! Terluna: gravity for the heights below
+ 
+ !
+ !*    preset
+@@ -1880,6 +1885,8 @@
+ 
+       dql(:,:)=0.
+       dcc(:,1:NLEV)=0.
++      zgc=ga
++      if(cwgref > 0.) zgc=cwgref
+       zcctot(:)=zccmin
+       zccconv(:)=zccmin
+ 
+@@ -1951,12 +1958,12 @@
+       zzh(:)=0.
+       do jlev=NLEV,2,-1
+        dqvi(:)=dq(:,jlev)*dsigma(jlev)+dqvi(:)
+-       zdh(:)=-dt(:,jlev)*gascon/ga*ALOG(sigmah(jlev-1)/sigmah(jlev))
++       zdh(:)=-dt(:,jlev)*gascon/zgc*ALOG(sigmah(jlev-1)/sigmah(jlev))
+        zzf(:,jlev)=zzh(:)+zdh(:)*0.5
+        zzh(:)=zzh(:)+zdh(:)
+       enddo
+       dqvi(:)=dq(:,1)*dsigma(1)+dqvi(:)
+-      zdh(:)=-dt(:,1)*gascon/ga*ALOG(sigma(1)/sigmah(1))*0.5
++      zdh(:)=-dt(:,1)*gascon/zgc*ALOG(sigma(1)/sigmah(1))*0.5
+       zzf(:,1)=zzh(:)+zdh(:)
+ 
+ !
+@@ -1966,12 +1973,12 @@
+ 
+       dcc(:,NLEP)=1.
+       dqvi(:)=dqvi(:)*dp(:)/ga
+-      zzh(:)=700.*ALOG(1.+dqvi(:))
++      zzh(:)=700.*ALOG(1.+dqvi(:)*(ga/zgc))
+       do jlev=1,NLEV
+        where(zzh(:) > 0. .and. dcc(:,jlev) > 0.)
+         dql(:,jlev)=0.00021*EXP(-zzf(:,jlev)/zzh(:))*gascon*dt(:,jlev)  &
+      &             /(sigma(jlev)*dp(:))
+-        dql(:,jlev)=MAX(dql(:,jlev),1.E-9)
++        dql(:,jlev)=MAX(cwscale*dql(:,jlev),1.E-9)
+        endwhere
+        dcc(:,NLEP)=dcc(:,NLEP)*(1.-dcc(:,jlev))
+       enddo

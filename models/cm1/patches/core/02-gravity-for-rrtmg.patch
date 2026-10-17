@@ -1,0 +1,18 @@
+--- a/src/module_ra_etc.F	2025-01-09 13:35:19.139953000 -0500
++++ b/src/module_ra_etc.F	2026-10-17 14:56:05.928768700 -0400
+@@ -1,3 +1,6 @@
++#ifndef TERLUNA_G
++#define TERLUNA_G 9.81
++#endif
+ 
+  !-------------------------------------------------------------------!
+  !---  cm1r19:  misc stuff needed to adapt WRF RRTMG code to cm1  ---!
+@@ -409,7 +412,7 @@
+ 
+    ! needed for mynn:
+    REAL    , PARAMETER ::  KARMAN=0.4
+-   REAL    , PARAMETER :: g = 9.81  ! acceleration due to gravity (m {s}^-2)
++   REAL    , PARAMETER :: g = TERLUNA_G  ! Terluna: gravity for RRTMG, set at build time
+    REAL    , PARAMETER :: p1000mb      = 100000.
+    REAL    , PARAMETER :: r_v          = 461.5
+    REAL    , PARAMETER :: rcp          = r_d/cp

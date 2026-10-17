@@ -1,0 +1,49 @@
+--- a/src/init_surface.F	2026-10-17 14:56:05.969767949 -0400
++++ b/src/init_surface.F	2026-10-17 14:56:06.022766978 -0400
+@@ -35,6 +35,10 @@
+       real :: x1,x2,xcoast
+       integer :: nseg,slu
+       real :: sx1,sx2,sxl,stsk,stmn
++      logical :: terluna_two   ! Terluna: every column's ground from terluna_surface2d.txt
++      integer :: terluna_nx,terluna_ny,terluna_i,terluna_j
++      real, dimension(:,:), allocatable :: terluna_tsk,terluna_tmn
++      integer, dimension(:,:), allocatable :: terluna_lu
+ 
+ !-----------------------------------------------------------------------
+ !  BEGIN user settings
+@@ -156,6 +160,35 @@
+         enddo
+         close(unit=97)
+ 
++        ! Terluna: every column's ground from terluna_surface2d.txt when it exists (boxes over terrain): the
++        ! column counts in x and y, then one line per column, x fastest: tsk (K), tmn (K), land-use index.
++        ! Columns are found by position, so the halo takes the neighbours across the box's periodic edges.
++        inquire(file='terluna_surface2d.txt',exist=terluna_two)
++        if( terluna_two )then
++          open(unit=97,file='terluna_surface2d.txt',status='old',action='read')
++          read(97,*) terluna_nx,terluna_ny
++          allocate( terluna_tsk(terluna_nx,terluna_ny) , terluna_tmn(terluna_nx,terluna_ny) , terluna_lu(terluna_nx,terluna_ny) )
++          do terluna_j=1,terluna_ny
++          do terluna_i=1,terluna_nx
++            read(97,*) terluna_tsk(terluna_i,terluna_j),terluna_tmn(terluna_i,terluna_j),terluna_lu(terluna_i,terluna_j)
++          enddo
++          enddo
++          close(unit=97)
++          do j=jb,je
++          do i=ib,ie
++            tsk(i,j) = terluna_tsk(modulo(floor(xh(i)/dx),terluna_nx)+1,modulo(floor(yh(j)/dy),terluna_ny)+1)
++          enddo
++          enddo
++          do j=jbl,jel
++          do i=ibl,iel
++            tmn(i,j) = terluna_tmn(modulo(floor(xh(i)/dx),terluna_nx)+1,modulo(floor(yh(j)/dy),terluna_ny)+1)
++            lu_index(i,j) = terluna_lu(modulo(floor(xh(i)/dx),terluna_nx)+1,modulo(floor(yh(j)/dy),terluna_ny)+1)
++          enddo
++          enddo
++          deallocate( terluna_tsk , terluna_tmn , terluna_lu )
++          if( myid.eq.0 ) print *,'  Terluna: ground temperature and land use for every column from terluna_surface2d.txt'
++        endif
++
+       ELSEIF( initsfc.ne.1 .and. initsfc.ne.2 )THEN
+ 
+         ! build your own initial conditions here:

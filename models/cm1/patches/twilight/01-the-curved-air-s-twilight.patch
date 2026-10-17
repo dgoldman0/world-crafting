@@ -1,0 +1,105 @@
+--- a/src/radiation_driver.F	2026-10-17 14:56:05.938768517 -0400
++++ b/src/radiation_driver.F	2026-10-17 14:56:06.060766281 -0400
+@@ -4,6 +4,10 @@
+ 
+   private
+   public :: radiation_driver
++  ! Terluna: the curved air's twilight table, read once from terluna_twilight.txt
++  integer, save :: terluna_ntw = -1, terluna_nsh = 0
++  real, save :: terluna_lwg = 0.0, terluna_tg = 1.0
++  real, allocatable, save :: terluna_tel(:), terluna_tgr(:), terluna_tz(:), terluna_tsh(:,:), terluna_lw(:), terluna_tt(:)
+ 
+   CONTAINS
+ 
+@@ -32,7 +36,7 @@
+                         mynn_qc_bl,mynn_qi_bl,mynn_cldfra_bl,testcase,               &
+                         timestats,mytime,time_rad
+       use constants, only : pi,g,cp,cpl,cpi,cv,cvv,rd,cvdcp,degdpi
+-      use input, only : var12,var16,var17,var18,var19   ! Terluna: the lunar day
++      use input, only : var12,var16,var17,var18,var19,var20   ! Terluna: the lunar day, the twilight
+       use bc_module, only : bcs
+       use radtrns3d_module, only : radtrns,setradwrk,zenangl,nrad2d,       &
+                                    nrsirbm,nrsirdf,nrsuvbm,nrsuvdf,ncosz,  &
+@@ -77,6 +81,9 @@
+       integer :: i,j,k
+       real :: saltitude,sazimuth,zen,rtime
+       real :: terluna_lat,terluna_s   ! Terluna: tilted rings
++      integer :: terluna_l,terluna_m,terluna_lo,terluna_hi   ! Terluna: the twilight
++      real :: terluna_el,terluna_u,terluna_clear,terluna_e,terluna_f,terluna_ov
++      real, allocatable :: terluna_s1(:)
+       real :: albedo,albedoz,tema,temb,frac_snowcover
+       logical :: doirrad,dosorad
+ 
+@@ -784,6 +791,72 @@
+ 
+             if( nstep.le.1 .and. myid.eq.0 ) print *,'  co2 = ',co2out
+ 
++            IF( var20.gt.0.5 )THEN
++              ! Terluna: the curved air's twilight. What the Moon's tall curved air adds to a flat column of the
++              ! same air (climate/gcm/twilight.py): by each column's solar elevation, below the horizon too, each
++              ! shell's share of sunlight as heating of the levels it overlaps and the ground's share in the column's
++              ! clear share; at every hour, each shell's extra infrared escape as cooling, scaled with the levels'
++              ! temperature (dum3) to the fourth power, and the ground's from the infrared reaching it. RRTMG's
++              ! tendencies are temperature tendencies here, converted below with them.
++              IF( terluna_ntw.lt.0 )THEN
++                open(unit=96,file='terluna_twilight.txt',status='old',action='read')
++                read(96,*) terluna_ntw,terluna_nsh
++                allocate( terluna_tel(terluna_ntw), terluna_tgr(terluna_ntw), terluna_tz(terluna_nsh+1),  &
++                          terluna_tsh(terluna_nsh,terluna_ntw), terluna_lw(terluna_nsh), terluna_tt(terluna_nsh) )
++                read(96,*) terluna_tz
++                do terluna_l=1,terluna_ntw
++                  read(96,*) terluna_tel(terluna_l),terluna_tgr(terluna_l),terluna_tsh(:,terluna_l)
++                enddo
++                read(96,*) terluna_lw,terluna_lwg
++                read(96,*) terluna_tt,terluna_tg
++                close(unit=96)
++                if( myid.eq.0 ) print *,'  twilight table: ',terluna_ntw,' elevations, ',terluna_nsh,' shells'
++              ENDIF
++              allocate( terluna_s1(terluna_nsh) )
++              do j=1,nj
++              do i=1,ni
++                terluna_el = asin( max(-1.0,min(1.0,coszen(i,j))) )*180.0/pi
++                terluna_s1(:) = 0.0
++                if( terluna_el.ge.terluna_tel(1) .and. terluna_el.le.terluna_tel(terluna_ntw) )then
++                  terluna_lo = 1
++                  terluna_hi = terluna_ntw
++                  do while( terluna_hi-terluna_lo.gt.1 )
++                    terluna_m = (terluna_lo+terluna_hi)/2
++                    if( terluna_tel(terluna_m).gt.terluna_el )then
++                      terluna_hi = terluna_m
++                    else
++                      terluna_lo = terluna_m
++                    endif
++                  enddo
++                  terluna_u = (terluna_el-terluna_tel(terluna_lo))/(terluna_tel(terluna_hi)-terluna_tel(terluna_lo))
++                  terluna_s1(:) = solcon*( (1.0-terluna_u)*terluna_tsh(:,terluna_lo) + terluna_u*terluna_tsh(:,terluna_hi) )
++                  terluna_clear = 1.0
++                  do k=1,nk
++                    terluna_clear = terluna_clear*(1.0-max(0.0,min(1.0,cldfra(i,j,k))))
++                  enddo
++                  gsw(i,j) = gsw(i,j) + terluna_clear*solcon*( (1.0-terluna_u)*terluna_tgr(terluna_lo)  &
++                                                            + terluna_u*terluna_tgr(terluna_hi) )
++                endif
++                glw(i,j) = glw(i,j) - terluna_lwg*(tsk(i,j)/terluna_tg)**4
++                do k=1,nk
++                  terluna_e = 0.0
++                  terluna_f = 0.0
++                  do terluna_l=1,terluna_nsh
++                    terluna_ov = min(zf(i,j,k+1),terluna_tz(terluna_l+1)) - max(zf(i,j,k),terluna_tz(terluna_l))
++                    if( terluna_ov.gt.0.0 )then
++                      terluna_ov = terluna_ov/(terluna_tz(terluna_l+1)-terluna_tz(terluna_l))
++                      terluna_e = terluna_e + terluna_s1(terluna_l)*terluna_ov
++                      terluna_f = terluna_f + terluna_lw(terluna_l)*terluna_ov*(dum3(i,j,k)/terluna_tt(terluna_l))**4
++                    endif
++                  enddo
++                  swten(i,j,k) = swten(i,j,k) + terluna_e/(rho(i,j,k)*cp*(zf(i,j,k+1)-zf(i,j,k)))
++                  lwten(i,j,k) = lwten(i,j,k) - terluna_f/(rho(i,j,k)*cp*(zf(i,j,k+1)-zf(i,j,k)))
++                enddo
++              enddo
++              enddo
++              deallocate( terluna_s1 )
++            ENDIF
++
+         IF( eqtset.eq.2 )THEN
+           ! for Bryan-Fritsch equation set:
+           !$omp parallel do default(shared)  &

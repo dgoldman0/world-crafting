@@ -1,0 +1,147 @@
+--- a/src/mp_driver.F	2026-09-17 12:52:44.808160000 -0400
++++ b/src/mp_driver.F	2026-10-17 14:56:06.171764247 -0400
+@@ -21,7 +21,7 @@
+                          p3a,p3o,effc,effi,effs,effr,effg,effis,    &
+                          tdiag,qdiag,out2d,out3d,tmp2d,tmp1d,  &
+                          dowriteout,dorad,dotdwrite,doazimwrite,dorestart,  &
+-                         getdbz,getvt,getsed,getqdiags,dotbud,doqbud)
++                         getdbz,getvt,getsed,getqdiags,dotbud,doqbud,pt3d,mtime)
+ 
+     use input
+     use constants, only : pi,cp,cpv,cpl,cpi,rd,rv,rddcv,rovcp,cpdrd,lv1,ls1,xlv,xls,xlf,  &
+@@ -33,7 +33,7 @@
+     use module_mp_thompson , only : mp_gt_driver
+     use lfoice_module, only : lfo_ice_drive,lfoice_init
+     use module_mp_graupel , only : mp_graupel
+-    use module_mp_nssl_2mom, only : nssl_2mom_driver
++    use terluna_elec_module, only : terluna_nssl_elec ! Terluna: WRF-ELEC's NSSL driver, reordered
+     use microphy_p3, only : mp_p3_wrapper_wrf,mp_p3_wrapper_wrf_2cat
+     use module_mp_jensen_ishmael , only : mp_jensen_ishmael
+     use mp_wsm6 , only : refl10cm_wsm6,mp_wsm6_init
+@@ -72,6 +72,8 @@
+     logical, intent(in) :: dowriteout,dorad,dotdwrite,doazimwrite,dorestart
+     logical, intent(inout) :: getdbz,getvt,getsed,getqdiags
+     logical, intent(in) :: dotbud,doqbud
++    real, intent(inout), dimension(ibp:iep,jbp:jep,kbp:kep,npt) :: pt3d   ! Terluna: the charge tracers
++    double precision, intent(in) :: mtime   ! Terluna: the time at the step's start, for the lightning logs
+ 
+     !........
+ 
+@@ -820,8 +822,10 @@
+             has_reqs = 0
+           endif
+           
++          ! Terluna: WRF-ELEC NSSL driver: this step's rain (mm) comes back in dum5(:,:,2)
++          dum5(:,:,1:2) = 0.0
+           IF ( ptype .eq. 26 ) THEN  ! graupel only
+-             call nssl_2mom_driver(                          &
++             call terluna_nssl_elec(                         &
+                                th  = dum4,                   &
+                                qv  = q3d(ib,jb,kb, lv),      &
+                                qc  = q3d(ib,jb,kb, lc),      &
+@@ -847,28 +851,17 @@
+                                dz  =  dum2,                  &
+                                dtp = dt,                     &
+                                itimestep = nstep,            &
+-                              RAIN = rain,                   &
+-                              hail = hail,                   &
+-                              nrain = nrain,                 &
+-                              prate = prate,                 &
++                              RAINNC = dum5(ib,jb,1), RAINNCV = dum5(ib,jb,2), &
+                               dbz = qdiag(ibdq,jbdq,kbdq,qd_dbz), &
+-                              ruh = ruh, rvh = rvh, rmh = rmh, &
+                               dx = dx, dy = dy,              &
+-                              tcond = qbudget(1),            &
+-                              tevac = qbudget(2),            &
+-                              tevar = qbudget(5),            &
+-                              train = qbudget(6),            &
+-                              rr    = dum3,                  &
+                   re_cloud=effc, re_ice=effi, re_snow=effs,                  &
+                   has_reqc=has_reqc, has_reqi=has_reqi, has_reqs=has_reqs,   &
+-                              dorad = dorad,                 &
+                               diagflag = getdbz,             &
+-                  ib3d=ib3d,ie3d=ie3d,jb3d=jb3d,je3d=je3d,kb3d=kb3d,ke3d=ke3d, &
+-                  nout3d=nout3d,out3d=out3d,                                 &
++                              ids = -1000000, ide = 1000000, jds = -1000000, jde = 1000000, kds = 1, kde = nk+1, &
+                               ims = ib ,ime = ie , jms = jb ,jme = je, kms = kb,kme = ke,  &
+-                              its = 1 ,ite = ni, jts = 1,jte = nj, kts = 1,kte = nk)
++                              its = 1 ,ite = ni, jts = 1,jte = nj, kts = 1,kte = nk, pt3d = pt3d, mtime = mtime)
+          ELSEIF ( ptype .eq. 27 ) THEN
+-             call nssl_2mom_driver(                          &
++             call terluna_nssl_elec(                         &
+                                th  = dum4,                   &
+                                qv  = q3d(ib,jb,kb, lv),      &
+                                qc  = q3d(ib,jb,kb, lc),      &
+@@ -898,28 +891,17 @@
+                                dz  =  dum2,                  &
+                                dtp = dt,                     &
+                                itimestep = nstep,            &
+-                              RAIN = rain,                   &
+-                              hail = hail,                   &
+-                              nrain = nrain,                 &
+-                              prate = prate,                 &
++                              RAINNC = dum5(ib,jb,1), RAINNCV = dum5(ib,jb,2), &
+                               dbz = qdiag(ibdq,jbdq,kbdq,qd_dbz), &
+-                              ruh = ruh, rvh = rvh, rmh = rmh, &
+                               dx = dx, dy = dy,              &
+-                              tcond = qbudget(1),            &
+-                              tevac = qbudget(2),            &
+-                              tevar = qbudget(5),            &
+-                              train = qbudget(6),            &
+-                              rr    = dum3,                  &
+                   re_cloud=effc, re_ice=effi, re_snow=effs,                  &
+                   has_reqc=has_reqc, has_reqi=has_reqi, has_reqs=has_reqs,   &
+-                              dorad = dorad,                 &
+                               diagflag = getdbz,             &
+-                  ib3d=ib3d,ie3d=ie3d,jb3d=jb3d,je3d=je3d,kb3d=kb3d,ke3d=ke3d, &
+-                  nout3d=nout3d,out3d=out3d,                                 &
++                              ids = -1000000, ide = 1000000, jds = -1000000, jde = 1000000, kds = 1, kde = nk+1, &
+                               ims = ib ,ime = ie , jms = jb ,jme = je, kms = kb,kme = ke,  &
+-                              its = 1 ,ite = ni, jts = 1,jte = nj, kts = 1,kte = nk)
++                              its = 1 ,ite = ni, jts = 1,jte = nj, kts = 1,kte = nk, pt3d = pt3d, mtime = mtime)
+           ELSEIF ( ptype .eq. 28 ) THEN  ! single moment
+-             call nssl_2mom_driver(                          &
++             call terluna_nssl_elec(                         &
+                                th  = dum4,                   &
+                                qv  = q3d(ib,jb,kb, 1),       &
+                                qc  = q3d(ib,jb,kb, 2),       &
+@@ -934,27 +916,25 @@
+                                dz  =  dum2,                  &
+                                dtp = dt,                     &
+                                itimestep = nstep,            &
+-                              RAIN = rain,                   &
+-                              hail = hail,                   &
+-                              nrain = nrain,                 &
+-                              prate = prate,                 &
++                              RAINNC = dum5(ib,jb,1), RAINNCV = dum5(ib,jb,2), &
+                               dbz = qdiag(ibdq,jbdq,kbdq,qd_dbz), &
+-                              ruh = ruh, rvh = rvh, rmh = rmh, &
+                               dx = dx, dy = dy,              &
+-                              tcond = qbudget(1),            &
+-                              tevac = qbudget(2),            &
+-                              tevar = qbudget(5),            &
+-                              train = qbudget(6),            &
+-                              rr    = dum3,                  &
+-                              dorad = .false.,                 &
+                               diagflag = getdbz,                  &
+-                  ib3d=ib3d,ie3d=ie3d,jb3d=jb3d,je3d=je3d,kb3d=kb3d,ke3d=ke3d, &
+-                  nout3d=nout3d,out3d=out3d,                                 &
++                              ids = -1000000, ide = 1000000, jds = -1000000, jde = 1000000, kds = 1, kde = nk+1, &
+                               ims = ib ,ime = ie , jms = jb ,jme = je, kms = kb,kme = ke,  &
+-                              its = 1 ,ite = ni, jts = 1,jte = nj, kts = 1,kte = nk)
++                              its = 1 ,ite = ni, jts = 1,jte = nj, kts = 1,kte = nk, pt3d = pt3d, mtime = mtime)
+ 
+           ENDIF
+ 
++          do j=1,nj
++          do i=1,ni
++            prate(i,j) = dum5(i,j,2)/dt
++            do n=1,nrain
++              rain(i,j,n) = rain(i,j,n) + 0.1*dum5(i,j,2)
++            enddo
++          enddo
++          enddo
++
+         IF(eqtset.eq.2)THEN
+           ! for mass conservation:
+ !$omp parallel do default(shared)  &

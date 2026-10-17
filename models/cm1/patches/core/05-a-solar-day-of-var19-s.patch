@@ -1,0 +1,50 @@
+--- a/src/radiation_driver.F	2026-06-04 21:09:26.346583848 -0400
++++ b/src/radiation_driver.F	2026-10-17 14:56:05.938768517 -0400
+@@ -32,6 +32,7 @@
+                         mynn_qc_bl,mynn_qi_bl,mynn_cldfra_bl,testcase,               &
+                         timestats,mytime,time_rad
+       use constants, only : pi,g,cp,cpl,cpi,cv,cvv,rd,cvdcp,degdpi
++      use input, only : var12,var16,var17,var18,var19   ! Terluna: the lunar day
+       use bc_module, only : bcs
+       use radtrns3d_module, only : radtrns,setradwrk,zenangl,nrad2d,       &
+                                    nrsirbm,nrsirdf,nrsuvbm,nrsuvdf,ncosz,  &
+@@ -75,6 +76,7 @@
+ 
+       integer :: i,j,k
+       real :: saltitude,sazimuth,zen,rtime
++      real :: terluna_lat,terluna_s   ! Terluna: tilted rings
+       real :: albedo,albedoz,tema,temb,frac_snowcover
+       logical :: doirrad,dosorad
+ 
+@@ -568,6 +570,31 @@
+ !!!          albd = 0.07
+         ENDIF
+ 
++        IF( var19.gt.1.0 )THEN
++          ! Terluna: a solar day of var19 s and var17 W/m2 of sunlight above the air. The hour angle
++          ! starts at var18 degrees (0 = noon, -90 = sunrise); on a domain that wraps the Moon
++          ! (var16 = its length in m) it also grows eastward along x: on the circle of latitude ctrlat
++          ! by 360 degrees per var16, and on a great circle tilted var12 degrees to the equator, with x
++          ! from its northward equator crossing, by the longitude each column reaches.
++          solcon = var17
++          do j=1,nj
++          do i=1,ni
++            hrang(i,j) = ( var18 + 360.0*real((mtime+0.5*dtrad)/var19) )*pi/180.0
++            terluna_lat = ctrlat*pi/180.0
++            if( var16.gt.1.0 )then
++              if( var12.gt.0.0 )then
++                terluna_s = 2.0*pi*xh(i)/var16
++                terluna_lat = asin( sin(var12*pi/180.0)*sin(terluna_s) )
++                hrang(i,j) = hrang(i,j) + atan2( cos(var12*pi/180.0)*sin(terluna_s) , cos(terluna_s) )
++              else
++                hrang(i,j) = hrang(i,j) + 2.0*pi*xh(i)/var16
++              endif
++            endif
++            coszen(i,j) = min( 1.0 , max( -1.0 , cos(terluna_lat)*cos(hrang(i,j)) ) )
++          enddo
++          enddo
++        ENDIF
++
+         if( nstep.le.1 .and. myid.eq.0 )then
+           print *,'  solcon = ',solcon
+           print *,'  coszen = ',coszen(1,1),coszen(ni,nj)

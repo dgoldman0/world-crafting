@@ -1,0 +1,42 @@
+--- a/src/morrison.F	2026-10-17 14:56:05.934768590 -0400
++++ b/src/morrison.F	2026-10-17 14:56:06.076765988 -0400
+@@ -183,6 +183,7 @@
+      REAL, PRIVATE ::      AI,AC,AS,AR,AG ! 'A' PARAMETER IN FALLSPEED-DIAM RELATIONSHIP
+      REAL, PRIVATE ::      BI,BC,BS,BR,BG ! 'B' PARAMETER IN FALLSPEED-DIAM RELATIONSHIP
+      REAL, PRIVATE ::      VCAPR,VCAPS,VCAPG,VCAPI ! Terluna: fall-speed caps
++     REAL, PARAMETER, PRIVATE :: GFALL = 9.81 ! Terluna: Earth fall speeds for the rain test
+      REAL, PRIVATE ::      R           ! GAS CONSTANT FOR AIR
+      REAL, PRIVATE ::      RV          ! GAS CONSTANT FOR WATER VAPOR
+      REAL, PRIVATE ::      CP          ! SPECIFIC HEAT AT CONSTANT PRESSURE FOR DRY AIR
+@@ -464,14 +465,14 @@
+          ! Best number X proportional to g, so V ~ g^((B+1)/3) at a fixed size; the Stokes law for
+          ! cloud droplets takes G itself. The caps on mean fall speeds scale the same way.
+          G = terluna_g_host
+-         AI = AI*(G/9.81)**((BI+1.)/3.)
+-         AS = AS*(G/9.81)**((BS+1.)/3.)
+-         AR = AR*(G/9.81)**((BR+1.)/3.)
+-         AG = AG*(G/9.81)**((BG+1.)/3.)
+-         VCAPR = 9.1*(G/9.81)**((BR+1.)/3.)
+-         VCAPS = 1.2*(G/9.81)**((BS+1.)/3.)
+-         VCAPG = 20.*(G/9.81)**((BG+1.)/3.)
+-         VCAPI = 1.2*(G/9.81)**((BI+1.)/3.)
++         AI = AI*(GFALL/9.81)**((BI+1.)/3.)
++         AS = AS*(GFALL/9.81)**((BS+1.)/3.)
++         AR = AR*(GFALL/9.81)**((BR+1.)/3.)
++         AG = AG*(GFALL/9.81)**((BG+1.)/3.)
++         VCAPR = 9.1*(GFALL/9.81)**((BR+1.)/3.)
++         VCAPS = 1.2*(GFALL/9.81)**((BS+1.)/3.)
++         VCAPG = 20.*(GFALL/9.81)**((BG+1.)/3.)
++         VCAPI = 1.2*(GFALL/9.81)**((BI+1.)/3.)
+          QSMALL = 1.E-14
+          QTHR = 1.E-10
+          EII = 0.1
+@@ -1858,7 +1859,7 @@
+             ASN(K) = DUM*AS
+ !            ACN(K) = DUM*AC
+ ! AA revision 4/1/11: temperature-dependent Stokes fall speed
+-            ACN(K) = G*RHOW/(18.*MU(K))
++            ACN(K) = GFALL*RHOW/(18.*MU(K))
+ ! HM ADD GRAUPEL 8/28/06
+             AGN(K) = DUM*AG
+ 

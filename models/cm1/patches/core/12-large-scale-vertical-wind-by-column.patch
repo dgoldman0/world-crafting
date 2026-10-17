@@ -1,0 +1,11 @@
+--- a/src/input.F	2026-09-22 08:02:37.637891608 -0400
++++ b/src/input.F	2026-10-17 14:56:05.981767729 -0400
+@@ -4,6 +4,8 @@
+ 
+   public
+ 
++      real, dimension(:,:), allocatable :: terluna_w2   ! Terluna: large-scale vertical wind by column and w level
++
+       integer, parameter :: maxq = 100   ! maximum possible number of
+                                          ! q variables
+ 

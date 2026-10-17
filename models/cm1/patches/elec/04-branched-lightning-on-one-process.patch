@@ -1,0 +1,114 @@
+--- a/src/module_discharge_msz.F	2026-10-17 14:56:06.107765420 -0400
++++ b/src/module_discharge_msz.F	2026-10-17 14:56:06.167764320 -0400
+@@ -1,3 +1,4 @@
++! Terluna: branched lightning on one process (MicroTed/wrf4-elec e43041b), patched by climate/crm/cm1_elec.py
+ !
+ ! #define FLOAT_PRECISION MPI_DOUBLE_PRECISION
+ 
+@@ -31,7 +32,8 @@
+          local_communicator, mytask, ntasks, ntasks_x, ntasks_y,mytask_x, mytask_y
+       USE module_commasmpi ! , ONLY : w_proc,e_proc,s_proc,n_proc,mpi_setup_flag
+ #endif
+-      use module_boxmgsetup, only: igslg0, jgslg0, kgslg0
++      use module_boxmgsetup, only: igslg0, jgslg0, kgslg0, terluna_ebrk_lo, terluna_ebrk_hi, &
++     &   terluna_leader_ei, terluna_vapour, terluna_crosses ! Terluna
+ 
+       implicit none
+ 
+@@ -172,7 +174,7 @@
+       integer llx,lly,llz,lex,ley,lez
+       integer lemag,lpot,lstop,lemag2,lcharge
+       integer, parameter :: itest = 0
+-      integer, parameter :: ndebug = 1
++      integer, parameter :: ndebug = 0 ! Terluna
+       integer lgtinit
+       integer ieout,ndiscg
+       integer ndisic,ndisca
+@@ -315,6 +317,7 @@
+       real, parameter :: delq0 = 1.e-9       ! reference charge density change to scale NOx production
+       
+       integer :: idownward
++      logical :: tcross ! Terluna
+       integer :: ifoundic
+ 
+       integer, save :: itermax = 0 ! maximum iterations for flash search
+@@ -524,9 +527,7 @@
+ 
+        iunit = iunit0
+        
+-       IF ( mpi_setup_flag < 0 ) THEN
+-         CALL TASK_PROC_MAP()
+-       ENDIF
++       ! Terluna: one process, no MPI task map
+ 
+ !      allocate( scdisch(-nbw:nx+1+nbe,-nbs:ny+1+nbn,nz) )
+ !      allocate( scdisch0(-nbw:nx+1+nbe,-nbs:ny+1+nbn,nz) )
+@@ -625,6 +626,7 @@
+ 
+        ENDIF
+ 
++      IF ( allocated( ebrkd ) ) deallocate( ebrkd, ebrkdp, zlev, cghgt, t2, t4 ) ! Terluna: afresh each call
+       IF ( .not. allocated( ebrkd ) ) THEN ! {
+        IF ( ndebug > 2 ) THEN
+          write(iunit,*) 'msz allocate: nx,ny,nz,nbw,nbe,nbe,nbn = ',nx,ny,nz,nbw,nbe,nbe,nbn
+@@ -671,7 +673,7 @@
+       ELSEIF ( ibrkd .eq. 3 ) THEN
+         ebrkd(ix,jy,kz)= Min( ebrkd(ix,jy,kz), 100.0e3 )
+       ELSEIF ( ibrkd .eq. 4 ) THEN
+-        ebrkd(ix,jy,kz)= Max( 50.e3, Min( ebrkdp(ix,jy,kz), 180.0e3 ) )
++        ebrkd(ix,jy,kz)= Max( terluna_ebrk_lo, Min( ebrkdp(ix,jy,kz), terluna_ebrk_hi ) ) ! Terluna
+       ELSEIF ( ibrkd .eq. 5 ) THEN
+         ebrkd(ix,jy,kz)= Min( ebrkdp(ix,jy,kz), 100.0e3 )
+       ENDIF
+@@ -924,7 +926,7 @@
+        mpitotindp(1)  = chgpos
+        mpitotindp(2)  = chgneg
+ 
+-      CALL MPI_AllReduce(mpitotindp, mpitotoutdp, 2, MPI_DOUBLE_PRECISION, MPI_SUM, local_communicator, mpi_error_code)
++      mpitotoutdp(1:2) = mpitotindp(1:2) ! Terluna: one process
+ 
+        
+        chgpos = mpitotoutdp(1)  
+@@ -1901,7 +1903,7 @@
+       idebug = 0
+ !      if ( ndebug > 0 ) idebug = 1
+ 
+-      IF ( ntasks == 0 ) THEN
++      IF ( .false. ) THEN ! Terluna: one process; WRF always has a task
+       ie = 1 ! ex
+       call mlint2    & 
+      & (idebug, elec, -nbw, nx+1+nbe, 1, nz, -nbs, ny+1+nbn, 1, 4,    & 
+@@ -1990,7 +1992,7 @@
+ !
+ !  Integrate forward in time (along streamline)
+ !
+-      IF ( .false. .and. ntasks == 1 ) THEN ! only do horizontal if single processor -- for now.
++      IF ( .false. ) THEN ! Terluna: one process (the streamline stays vertical, as in WRF-ELEC)
+ !      IF ( ntasks == 1 ) THEN ! only do horizontal if single processor -- for now.
+       trje(in,it+1,llx) =     & 
+      &  trje(in,it,llx) + dtelec(in) * trje(in,it,lex)
+@@ -2035,7 +2037,13 @@
+       nttimendcg(in) = it
+ !
+ ! check for ground flash .... 
+-      if (  idownward == 1 .and. &
++      tcross = .true. ! Terluna: a downward leader's crossing to the ground (module_boxmgsetup)
++      IF ( terluna_leader_ei > 0.0 .and. idownward == 1 .and. &
++          (trje(in,it,llz) .lt. zgrnd .or. (zgrnd < 0. .and. trje(in,it,ltemg) > tgrnd) .or. kc <= 2 ) ) THEN
++        tcross = terluna_crosses(trje(in,1,lpot), trje(in,1,llz), trje(in,it,llz), nz, pot(ic,1:nz,jc), &
++                                 db(ic,1:nz,jc), dzz(ic,1:nz,jc), terluna_vapour(ic,1:nz,jc))
++      ENDIF
++      if (  idownward == 1 .and. tcross .and. &
+           (trje(in,it,llz) .lt. zgrnd .or. (zgrnd < 0. .and. trje(in,it,ltemg) > tgrnd) &
+             .or. kc <= 2 ) &
+          .and. &
+@@ -4737,7 +4745,8 @@
+          local_communicator, mytask, ntasks, ntasks_x, ntasks_y,mytask_x, mytask_y
+       USE module_commasmpi ! , ONLY : w_proc,e_proc,s_proc,n_proc,mpi_setup_flag
+ #endif
+-      use module_boxmgsetup, only: igslg0, jgslg0, kgslg0
++      use module_boxmgsetup, only: igslg0, jgslg0, kgslg0, terluna_ebrk_lo, terluna_ebrk_hi, &
++     &   terluna_leader_ei, terluna_vapour, terluna_crosses ! Terluna
+ 
+       implicit none
+ 

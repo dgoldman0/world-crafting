@@ -1,0 +1,35 @@
+--- a/src/Makefile	2026-09-22 09:29:07.664008859 -0400
++++ b/src/Makefile	2026-10-17 14:56:06.184764009 -0400
+@@ -132,6 +132,12 @@
+ 	morrison.F \
+ 	module_mp_jensen_ishmael.F \
+ 	module_mp_nssl_2mom.F \
++	terluna_lightning.F \
++	terluna_mlint2.F \
++	module_discharge_msz.F \
++	terluna_branched.F \
++	terluna_screen.F \
++	terluna_elec.F \
+ 	module_mp_p3.F \
+ 	mp_driver.F \
+ 	param.F \
+@@ -263,12 +269,18 @@
+ module_sf_myjsfc.o: module_ra_etc.o
+ morrison.o: input.o constants.o
+ module_mp_jensen_ishmael.o: input.o module_ra_etc.o
+-mp_driver.o: constants.o input.o misclibs.o kessler.o goddard.o thompson.o lfoice.o morrison.o module_mp_nssl_2mom.o module_mp_p3.o module_mp_jensen_ishmael.o mmm_physics_wrapper.o mp_wsm6.o
++mp_driver.o: terluna_elec.o constants.o input.o misclibs.o kessler.o goddard.o thompson.o lfoice.o morrison.o module_mp_nssl_2mom.o module_mp_p3.o module_mp_jensen_ishmael.o mmm_physics_wrapper.o mp_wsm6.o
+ param.o: constants.o input.o init_terrain.o bc.o comm.o thompson.o morrison.o module_mp_nssl_2mom.o goddard.o lfoice.o module_mp_p3.o module_mp_jensen_ishmael.o ib_module.o eddy_recycle.o lsnudge.o mp_wsm6.o ccpp_kind_types.o
+ parcel.o: constants.o input.o cm1libs.o bc.o comm.o writeout_nc.o
+ pdef.o: input.o bc.o comm.o
+ pdcomp.o: constants.o input.o poiss.o ib_module.o
+ poiss.o: input.o singleton.o
++# Terluna: electrified NSSL
++terluna_lightning.o: singleton.o
++module_discharge_msz.o: terluna_lightning.o
++terluna_branched.o: module_discharge_msz.o terluna_lightning.o
++terluna_elec.o: input.o constants.o module_mp_nssl_2mom.o terluna_lightning.o terluna_branched.o terluna_screen.o
++cm1.o: terluna_elec.o
+ radiation_driver.o: constants.o input.o bc.o radtrns3d.o module_ra_etc.o module_ra_rrtmg_lw.o module_ra_rrtmg_sw.o
+ radtrns3d.o: irrad3d.o sorad3d.o radlib3d.o
+ restart_write.o: input.o writeout_nc.o lsnudge.o

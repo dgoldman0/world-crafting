@@ -1,0 +1,11 @@
+--- a/src/adv.F	2026-10-17 14:56:05.988767601 -0400
++++ b/src/adv.F	2026-10-17 14:56:06.035766739 -0400
+@@ -2533,7 +2533,7 @@
+     IF( dolsw )THEN
+       ! vertical advection from specified large-scale w profile:
+ 
+-      call terluna_wsub(ni  ,nj+1,nk  ,v3d,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs,0)   ! Terluna: w by column
++      call terluna_wsub(ni  ,nj+1,nk  ,v3d,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs,2)   ! Terluna: v points take each column's own wind
+ 
+     ENDIF
+ 

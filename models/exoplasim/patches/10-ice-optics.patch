@@ -1,0 +1,196 @@
+--- a/plasim/src/radmod.f90	2026-10-17 14:54:13.282833890 -0400
++++ b/plasim/src/radmod.f90	2026-10-17 14:54:13.284833853 -0400
+@@ -136,6 +136,8 @@
+       real :: lwcl(NLEV+1) = 0.0 ! Terluna: the longwave by height, extra escape of each layer over land
+       real :: lwcs(NLEV+1) = 0.0 ! Terluna: the same over sea
+       real :: lwct(NLEV+1) = 0.0 ! Terluna: the temperatures they are given at
++      integer :: niceopt = 0     ! Terluna: ice optics for cold cloud, 1 for cloud colder than ticeopt
++      real :: ticeopt = 235.15   ! Terluna: the temperature below which cloud is ice
+       integer :: ngasbands = 0   ! Terluna: 1 adds CO2 and O2 to the sunlight's absorbers
+       real :: zgasq(5,3) = 0.0   ! Terluna: their fits (a, b, c, d, n): CO2 and O2 near infrared, O2 visible
+       real :: zgasw(2) = 0.0     ! Terluna: the mass fractions of CO2 and O2
+@@ -634,7 +636,7 @@
+      &               ,nsol,nclouds,nswrcl,nrscat,rcl1,rcl2,acl2,clgray,tpofmt   &
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+      &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale,irtopday,irtopnight  &
+-     &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar,nlwcorr
++     &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar,nlwcorr,niceopt,ticeopt
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -827,6 +829,8 @@
+       call mpbcrn(zmlunar,3)
+       call mpbci(ntwilw)
+       call mpbci(nlwcorr)
++      call mpbci(niceopt)
++      call mpbcr(ticeopt)
+       if (nlwcorr == 1) then   ! Terluna: the longwave by height
+        if (mypid == NROOT) then
+         open(48,file='lwcorr.dat',form='formatted',status='old')
+@@ -1841,6 +1845,8 @@
+          ztcl2(:,jlev)=zcs(:)*ztcl2(:,jlev)+(1.-zcs(:))*ztcl2s(:,jlev)
+          zrcl2(:,jlev)=zcs(:)*zrcl2(:,jlev)+(1.-zcs(:))*zrcl2s(:,jlev)
+         endwhere
++        if (niceopt == 1) call ice_cloud_sw(jlev,zmu0,zcs,losun,zrcl1(:,jlev),zrcl1s(:,jlev) & ! Terluna: ice
++     &                       ,zrcl2(:,jlev),ztcl2(:,jlev),zrcl2s(:,jlev),ztcl2s(:,jlev))
+         zcs(:)=zcs(:)*(1.-dcc(:,jlev))
+        enddo ! jlev
+       endif ! (nswrcl == 0)
+@@ -2477,6 +2483,7 @@
+        else
+         ztaucc0(:,jlev)=1.-dcc(:,jlev)*(1.-exp(zzf3*dql(:,jlev)*dp(:)))
+        endif
++       if (niceopt == 1 .and. clgray <= 0.) call ice_cloud_lw(jlev,ztaucc0(:,jlev)) ! Terluna: ice
+       enddo
+ !
+ !     b) transmissivities, effective radiations and fluxes
+@@ -2691,6 +2698,149 @@
+       return
+       end subroutine lw_correction
+ 
++      subroutine ice_cloud_sw(jlev,zmu0,zcs,losun,zr1,zr1s,zr2,zt2,zr2s,zt2s)
++      use radmod
++      implicit none
++!
++!     Terluna: ice optics for cold cloud (climate/gcm/plasim_ice_optics.py). Where a sunlit layer's cloud is colder
++!     than ticeopt, its reflection and transmission come from Ebert and Curry's (1992) ice optics as CAM3 and RRTMG
++!     carry them, at the radius ice_radius gives, through the atmosphere domain's delta-scaled PIFM two-stream:
++!     band 1 from their visible band, band 2 as the sunlight-weighted sum of their four near-infrared bands. As in
++!     PlaSim, light under cloud higher up (1 - zcs) counts as diffuse.
++!
++      integer, intent(in) :: jlev
++      real, intent(in) :: zmu0(NHOR), zcs(NHOR)
++      logical, intent(in) :: losun(NHOR)
++      real, intent(inout) :: zr1(NHOR), zr1s(NHOR), zr2(NHOR), zt2(NHOR), zr2s(NHOR), zt2s(NHOR)
++      real, parameter :: zea = 3.448e-03, zeb = 2.431   ! extinction per g/m2: zea + zeb/r, r in microns
++      real, parameter :: zec(5) = (/1.000e-05, 1.100e-04, 1.240e-02, 3.779e-02, 4.666e-01/)   ! 1 - omega: zec + zed r
++      real, parameter :: zed(5) = (/0.000e+00, 1.405e-05, 6.867e-04, 1.284e-03, 2.050e-05/)
++      real, parameter :: zee(5) = (/7.661e-01, 7.730e-01, 7.865e-01, 8.172e-01, 9.595e-01/)   ! asymmetry: zee + zef r
++      real, parameter :: zef(5) = (/5.851e-04, 5.665e-04, 7.204e-04, 7.463e-04, 1.076e-04/)
++      real, parameter :: zew(4) = (/0.6164, 0.2283, 0.0811, 0.0742/)   ! bands 2-5 in band 2
++      real, external :: ice_radius
++      integer :: jhor, jb
++      real :: zre, zwp, ztau, zmu, zrd, ztd, zrf, ztf, zr, zt, zrs, zts
++      do jhor = 1, NHOR
++       if (.not. losun(jhor)) cycle
++       if (dcc(jhor,jlev) <= 0. .or. dt(jhor,jlev) >= ticeopt) cycle
++       zre = ice_radius(dt(jhor,jlev))
++       zwp = min(1000.,1000.*dql(jhor,jlev)*dp(jhor)/ga*dsigma(jlev))
++       ztau = zwp*(zea+zeb/zre)
++       zmu = max(zmu0(jhor),1e-04)
++       call ice_pifm(ztau,1.-zec(1)-zed(1)*zre,min(zee(1)+zef(1)*zre,0.9999),zmu,zrd,ztd,zrf,ztf)
++       zr1s(jhor) = zrf
++       zr1(jhor) = zcs(jhor)*zrd+(1.-zcs(jhor))*zrf
++       zr = 0.
++       zt = 0.
++       zrs = 0.
++       zts = 0.
++       do jb = 2, 5
++        call ice_pifm(ztau,1.-zec(jb)-zed(jb)*zre,min(zee(jb)+zef(jb)*zre,0.9999),zmu,zrd,ztd,zrf,ztf)
++        zr = zr+zew(jb-1)*zrd
++        zt = zt+zew(jb-1)*ztd
++        zrs = zrs+zew(jb-1)*zrf
++        zts = zts+zew(jb-1)*ztf
++       enddo
++       zr2s(jhor) = zrs
++       zt2s(jhor) = zts
++       zr2(jhor) = zcs(jhor)*zr+(1.-zcs(jhor))*zrs
++       zt2(jhor) = zcs(jhor)*zt+(1.-zcs(jhor))*zts
++      enddo
++      return
++      end subroutine ice_cloud_sw
++
++      subroutine ice_cloud_lw(jlev,ztaucc)
++      use radmod
++      implicit none
++!
++!     Terluna: ice optics for cold cloud in the infrared: Ebert and Curry's grey absorption, 0.005 + 1/r m2/g, in
++!     place of acllwr where the layer is colder than ticeopt, with PlaSim's diffusivity factor
++!
++      integer, intent(in) :: jlev
++      real, intent(inout) :: ztaucc(NHOR)
++      real, external :: ice_radius
++      integer :: jhor
++      real :: zwp
++      do jhor = 1, NHOR
++       if (dt(jhor,jlev) >= ticeopt) cycle
++       zwp = 1000.*dql(jhor,jlev)*dp(jhor)/ga*dsigma(jlev)
++       ztaucc(jhor) = 1.-dcc(jhor,jlev)*(1.-exp(-1.66*(0.005+1./ice_radius(dt(jhor,jlev)))*zwp))
++      enddo
++      return
++      end subroutine ice_cloud_lw
++
++      real function ice_radius(zt)
++      implicit none
++!
++!     Terluna: the ice effective radius (microns) at temperature zt (K): Kristjansson and Mitchell's table for
++!     hexagonal columns at 180-274 K as CAM3 and WRF's RRTMG carry it (reicalc), and below 180 K its own trend
++!
++      real, intent(in) :: zt
++      real, parameter :: zretab(95) = (/5.92779, 6.26422, 6.61973, 6.99539, 7.39234, 7.81177, 8.25496, 8.72323, &
++     &   9.218, 9.74075, 10.293, 10.8765, 11.4929, 12.144, 12.8317, 13.5581, &
++     &   14.2319, 15.0351, 15.8799, 16.7674, 17.6986, 18.6744, 19.6955, 20.7623, &
++     &   21.8757, 23.0364, 24.2452, 25.5034, 26.8125, 27.7895, 28.645, 29.4167, &
++     &   30.1088, 30.7306, 31.2943, 31.8151, 32.3077, 32.787, 33.2657, 33.754, &
++     &   34.2601, 34.7892, 35.3442, 35.9255, 36.5316, 37.1602, 37.8078, 38.472, &
++     &   39.1508, 39.8442, 40.5552, 41.2912, 42.0635, 42.8876, 43.7863, 44.7853, &
++     &   45.917, 47.2165, 48.7221, 50.471, 52.498, 54.8315, 57.4898, 60.4785, &
++     &   63.7898, 65.5604, 71.2885, 75.4113, 79.7368, 84.2351, 88.8833, 93.6658, &
++     &   98.5739, 103.603, 108.752, 114.025, 119.424, 124.954, 130.63, 136.457, &
++     &   142.446, 148.608, 154.956, 161.503, 168.262, 175.248, 182.473, 189.952, &
++     &   197.699, 205.728, 214.055, 222.694, 231.661, 240.971, 250.639/)
++      integer :: ji
++      real :: zc
++      if (zt < 180.) then
++       ice_radius = zretab(1)*exp(log(zretab(2)/zretab(1))*(zt-180.))
++      else
++       ji = min(int(zt-179.),94)
++       zc = zt-real(179+ji)
++       ice_radius = zretab(ji)*(1.-zc)+zretab(ji+1)*zc
++      endif
++      return
++      end function ice_radius
++
++      subroutine ice_pifm(ptau,pom,pg,pmu,prdir,ptdir,prdif,ptdif)
++      implicit none
++!
++!     Terluna: a homogeneous layer's delta-scaled PIFM two-stream (Zdunkowski et al. 1980, Joseph et al. 1976) as
++!     in the atmosphere domain's shortwave.layer_properties: the direct beam's reflection and total transmission per
++!     unit flux on a horizontal surface, then the diffuse reflection and transmission
++!
++      real, intent(in) :: ptau, pom, pg, pmu
++      real, intent(out) :: prdir, ptdir, prdif, ptdif
++      real :: zf, zts, zoms, zgs, zg1, zg2, zg3, zg4, zlam, zmu, zgam, ze, zeb, zden, zdet, za, zb, zup, zdn
++      real :: za1, za2
++      zf = pg*pg
++      zts = (1.-pom*zf)*ptau
++      zoms = min((1.-zf)*pom/(1.-pom*zf),1.-1.e-9)
++      zgs = (pg-zf)/(1.-zf)
++      zg1 = (8.-zoms*(5.+3.*zgs))/4.
++      zg2 = 3.*zoms*(1.-zgs)/4.
++      zg3 = (2.-3.*zgs*pmu)/4.
++      zg4 = 1.-zg3
++      zlam = sqrt(max(zg1*zg1-zg2*zg2,1.e-30))
++      zmu = pmu
++      if (abs(1.-(zlam*zmu)**2) < 1.e-6) zmu = zmu*(1.+1.e-4)
++      zgam = zg2/(zg1+zlam)
++      ze = exp(-zlam*zts)
++      zeb = exp(-zts/zmu)
++      zden = 1.-zgam*zgam*ze*ze
++      prdif = zgam*(1.-ze*ze)/zden
++      ptdif = ze*(1.-zgam*zgam)/zden
++      zdet = 1./zmu**2-zlam*zlam
++      za = zg1+1./zmu
++      zb = zg1-1./zmu
++      zup = zoms*(-zb*zg3-zg2*zg4)/zdet
++      zdn = -zoms*(za*zg4+zg2*zg3)/zdet
++      za1 = (zgam*ze*zup*zeb-zdn)/zden
++      za2 = -zgam*ze*za1-zup*zeb
++      prdir = max((zgam*za1+za2*ze+zup)/zmu,0.)
++      ptdir = max((za1*ze+zgam*za2+zdn*zeb)/zmu,0.)+zeb
++      return
++      end subroutine ice_pifm
++
+ !     **********************
+ !     Generic Orbit Routines
+ !     **********************

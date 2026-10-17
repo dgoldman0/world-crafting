@@ -1,0 +1,56 @@
+--- a/src/adv.F	2025-08-28 15:53:27.343485592 -0400
++++ b/src/adv.F	2026-10-17 14:56:05.988767601 -0400
+@@ -29,7 +29,7 @@
+                         timestats,time_advs,mytime
+       use constants, only : nrkmax
+       use pdef_module, only : pdefx1,pdefx2,pdefy1,pdefy2,pdefz
+-      use adv_routines, only : advsaxi,wsub,                                       &
++      use adv_routines, only : advsaxi,wsub,terluna_wsub,                                       &
+                                hadv_flx2,hadv_flx3,hadv_flx4,hadv_flx5,hadv_flx6,  &
+                                hadv_flx7,hadv_flx8,hadv_flx9,hadv_flx10,           &
+                                vadv_flx2,vadv_flx3,vadv_flx4,vadv_flx5,vadv_flx6,  &
+@@ -609,7 +609,7 @@
+     IF( dolsw )THEN
+       ! vertical advection from specified large-scale w profile:
+ 
+-      call     wsub(ni  ,nj  ,nk  ,s  ,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs)
++      call terluna_wsub(ni  ,nj  ,nk  ,s  ,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs,0)   ! Terluna: w by column
+ 
+       !$omp parallel do default(shared)   &
+       !$omp private(i,j,k)
+@@ -948,7 +948,7 @@
+                         ud_hadv,ud_vadv,ud_hidiff,ud_vidiff,ud_hediff,ud_lsw,           &
+                         timestats,time_advu,mytime
+       use constants, only : nrkmax,epsilon
+-      use adv_routines, only : advuaxi,wsub,vadv_axiu,                             &
++      use adv_routines, only : advuaxi,wsub,terluna_wsub,vadv_axiu,                             &
+                                hadv_flx2,hadv_flx3,hadv_flx4,hadv_flx5,hadv_flx6,  &
+                                hadv_flx7,hadv_flx8,hadv_flx9,hadv_flx10,           &
+                                vadv_flx2,vadv_flx3,vadv_flx4,vadv_flx5,vadv_flx6,  &
+@@ -1538,7 +1538,7 @@
+     IF( dolsw )THEN
+       ! vertical advection from specified large-scale w profile:
+ 
+-      call     wsub(ni+1,nj  ,nk  ,u3d,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs)
++      call terluna_wsub(ni+1,nj  ,nk  ,u3d,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs,1)   ! Terluna: w by column
+ 
+     ENDIF
+ 
+@@ -1910,7 +1910,7 @@
+                         vd_hadv,vd_vadv,vd_hidiff,vd_vidiff,vd_hediff,vd_lsw,           &
+                         timestats,time_advv,mytime
+       use constants, only : nrkmax,epsilon
+-      use adv_routines, only : advvaxi,wsub,                                       &
++      use adv_routines, only : advvaxi,wsub,terluna_wsub,                                       &
+                                hadv_flx2,hadv_flx3,hadv_flx4,hadv_flx5,hadv_flx6,  &
+                                hadv_flx7,hadv_flx8,hadv_flx9,hadv_flx10,           &
+                                vadv_flx2,vadv_flx3,vadv_flx4,vadv_flx5,vadv_flx6,  &
+@@ -2533,7 +2533,7 @@
+     IF( dolsw )THEN
+       ! vertical advection from specified large-scale w profile:
+ 
+-      call     wsub(ni  ,nj+1,nk  ,v3d,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs)
++      call terluna_wsub(ni  ,nj+1,nk  ,v3d,wprof,c1,c2,mh,rr0,rf0,weps,dumz,subs,0)   ! Terluna: w by column
+ 
+     ENDIF
+ 

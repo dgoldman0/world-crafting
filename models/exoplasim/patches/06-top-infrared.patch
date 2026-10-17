@@ -1,0 +1,41 @@
+--- a/plasim/src/radmod.f90	2026-10-17 14:54:13.272834073 -0400
++++ b/plasim/src/radmod.f90	2026-10-17 14:54:13.275834018 -0400
+@@ -119,6 +119,8 @@
+       real :: rayscale = 1.0     ! Terluna: multiplier on rcoeff, calibrated against line-by-line
+       integer :: nsunclock = 0   ! Terluna: the Sun's clock (0 PlaSim's, 1 a turn per model day, 2 synodic)
+       real :: swh2oscale = 1.0   ! Terluna: multiplier on water vapour's shortwave absorptivity
++      real :: irtopday = 0.0     ! Terluna: infrared from space at the top of the air by day, W/m2
++      real :: irtopnight = 0.0   ! Terluna: and by night
+       
+ !
+ !     2.5 orbital parameters
+@@ -612,7 +614,7 @@
+      &               ,a0o3,a1o3,aco3,bo3,co3,toffo3,o3scale,newrsc,necham,necham6   &
+      &               ,nsol,nclouds,nswrcl,nrscat,rcl1,rcl2,acl2,clgray,tpofmt   &
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+-     &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale
++     &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale,irtopday,irtopnight
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -799,6 +801,8 @@
+       call mpbcr(rayscale)
+       call mpbci(nsunclock)
+       call mpbcr(swh2oscale)
++      call mpbcr(irtopday)
++      call mpbcr(irtopnight)
+       
+       call mpbci(l_aerorad)
+ 
+@@ -2277,6 +2281,11 @@
+ !*    top downward flux, surface grayness and surface upward flux
+ !
+       zbd(:,0)=SBK*zttop**4 !We could add IR flux from M dwarf host star here? --AYP
++      where (gmu0(:) > 0.)    ! Terluna: infrared from space at the top of the air
++       zbd(:,0)=zbd(:,0)+irtopday
++      elsewhere
++       zbd(:,0)=zbd(:,0)+irtopnight
++      endwhere
+       zeps(:)=dls(:)+0.98*(1.-dls(:))
+       zbu(:,NLEP)=zeps(:)*zst4(:,NLEP)
+       zbue1(:,NLEP)=0.

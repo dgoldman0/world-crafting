@@ -1,0 +1,78 @@
+--- a/src/base.F	2026-09-21 11:22:21.180082507 -0400
++++ b/src/base.F	2026-10-17 14:56:05.979767766 -0400
+@@ -109,6 +109,10 @@
+       real :: wsp10,cd,znt,ust,wspr,gam,wsp1,wsp2,wtop,wref,radsfc,qvsfc,thsfc
+       real :: uval,vval,vmax,wmin
+       real :: z1,z2,z3,z4,z5,z6,z7,z8,z9
++      integer :: terluna_n,terluna_l,terluna_nc,terluna_c
++      real :: terluna_x
++      real, dimension(:), allocatable :: terluna_z,terluna_w
++      real, dimension(:,:), allocatable :: terluna_wc
+       real :: th1,th2,th3,th4,th5,th6,th7,th8,th9
+       real :: qv1,qv2,qv3,qv4,qv5,qv6,qv7,qv8,qv9
+       real :: pilast,thvlast,zlast,qt,thl,z_inv,th0last,lwp
+@@ -3009,6 +3013,64 @@
+     enddo
+ 
+ 
++    IF( var13.gt.0.5 .and. var13.lt.1.5 )THEN
++      ! Terluna: the large-scale vertical wind from terluna_wls.txt: a level count, then one line per level,
++      ! height (m) and vertical wind (m/s), heights increasing; interpolated to the w levels, zero outside
++      open(unit=97,file='terluna_wls.txt',status='old',action='read')
++      read(97,*) terluna_n
++      allocate( terluna_z(terluna_n) , terluna_w(terluna_n) )
++      do terluna_l=1,terluna_n
++        read(97,*) terluna_z(terluna_l),terluna_w(terluna_l)
++      enddo
++      close(unit=97)
++      do k=1,nk+1
++        wprof(k) = 0.0
++        do terluna_l=1,terluna_n-1
++          if( zf(1,1,k).ge.terluna_z(terluna_l) .and. zf(1,1,k).le.terluna_z(terluna_l+1) )then
++            wprof(k) = terluna_w(terluna_l) + (terluna_w(terluna_l+1)-terluna_w(terluna_l))     &
++                     *(zf(1,1,k)-terluna_z(terluna_l))/(terluna_z(terluna_l+1)-terluna_z(terluna_l))
++          endif
++        enddo
++        if( myid.eq.0 ) print *,'  Terluna large-scale w (k, z, w): ',k,zf(1,1,k),wprof(k)
++      enddo
++      deallocate( terluna_z , terluna_w )
++    ENDIF
++
++    IF( var13.gt.1.5 )THEN
++      ! Terluna: the large-scale vertical wind varying along x, from terluna_wls2d.txt: the column and level
++      ! counts, the level heights (m), then for each column, evenly spaced from x = 0 around the ring, its
++      ! vertical wind (m/s) at those heights; interpolated to the w levels, zero outside the table
++      open(unit=97,file='terluna_wls2d.txt',status='old',action='read')
++      read(97,*) terluna_nc,terluna_n
++      allocate( terluna_z(terluna_n) , terluna_wc(terluna_nc,terluna_n) )
++      read(97,*) (terluna_z(terluna_l),terluna_l=1,terluna_n)
++      do terluna_c=1,terluna_nc
++        read(97,*) (terluna_wc(terluna_c,terluna_l),terluna_l=1,terluna_n)
++      enddo
++      close(unit=97)
++      if( .not. allocated(terluna_w2) ) allocate( terluna_w2(ib:ie,kb:ke+1) )
++      terluna_w2 = 0.0
++      do i=ib,ie
++        terluna_x = ( real(i+myi1-1) - 0.5 )*dx
++        terluna_c = 1 + modulo( int(floor(terluna_x/var16*real(terluna_nc))) , terluna_nc )
++        do k=2,nk
++          do terluna_l=1,terluna_n-1
++            if( zf(1,1,k).ge.terluna_z(terluna_l) .and. zf(1,1,k).le.terluna_z(terluna_l+1) )then
++              terluna_w2(i,k) = terluna_wc(terluna_c,terluna_l)                                          &
++                  + (terluna_wc(terluna_c,terluna_l+1)-terluna_wc(terluna_c,terluna_l))                  &
++                  *(zf(1,1,k)-terluna_z(terluna_l))/(terluna_z(terluna_l+1)-terluna_z(terluna_l))
++            endif
++          enddo
++        enddo
++      enddo
++      wprof = 0.0
++      do k=2,nk
++        wprof(k) = sum( terluna_w2(1:ni,k) )/real(ni)
++      enddo
++      if( myid.eq.0 ) print *,'  Terluna large-scale w varies along x: columns, levels ',terluna_nc,terluna_n
++      deallocate( terluna_z , terluna_wc )
++    ENDIF
++
+     ! boundary conditions:
+     wprof(1) = 0.0
+     wprof(nk+1) = 0.0

@@ -1,0 +1,139 @@
+--- a/src/solve1.F	2026-10-17 14:56:05.998767418 -0400
++++ b/src/solve1.F	2026-10-17 14:56:06.019767033 -0400
+@@ -232,6 +232,12 @@
+       real :: delqv,delpi,delth,delt,fac,epsd,dheat,dz1,xs
+       real :: foo1,foo2
+       real :: dttmp,rtime,rdt,tem,tem0,tem1,tem2,thrad,prad,terluna_w
++      integer :: terluna_kz   ! Terluna: nudging over terrain
++      real :: terluna_fz
++      real, dimension(nk) :: terluna_dev
++      real, dimension(:), allocatable, save :: terluna_sw
++      integer, dimension(:,:,:), allocatable, save :: terluna_nk
++      real, dimension(:,:,:), allocatable, save :: terluna_nf,terluna_nw
+       integer, save :: terluna_nb = 0, terluna_nl = 0   ! Terluna: large-scale horizontal advection by local time
+       real, dimension(:), allocatable, save :: terluna_az
+       real, dimension(:,:), allocatable, save :: terluna_ath,terluna_aqv
+@@ -1849,10 +1855,60 @@
+       if( donudge .and. do_lsnudge_th )then
+         if( myid.eq.0 ) print *,'  applying large-scale nudging of theta, lsnudge_count = ',lsnudge_count
+         rdt = 1.0/dt
++        ! Terluna: nudging over terrain, each column at its own height: at each level, the mean of the columns'
++        ! departures from the reference at their own heights, weighted by how fully each column's height there is
++        ! held (above var14 m, fully above var15 m), applied to each column with its weight. The reference is
++        ! given on the first column's levels; where each column's levels fall on it, and their weights, are found
++        ! once and kept. Without terrain, the domain mean against the reference.
++        do k=1,nk
++          terluna_dev(k) = thavg(k)-lsnudge_th(k,lsnudge_count)
++        enddo
++        if( terrain_flag )then
++          if( .not. allocated(terluna_nk) )then
++            allocate( terluna_nk(ni,nj,nk) , terluna_nf(ni,nj,nk) , terluna_nw(ni,nj,nk) , terluna_sw(nk) )
++            terluna_sw = 0.0
++            do j=1,nj
++            do i=1,ni
++              terluna_kz = 1
++              do k=1,nk
++                do while( terluna_kz.lt.nk-1 .and. zh(1,1,terluna_kz+1).lt.zh(i,j,k) )
++                  terluna_kz = terluna_kz+1
++                enddo
++                terluna_nk(i,j,k) = terluna_kz
++                terluna_nf(i,j,k) = max(0.0,min(1.0,(zh(i,j,k)-zh(1,1,terluna_kz))/(zh(1,1,terluna_kz+1)-zh(1,1,terluna_kz))))
++                terluna_nw(i,j,k) = 1.0
++                if( var15.gt.var14 ) terluna_nw(i,j,k) = min(1.0,max(0.0,(zh(i,j,k)-var14)/(var15-var14)))
++                terluna_sw(k) = terluna_sw(k) + terluna_nw(i,j,k)
++              enddo
++            enddo
++            enddo
++          endif
++          !$omp parallel do default(shared) private(i,j,k,terluna_kz)
++          do k=1,nk
++            terluna_dev(k) = 0.0
++            if( terluna_sw(k).gt.0.0 )then
++              do j=1,nj
++              do i=1,ni
++                terluna_kz = terluna_nk(i,j,k)
++                terluna_dev(k) = terluna_dev(k) + terluna_nw(i,j,k)*( th0(i,j,k)+tha(i,j,k)                                  &
++                    - ( lsnudge_th(terluna_kz,lsnudge_count)                                                   &
++                      + terluna_nf(i,j,k)*(lsnudge_th(terluna_kz+1,lsnudge_count)-lsnudge_th(terluna_kz,lsnudge_count)) ) )
++              enddo
++              enddo
++              terluna_dev(k) = terluna_dev(k)/terluna_sw(k)
++              do j=1,nj
++              do i=1,ni
++                thten1(i,j,k) = thten1(i,j,k) - lsnudgefac*terluna_nw(i,j,k)*terluna_dev(k)/(lsnudge_tau)
++              enddo
++              enddo
++            endif
++          enddo
++          terluna_dev = 0.0   ! applied above, column by column; the domain-wide step below adds nothing
++        endif
+         do k=1,nk
+           terluna_w = 1.0   ! Terluna: above var14 m only, fully above var15 m
+           if( var15.gt.var14 ) terluna_w = min(1.0,max(0.0,(zh(1,1,k)-var14)/(var15-var14)))
+-          tem1 = -lsnudgefac*terluna_w*( thavg(k)-lsnudge_th(k,lsnudge_count) )/(lsnudge_tau)
++          tem1 = -lsnudgefac*terluna_w*terluna_dev(k)/(lsnudge_tau)
+           ! apply nudging tendency:
+           do j=1,nj
+           do i=1,ni
+@@ -1871,10 +1927,60 @@
+       if( donudge .and. do_lsnudge_qv .and. imoist.eq.1 )then
+         if( myid.eq.0 ) print *,'  applying large-scale nudging of qv, lsnudge_count = ',lsnudge_count
+         rdt = 1.0/dt
++        ! Terluna: nudging over terrain, each column at its own height: at each level, the mean of the columns'
++        ! departures from the reference at their own heights, weighted by how fully each column's height there is
++        ! held (above var14 m, fully above var15 m), applied to each column with its weight. The reference is
++        ! given on the first column's levels; where each column's levels fall on it, and their weights, are found
++        ! once and kept. Without terrain, the domain mean against the reference.
++        do k=1,nk
++          terluna_dev(k) = qavg(k,nqv)-lsnudge_qv(k,lsnudge_count)
++        enddo
++        if( terrain_flag )then
++          if( .not. allocated(terluna_nk) )then
++            allocate( terluna_nk(ni,nj,nk) , terluna_nf(ni,nj,nk) , terluna_nw(ni,nj,nk) , terluna_sw(nk) )
++            terluna_sw = 0.0
++            do j=1,nj
++            do i=1,ni
++              terluna_kz = 1
++              do k=1,nk
++                do while( terluna_kz.lt.nk-1 .and. zh(1,1,terluna_kz+1).lt.zh(i,j,k) )
++                  terluna_kz = terluna_kz+1
++                enddo
++                terluna_nk(i,j,k) = terluna_kz
++                terluna_nf(i,j,k) = max(0.0,min(1.0,(zh(i,j,k)-zh(1,1,terluna_kz))/(zh(1,1,terluna_kz+1)-zh(1,1,terluna_kz))))
++                terluna_nw(i,j,k) = 1.0
++                if( var15.gt.var14 ) terluna_nw(i,j,k) = min(1.0,max(0.0,(zh(i,j,k)-var14)/(var15-var14)))
++                terluna_sw(k) = terluna_sw(k) + terluna_nw(i,j,k)
++              enddo
++            enddo
++            enddo
++          endif
++          !$omp parallel do default(shared) private(i,j,k,terluna_kz)
++          do k=1,nk
++            terluna_dev(k) = 0.0
++            if( terluna_sw(k).gt.0.0 )then
++              do j=1,nj
++              do i=1,ni
++                terluna_kz = terluna_nk(i,j,k)
++                terluna_dev(k) = terluna_dev(k) + terluna_nw(i,j,k)*( qa(i,j,k,nqv)                                  &
++                    - ( lsnudge_qv(terluna_kz,lsnudge_count)                                                   &
++                      + terluna_nf(i,j,k)*(lsnudge_qv(terluna_kz+1,lsnudge_count)-lsnudge_qv(terluna_kz,lsnudge_count)) ) )
++              enddo
++              enddo
++              terluna_dev(k) = terluna_dev(k)/terluna_sw(k)
++              do j=1,nj
++              do i=1,ni
++                qten(i,j,k,nqv) = qten(i,j,k,nqv) - lsnudgefac*terluna_nw(i,j,k)*terluna_dev(k)/(lsnudge_tau)
++              enddo
++              enddo
++            endif
++          enddo
++          terluna_dev = 0.0   ! applied above, column by column; the domain-wide step below adds nothing
++        endif
+         do k=1,nk
+           terluna_w = 1.0   ! Terluna: above var14 m only, fully above var15 m
+           if( var15.gt.var14 ) terluna_w = min(1.0,max(0.0,(zh(1,1,k)-var14)/(var15-var14)))
+-          tem1 = -lsnudgefac*terluna_w*( qavg(k,nqv)-lsnudge_qv(k,lsnudge_count) )/(lsnudge_tau)
++          tem1 = -lsnudgefac*terluna_w*terluna_dev(k)/(lsnudge_tau)
+           ! apply nudging tendency:
+           do j=1,nj
+           do i=1,ni

@@ -1,0 +1,530 @@
+--- a/src/module_discharge_msz.F	2026-10-17 14:56:06.104765475 -0400
++++ b/src/module_discharge_msz.F	2026-10-17 14:56:06.107765420 -0400
+@@ -539,7 +539,7 @@
+        etot =0.
+        lightsuccess = 0
+ 
+-!       write(0,*) ,'DIS: elght1,elgt1,lightrad=',elght1,elgt1,lightrad
++!       write(iunit,*) ,'DIS: elght1,elgt1,lightrad=',elght1,elgt1,lightrad
+ 
+ #ifdef DM_PARALLEL 
+ 
+@@ -563,20 +563,20 @@
+               itile = nx
+               jtile = ny
+ 
+-!        write(0,*) '+============BEFORE DISCHARGE============+'
+-!        write(0,*) 'SCTOT MIN', MINVAL(sctot(:,:,:))
+-!        write(0,*) 'SCTOT MAX', MAXVAL(sctot(:,:,:))
+-!        write(0,*) 'ELECMAG MAX',MAXVAL(elec(1:nx,1:nz,1:ny)),MAXLOC(elec(1:nx,1:nz,1:ny))
+-!        write(0,*) 'SCW MIN', MINVAL(scw(:,:,:))
+-!        write(0,*) 'SCW MAX', MAXVAL(scw(:,:,:))
+-!        write(0,*) 'SCR MIN', MINVAL(scr(:,:,:))
+-!        write(0,*) 'SCR MAX', MAXVAL(scr(:,:,:))
+-!        write(0,*) 'SCH MIN', MINVAL(sch(:,:,:))
+-!        write(0,*) 'SCH MAX', MAXVAL(sch(:,:,:))
+-!        write(0,*) 'SCI MIN', MINVAL(sci(:,:,:))
+-!        write(0,*) 'SCI MAX', MAXVAL(sci(:,:,:))
+-!        write(0,*) 'SCS MIN', MINVAL(scs(:,:,:))
+-!        write(0,*) 'SCS MAX', MAXVAL(scs(:,:,:))
++!        write(iunit,*) '+============BEFORE DISCHARGE============+'
++!        write(iunit,*) 'SCTOT MIN', MINVAL(sctot(:,:,:))
++!        write(iunit,*) 'SCTOT MAX', MAXVAL(sctot(:,:,:))
++!        write(iunit,*) 'ELECMAG MAX',MAXVAL(elec(1:nx,1:nz,1:ny)),MAXLOC(elec(1:nx,1:nz,1:ny))
++!        write(iunit,*) 'SCW MIN', MINVAL(scw(:,:,:))
++!        write(iunit,*) 'SCW MAX', MAXVAL(scw(:,:,:))
++!        write(iunit,*) 'SCR MIN', MINVAL(scr(:,:,:))
++!        write(iunit,*) 'SCR MAX', MAXVAL(scr(:,:,:))
++!        write(iunit,*) 'SCH MIN', MINVAL(sch(:,:,:))
++!        write(iunit,*) 'SCH MAX', MAXVAL(sch(:,:,:))
++!        write(iunit,*) 'SCI MIN', MINVAL(sci(:,:,:))
++!        write(iunit,*) 'SCI MAX', MAXVAL(sci(:,:,:))
++!        write(iunit,*) 'SCS MIN', MINVAL(scs(:,:,:))
++!        write(iunit,*) 'SCS MAX', MAXVAL(scs(:,:,:))
+ 
+ !
+ !  compute ebrkz (breakdown field as a function of z)
+@@ -621,13 +621,13 @@
+          ijmask(-1:1,-1:1) = 2
+        ENDIF
+        
+-!      write(0,*) 'allocated ijmask. nxm = ',nxm,lightrad,ix
++!      write(iunit,*) 'allocated ijmask. nxm = ',nxm,lightrad,ix
+ 
+        ENDIF
+ 
+       IF ( .not. allocated( ebrkd ) ) THEN ! {
+        IF ( ndebug > 2 ) THEN
+-         write(0,*) 'msz allocate: nx,ny,nz,nbw,nbe,nbe,nbn = ',nx,ny,nz,nbw,nbe,nbe,nbn
++         write(iunit,*) 'msz allocate: nx,ny,nz,nbw,nbe,nbe,nbn = ',nx,ny,nz,nbw,nbe,nbe,nbn
+        ENDIF
+        allocate( ebrkd(-nbw:nx+1+nbe,-nbs:ny+1+nbn,nz) )
+        allocate( ebrkdp(-nbw:nx+1+nbe,-nbs:ny+1+nbn,nz) )
+@@ -676,7 +676,7 @@
+         ebrkd(ix,jy,kz)= Min( ebrkdp(ix,jy,kz), 100.0e3 )
+       ENDIF
+     
+-!      if (ix.eq.1.and.jy.eq.1) write(0,*) 'erbd', ebrkd(ix,jy,kz),kz,zlev(ix,jy,kz),dzz(ix,kz,jy)
++!      if (ix.eq.1.and.jy.eq.1) write(iunit,*) 'erbd', ebrkd(ix,jy,kz),kz,zlev(ix,jy,kz),dzz(ix,kz,jy)
+  
+ !      ecrit(ix,kz,jy)=ebrkd(ix,jy,kz)
+ 
+@@ -773,7 +773,7 @@
+       end do
+       end do
+       
+-!      write(0,*) 'ninit = ',ninit
++!      write(iunit,*) 'ninit = ',ninit
+       
+ #ifdef DM_PARALLEL
+ ! find global integrated rate max
+@@ -790,7 +790,7 @@
+       IF ( ntasks .gt. 1 .and. nr > 0 .and. ninit > 0 ) THEN ! because cylinder might encompass several tiles..
+ 
+         IF ( ntasks_x > 1 ) THEN
+-!        write(0,*) 'send_west, ntask_x = ',ntasks_x
++!        write(iunit,*) 'send_west, ntask_x = ',ntasks_x
+         westward_tag = 201
+         CALL sendrecv_westward(nx,ny,1,nr,nr,0,nr,1,  &
+      &        w_proc,e_proc,westward_tag,xy_init)
+@@ -804,7 +804,7 @@
+         southward_tag = 203
+         
+         IF ( ntasks_y > 1 ) THEN
+-!        write(0,*) 'send_north, ntask_y = ',ntasks_y
++!        write(iunit,*) 'send_north, ntask_y = ',ntasks_y
+         CALL sendrecv_southward(nx,ny,1,nr,nr,0,nr,1,  &
+      &        n_proc,s_proc,southward_tag,xy_init)
+ 
+@@ -816,7 +816,7 @@
+       ENDIF
+ #endif
+ 
+-       write(6,*) 'ETOT,ninit', ETOT,ninit
++       write(iunit,*) 'ETOT,ninit', ETOT,ninit
+        loccur = 0
+        IF ( ninit > 0 ) loccur = 1
+ 
+@@ -930,7 +930,7 @@
+        chgpos = mpitotoutdp(1)  
+        chgneg = mpitotoutdp(2)  
+ 
+-       write(6,*) 'CHG SUM' , chgpos,chgneg
++       write(iunit,*) 'CHG SUM' , chgpos,chgneg
+ !#endif
+ 
+ !     otherwise X=Y=0 --> disch=0. so if enough + charge alone for elecmag > ecrit will loop infinitely because scdich =0 and no changes will occur on sctot and elec.
+@@ -960,7 +960,7 @@
+       endif
+       
+ 
+-      write(6,*) 'X,Y', x,y,chg! ,chgpos,chgneg
++      write(iunit,*) 'X,Y', x,y,chg! ,chgpos,chgneg
+ 
+        totneg1 = 0.0
+        totpos1 = 0.0
+@@ -986,7 +986,7 @@
+         scdisch(ix,jy,kz) = ( (sctot(ix,kz,jy) - chgthr)*x )/db(ix,kz,jy) !y
+       ENDIF
+       
+-       if (abs(scdisch(ix,jy,kz)).gt.1.e-3) write(6,*) 'scdisch,sctot', scdisch(ix,jy,kz),sctot(ix,kz,jy)     
++       if (abs(scdisch(ix,jy,kz)).gt.1.e-3) write(iunit,*) 'scdisch,sctot', scdisch(ix,jy,kz),sctot(ix,kz,jy)     
+ 
+        IF ( scdisch(ix,jy,kz) /= 0.0 ) THEN
+ 
+@@ -1012,8 +1012,8 @@
+        totneg2 = totneg2 + Min(0.0, sctot(ix,kz,jy)*dv)
+        totpos2 = totpos2 + Max(0.0, sctot(ix,kz,jy)*dv)
+      
+-!      if (sctot(ix,kz,jy).lt.0.) write(0,*) 'IN DISCHARGE', sctot(ix,kz,jy),sch(ix,kz,jy),scr(ix,kz,jy),sci(ix,kz,jy),scs(ix,kz,jy),scw(ix,kz,jy),ix,jy,kz
+-!      if (sctot(ix,kz,jy).lt.0.) write(0,*) 'IN DISCHARGE', scw(ix,kz,jy),scdisch(ix,jy,kz),fracw,fractot,qc(ix,kz,jy),rhow,qnc(ix,kz,jy),fracs,fraci,frach,fracr,qr(ix,kz,jy),rhor,qnr(ix,kz,jy)
++!      if (sctot(ix,kz,jy).lt.0.) write(iunit,*) 'IN DISCHARGE', sctot(ix,kz,jy),sch(ix,kz,jy),scr(ix,kz,jy),sci(ix,kz,jy),scs(ix,kz,jy),scw(ix,kz,jy),ix,jy,kz
++!      if (sctot(ix,kz,jy).lt.0.) write(iunit,*) 'IN DISCHARGE', scw(ix,kz,jy),scdisch(ix,jy,kz),fracw,fractot,qc(ix,kz,jy),rhow,qnc(ix,kz,jy),fracs,fraci,frach,fracr,qr(ix,kz,jy),rhor,qnr(ix,kz,jy)
+ 
+       
+       end do
+@@ -1045,22 +1045,22 @@
+       ENDIF
+ 
+ 
+-!        write(6,*) '+============AFTER DISCHARGE============+'
+-!        write(6,*) 'SCTOT MIN', MINVAL(sctot(:,:,:))
+-!        write(6,*) 'SCTOT MAX', MAXVAL(sctot(:,:,:))
+-!        write(0,*) 'ELEC MAG MAX',MAXVAL(elec(1:nx,1:nz,1:ny)),MAXLOC(elec(1:nx,1:nz,1:ny))
+-!        write(0,*) 'SCW MIN', MINVAL(scw(:,:,:))
+-!        write(0,*) 'SCW MAX', MAXVAL(scw(:,:,:))
+-!        write(0,*) 'SCR MIN', MINVAL(scr(:,:,:))
+-!        write(0,*) 'SCR MAX', MAXVAL(scr(:,:,:))
+-!        write(0,*) 'SCH MIN', MINVAL(sch(:,:,:))
+-!        write(0,*) 'SCH MAX', MAXVAL(sch(:,:,:))
+-!        write(0,*) 'SCI MIN', MINVAL(sci(:,:,:))
+-!        write(0,*) 'SCI MAX', MAXVAL(sci(:,:,:))
+-!        write(0,*) 'SCS MIN', MINVAL(scs(:,:,:))
+-!        write(0,*) 'SCS MAX', MAXVAL(scs(:,:,:))
+-!        if (iter .gt.0) write(0,*) 'SCDIS MAX', MAXVAL(scdisch(:,:,:))
+-!        if (iter .gt.0) write(0,*) 'FRACTOT MAX', MAXVAL(fractot(:,:,:))
++!        write(iunit,*) '+============AFTER DISCHARGE============+'
++!        write(iunit,*) 'SCTOT MIN', MINVAL(sctot(:,:,:))
++!        write(iunit,*) 'SCTOT MAX', MAXVAL(sctot(:,:,:))
++!        write(iunit,*) 'ELEC MAG MAX',MAXVAL(elec(1:nx,1:nz,1:ny)),MAXLOC(elec(1:nx,1:nz,1:ny))
++!        write(iunit,*) 'SCW MIN', MINVAL(scw(:,:,:))
++!        write(iunit,*) 'SCW MAX', MAXVAL(scw(:,:,:))
++!        write(iunit,*) 'SCR MIN', MINVAL(scr(:,:,:))
++!        write(iunit,*) 'SCR MAX', MAXVAL(scr(:,:,:))
++!        write(iunit,*) 'SCH MIN', MINVAL(sch(:,:,:))
++!        write(iunit,*) 'SCH MAX', MAXVAL(sch(:,:,:))
++!        write(iunit,*) 'SCI MIN', MINVAL(sci(:,:,:))
++!        write(iunit,*) 'SCI MAX', MAXVAL(sci(:,:,:))
++!        write(iunit,*) 'SCS MIN', MINVAL(scs(:,:,:))
++!        write(iunit,*) 'SCS MAX', MAXVAL(scs(:,:,:))
++!        if (iter .gt.0) write(iunit,*) 'SCDIS MAX', MAXVAL(scdisch(:,:,:))
++!        if (iter .gt.0) write(iunit,*) 'FRACTOT MAX', MAXVAL(fractot(:,:,:))
+       
+ !
+ !  write out that there is  a lightning discharge
+@@ -1218,7 +1218,7 @@
+ 
+       IF (mpi_error_code /= MPI_SUCCESS) THEN
+ 
+-        WRITE(0,*) my_rank, "mudlight: about to CALL MPI_Abort after Allreduce attempt"
++        write(iunit,*) my_rank, "mudlight: about to CALL MPI_Abort after Allreduce attempt"
+ 
+         CALL MPI_Abort(local_communicator, mpi_error_code,mpi_abort_error_code)
+       ENDIF
+@@ -1249,7 +1249,7 @@
+ 
+       IF (mpi_error_code /= MPI_SUCCESS) THEN
+ 
+-        WRITE(0,*) my_rank, "mudlight: about to CALL MPI_Abort after Allreduce attempt"
++        write(iunit,*) my_rank, "mudlight: about to CALL MPI_Abort after Allreduce attempt"
+ 
+         CALL MPI_Abort(local_communicator, mpi_error_code,mpi_abort_error_code)
+       ENDIF
+@@ -1279,7 +1279,7 @@
+ 
+       IF (mpi_error_code /= MPI_SUCCESS) THEN
+ 
+-        WRITE(0,*) my_rank, "mudlight: about to CALL MPI_Abort after Gather attempt"
++        write(iunit,*) my_rank, "mudlight: about to CALL MPI_Abort after Gather attempt"
+ 
+         CALL MPI_Abort(MPI_COMM_WORLD, mpi_error_code,mpi_abort_error_code)
+ 
+@@ -1316,7 +1316,7 @@
+ 
+       IF (mpi_error_code /= MPI_SUCCESS) THEN
+ 
+-        WRITE(0,*) my_rank, "mudlight: about to CALL MPI_Abort after Gather attempt"
++        write(iunit,*) my_rank, "mudlight: about to CALL MPI_Abort after Gather attempt"
+ 
+         CALL MPI_Abort(MPI_COMM_WORLD, mpi_error_code,mpi_abort_error_code)
+ 
+@@ -1465,7 +1465,7 @@
+         ninit = ninit + 1
+         lightinit(ix,jy) = 1
+         IF (ninit .gt. npick) THEN
+-          write(6,'(a)') 'Ee-gad! Over-ran the ipick array! ABORT!'
++          write(iunit,'(a)') 'Ee-gad! Over-ran the ipick array! ABORT!'
+           STOP
+         END IF
+         ipick(ninit,1) = ix
+@@ -1495,7 +1495,7 @@
+ 
+        IF (mpi_error_code /= MPI_SUCCESS) THEN
+ 
+-        WRITE(0,*) my_rank, "discharge_msz: about to CALL MPI_Abort after Gather attempt"
++        write(iunit,*) my_rank, "discharge_msz: about to CALL MPI_Abort after Gather attempt"
+ 
+         CALL MPI_Abort(MPI_COMM_WORLD, mpi_error_code,mpi_abort_error_code)
+ 
+@@ -1556,15 +1556,15 @@
+         
+       iretry = iretry+1
+ !      IF (iretry .gt. nretry) THEN
+-!         write(6,'(a)') 'Too many channel tries...abort.'
++!         write(iunit,'(a)') 'Too many channel tries...abort.'
+ !           lgtstp = 1
+ !           loccur = 0
+ !         go to 2999
+ !      END IF
+             
+-      if ( ndebug >= 1 .and. my_rank == 0 ) write(*,*)  'find lightning initiation pt. Try # ',iretry 
++      if ( ndebug >= 1 .and. my_rank == 0 ) write(iunit,*)  'find lightning initiation pt. Try # ',iretry 
+       IF (ninittot .eq. 0) THEN
+-        IF ( my_rank == 0 ) write(6, '(a)') ' No more starting points, try next timestep'
++        IF ( my_rank == 0 ) write(iunit, '(a)') ' No more starting points, try next timestep'
+         lgtstp = 1
+ !        loccur = 0 ! do not set this 
+         GOTO 2999
+@@ -1572,8 +1572,8 @@
+ 
+       ichoose = int(real(ninittot)*ran0mpi(iseed)) + 1
+       IF ( my_rank == 0 ) THEN
+-      write (6,'(a,i4)') 'ichoose = ',ichoose
+-!      write(6,'(a,3(1x,i3))') 'Picked point ',islgt,jslgt,kslgt
++      write(iunit,'(a,i4)') 'ichoose = ',ichoose
++!      write(iunit,'(a,3(1x,i3))') 'Picked point ',islgt,jslgt,kslgt
+       ENDIF
+ 
+       ichooserank = 0
+@@ -1706,8 +1706,8 @@
+ ! find neighboring point with largest E and make it the first bond.
+ 
+     IF ( my_rank == 0 ) THEN
+-      ! write(6,*) 'LIGHTNING INITIATION LOCATION AND |E|'
+-      write(6,*) 'NSTEP,ILITER = ', nstep,iliter
++      ! write(iunit,*) 'LIGHTNING INITIATION LOCATION AND |E|'
++      write(iunit,*) 'NSTEP,ILITER = ', nstep,iliter
+       write(iunit,*) 'ISLGT, JSLGT, KSLGT : ',islgt,jslgt, kslgt
+       write(iunit,*) 'emag,pot,ez,zc,tem = ',emag,pot1,ez,zinit,temp ! z1d2(kslgt_local,1)
+     ENDIF
+@@ -1721,7 +1721,7 @@
+ !  draw a streamline along the efield lines until the efield threshold
+ !  is found and store the potential value for the + and - regions
+ !
+-      if ( ndebug > 1 .and. my_rank == 0 )write(*,*) 'generate +/- channels'
++      if ( ndebug > 1 .and. my_rank == 0 )write(iunit,*) 'generate +/- channels'
+       dt = 4.0 ! dtp
+       times = dtp*(nstep-1)
+ !
+@@ -1733,28 +1733,28 @@
+ !
+ !  initiate position of trajectories
+ !
+-      if ( ndebug > 2 ) write(0,*) 'check 2: islgt_local,jslgt_local,dx,dy = ',  &
++      if ( ndebug > 2 ) write(iunit,*) 'check 2: islgt_local,jslgt_local,dx,dy = ',  &
+      &       islgt_local,jslgt_local,kslgt,dx,dy,zlev(kslgt,islgt_local,jslgt_local)
+       IF ( my_rank == ichooserank ) THEN !{
+       trje(1,1,llx) = (islgt-1)*dx
+       trje(2,1,llx) = (islgt-1)*dx
+-!      if ( ndebug > 2 ) write(0,*) 'check 2a'
++!      if ( ndebug > 2 ) write(iunit,*) 'check 2a'
+       trje(1,1,lly) = (jslgt-1)*dy
+       trje(2,1,lly) = (jslgt-1)*dy
+-!      if ( ndebug > 2 ) write(0,*) 'check 2b'
++!      if ( ndebug > 2 ) write(iunit,*) 'check 2b'
+       trje(1,1,llz) = zlev(kslgt,islgt_local,jslgt_local) ! z1d2(kslgt,1) ! (kslgt-1)*dz
+       trje(2,1,llz) = zlev(kslgt,islgt_local,jslgt_local) ! z1d2(kslgt,1) ! (kslgt-1)*dz
+ !      trje(1,1,llz) = (kslgt-1)*dz
+ !      trje(2,1,llz) = (kslgt-1)*dz
+       
+       if ( ndebug > 2 ) THEN 
+-        write(0,*) 'check 2c',elgtfestop,elgtfestopcg
+-        write(0,*) 'ebrkd: ',ebrkd(islgt_local,jslgt_local,kslgt)
++        write(iunit,*) 'check 2c',elgtfestop,elgtfestopcg
++        write(iunit,*) 'ebrkd: ',ebrkd(islgt_local,jslgt_local,kslgt)
+       ENDIF
+         
+       DO kz=1,nz
+ !        estop(kz) =  Min( (elgtthn)*ebrkd(islgt,jslgt,kz)/elgtthx,elgtthn)
+-!        if ( ndebug > 2 ) write(0,*) 'check 2d kz=',kz
++!        if ( ndebug > 2 ) write(iunit,*) 'check 2d kz=',kz
+         estop(kz)   =  elgtfestop*ebrkd(islgt_local,jslgt_local,kz)
+         estopcg(kz) =  elgtfestopcg*ebrkd(islgt_local,jslgt_local,kz)
+       ENDDO
+@@ -1763,7 +1763,7 @@
+ !
+ !  Set nttimend
+ !
+-      if ( ndebug > 2 ) write(0,*) 'check 3'
++      if ( ndebug > 2 ) write(iunit,*) 'check 3'
+       nttimend(1) = 0
+       nttimend(2) = 0
+       nttimendcg(1) = 0
+@@ -1823,7 +1823,7 @@
+ !  find lower left corner of grid cell that trajectory
+ !  end point is currently in for interpolation of scalars
+ !
+-      if ( ndebug > 2 ) write(0,*) 'get ic, jc, kc, '
++      if ( ndebug > 2 ) write(iunit,*) 'get ic, jc, kc, '
+ 
+ ! subtract off igslg0/jgslg0 to translate to local coordinates
+ 
+@@ -1843,12 +1843,12 @@
+       
+ 
+       if ( ndebug > 2 ) THEN
+-        write(0,*) 'ic, jc, kc =',ic,jc,kc,iep,je
+-        write(0,*) 'trje(llz),z1d2(1) = ',trje(in,it,llz),z1d2(1,1)
++        write(iunit,*) 'ic, jc, kc =',ic,jc,kc,iep,je
++        write(iunit,*) 'trje(llz),z1d2(1) = ',trje(in,it,llz),z1d2(1,1)
+       ENDIF
+       
+       IF ( kc < 1 ) THEN
+-        write(0,*) 'error: kc < 1: kc,trje(llz),z1d2(1,1) = ',kc,trje(in,it,llz),z1d2(1,1)
++        write(iunit,*) 'error: kc < 1: kc,trje(llz),z1d2(1,1) = ',kc,trje(in,it,llz),z1d2(1,1)
+         trje(in,it,llz) = z1d2(1,1)
+         kc = 1
+       ENDIF
+@@ -1861,7 +1861,7 @@
+        z1d2(kz,2) = z1d2(kz,1) + 0.5*dzz(ic,kz,jc) ! 0.5*(z1d2(kz-1,1) + z1d2(kz,1)) ! set scalar-point as average of w points
+        z1d2(kz-1,4) = dzz(ic,kz,jc) ! z1d2(kz,2) - z1d2(kz-1,2)
+        z1d2(kz,3) = 0.5*(dzz(ic,kz-1,jc) + dzz(ic,kz,jc) )
+-!       write(0,*) 'kz,z1d2 = ',kz,z1d2(kz,1),z1d2(kz,2),z1d2(kz,3),z1d2(kz,4),z1d2(kz,2) - z1d2(kz-1,2)
++!       write(iunit,*) 'kz,z1d2 = ',kz,z1d2(kz,1),z1d2(kz,2),z1d2(kz,3),z1d2(kz,4),z1d2(kz,2) - z1d2(kz-1,2)
+       ENDDO
+       z1d2(nz,4) = z1d2(nz-1,4)
+       z1d2(nz,2) = z1d2(nz-1,2) + z1d2(nz,4)
+@@ -1943,12 +1943,12 @@
+      &  1, 1, nx, nz, ny, tem, facx, facz, facy,ic,kc,jc, 1)
+       trje(in,it,ltemg) = tem
+       if ( ndebug > 2 ) THEN
+-        write(0,*) 'trje(ltemg),tgrd = ',trje(in,it,ltemg), tgrnd
++        write(iunit,*) 'trje(ltemg),tgrd = ',trje(in,it,ltemg), tgrnd
+       ENDIF
+-!      write(0,*) 'temint: ic,kc,jc,facz = ',ic,kc,jc,facz
+-!      write(0,*) 'temint: nbw',nbw0,nx+1+nbe0, 1, nz,nbs0,ny+1+nbn0
+-!      write(0,*) 'temint: ims,ime = ',ims,ime,kms,kme,jms,jme
+-!      write(0,*) 'temint: tem,temg = ',tem,temg(ic,kc,jc),temg(ic,kc-1,jc),temg(ic,kc+1,jc)
++!      write(iunit,*) 'temint: ic,kc,jc,facz = ',ic,kc,jc,facz
++!      write(iunit,*) 'temint: nbw',nbw0,nx+1+nbe0, 1, nz,nbs0,ny+1+nbn0
++!      write(iunit,*) 'temint: ims,ime = ',ims,ime,kms,kme,jms,jme
++!      write(iunit,*) 'temint: tem,temg = ',tem,temg(ic,kc,jc),temg(ic,kc-1,jc),temg(ic,kc+1,jc)
+ 
+ !      do ie = 1,neelec
+ !      call mlint1    & 
+@@ -1984,7 +1984,7 @@
+       dtcomp = (.1)*min(dx,dzz(ic,kc,jc))    & 
+      &       / max(trje(in,it,lemag2),elgtthn)
+       dtelec(in) = idtsign*dtcomp
+-      if ( ndebug .ge. 2 ) write(6,*) 'dtelec',dtelec(in),min(dx,dzz(ic,kc,jc)),    & 
++      if ( ndebug .ge. 2 ) write(iunit,*) 'dtelec',dtelec(in),min(dx,dzz(ic,kc,jc)),    & 
+      &  trje(in,it,lemag2),dtelec(in)*trje(in,it,lemag2)
+       end if
+ !
+@@ -2393,7 +2393,7 @@
+             END DO
+           END IF ! (chanlen .gt. 500.0*chcnt)
+         END DO  ! it
+-     IF ( my_rank == 0 ) write(6,'(2(a,i3))') 'added ',nchadd(in),    &
++     IF ( my_rank == 0 ) write(iunit,'(2(a,i3))') 'added ',nchadd(in),    &
+      &       ' points along channel end ',in
+         
+       END IF    ! (ichend(in) .gt. 1 .and. isignt .ne. 999) 
+@@ -2588,7 +2588,7 @@
+       jsendn = idxlgt(ichneg,nttimend(ichneg),2)
+       ksendn = idxlgt(ichneg,nttimend(ichneg),3)
+       ELSE
+-       write(0,*) 'Bad value of nttimend(ichneg)! nttimend,ichneg = ',nttimend(ichneg),ichneg
++       write(iunit,*) 'Bad value of nttimend(ichneg)! nttimend,ichneg = ',nttimend(ichneg),ichneg
+        stop
+       ENDIF
+ !
+@@ -2602,7 +2602,7 @@
+       jsendp = idxlgt(ichpos,nttimend(ichpos),2)
+       ksendp = idxlgt(ichpos,nttimend(ichpos),3)
+       ELSE
+-       write(0,*) 'Bad value of nttimend(ichpos)! nttimend,ichpos = ',nttimend(ichpos),ichpos
++       write(iunit,*) 'Bad value of nttimend(ichpos)! nttimend,ichpos = ',nttimend(ichpos),ichpos
+        stop
+       ENDIF
+ !
+@@ -2870,7 +2870,7 @@
+         t4(isendp-igslg0,jsendp-jgslg0,ksendp) = itype*maxdist
+       ENDIF
+       
+-!      write(0,*) 'call searchl for pos end'
++!      write(iunit,*) 'call searchl for pos end'
+       call searchl   &
+      &  (itype,itermax,maxdist,icountp,isendp,jsendp,ksendp,id1,jd1,kd1   &
+      &  ,nx,ny,nz,nx,ny,nz,nxend,nyend,1   &
+@@ -2889,13 +2889,13 @@
+ ! set starting point
+         t4(isendn-igslg0,jsendn-jgslg0,ksendn) = itype*maxdist
+       ENDIF
+-!      write(0,*) 'call searchl for neg end'
++!      write(iunit,*) 'call searchl for neg end'
+       call searchl   &
+      &  (itype,itermax,maxdist,icountn,isendn,jsendn,ksendn,id1,jd1,kd1   &
+      &  ,nx,ny,nz,nx,ny,nz,nxend,nyend,1   &
+      &  ,cons1,cons2,t2,t4,icgpflg,klgtmin,ibal)
+       end if
+-!      write(0,*) 'done searchl'
++!      write(iunit,*) 'done searchl'
+ ! calculate lnox in positive and negative continuous discharge regions
+       IF ( f_clnox ) THEN
+       do kz = 1,nz-kd1
+@@ -2914,7 +2914,7 @@
+       ENDDO
+       ENDIF
+       
+-!      write(0,*) 'icgpflg,icgnflg= ',icgpflg,icgnflg
++!      write(iunit,*) 'icgpflg,icgnflg= ',icgpflg,icgnflg
+       
+       IF ( icgpflg /= 0 .or. icgnflg /= 0 ) THEN
+ !        write(iunit,*) 'CG? icgpflg,icgnflg = ',icgpflg,icgnflg
+@@ -3163,7 +3163,7 @@
+              DO i = Max(-nr+1,ix-nxm),Min(nx+nr, ix+nxm)
+                lightmask(i,j) = Max( lightmask(i,j) , ijmask( i-ix, j-jy ) ) ! set to 1 around the perifery to disallow nearby initiations
+ !               IF ( tmp < 0 ) THEN
+-!                write(0,*) 'mask: i,j,i-ix,j-jy,ijmask: ',i,j,i-ix,j-jy,ijmask( i-ix, j-jy )
++!                write(iunit,*) 'mask: i,j,i-ix,j-jy,ijmask: ',i,j,i-ix,j-jy,ijmask( i-ix, j-jy )
+ !               ENDIF
+              ENDDO
+             ENDDO
+@@ -3757,8 +3757,8 @@
+       chanzn(:) = 0.0
+       chanzp(:) = 0.0
+       
+-   !   write(6,*) 'fracn, multn, scnetnn = ',fracn,multn,scnetnn
+-   !   write(6,*) 'fracp, multp, scnetnp = ',fracp,multp,scnetnp
++   !   write(iunit,*) 'fracn, multn, scnetnn = ',fracn,multn,scnetnn
++   !   write(iunit,*) 'fracp, multp, scnetnp = ',fracp,multp,scnetnp
+       
+       do kz = 1,nz-1
+       do jy = 1,jye
+@@ -4247,7 +4247,7 @@
+ !
+       if ( iredis .eq. 1 ) then
+        
+-!       write(0,*) 'iredis=1 is not available anymore!  Stopping!'
++!       write(iunit,*) 'iredis=1 is not available anymore!  Stopping!'
+ !       STOP
+ ! C$DOACROSS LOCAL(ia,kz,jy,ix,chgrtp,chgrtn )
+ ! c$omp  PARALLEL DO DEFAULT(SHARED), 
+@@ -4316,8 +4316,8 @@
+        totneg2 = totneg2 + Min(0.0, sctot(ix,kz,jy)*dv)
+        totpos2 = totpos2 + Max(0.0, sctot(ix,kz,jy)*dv)
+      
+-!      if (sctot(ix,kz,jy).lt.0.) write(0,*) 'IN DISCHARGE', sctot(ix,kz,jy),sch(ix,kz,jy),scr(ix,kz,jy),sci(ix,kz,jy),scs(ix,kz,jy),scw(ix,kz,jy),ix,jy,kz
+-!      if (sctot(ix,kz,jy).lt.0.) write(0,*) 'IN DISCHARGE', scw(ix,kz,jy),scdisch(ix,jy,kz),fracw,fractot,qc(ix,kz,jy),rhow,qnc(ix,kz,jy),fracs,fraci,frach,fracr,qr(ix,kz,jy),rhor,qnr(ix,kz,jy)
++!      if (sctot(ix,kz,jy).lt.0.) write(iunit,*) 'IN DISCHARGE', sctot(ix,kz,jy),sch(ix,kz,jy),scr(ix,kz,jy),sci(ix,kz,jy),scs(ix,kz,jy),scw(ix,kz,jy),ix,jy,kz
++!      if (sctot(ix,kz,jy).lt.0.) write(iunit,*) 'IN DISCHARGE', scw(ix,kz,jy),scdisch(ix,jy,kz),fracw,fractot,qc(ix,kz,jy),rhow,qnc(ix,kz,jy),fracs,fraci,frach,fracr,qr(ix,kz,jy),rhor,qnr(ix,kz,jy)
+       end do ! ix
+       end do ! jy
+       end do ! kz
+@@ -4493,14 +4493,14 @@
+          dv=dx*dy*dzz(ix,kz,jy)
+          total_nox = total_nox + tmp*nox(ix,kz,jy)
+ !         IF ( kz == 2 .and. tmp > 0.0 ) THEN
+-!           write(0,*) 'scdisch1: ',ix,jy,kz, scdisch0(ix,jy,kz)
+-!           write(0,*) 'scdisch2: ',scdisch(ix,jy,kz),tmp,lnox(ix,kz,jy)
++!           write(iunit,*) 'scdisch1: ',ix,jy,kz, scdisch0(ix,jy,kz)
++!           write(iunit,*) 'scdisch2: ',scdisch(ix,jy,kz),tmp,lnox(ix,kz,jy)
+ !         ENDIF
+       end do
+       end do
+       end do
+ 
+-       write(6,*) 'total_nox1 = ',total_nox
++       write(iunit,*) 'total_nox1 = ',total_nox
+ 
+ 
+ 
+@@ -4515,7 +4515,7 @@
+ #endif
+ 
+        cnoxtot = total_nox
+-       write(6,*) 'total_nox = ',total_nox
++       write(iunit,*) 'total_nox = ',total_nox
+ 
+       ENDIF ! f_clnox
+ 
+@@ -4615,7 +4615,7 @@
+ #endif
+        
+        IF ( my_rank == 0 ) THEN
+-         write(6,*) 'Avg. cloud top, area ',zcldtoptot/Max(1,ncldtop)*1.e-3, ncldtop*dx*dy*1.e-3**2
++         write(iunit,*) 'Avg. cloud top, area ',zcldtoptot/Max(1,ncldtop)*1.e-3, ncldtop*dx*dy*1.e-3**2
+        ENDIF
+        
+        lightsuccess = 1

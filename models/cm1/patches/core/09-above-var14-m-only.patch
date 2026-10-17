@@ -1,0 +1,33 @@
+--- a/src/solve1.F	2026-09-21 11:32:01.269249629 -0400
++++ b/src/solve1.F	2026-10-17 14:56:05.972767894 -0400
+@@ -231,7 +231,7 @@
+ 
+       real :: delqv,delpi,delth,delt,fac,epsd,dheat,dz1,xs
+       real :: foo1,foo2
+-      real :: dttmp,rtime,rdt,tem,tem0,tem1,tem2,thrad,prad
++      real :: dttmp,rtime,rdt,tem,tem0,tem1,tem2,thrad,prad,terluna_w
+       real :: r1,r2,tnew,pnew,pinew,thnew,qvnew
+       real :: gamm,aiu,fr
+       real :: qv,qli,cpli,cpm,cvm,qmax
+@@ -1845,7 +1845,9 @@
+         if( myid.eq.0 ) print *,'  applying large-scale nudging of theta, lsnudge_count = ',lsnudge_count
+         rdt = 1.0/dt
+         do k=1,nk
+-          tem1 = -lsnudgefac*( thavg(k)-lsnudge_th(k,lsnudge_count) )/(lsnudge_tau)
++          terluna_w = 1.0   ! Terluna: above var14 m only, fully above var15 m
++          if( var15.gt.var14 ) terluna_w = min(1.0,max(0.0,(zh(1,1,k)-var14)/(var15-var14)))
++          tem1 = -lsnudgefac*terluna_w*( thavg(k)-lsnudge_th(k,lsnudge_count) )/(lsnudge_tau)
+           ! apply nudging tendency:
+           do j=1,nj
+           do i=1,ni
+@@ -1865,7 +1867,9 @@
+         if( myid.eq.0 ) print *,'  applying large-scale nudging of qv, lsnudge_count = ',lsnudge_count
+         rdt = 1.0/dt
+         do k=1,nk
+-          tem1 = -lsnudgefac*( qavg(k,nqv)-lsnudge_qv(k,lsnudge_count) )/(lsnudge_tau)
++          terluna_w = 1.0   ! Terluna: above var14 m only, fully above var15 m
++          if( var15.gt.var14 ) terluna_w = min(1.0,max(0.0,(zh(1,1,k)-var14)/(var15-var14)))
++          tem1 = -lsnudgefac*terluna_w*( qavg(k,nqv)-lsnudge_qv(k,lsnudge_count) )/(lsnudge_tau)
+           ! apply nudging tendency:
+           do j=1,nj
+           do i=1,ni

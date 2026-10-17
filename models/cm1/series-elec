@@ -1,0 +1,9 @@
+patches/elec/01-branched-lightning-reports-to-its-own-unit.patch
+patches/elec/02-wrf-elec-nssl-module-in-cm1.patch
+patches/elec/03-fall-speeds-at-the-host-gravity.patch
+patches/elec/04-branched-lightning-on-one-process.patch
+patches/elec/05-wrf-elec-nssl-driver.patch
+patches/elec/06-charge-tracers-to-the-microphysics.patch
+patches/elec/07-charging-switch-and-law.patch
+patches/elec/08-the-tracers-carry-charge.patch
+patches/elec/09-electrified-nssl.patch

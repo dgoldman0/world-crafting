@@ -1,0 +1,436 @@
+{
+ "schema": "world-crafting.exoplasim-runs/1",
+ "about": "Which state of the patch series each Terluna GCM run compiled, matched by the sha256 prefixes of radmod.f90 and rainmod.f90 that the runner recorded in progress.json",
+ "checked": "2026-10-17 against /media/projectspace/terluna-research/gcm-runs",
+ "series": [
+  "01-rayleigh-scale.patch",
+  "02-cloud-water-gravity.patch",
+  "03-convective-day.patch",
+  "04-sun-clock.patch",
+  "05-water-shortwave-absorptivity.patch",
+  "06-top-infrared.patch",
+  "07-curved-air.patch",
+  "08-gas-bands.patch",
+  "09-longwave-by-height.patch",
+  "10-ice-optics.patch"
+ ],
+ "runs": [
+  {
+   "run": "A",
+   "years": 40,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "A28",
+   "years": 30,
+   "source_sha256_16": {
+    "radmod": "d4b373657bc79a8e",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-03",
+   "note": null
+  },
+  {
+   "run": "A28_cal_co2_1022",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "ddcf0412e7c2e0b8",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-05",
+   "note": null
+  },
+  {
+   "run": "A28_cal_control",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "ddcf0412e7c2e0b8",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-05",
+   "note": null
+  },
+  {
+   "run": "A28_cal_control_patched",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "3091ed3a4f6b5a27",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-06",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_9655",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "9b3a33f9b66ce5a3",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-08",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_9685",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "9b3a33f9b66ce5a3",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-08",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_970",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "9b3a33f9b66ce5a3",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-08",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_970_eddies",
+   "years": 2,
+   "source_sha256_16": {
+    "radmod": "9b3a33f9b66ce5a3",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-08",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_970_heating",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "9b3a33f9b66ce5a3",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-08",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_970_icecheck",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "a49791572fa8f5b2",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-10",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_970_lw_ice",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "a49791572fa8f5b2",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-10",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_970_lwcheck",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "85814a9c5951f9f4",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-09",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_970_lwcheck_rebuilt",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "a49791572fa8f5b2",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-10",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_gases_glow",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "9b3a33f9b66ce5a3",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-08",
+   "note": null
+  },
+  {
+   "run": "A28_corrected_gases_glow_held",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "9b3a33f9b66ce5a3",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-08",
+   "note": null
+  },
+  {
+   "run": "A28_dim3",
+   "years": 8,
+   "source_sha256_16": {
+    "radmod": "d4b373657bc79a8e",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-03",
+   "note": null
+  },
+  {
+   "run": "A28_dim5",
+   "years": 25,
+   "source_sha256_16": {
+    "radmod": "d4b373657bc79a8e",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-03",
+   "note": null
+  },
+  {
+   "run": "A28_dim5_moon",
+   "years": 30,
+   "source_sha256_16": {
+    "radmod": "ddcf0412e7c2e0b8",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-05",
+   "note": null
+  },
+  {
+   "run": "A28_dim5_moon_geometry",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "88ad7e3c192bbbb6",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-07",
+   "note": null
+  },
+  {
+   "run": "A28_dim5_moon_geometry_gases",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "9b3a33f9b66ce5a3",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-08",
+   "note": null
+  },
+  {
+   "run": "A28_dim5_moon_low_cloud",
+   "years": 15,
+   "source_sha256_16": {
+    "radmod": "ddcf0412e7c2e0b8",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-05",
+   "note": null
+  },
+  {
+   "run": "A28_dim5_moon_thin_convective",
+   "years": 15,
+   "source_sha256_16": {
+    "radmod": "ddcf0412e7c2e0b8",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-05",
+   "note": null
+  },
+  {
+   "run": "A28_dim5_moon_twilight",
+   "years": 4,
+   "source_sha256_16": {
+    "radmod": "759e4d0f97d94fe9",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": null,
+   "note": "not reproduced by the series: see README"
+  },
+  {
+   "run": "A28_dim5_sun_test",
+   "years": 2,
+   "source_sha256_16": {
+    "radmod": "e831781a34e4de39",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-04",
+   "note": null
+  },
+  {
+   "run": "A28_dim8",
+   "years": 8,
+   "source_sha256_16": {
+    "radmod": "d4b373657bc79a8e",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-03",
+   "note": null
+  },
+  {
+   "run": "A28_gases",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "3091ed3a4f6b5a27",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-06",
+   "note": null
+  },
+  {
+   "run": "A28_gases_glow",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "3091ed3a4f6b5a27",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-06",
+   "note": null
+  },
+  {
+   "run": "A28_gases_glow_held",
+   "years": 20,
+   "source_sha256_16": {
+    "radmod": "3091ed3a4f6b5a27",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-06",
+   "note": null
+  },
+  {
+   "run": "A_corrected_clouds",
+   "years": 15,
+   "source_sha256_16": {
+    "radmod": "e8e47cfe30a1c75b",
+    "rainmod": "354bff0a2ed8fa7e"
+   },
+   "series_state": null,
+   "note": "not reproduced by the series: see README"
+  },
+  {
+   "run": "A_earth_path_clouds",
+   "years": 15,
+   "source_sha256_16": {
+    "radmod": "d4b373657bc79a8e",
+    "rainmod": "51041c5ccee35d27"
+   },
+   "series_state": "patches 01-02",
+   "note": null
+  },
+  {
+   "run": "A_full_column_clouds",
+   "years": 15,
+   "source_sha256_16": {
+    "radmod": "d4b373657bc79a8e",
+    "rainmod": "51041c5ccee35d27"
+   },
+   "series_state": "patches 01-02",
+   "note": null
+  },
+  {
+   "run": "A_invalid_ir_tail",
+   "years": 10,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "A_kill",
+   "years": 2,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "A_patch_check",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "d4b373657bc79a8e",
+    "rainmod": "51041c5ccee35d27"
+   },
+   "series_state": "patches 01-02",
+   "note": null
+  },
+  {
+   "run": "A_ref",
+   "years": 2,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "A_uncalibrated",
+   "years": 13,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "B",
+   "years": 40,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "cal_cold_rs1.5_th0.012",
+   "years": 1,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "cal_cold_rs1.9_th0.004",
+   "years": 1,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "cal_warm_rs1.5_th0.012",
+   "years": 1,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "cal_warm_rs1.9_th0.004",
+   "years": 1,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "patch_regression",
+   "years": 1,
+   "source_sha256_16": null,
+   "series_state": null,
+   "note": "no source hash recorded (runs before 2026-09-25 hashing)"
+  },
+  {
+   "run": "regression_convday_off",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "d4b373657bc79a8e",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-03",
+   "note": null
+  },
+  {
+   "run": "regression_convday_on",
+   "years": 1,
+   "source_sha256_16": {
+    "radmod": "d4b373657bc79a8e",
+    "rainmod": "44c0668de3e8f7db"
+   },
+   "series_state": "patches 01-03",
+   "note": null
+  }
+ ]
+}

@@ -1,0 +1,27 @@
+--- a/src/Makefile	2026-09-22 09:29:07.664008859 -0400
++++ b/src/Makefile	2026-10-17 14:56:06.189763917 -0400
+@@ -76,10 +76,11 @@
+ #DM = -DMPI
+ #-----------------------------------------------------------------------------
+ #  multiple processors, shared memory (OpenMP), GNU compiler
+-#FC   = gfortran
+-#OPTS = -ffree-form -ffree-line-length-none -O2 -finline-functions --param=max-vartrack-size=0 -fopenmp
+-#CPP  = cpp -C -P -traditional -Wno-invalid-pp-token -ffreestanding
+-#OMP  = -DOPENMP
++# Terluna: GNU compiler with OpenMP
++FC   = gfortran
++OPTS = -ffree-form -ffree-line-length-none -O2 -finline-functions --param=max-vartrack-size=0 -fopenmp
++CPP  = cpp -C -P -traditional -Wno-invalid-pp-token -ffreestanding
++OMP  = -DOPENMP
+ #-----------------------------------------------------------------------------
+ #  single processor, Cray fortran compiler
+ #FC   = ftn
+@@ -210,7 +211,7 @@
+ 			mv onefile.F ../run
+ 
+ .F.o:
+-			$(CPP) $(DM) $(OMP) $(DP) $(ADV) $(OUTPUTOPT) $*.F > $*.f90
++			$(CPP) $(DM) $(OMP) $(DP) $(ADV) $(OUTPUTOPT) $(TERLUNA) $*.F > $*.f90
+ 			$(FC) $(FFLAGS) $(OUTPUTINC) -c $*.f90
+ 
+ code:

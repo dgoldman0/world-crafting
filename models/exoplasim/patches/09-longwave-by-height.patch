@@ -1,0 +1,81 @@
+--- a/plasim/src/radmod.f90	2026-10-17 14:54:13.280833927 -0400
++++ b/plasim/src/radmod.f90	2026-10-17 14:54:13.282833890 -0400
+@@ -132,6 +132,10 @@
+       integer :: ntwilw = 0      ! Terluna: 1 adds the curved air's extra infrared escape (twilight.dat)
+       real :: twlw(NLEV+1) = 0.0 ! Terluna: extra infrared to space from each layer and the ground
+       real :: twlt(NLEV+1) = 0.0 ! Terluna: the temperatures it is given at
++      integer :: nlwcorr = 0     ! Terluna: 1 adds the longwave by height (lwcorr.dat)
++      real :: lwcl(NLEV+1) = 0.0 ! Terluna: the longwave by height, extra escape of each layer over land
++      real :: lwcs(NLEV+1) = 0.0 ! Terluna: the same over sea
++      real :: lwct(NLEV+1) = 0.0 ! Terluna: the temperatures they are given at
+       integer :: ngasbands = 0   ! Terluna: 1 adds CO2 and O2 to the sunlight's absorbers
+       real :: zgasq(5,3) = 0.0   ! Terluna: their fits (a, b, c, d, n): CO2 and O2 near infrared, O2 visible
+       real :: zgasw(2) = 0.0     ! Terluna: the mass fractions of CO2 and O2
+@@ -630,7 +634,7 @@
+      &               ,nsol,nclouds,nswrcl,nrscat,rcl1,rcl2,acl2,clgray,tpofmt   &
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+      &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale,irtopday,irtopnight  &
+-     &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar
++     &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar,nlwcorr
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -822,6 +826,19 @@
+       call mpbci(ntwilight)
+       call mpbcrn(zmlunar,3)
+       call mpbci(ntwilw)
++      call mpbci(nlwcorr)
++      if (nlwcorr == 1) then   ! Terluna: the longwave by height
++       if (mypid == NROOT) then
++        open(48,file='lwcorr.dat',form='formatted',status='old')
++        read(48,*) (lwcl(jlev),jlev=1,NLEV+1)
++        read(48,*) (lwcs(jlev),jlev=1,NLEV+1)
++        read(48,*) (lwct(jlev),jlev=1,NLEV+1)
++        close(48)
++       endif
++       call mpbcrn(lwcl,NLEV+1)
++       call mpbcrn(lwcs,NLEV+1)
++       call mpbcrn(lwct,NLEV+1)
++      endif
+       call mpbci(ngasbands)   ! Terluna: CO2 and O2 in the sunlight
+       call mpbcrn(zgasq,15)
+       call mpbcrn(zgasw,2)
+@@ -2622,6 +2639,7 @@
+ !
+       dlwfl(:,:)=dftu(:,:)+dftd(:,:)
+       if (ntwilw == 1) call twilight_lw ! Terluna: the curved air's extra infrared escape
++      if (nlwcorr == 1) call lw_correction ! Terluna: the longwave by height
+ !
+       return
+       end subroutine lwr
+@@ -2649,6 +2667,30 @@
+       return
+       end subroutine twilight_lw
+ 
++      subroutine lw_correction
++      use radmod
++      implicit none
++!
++!     Terluna: the longwave by height (climate/gcm/plasim_longwave.py): each layer's and the ground's extra
++!     escape to space, fitted over land and over sea to the correlated-k model, scaled with its own
++!     temperature to the fourth power and carried up to the top as upward flux (negative in PlaSim)
++!
++      integer :: jhor, jlev
++      real :: zsum, zland
++      do jhor = 1, NHOR
++       zland = dls(jhor)
++       zsum = (zland*lwcl(NLEP) + (1.-zland)*lwcs(NLEP)) * (dt(jhor,NLEP) / lwct(NLEP))**4
++       dftu(jhor,NLEP) = dftu(jhor,NLEP) - zsum
++       dlwfl(jhor,NLEP) = dlwfl(jhor,NLEP) - zsum
++       do jlev = NLEV, 1, -1
++        zsum = zsum + (zland*lwcl(jlev) + (1.-zland)*lwcs(jlev)) * (dt(jhor,jlev) / lwct(jlev))**4
++        dftu(jhor,jlev) = dftu(jhor,jlev) - zsum
++        dlwfl(jhor,jlev) = dlwfl(jhor,jlev) - zsum
++       enddo
++      enddo
++      return
++      end subroutine lw_correction
++
+ !     **********************
+ !     Generic Orbit Routines
+ !     **********************

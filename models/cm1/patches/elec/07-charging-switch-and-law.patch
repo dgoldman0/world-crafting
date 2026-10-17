@@ -1,0 +1,18 @@
+--- a/src/param.F	2026-10-17 14:56:05.992767527 -0400
++++ b/src/param.F	2026-10-17 14:56:06.179764100 -0400
+@@ -4208,11 +4208,13 @@
+          IF ( nssl_3moment ) THEN
+ !           CALL nssl_2mom_init(ipctmp=8,mixphase=0,ihvol=-1,eqtset_tmp=eqtset,myrank=myid,mpiroot=0)
+            CALL nssl_2mom_init(ipctmp=8,mixphase=0,nssl_hail_on=nssl_hail_on,nssl_density_on=nssl_density_on, &
+-                     eqtset_tmp=eqtset,myrank=myid,mpiroot=0)
++                     eqtset_tmp=eqtset,myrank=myid,mpiroot=0, &
++                     ipelec_tmp=nint(var6),isaund_tmp=nint(var7))   ! Terluna: charging switch and law
+          ELSE
+ !           CALL nssl_2mom_init(ipctmp=5,mixphase=0,ihvol=-1,eqtset_tmp=eqtset,myrank=myid,mpiroot=0)
+            CALL nssl_2mom_init(ipctmp=5,mixphase=0,nssl_hail_on=nssl_hail_on,nssl_density_on=nssl_density_on, &
+-                     eqtset_tmp=eqtset,myrank=myid,mpiroot=0)
++                     eqtset_tmp=eqtset,myrank=myid,mpiroot=0, &
++                     ipelec_tmp=nint(var6),isaund_tmp=nint(var7))   ! Terluna: charging switch and law
+          ENDIF
+ 
+           if(dowr) write(outfile,*)
