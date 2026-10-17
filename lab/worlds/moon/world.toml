@@ -1,0 +1,36 @@
+# The Moon as a body. Draft schema 0 (lab/design/world_spec.md). Values are Terluna's at commit 186b294;
+# each names its source there. What has been made of the Moon (air, seas, shield) is in scenarios/.
+
+schema = "worldlab.world/0"
+id = "moon"
+kind = "found"
+title = "The Moon"
+
+[body]
+radius_m = 1737400.0                 # shared/constants.json moon.radius_m
+gm_m3_s2 = 4.902800118e12            # moon.gm_m3_s2; g = GM/R^2 = 1.6242188765608128 m/s2 is derived
+
+[rotation]
+sidereal_period_days = 27.321661     # moon.sidereal_month_days: one turn against the stars per sidereal month
+obliquity_deg = 1.5424               # moon.equator_to_ecliptic_deg: the equator's tilt to the ecliptic
+solar_day_days = 29.53059            # moon.synodic_month_days, given rather than derived; the lab checks it against
+                                     # 1/(1/P_rot - 1/P_year) = 29.5305882 d and records both
+
+[orbit]                              # about the star; for a moon, its host planet's orbit
+star = "sun"
+semi_major_axis_au = 1.0
+sidereal_year_days = 365.25636       # typed into climate/gcm/exoplasim_run.py:841
+eccentricity = 0.016715              # typed into exoplasim_run.py:842
+# longitude of perihelion: ExoPlaSim's default; Terluna does not set it
+
+[star]
+id = "sun"
+spectrum = "tsis1-hsrs-stride100"    # 202-2730 nm, with a 5772 K blackbody tail matched at its end (exoplasim_run.py:954-963)
+constant_w_m2 = 1361.0               # sun.solar_constant_W_m2 at 1 AU; also typed into exoplasim_run.py:983
+
+[host]                               # Earth stays fixed in the near-side sky
+id = "earth"
+neglected = ["earthshine, under 0.1 W/m2", "lunar eclipses, a few hours about twice a year"]   # climate/gcm/boundary.py:171-172
+
+[surface]
+geometry = "terluna:geography/lola-grail"   # LOLA heights above the GRAIL geoid (Terluna's geography domain)

@@ -1,0 +1,30 @@
+# An illustrative breathable Mars, as in the paper's map of reach (paper/data/worlds.json, "Mars at 1 bar"):
+# Earth-like air at 1 bar. Illustrative, not a design; the unchosen fields must be chosen before any run.
+# Draft schema 0.
+
+schema = "worldlab.scenario/0"
+id = "mars/breathable-1bar"
+world = "mars"
+kind = "illustrative"
+title = "Mars held at 1 bar of Earth-like air"
+
+[air]
+reference_level = "mean-radius"
+surface_pressure_pa = 100000.0
+o2_partial_pressure_pa = 21227.0
+co2_ppm = 400.0
+ar_per_n2 = 0.011961477
+balance = "N2"
+ozone = "unchosen"
+water_vapour = "prognostic"
+
+[water]
+seas_share = "unchosen"
+ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }
+
+[land]
+albedo = "unchosen"
+
+[sunlight]
+filter = "none"
+scale = 1.0

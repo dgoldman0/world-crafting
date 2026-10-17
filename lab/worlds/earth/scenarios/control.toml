@@ -1,0 +1,29 @@
+# Earth's air at sea level as the lunar design air is built: the same recipe at 1 atm, so the control differs
+# from the Open Moon in the body and the pressure, not in how the air is written. Draft schema 0.
+
+schema = "worldlab.scenario/0"
+id = "earth/control"
+world = "earth"
+kind = "found"
+title = "Earth control: 1 atm, Earth's O2 partial pressure and Ar/N2, 400 ppm CO2"
+
+[air]
+reference_level = "sea"
+surface_pressure_pa = 101325.0
+o2_partial_pressure_pa = 21227.0
+co2_ppm = 400.0
+ar_per_n2 = 0.011961477
+balance = "N2"
+ozone = "model-default"              # ExoPlaSim's ozone profile, as the released model runs Earth
+water_vapour = "prognostic"
+
+[water]
+seas = "model-default"               # ExoPlaSim's Earth land-sea mask
+ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }
+
+[land]
+albedo = "model-default"
+
+[sunlight]
+filter = "none"
+scale = 1.0

@@ -23,6 +23,7 @@ tools and tests.
 | An in-house reference or calibration tool | `python/`, under the package path it had in Terluna so its imports and history stay traceable |
 | Notes on correctness, limitations and room for improvement | `notes/`, one file per component |
 | The paper | `paper/`: notes, sections, figures, data extracts, source records, review records |
+| The integrated lab's design, its draft specifications and its registry of Earth assumptions | `lab/` (see `lab/README.md`; on the `lab` branch since 2026-10-17) |
 
 Case set-up, run bookkeeping and analysis scripts stay in Terluna. Upstream source code is never
 committed whole: patches are applied to the pinned upstream archives named in each model's README.

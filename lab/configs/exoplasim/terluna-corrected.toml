@@ -1,0 +1,45 @@
+# ExoPlaSim set up as Terluna's corrected radiation has run it since 2026-10-14 (climate/gcm/exoplasim_run.py,
+# MODEL at :98-145 and the defaults of configuration() at :803). Draft schema 0 (lab/design/world_spec.md).
+# Nothing here names a world: the adapter takes the world's values from the scenario it is paired with.
+
+schema = "worldlab.config.exoplasim/0"
+id = "exoplasim/terluna-corrected"
+upstream = "exoplasim-3.4.2"                   # models/pins.sha256
+patches = "models/exoplasim/patches/series"    # all ten applied; each switch below, at its default when omitted
+
+resolution = "T21"
+levels = 10
+timestep_min = 30.0
+ranks = 4                                      # the design case ran on 4 MPI ranks
+precision = 8
+seed = 1
+means_per_model_day = 10                       # 3-day means on the Moon; the count per day is the lab's to keep
+whole_model_days = true                        # A3; Terluna's whole_lunar_days
+fixed_orbit = true                             # A2; NFIXORB 1
+clear_sky = true                               # NDIAGCF 1
+heating_diagnostics = false                    # NDIAGGP
+output = ["ta", "ua", "va", "hus", "cl", "ts", "tas", "maxt", "mint", "ps", "psl", "pr", "prc", "evap", "prw",
+          "clt", "sic", "sit", "snd", "mrso", "rst", "rsut", "rlut", "ntr", "nbr", "rss", "rls", "hfss", "hfls",
+          "alb", "czen", "lsm"]
+
+[switches]                                     # patch: namelist setting
+sun_clock = "synodic"                          # 04: NSUNCLOCK 2
+convective_day_s = 86400.0                     # 03: CONVDAY
+cloud_water = "earth_path"                     # 02: CWGREF = standard gravity, CWSCALE = g / standard gravity
+surface_cloud_rcrit = 0.0                      # PlaSim's own RCRIT in the lowest layer
+twilight = "full"                              # 07: NTWILIGHT, NTWILW, ZMLUNAR, from the curved-air ledger
+gas_bands = true                               # 08: NGASBANDS, ZGASQ, ZGASW, ZMAIRLUNAR
+longwave_correction = false                    # 09: NLWCORR
+ice_optics = false                             # 10: NICEOPT, TICEOPT
+top_infrared = "from-scenario"                 # 06: IRTOPDAY, IRTOPNIGHT
+
+[calibration]                                  # products, each with its envelope (architecture.md); Terluna's values for reference
+shortwave = "calibration:plasim-shortwave"     # RAYSCALE 2.237, SWH2OSCALE 1.292, typed into MODEL from
+                                               # climate/results/gcm/shortwave_fit_A28_dim5_lunar.json
+water_continuum = "calibration:plasim-th2oc"   # TH2OC 0.004, fitted on cloud-free columns at 280 and 310 K
+ledger = "ledger:curved-air"                   # climate/results/gcm/twilight.json
+gas_bands = "calibration:plasim-gas-bands"     # climate/results/gcm/shortwave_gases.json
+longwave = "calibration:plasim-longwave"       # climate/results/gcm/longwave_A28_corrected_970_heating.json, when switched on
+
+[compatibility]                                # Terluna's quirks, for reproduction only (world_spec.md, rule 8)
+radius_divisor_m = 6371000.0                   # ExoPlaSim's own is 6,371,220 m

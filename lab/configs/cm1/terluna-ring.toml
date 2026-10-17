@@ -1,0 +1,27 @@
+# CM1 set up as Terluna's rings are (climate/crm/cm1_run.py, CASES['ring'] at :1094-1101 and case_settings at
+# :1979-2035). Draft schema 0. Lengths and times marked "lunar" are the Moon's values; the adapter would hold them
+# in Earth-equivalent units and scale them by g_ref/g (architecture.md, "Model adapters").
+
+schema = "worldlab.config.cm1/0"
+id = "cm1/terluna-ring"
+upstream = "cm1r22.0"
+patches = ["series-core"]                      # every build; a case adds its own: series-twilight, series-terrain, series-sea, series-elec
+parallel = "omp"
+optimization = "-O3 -march=native"            # Terluna's OpenMP default since 2026-09-30
+threads = 6
+
+column_target_m = 6000.0                       # lunar; about 1 km on Earth
+ranks_multiple = 8                             # column counts a multiple of 8
+z_grid = { dz0 = 100.0, z_fine = 1000.0, stretch = 1.08, dz_max = 2000.0, ztop = 150000.0 }   # lunar
+start_hour_angle_deg = -90.0
+output_s = 10800.0
+restart_s = 43200.0
+segment_s = 86400.0
+nudge = { tau_s = 259200.0, z_start_m = 8000.0, z_full_m = 16000.0, ramp_s = 86400.0 }      # lunar heights
+droplets_cm3 = 100.0
+microphysics = "morrison"                      # ptype 5
+radiation = "rrtmg"                            # radopt 2, every 1,800 s
+surface_layer = "mm5"                          # sfcmodel 2, oceanmodel 1
+pbl = "cm1-simple"                             # ipbl 2
+rayleigh_rate = "scaled: (g/9.81)/300 s-1"     # cm1_run.py:2004
+pbl_length = "scaled: 75 m x 9.81/g"           # cm1_run.py:2005

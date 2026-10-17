@@ -1,0 +1,31 @@
+# Mars as a body. Draft schema 0 (lab/design/world_spec.md). Values from the NASA GSFC Mars Fact Sheet
+# (nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html, last updated 19 May 2025; read 2026-10-17), GM from
+# Terluna's shared/constants.json (DE440).
+
+schema = "worldlab.world/0"
+id = "mars"
+kind = "found"
+title = "Mars"
+
+[body]
+radius_m = 3389500.0                 # volumetric mean radius 3389.5 km
+gm_m3_s2 = 4.2828375816e13           # solar_system_gm_m3_s2.mars; GM/R^2 = 3.728 m/s2 (the fact sheet's mean gravity: 3.73)
+
+[rotation]
+sidereal_period_days = 1.02595417    # 24.6229 h
+obliquity_deg = 25.19                # obliquity to orbit
+# solar day derived: 24.6597 h on the fact sheet
+
+[orbit]
+star = "sun"
+semi_major_axis_au = 1.52366231
+sidereal_year_days = 686.980
+eccentricity = 0.0935
+
+[star]
+id = "sun"
+spectrum = "tsis1-hsrs-stride100"
+constant_w_m2 = 1361.0               # at 1 AU; the flux at Mars follows from the semi-major axis
+
+[surface]
+geometry = "unchosen"                # MOLA heights would need a pinned source and its licence reviewed

@@ -1,0 +1,143 @@
+# Review record
+
+Reviews of the design documents against the author's prose rules (Terluna
+`ensemble/planning/source_controls/STYLE_NOTES.md`, `Jewish_Papers_Updated_Style_Notes.md`,
+`Agent_Working_State_Editorial_Gates.md` and the Open Moon charter's G1–G4). Each reviewer was a fresh,
+read-only agent briefed with the rules and the four sources. None had seen an earlier round's findings.
+Lexical scans served as screening only. The author has read none of these documents yet.
+
+| Round | Date | Reviewer and files | Blocking | Minor | Technical |
+|---|---|---|---|---|---|
+| 1 | 2026-10-17 | A: README, architecture, plan | 9 | 22 | 12 |
+| 1 | 2026-10-17 | B: inventory, regeneration, world_spec | 9 | 28 | 11 |
+| 2 | 2026-10-17 | A: README, architecture, plan | 5 | 27 | 7 |
+| 2 | 2026-10-17 | B: inventory, regeneration, world_spec | 3 | 23 | 6 |
+| 3 | 2026-10-17 | A: README, architecture, plan (confirmation round: blocking items and contradictions only) | 2 | — | 7 |
+| 3 | 2026-10-17 | B: inventory, regeneration, world_spec (the same) | 1 | — | 6 |
+| 4 | 2026-10-17 | A: README, architecture, plan (confirmation round) | 4 | — | 2 |
+| 4 | 2026-10-17 | B: inventory, regeneration, world_spec (confirmation round) | 0 | — | 2 |
+
+## Round 1 dispositions
+
+**Revised: every blocking item.** These were:
+
+- self-description in the opening of the regeneration map;
+- disclaimers in the inventory's opening and in the README's state line;
+- "not", "instead" and "rather than" contrasts;
+- abstractions given agency ("wait", "await", "reaches", "the design refuses");
+- the five repeated "N things:" frames;
+- a recap landing in the importer paragraph;
+- a bead pair in the inventory's analyses section;
+- the unclear landing on the CM1 side's two sources.
+
+**Revised: every minor item, with one adapted.** The three gravity-scaling bullets in the architecture
+stay as bullets, but their relation is now written in.
+
+**Technical items, all adopted:**
+
+- **Plan.** The fixpoint loop moved to a new stage 8, after jobs exist, and stage 7 gained a pass condition.
+- **Envelopes.** Only fits record envelopes; the README had claimed every product does. The definition of
+  staleness now covers the whole key.
+- **Seeds.** The seed experiments gained the 45° N ring pair and the Jura box, and the cases add patch
+  series consistently.
+- **The regeneration map.** The time-step row was corrected, three edges were added to the graph, and the
+  worked examples now match the matrix's loop marks.
+- **Kinds.** Worlds gained a `kind` field, found or illustrative.
+- **The inventory and specification.** Corrected: the units rule, `TH2OC`'s source, the separation of
+  `A28_dim5` from `A28_dim5_moon`, and RRTMG's range at 1.2 atm.
+
+**Found outside the reviews and corrected.** The CM1 wall times were summed again from each case's
+`progress.json`: rings 1.8–12.3 h and boxes 2.3–27.2 h for two lunar days, where the earlier draft said
+5.7–12 h and 7–27 h.
+
+## Round 2 dispositions (reviewer A)
+
+**Revised: every blocking item.**
+
+- The registry row's self-reference.
+- The Earth control's missing criterion; a criterion is now proposed, as open question 5.
+- The paired Terluna-defect sentences in "Storage and records", now tied to what the importer does.
+- The engine row's objection catalogue. The Snakemake wrapper now appears where the cluster scheduler
+  enters.
+- The plan's disguised list in its opening.
+
+**Revised: every minor item.**
+
+**Technical items, all adopted.** These include:
+
+- the before-run envelope check limited to the dimensions a scenario fixes;
+- the fixpoint's pass limit, and the evidence state for a loop that stops unconverged;
+- the GCM cost corrected to 73–93 minutes;
+- the read-only list in the plan completed with the runners and the yearly output.
+
+## Round 2 dispositions (reviewer B)
+
+**Revised: every blocking item.** These were:
+
+- the regeneration map's opening, rebuilt so that its sentences depend on one another;
+- the reuse of the reference model's caches, tied to its pinned inputs;
+- the consumers of superseded products, joined to the numbers copied by hand.
+
+**Revised: the minor items.** One judgement call stands as it was: three hand steps in the inventory repeat
+rows of its products table, so that the list reads whole as a register.
+
+**Technical items, all adopted.** These include:
+
+- the "O2, CO2, Ar/N2" row of the matrix split, since Ar/N2 alone changes no compiled CM1 constant;
+- a note under the graph that Terluna's builds read their air from a GCM run's record;
+- PlaSim's levels limited to the three calibrations they enter;
+- the scenario's definition widened to found states;
+- the spectrum files named as written and as copied.
+
+## Round 3 dispositions
+
+**Revised: all three blocking items.**
+
+- The README's sentence on the first worlds, moved to follow "described once".
+- The architecture's opening paragraph. The refusal now joins the Earth-like air it bounds, and the new physics
+  moved to the model adapters.
+- The two notes under the regeneration graph, set as a legend.
+
+**Technical items, all adopted.**
+
+- **Architecture.**
+  - The refusal list counts five cases, the declared pair among them.
+  - A build's key covers its compiler, and specifications may be written by the lab's own commands.
+  - The example session creates a new scenario at a sunlight scale of 0.960.
+  - The envelope check before a run covers what the scenario and configuration fix.
+  - The reach report is evaluated for a world, a scenario and a configuration.
+- **The regeneration graph** gained the seven edges the matrix implies, and the matrix gained a row for the
+  world's surface heights.
+- **Numbers and rules.**
+  - The 1.0 atm O2 mole fraction is corrected to 0.20949.
+  - The star's total now marks the planet record.
+  - The solar day left the list of compatibility quirks, since the seed states it with its basis.
+  - "Run by hand" now covers the session scripts.
+
+## Round 4 dispositions
+
+**Revised: reviewer A's four blocking items.**
+
+- The architecture's opening, where the Open Moon now joins the sentence on the first worlds.
+- The adapter section's opening, which ties the new physics to the model versions.
+- A because-clause that repeated its premise, which now names the cause.
+- The cluster sentence, which had the agency reversed.
+
+Reviewer B found no blocking item in the inventory, the regeneration map or the specification.
+
+**Technical items, all adopted.**
+
+- The decision on patches leaves the editing of Terluna's runners to Terluna.
+- The job runner's free-disk test reads as a minimum.
+- The regeneration matrix sends every change of the GCM experiment into the CM1 case inputs, and marks the
+  longwave correction as directly dependent on gravity, pressure and the air, with the graph's edges to
+  match.
+
+## State after round 4
+
+- **Inventory, regeneration map, specification:** came back with no blocking finding.
+- **README, architecture, plan:** round 4's blocking items are revised, with no confirmation round run after
+  them.
+
+The next round is due once the author's answers to the open questions change the text.
+

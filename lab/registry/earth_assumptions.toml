@@ -1,0 +1,152 @@
+# The registry of Earth assumptions: a seed of eleven entries in draft schema 0 (lab/design/architecture.md,
+# "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
+# it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
+# specification fields (field) or configuration choices (config). Thresholds marked "proposed" come from the
+# design and await the author's decision before the reach report uses them. `rotation.synchronous` is a planned
+# world field (world_spec.md, "Fields still to add"), false unless given.
+#
+# action: require-switch | require-build | require-refit | warn | refuse
+# state:  repaired | calibrated | bounded | open
+
+schema = "worldlab.registry/0"
+
+[[entry]]
+id = "A1"
+model = "exoplasim"
+where = "plasim/src/radmod.f90, solang"
+form = "latent defect"
+assumes = "a rotation of exactly one day (rotspd = 1)"
+when = [{ field = "rotation.synchronous", eq = false }, { q = "rotation_period_days", ne = 1.0 }]
+effect = "the Sun skips back 1/(N-1) of a turn each model day: 2 deg at a 2-day rotation, 10 deg at 10 days, 16 deg at 12-20 days, 33 deg slower than 20"
+state = "repaired"
+repair = { patch = "04-sun-clock", switch = "NSUNCLOCK", value = 2, default = 0 }
+action = "require-switch"
+evidence = ["notes/defect_log.md A1", "notes/exoplasim.md, The Sun's clock"]
+
+[[entry]]
+id = "A2"
+model = "exoplasim"
+where = "plasim/src/radmod.f90, the orb_params call"
+form = "latent defect"
+assumes = "Earth's orbit for the start year"
+when = []                                    # always: the configured tilt and eccentricity are otherwise discarded
+effect = "Earth's 23.695 deg tilt and 0.0175 eccentricity replace the configured orbit, silently"
+state = "repaired"
+repair = { setting = "fixed_orbit", value = true, default = false }
+action = "require-switch"
+evidence = ["notes/defect_log.md A2"]
+
+[[entry]]
+id = "B1"
+model = "cm1"
+where = "constants.F, module_ra_etc.F, getcape.F, morrison.F (g = 9.81)"
+form = "constant"
+assumes = "g = 9.81 m/s2"
+when = [{ q = "gravity_m_s2", ne = 9.81, tolerance = 1e-6 }]
+effect = "dynamics, RRTMG's layer masses, CAPE and fall speeds at Earth's gravity"
+state = "repaired"
+repair = { patches = ["core/01-04"], build_constant = "TERLUNA_G" }
+action = "require-build"
+evidence = ["notes/defect_log.md B1", "notes/cm1.md, Gravity"]
+
+[[entry]]
+id = "cm1-earth-g-schemes"
+model = "cm1"
+where = "module_sf_mynn.F, module_gfs_physcons.F, module_sf_gfdl.F, module_sf_exchcoef.F, module_mp_p3.F, mp_wsm6.F, module_mp_jensen_ishmael.F, lfoice.F, radtrns3d.F"
+form = "constant"
+assumes = "Earth's gravity in schemes the lunar cases do not select"
+when = [{ q = "gravity_m_s2", ne = 9.81, tolerance = 1e-6 },
+        { config = "cm1.scheme", in = ["mynn", "gfs-edmf", "gfdl", "hurricane-exchange", "p3", "wsm6", "jensen-ishmael", "lfo", "goddard"] }]
+effect = "the scheme brings Earth's gravity back"
+state = "open"
+action = "refuse"
+evidence = ["notes/cm1.md, Earth's gravity left in CM1 outside the lunar cases' paths"]
+
+[[entry]]
+id = "B11"
+model = "exoplasim"
+where = "plasim/src/rainmod.f90, mkclouds (zrfac = solar_day * 1000)"
+form = "unit of time"
+assumes = "a one-day solar day"
+when = [{ q = "model_day_days", ne = 1.0, tolerance = 1e-3 }]
+effect = "Slingo's cover gains 0.125 ln(day / 1 d), capped at 0.8"
+state = "repaired"
+repair = { patch = "03-convective-day", switch = "CONVDAY", value = 86400.0, default = 0.0 }
+action = "require-switch"
+evidence = ["notes/defect_log.md B11"]
+
+[[entry]]
+id = "B12"
+model = "exoplasim"
+where = "plasim/src/rainmod.f90, mkclouds (CCM3 cloud water in geometric height)"
+form = "fit beyond its range"
+assumes = "Earth's gravity, so that metres stand for pressure"
+when = [{ q = "gravity_m_s2", ne = 9.80665, tolerance = 1e-3 }]
+effect = "too dry aloft under weaker gravity, too wet under stronger"
+state = "repaired"
+repair = { patch = "02-cloud-water-gravity", switch = "CWGREF, CWSCALE", choices = ["earth_path", "full_column"] }
+action = "require-switch"
+note = "the repair keeps CCM3's Earth fit in pressure terms; its calibration against a CRM is open"
+evidence = ["notes/defect_log.md B12", "notes/exoplasim.md, Cloud water in metres"]
+
+[[entry]]
+id = "B13"
+model = "exoplasim"
+where = "plasim/src/radmod.f90, swr (35 / sqrt(1 + 1224 mu^2))"
+form = "geometry"
+assumes = "Earth's horizon air mass, sqrt(pi R / 2H) = 35"
+when = [{ q = "chapman_horizon", outside = [31.5, 38.5] }]    # proposed: 10% either side of 35
+effect = "the low Sun's water path is wrong, most for the tallest air"
+state = "repaired"
+repair = { patch = "07-curved-air", switch = "ZMLUNAR, ZMAIRLUNAR", from = "ledger:curved-air" }
+action = "require-refit"                     # a ledger of the world's own column
+evidence = ["notes/defect_log.md B13", "notes/reference_radiation.md, section 2"]
+
+[[entry]]
+id = "B17"
+model = "exoplasim"
+where = "plasim/src/radmod.f90, swr (Lacis and Hansen's water absorptivity)"
+form = "fit beyond its range"
+assumes = "Earth's water paths"
+when = [{ calibration = "calibration:plasim-shortwave", outside_envelope = true }]
+effect = "the air absorbed 7.7-8.2 points too little of the arriving sunlight on the Moon's columns before the fit"
+state = "calibrated"
+repair = { patch = "05-water-shortwave-absorptivity", switch = "SWH2OSCALE" }
+action = "require-refit"
+evidence = ["notes/defect_log.md B17"]
+
+[[entry]]
+id = "B21"
+model = "exoplasim, cm1"
+where = "both dynamical cores"
+form = "geometry"
+assumes = "constant gravity and a thin shell"
+when = [{ q = "scale_height_over_radius", gt = 0.01 }]       # proposed: about eight times Earth's
+effect = "the column holds more air than p/g and heights read low aloft; on the Moon about 5% more air and heights 5% low at 86 km"
+state = "open"
+action = "warn"
+evidence = ["notes/defect_log.md B21", "paper/data/regime_calc.json"]
+
+[[entry]]
+id = "B22"
+model = "cm1"
+where = "module_ra_rrtmg_lw.F 3845-3848 (reference pressures from 1053.63 hPa)"
+form = "fit beyond its range"
+assumes = "surface pressures below 1053.63 hPa"
+when = [{ q = "lowest_level_pressure_hpa", gt = 1053.63 }]
+effect = "the pressure interpolation extrapolates over the lowest H ln(p/1053.63) of air: about 7.5 km on the Open Moon"
+state = "open"
+action = "warn"
+evidence = ["notes/defect_log.md B22", "notes/cm1.md, Radiation inputs and range"]
+
+[[entry]]
+id = "B28"
+model = "cm1"
+where = "morrison.F (slope bounds; brkup_db)"
+form = "fit beyond its range"
+assumes = "Earth's largest raindrops and breakup, (sigma / (delta-rho g))^(1/2)"
+when = [{ q = "gravity_m_s2", ne = 9.81, tolerance = 1e-6 }, { config = "cm1.microphysics", eq = "morrison" }]
+effect = "rain's mean diameter capped at 2.8 mm, breakup from 0.3 mm; at lunar gravity the stable drop is about 2.5 times larger"
+state = "open"
+action = "warn"
+evidence = ["notes/defect_log.md B28", "notes/cm1.md, Fall speeds"]
