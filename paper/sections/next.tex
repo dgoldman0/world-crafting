@@ -1,0 +1,53 @@
+\section{Next work}
+
+The next work follows from where the uncertainty now sits, and the order below follows how much of it each
+step would remove. Each step names the question it settles, the comparison that settles it and the result
+that would change the lunar design.
+
+\textbf{The longwave at the settled state.} The largest single sensitivity rests on a correction fitted at
+295~K and used at 307~K with twice the water vapour. Refitting the correction on the settled state's
+cloud-free columns and iterating to a consistent pair of fit and climate decides whether the warm state
+survives; a correction carrying humidity as well as temperature, and then a reduced correlated-$k$ scheme
+built from the reference model's own spectroscopy in place of Sasamori's, would remove the fit altogether.
+If the consistent state returns near 295~K, the design's dimming stands; if it stays near 307~K, the
+dimming that holds the design temperature must grow, and the rain and cloud with it.
+
+\textbf{Cloud from the cloud-resolving model.} PlaSim's cloud amount and cloud water move the Moon by
+several kelvin and lack any lunar calibration. Forcing CM1 from the corrected GCM, with the
+transport across each ring imposed, tests first whether the near-ground gap closes, and then gives cloud
+cover and water by pressure against which PlaSim's humidity thresholds and its cloud-water profile can be
+fitted. An independent GCM on the same scenario, ROCKE-3D or the LMD generic model
+\autocite{way2017resolving,wordsworth2011gliese}, is the comparison that would show which of the two
+present models carries the disagreement in warmth and rain; agreement among independent models is the
+strongest test open to an unobservable climate.
+
+\textbf{The tall air's dynamics.} Both dynamical cores hold gravity constant in a thin shell, where the
+lunar air loses 5\% of its gravity by its mass-mean height and holds 11.5\% more air over each square metre
+of ground than a flat column of constant gravity. The consistent deep-atmosphere equations \autocite{white2005consistent} and the
+deep forms of global models \autocite{mayne2014unified} carry both effects; a first step corrects the
+GCM's column mass and heights, and a test of the circulation's sensitivity says whether the full equations
+are needed.
+
+\textbf{Radiation in CM1.} RRTMG extrapolates its tables over the lowest 7.5~km of air over the sea, takes
+the Sun's unfiltered spectrum and over-cools the lower air by 4.5--10~W\,m$^{-2}$ against the reference.
+Extending its tables past 1,054~hPa, or replacing it with the in-house correlated-$k$ scheme, and giving it
+the shield's spectrum would separate the table's edge from the other causes of that over-cooling.
+
+\textbf{Microphysics at lunar gravity.} Morrison's limits on the size of rain, its breakup, the size of ice
+crystals and the gravity exponent of snow's fall speed all stay Earth's, and 85\% of the falling water evaporates. A
+gravity-similarity pair under prescribed radiative cooling would test the scaled microphysics as SWAN's
+pair tested the waves, and limits scaled with the capillary length would show how much of the evaporation
+the small drops cause.
+
+\textbf{Electricity and seas.} The lightning's sign rests on charging laws measured at Earth's impact
+speeds; charging rates for graupel striking ice at 1.3--1.5~m\,s$^{-1}$ in little cloud water, from laboratory
+or theory, would settle it.\claim{N01} A finer box over a stormy window would separate the grid from the physics in
+the flash rate, and a leader model would replace the bound on ground strikes. The seas need the air's
+density field in place of one value, swell decay, a test of convergence in frequency, and wind input and
+breaking checked against theory at the lunar ratio of air to water density.
+
+\textbf{Upstream and the record.} The Sun clock, the orbit default, SWAN's uninitialised breaker parameter
+and CM1's thread race are defects in released code, and reports to the maintainers would serve every user;
+CM1 would gain from one gravity parameter honoured by every scheme. The record itself needs the twilight
+pair's control rerun on one build, runtime identity runs for the Sun clock and the water scaling, and
+forcing for the CM1 cases set up before the Sun and the sounding were corrected.

@@ -900,6 +900,23 @@
     "repo:paper/data/worlds.json"
    ],
    "state": "documented"
+  },
+  {
+   "id": "N01",
+   "text": "Lunar graupel strikes ice at 1.3-1.5 m/s and snow at 0.8-1.0 m/s; the deciding charging measurement is unavailable",
+   "source": [
+    "repo:notes/electrification.md#L91-94",
+    "repo:notes/defect_log.md#B7"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "Z01",
+   "text": "374 of the 487 commits in Terluna's history to 186b294 carry a Claude Opus 5.5 co-author line",
+   "source": [
+    "calc:git -C terluna log 186b294 --format=%b | grep -ci 'co-authored-by: claude opus 5.5' (374) against git log 186b294 --oneline | wc -l (487), run 2026-10-17"
+   ],
+   "state": "calculation"
   }
  ]
 }
