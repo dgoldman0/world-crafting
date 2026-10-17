@@ -603,6 +603,144 @@
     "terluna:climate/waves/review.md#L21-30"
    ],
    "state": "documented"
+  },
+  {
+   "id": "V01",
+   "text": "Five ExoPlaSim identity runs at neutral settings; committed convective-day patch equals the staged code; kill-and-resume restart identical, output identical in 39 variables, 12 header bytes differ; seven restart hashes confirmed 2026-10-17",
+   "source": [
+    "repo:notes/verification_record.md#L29-44",
+    "terluna:climate/gcm/README.md#L150-155",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A_kill"
+   ],
+   "state": "identity"
+  },
+  {
+   "id": "V02",
+   "text": "CM1 tilted-ring patches and local-time advection repeat a first model day bit for bit; single-thread runs repeat; the electrified supercell restarted on 4 and 2 threads repeats fields and 41 flashes; SWAN patched equals stock at Earth's g",
+   "source": [
+    "repo:notes/verification_record.md#L59-83",
+    "terluna:climate/crm/README.md#L557-560",
+    "terluna:climate/crm/README.md#L1664-1667",
+    "terluna:climate/waves/audit.md#L54-58"
+   ],
+   "state": "identity"
+  },
+  {
+   "id": "V03",
+   "text": "The series rebuild every deployed source byte for byte; ExoPlaSim prefixes reproduce 32 of 34 hashed GCM runs; the two others compiled drafts",
+   "source": [
+    "repo:models/check_patches.sh",
+    "repo:models/exoplasim/runs.json",
+    "repo:models/exoplasim/README.md#L84-89",
+    "repo:models/cm1/builds.json"
+   ],
+   "state": "reproduction"
+  },
+  {
+   "id": "V04",
+   "text": "SWAN sixfold similarity: stock 5.44% (Hs) and 3.91% (Tm); patched 0.303% and 0.326% against a 1% criterion; largest peak-period difference one bin",
+   "source": [
+    "terluna:climate/waves/first_experiments.md#L33-37",
+    "repo:notes/verification_record.md#L170"
+   ],
+   "state": "similarity"
+  },
+  {
+   "id": "V05",
+   "text": "SWASH: dispersion within 1.76% amplitude and 0.289% phase at three gravities; linear similarity 0.000908%; nonlinear run-up 1.20%",
+   "source": [
+    "terluna:climate/waves/runup.md#L200-212",
+    "repo:notes/verification_record.md#L171-173"
+   ],
+   "state": "similarity"
+  },
+  {
+   "id": "V06",
+   "text": "The CM1 gravity pair (pair_moon, pair_earth) failed to convect",
+   "source": [
+    "terluna:climate/crm/README.md#L2508-2528",
+    "repo:notes/verification_record.md#L174"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "V07",
+   "text": "Clear-sky split within 0.6 points rms on 11 unseen columns; 0 E air 31.4% against 31.1%; a 303 K, 338 kg/m2 column 0.7 points short against 9.7",
+   "source": [
+    "terluna:climate/gcm/README.md#L280-302",
+    "repo:python/climate/results/gcm/radiation_check_A28_dim5_moon.json",
+    "repo:notes/verification_record.md#L154"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "V08",
+   "text": "RRTMG within 2.5 points at the crossing; on 990 cloud-free 45 N columns it cools 4.5, 8.5 and 10.2 W/m2 more than correlated-k at 0-1.8, 1.8-6.5 and 6.5-13.7 km",
+   "source": [
+    "terluna:climate/crm/README.md#L911-919",
+    "terluna:climate/crm/README.md#L1173-1180",
+    "repo:notes/verification_record.md#L157"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "V09",
+   "text": "Electrified supercell against CM1's NSSL: updrafts within 6%, reflectivity 3.4 dBZ, condensate 9%, graupel 12%, hail within a factor of two",
+   "source": [
+    "terluna:climate/crm/README.md#L1742-1754",
+    "repo:notes/verification_record.md#L180"
+   ],
+   "state": "benchmark"
+  },
+  {
+   "id": "V10",
+   "text": "Against published electrification: first flash 28.5 min (27-40); rates and charge per flash in range; 1.1% ground strikes; charging several times stronger from cloud ice up to 2e8 per kg",
+   "source": [
+    "terluna:climate/crm/README.md#L1755-1778",
+    "terluna:climate/crm/README.md#L1764",
+    "repo:notes/electrification.md#L47-51"
+   ],
+   "state": "benchmark"
+  },
+  {
+   "id": "V11",
+   "text": "Arithmetic checks: solang rebuild correlation 1.0000; Sun within 8e-7 and Coriolis within 3e-12 /s; field solver 1 part in 1e5; ledger channels within 0.9 W/m2 per layer; conductivity within 2-8% at 5-30 km",
+   "source": [
+    "repo:python/climate/results/gcm/sun_check_A28_dim5.json",
+    "terluna:climate/crm/README.md#L561-562",
+    "terluna:climate/crm/README.md#L1710-1729",
+    "terluna:climate/gcm/README.md#L975-991",
+    "terluna:atmosphere/electricity/README.md#L18"
+   ],
+   "state": "implementation"
+  },
+  {
+   "id": "V12",
+   "text": "SWAN breaking off: ~2.5% repeat difference; early growth up to 33% with the time step, endpoints under 0.3%; small seas fail 5%; SWASH irregular input 5.22% and 6.28%",
+   "source": [
+    "terluna:climate/waves/audit.md#L68-83",
+    "terluna:climate/waves/first_experiments.md#L41-52",
+    "terluna:climate/waves/weather.md#L125-144",
+    "terluna:climate/waves/runup.md#L219-232"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "V13",
+   "text": "CM1 -O3 rebuild 0.28-0.32 C rms at 2 m within a day; one ledger channel of 282 at the 100-order cap, omitted tail ~3e-4 of its ground diffuse field",
+   "source": [
+    "terluna:climate/crm/README.md#L49-78",
+    "repo:notes/reference_radiation.md#L466-472"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "V14",
+   "text": "Missing checks: CM1 from the longwave-corrected GCM; the longwave fit at 307 K; the twilight pair's control; runtime identity of the Sun clock and water scaling; RRTMG's extrapolation; the thread race; CM1 microphysics similarity; an independent GCM",
+   "source": [
+    "repo:notes/verification_record.md#L211-250"
+   ],
+   "state": "documented"
   }
  ]
 }
