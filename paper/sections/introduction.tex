@@ -20,14 +20,12 @@ slows falling rain to about a third of its Earth speed, and the Sun returns once
 \autocite{paradise2022exoplasim,way2017resolving}; on the Moon all four move together, in an air that is
 otherwise Earth's own.
 
-Three model families divide the work, each answering where the previous one stops. ExoPlaSim 3.4.2
-\autocite{paradise2022exoplasim}, the Planet Simulator \autocite{fraedrich2005planet} extended for other
+Three model families divide the work, each answering where the previous one stops. ExoPlaSim 3.4.2 \autocite{paradise2022exoplasim,paradise2025exoplasim}, the Planet Simulator \autocite{fraedrich2005planet} extended for other
 worlds, runs the global climate for decades in an hour or two on four processor cores,\claim{S14} with
-clouds and convection diagnosed from formulas fitted to Earth. CM1 release 22 \autocite{bryan2002benchmark} resolves convection and forms
+clouds and convection diagnosed from formulas fitted to Earth. CM1 release 22 \autocite{bryan2002benchmark,bryan2026cm1} resolves convection and forms
 its own clouds and rain on rings and boxes forced from the GCM; with the electrification of WRF-ELEC
-grafted in \autocite{mansell2010simulated,fierro2013implementation} it also carries charge and lightning.
-SWAN 41.51 \autocite{booij1999third} grows waves over the lunar seas from the GCM's surface stress, and SWASH
-12.01 \autocite{zijlema2011swash} carries them up the shore. Behind all three stands an in-house line-by-line
+grafted in \autocite{mansell2010simulated,fierro2013implementation,mansell2026wrfelec} it also carries charge and lightning.
+SWAN 41.51 \autocite{booij1999third,swan4151user} grows waves over the lunar seas from the GCM's surface stress, and SWASH 12.01 \autocite{zijlema2011swash,swash1201user} carries them up the shore. Behind all three stands an in-house line-by-line
 radiative--convective model, built on HITRAN2020 \autocite{gordon2022hitran2020} and the MT\_CKD continuum
 \autocite{mlawer2012development}, against which every radiation calibration was fitted.
 

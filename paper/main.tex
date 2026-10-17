@@ -13,6 +13,7 @@
 \usepackage[font=small,labelfont=bf,labelsep=period]{caption}
 \usepackage{enumitem}
 \usepackage{csquotes}
+\usepackage{seqsplit}            % long hashes in the bibliography break anywhere
 \usepackage[style=authoryear,maxcitenames=2,maxbibnames=10,minbibnames=7,uniquelist=false,giveninits=true,
             doi=true,url=false,isbn=false,backend=biber]{biblatex}
 \usepackage[hidelinks,breaklinks]{hyperref}
@@ -44,5 +45,6 @@
 \input{sections/next}
 \input{sections/conclusions}
 \input{sections/availability}
+\setlength{\emergencystretch}{3em}
 \printbibliography[heading=bibintoc]
 \end{document}

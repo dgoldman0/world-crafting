@@ -14,8 +14,7 @@ set on, and gravity is the commonest. CM1 release 22 sets it to 9.81~m\,s$^{-2}$
 dynamics, the conversion of pressure to layer mass in its RRTMG radiation \autocite{iacono2008radiative}, its CAPE diagnostic and the Morrison microphysics,
 whose fall-speed laws $V = aD^b$ and their caps hold Earth's gravity in their coefficients.\claim{H01}
 WRF-ELEC's NSSL scheme sets 9.8 twice and ties the ventilation of evaporating rain and depositing ice to
-Earth's fall-speed coefficients.\claim{H02} Earth's air sets three thresholds in WRF-ELEC's lightning. A
-breakdown field capped at 180~kV\,m$^{-1}$ acts on Earth only below about 4.5~km, beneath where flashes
+Earth's fall-speed coefficients.\claim{H02} Earth's air sets three thresholds in WRF-ELEC's lightning. A breakdown field scaled with the air's density \autocite{dwyer2003fundamental} and capped at 180~kV\,m$^{-1}$ acts on Earth only below about 4.5~km, beneath where flashes
 start, and in lunar air below about 36~km, where it lowers the field by 44\% at the ground. A ground strike
 is declared when a channel reaches air warmer than $-7$\,\textdegree C, about 5~km above Earth's ground and
 27--34~km above the Moon's. A 0.75~s sub-step is sized for 500~m layers and Earth's fall
@@ -29,7 +28,7 @@ derives its gradient from Earth's rotation and a 6,370~km radius.\claim{H06} Eac
 Earth, and becomes right for the Moon once it is a parameter or follows a scaling law.
 
 \textbf{Units of time.} A formula written per day, and a process that matters only over a long run, both
-hold Earth's calendar. Slingo's convective cover in PlaSim \autocite{slingo1987development}, $0.245 + 0.125\ln P$ with $P$ the convective
+hold Earth's calendar. Slingo's convective cover in PlaSim, $0.245 + 0.125\ln P$ in the form PlaSim's manual gives it \autocite{slingo1991response,lunkeit2012plasim}, with $P$ the convective
 rain in millimetres per day, converts the model's rain to millimetres per day with the model's own solar day. ExoPlaSim sets that
 day from the planet's rotation and orbit, 29.8 Earth days for the Moon, so the formula reads lunar rain
 about 30 times too heavy and adds $0.125\ln 29.8 = 0.42$ to the cover, up to its cap of 0.8; on any world
