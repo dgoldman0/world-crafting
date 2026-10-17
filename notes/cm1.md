@@ -30,7 +30,7 @@ bit (Terluna `climate/crm/README.md` 80–110).
 
 ## Gravity (core patches 01–03)
 
-**The hidden Earth.** CM1 r22.0 sets g = 9.81 in `constants.F` (the dynamics), separately in
+**The Earth value.** CM1 r22.0 sets g = 9.81 in `constants.F` (the dynamics), separately in
 `module_ra_etc.F`'s `module_model_constants` (whence RRTMG's `rrtmg_lw_ini`/`rrtmg_sw_ini` take their
 `grav` for absorber mass per layer and for heating rates, and MYNN its gravity), in `getcape.F`, and as
 `G` in `morrison.F`. Changing only `constants.F` would leave RRTMG putting a sixth of the lunar air over

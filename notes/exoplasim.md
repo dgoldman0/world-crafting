@@ -18,7 +18,7 @@ physical validation of a lunar climate, which no observation can supply.
   can be rebuilt from the series (`models/exoplasim/runs.json`). The two exceptions are explained there.
 - The deployed copy compiled and ran (Terluna's runs); this repository compiles nothing itself.
 
-## Defects and hidden Earth repaired
+## Defects and Earth values repaired
 
 ### The Sun's clock (patch 04, `NSUNCLOCK`)
 
@@ -66,7 +66,7 @@ exoplanet run that sets an obliquity without `fixedorbit=True` has Earth's seaso
 
 ### Cloud water in metres (patch 02, `CWGREF`, `CWSCALE`)
 
-**The hidden Earth.** `mkclouds` (rainmod.f90, upstream ~1950–1980) diagnoses the water clouds hold
+**The Earth value.** `mkclouds` (rainmod.f90, upstream ~1950–1980) diagnoses the water clouds hold
 for radiation from CCM3's formula, 0.21 g/m³ at the ground decaying with *geometric* height on a scale
 of 700 ln(1 + PW) m (PW the precipitable water in kg/m²). At a sixth of Earth's gravity a pressure level
 stands six times higher while 700 ln(1 + PW) grows only logarithmically, so clouds above about 20 km,
@@ -92,7 +92,7 @@ or carry prognostic condensate.
 
 ### Convective cover counted per model day (patch 03, `CONVDAY`)
 
-**The hidden Earth.** Slingo's convective cover, 0.245 + 0.125 ln P with P the convective rain in mm per
+**The Earth value.** Slingo's convective cover, 0.245 + 0.125 ln P with P the convective rain in mm per
 day, capped at 0.8, converts rain with `zrfac = solar_day * 1000` (rainmod.f90 upstream 1890). On the
 Moon the model's solar day is 29.8 Earth days, so the formula read the rain about 30 times too heavy and
 added 0.125 ln 29.8 = 0.42 to the cover, up to the cap. The bias for any world is 0.125 ln(day/1 d).
@@ -104,6 +104,16 @@ Sensitivity: +1.6 K, cover 22% → 20%.
 **Limits.** The repair restores Slingo's unit; the formula itself remains an Earth fit. A run counting
 rain per 2,400 s (cover near its floor) warmed the Moon another 1.7 K, so the convective cover's
 calibration is a live uncertainty.
+
+**A defect by ExoPlaSim's own design (finding, 2026-10-17).** ExoPlaSim's description says it replaced the
+solar day with a standard 86,400 s in its unit conversions (Paradise et al. 2022, Sect. 2.1); this
+conversion is one that replacement left in place, so the paper classes it with the upstream defects, exact at
+a one-day model day. It also acts in synchronous runs: `configure(synchronous=True)` sets only `NFIXED` and
+`FIXEDLON` (`__init__.py` 2628–2630), while the rotation period still sets `ROTSPD` and
+N = max(int(360/P/12 + 0.5), 1) × 12 (2616–2619), so `plasim.f90` (1296–1300) gives a model day of P·N/(N−1)
+and the cover gains 0.125 ln of it: +0.23 for TRAPPIST-1e's 6.1-day rotation and +0.31 for Proxima Centauri b's
+11.2 days (`paper/tools/regime_calc.py`, `exoplasim_synchronous_cover_bias`). It deserves an upstream report
+alongside the Sun clock's.
 
 ### Liquid-only cloud optics (patch 10, `NICEOPT`, `TICEOPT`)
 

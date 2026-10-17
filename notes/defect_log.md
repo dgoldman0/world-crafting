@@ -393,6 +393,11 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   (`climate/gcm/README.md:467-490`).
 - **Remains.** Slingo's fit itself remains Earth's. A test with the cover near its floor (`convective_day_s` 2400)
   warmed the Moon by 1.7 K and was not adopted (20ff260).
+- **Class (V, 2026-10-17).** The paper's second draft classes B11 with the upstream defects of (a): ExoPlaSim's
+  description says it replaced the solar day with 86,400 s in its unit conversions, and this one was left in
+  place. Synchronous runs carry it too, since the rotation period still sets the model day there: +0.23 to the
+  cover for TRAPPIST-1e's 6.1-day rotation, +0.31 for Proxima Centauri b's 11.2 days
+  (`paper/tools/regime_calc.py`). Not yet reported upstream.
 
 ### B12. PlaSim: CCM3 cloud water with geometric height (R)
 
