@@ -8,6 +8,7 @@ below). Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=p
 |---|---|---|
 | `atmosphere/radiative_convective/` | The line-by-line clear-sky radiative–convective column (HITRAN2020 lines, MT_CKD 4.3 continuum, collision-induced absorption, Rayleigh scattering; GM/r² hydrostatics; a pseudo-spherical solar beam) and the correlated-k thermal scheme built from the same spectroscopy. Every GCM and CM1 radiation calibration was fitted against it | [../notes/reference_radiation.md](../notes/reference_radiation.md) |
 | `atmosphere/middle_atmosphere/` | `equilibrium.py`, `photolysis.py`, `chemistry.py`: the radiative–photochemical equilibrium column to 0.1 Pa that the surface-light model and the sky's optics build their columns from. Its escape and exobase modules stay in Terluna | Terluna's `METHODS.md`, copied here |
+| `atmosphere/electricity/` (`conductivity.py`, `muons.py`, `charging.py`) | The lunar conductivity column the electrified CM1's leakage and screening read: ion production from the CRAC:CRII tables and MCEq muons, small ions' recombination, mobility and attachment to humidity-swollen aerosol; and the graupel-crystal charging laws integrated over size distributions (Saunders and Peck, Takahashi, with WRF-ELEC's critical rime accretion rates). Terluna's thunder, occurrence and tower scripts are analyses and stay there; the package README is Terluna's and still lists them | [../notes/electrification.md](../notes/electrification.md) |
 | `illumination/surface_light/`, `illumination/cloud_light/model.py` | Columns and sunlight for the sky solver and the curved-air ledger | |
 | `illumination/sky/` | The spherical successive-orders sky solver and the solved-column sky | [../notes/sky_solver.md](../notes/sky_solver.md) |
 | `climate/gcm/plasim_shortwave.py`, `plasim_longwave.py` | PlaSim's clear-sky shortwave and longwave arithmetic for one column, and the fitters for its corrections | [../notes/exoplasim.md](../notes/exoplasim.md) |
@@ -19,12 +20,16 @@ below). Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=p
 ## Running
 
 ```sh
-python -m pytest                      # from the repository root: 95 tests
+python -m pytest                      # from the repository root: 111 tests
 ```
 
-On 2026-10-17 all 95 passed under Python 3.13 with numpy, scipy and numba 0.68, with the spectroscopic
-inputs restored (176 MB for the radiative–convective model, fetched and hash-checked by
-`python -m atmosphere.radiative_convective.fetch_inputs --download`; git-ignored). Without numba the sky
+On 2026-10-17 all 95 then present passed under Python 3.13 with numpy, scipy and numba 0.68, with the
+spectroscopic inputs restored (176 MB for the radiative–convective model, fetched and hash-checked by
+`python -m atmosphere.radiative_convective.fetch_inputs --download`; git-ignored). The 16 electricity tests
+added the same day passed with their inputs restored (`python -m atmosphere.electricity.fetch_inputs
+--download`: Takahashi's table, the CRAC:CRII tables and the PDG muon table, 0.7 MB, git-ignored; without
+them three tests skip). `muons.py` needs MCEq, which Terluna keeps in a separate environment; its products
+are committed. Without numba the sky
 solver's 29 tests are not collected; without the inputs 10 tests skip.
 
 ## What still needs Terluna

@@ -98,6 +98,40 @@ scheme by about a factor of two.
 - **Physics left out**: terrain under the field solver; the small ions' drift in the field; three-moment
   arrays; CM1's own water budget from the NSSL scheme. Runs on several threads are realizations.
 
+## The conductivity column and the charging laws (`python/atmosphere/electricity/`)
+
+Two in-house tools stand behind the lunar settings. `conductivity.py` builds the column that leakage
+(`var9`) and the screening layers read: ion production from the CRAC:CRII v2 tables above Earth's sea-level
+depth and from MCEq muons and their decay electrons below it (`muons.py`, run in its own environment),
+then the small ions' recombination, mobility, and attachment to aerosol swollen by the air's humidity
+(κ-Köhler, κ 0.3 with 0.1 and 1.0 as a bracket, 100 particles per cm³) and to cloud droplets.
+`charging.py` integrates graupel's rebounding collisions with crystals and snow over both size
+distributions under four laboratory laws, Saunders and Peck with WRF-ELEC's critical rime accretion rate and
+Takahashi's table among them, at lunar impact speeds.
+
+**Correctness.** The ion chain reproduces Earth's measured fair-weather positive conductivity within 2–8% from
+5 to 30 km at a 3 GV cutoff; MCEq gives Earth's sea-level vertical muon intensity within 6–13% of the
+Bogdanova et al. fit above 10 GeV/c (51 against 76 m⁻² s⁻¹ sr⁻¹ above 1 GeV/c, where three-dimensional effects
+matter); the charging integrals reproduce WRF-ELEC's critical rime accretion rates and Takahashi's tabulated
+charges (Terluna `atmosphere/electricity/README.md` 18–36). The 16 tests brought here passed on 2026-10-17;
+three need the fetched inputs.
+
+**Limits.**
+- The aerosol is one assumed state (100 cm⁻³, κ 0.3). Terluna's aerosol study puts the ground's conductivity
+  at 2.2–2.7 × 10⁻¹⁵ S/m across regions (0.6–4.7 across its cases), against this column's 3.7 × 10⁻¹⁵ S/m.
+- Ion attachment scales with mobility as in the continuum regime at every height (defect log C15); with Fuchs
+  and Sutugin's transition factor the clear air would conduct 5–12% more at 34 km, 12–25% more at 50 km and
+  23–45% more at 70 km. The column's values aloft are the low end, kept by the author's decision until the
+  regional aerosol rebuilds the column.
+- Mobility and recombination carry no humidity term; ionization below Earth's sea-level depth comes from
+  muons alone, and the lunar cutoff rigidity and modulation are one choice.
+- The charging laws are Earth's laboratory laws; at the lunar impact speeds (graupel on ice 1.3–1.5 m/s) they
+  are extrapolated, and the deciding measurement, for fast rimed ice in little cloud water at −5 to −16 °C, is
+  unavailable.
+
+**Improvement.** Rebuild the column with the regional aerosol and the transition-regime attachment; carry the
+column's uncertainty into leakage as a bracket; laboratory or theoretical charging at lunar impact speeds.
+
 ## Improvements in order of value
 
 1. Laboratory or theoretical charging rates at lunar impact speeds and riming rates.

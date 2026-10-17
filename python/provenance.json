@@ -3,29 +3,154 @@
  "source": "Terluna 186b294 (local checkout, 2026-10-17)",
  "files": [
   {
-   "path": "shared/constants.json",
-   "sha256": "e59b5febb6cf6c1a50bd036691abb8550583c287eeeb6f71d799fcfcf18e1bd6",
-   "bytes": 6378
+   "path": "atmosphere/electricity/.gitignore",
+   "sha256": "75ff93ce92b792778e18822d94a300a3fab8293c63bf4b395698b48fbd9cfe0d",
+   "bytes": 9
   },
   {
-   "path": "shared/constants.py",
-   "sha256": "0368e82a587d94ac1828a36f1a4c7f97d72f3803c531174c14f3fa1d2875d2c5",
-   "bytes": 3416
+   "path": "atmosphere/electricity/README.md",
+   "sha256": "884c3e2279aaae87e2247e9e9699a6432bed6e3e80f144a84002d6205516df3d",
+   "bytes": 7481
   },
   {
-   "path": "shared/external_inputs.py",
-   "sha256": "5b3fdf8291091761a66c8340248155946d431ad3eb77d397c1e13a362d104057",
-   "bytes": 4483
+   "path": "atmosphere/electricity/charging.py",
+   "sha256": "b6c85e5949ce4d341fafdd9a33f3321350422bebdd1a167b4e93facffd5c90b6",
+   "bytes": 10610
   },
   {
-   "path": "shared/provenance.py",
-   "sha256": "c59d32186d453a80992eb02203b644fe759aca869dc892d91af9aa74fd65c7f8",
-   "bytes": 3275
+   "path": "atmosphere/electricity/conductivity.py",
+   "sha256": "6240defd4ec3db556ad99dc8c652ef3fa57881325c5afaf290950b7a3498edf8",
+   "bytes": 19535
   },
   {
-   "path": "shared/README.md",
-   "sha256": "3b19d56a9d4f3d99c859a369e2fdd1ebbde9bcaaac9a337a5948e755bccfd8ef",
-   "bytes": 5108
+   "path": "atmosphere/electricity/fetch_inputs.py",
+   "sha256": "1da838b9675280c2b5a23e0e210cb9414378079697f0aa73df5cd72dfe7fe77c",
+   "bytes": 792
+  },
+  {
+   "path": "atmosphere/electricity/inputs.json",
+   "sha256": "4430cedf08299393d4220bef3cbdcd265b9751066c75853e29cf253103cece4e",
+   "bytes": 2379
+  },
+  {
+   "path": "atmosphere/electricity/muons.py",
+   "sha256": "9c5618acbf0a389ee59a45335626043ffda1d112ce2a00aa77afe750ab05603a",
+   "bytes": 10615
+  },
+  {
+   "path": "atmosphere/electricity/results/conductivity_moon.json",
+   "sha256": "2430b917a16b08faa8803df8f1a114cb42e85a8875801f316ec03f587e9af738",
+   "bytes": 137650
+  },
+  {
+   "path": "atmosphere/electricity/results/muon_ionization_earth.json",
+   "sha256": "3c224ef3bf7a3bd5dec9ad0b3316bf485eb73249f28e23d08e61332b451da0c7",
+   "bytes": 5362
+  },
+  {
+   "path": "atmosphere/electricity/results/muon_ionization_moon.json",
+   "sha256": "ea2f0f687ec80c87b18d6b24b42dca17436d6e9ef5ba68818666d5f346921e89",
+   "bytes": 9244
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/METHODS.md",
+   "sha256": "ab83601b53d6d6638afed376a8e0fca4bbb36b7c240469f9eb886f1c4c3b4fb2",
+   "bytes": 23155
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/README.md",
+   "sha256": "a2b6bb99b1482506081a62695680d230fe24594eff088209ab750282ad1b455c",
+   "bytes": 31867
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/chemistry.py",
+   "sha256": "c7eb0ece06ef9fc181331fdf9c85db2afc0fcea1902d172b7ccbdb2fe00fd432",
+   "bytes": 16987
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/equilibrium.py",
+   "sha256": "265bc854a481936e739d9fc4b6a2a6e34986f35740ee89bd8793f7c8f3590f4f",
+   "bytes": 18733
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/fetch_inputs.py",
+   "sha256": "ddd37b9945fa41d5a08ca4f212cd1f4df5977773492bb775a2d9bfb8db8e41cd",
+   "bytes": 797
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/inputs.json",
+   "sha256": "30e5b72a2130d70c4f893011bc848d8aa875f8ef8e74c07b85f09b1d23f8686a",
+   "bytes": 13344
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/photolysis.py",
+   "sha256": "95965ecee7883f488d51c19cc8ff41c282f4fb4d4ec4f9c4eea4f302770fa25a",
+   "bytes": 13471
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/cases/earth_control.json",
+   "sha256": "818d14f31281f697bb0d3ec0280a0f1bfaea70aa8a49b66adf33e690dfc0f512",
+   "bytes": 1620
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/cases/moon_1.0atm_titania_stack.json",
+   "sha256": "4d3f919f1ad2989767413a7246eb0de61de3b250756853634fa2923adf8f8916",
+   "bytes": 1674
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/cases/moon_1.0atm_titania_stack_ts298.json",
+   "sha256": "5656fcabfd8d38b0707f00fc976120a2f036294366e43e102892abd959532c37",
+   "bytes": 1693
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/cases/moon_1.2atm_titania_stack.json",
+   "sha256": "3045438e2bc6df545f09378248ab083d47c66bb626ddf4f73f05702a4c911fba",
+   "bytes": 1683
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/cases/moon_1.2atm_titania_stack_ts298.json",
+   "sha256": "eda1499f9ba2c3a5d3289aca15e4c3e81afa90d8adac33bb1d72c8446b9d75eb",
+   "bytes": 1694
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/middle_atmosphere.json",
+   "sha256": "4649fa5ccd6c70429eaf96ce6a2efb46c3d69f8e25d5a86bd2ff76e63bb1fcf8",
+   "bytes": 3302
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/profiles/earth_control.csv",
+   "sha256": "1891eeb25de5083e49c47c0e973877738eb172dee9f8fe4b22705dad8f79b902",
+   "bytes": 27680
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/profiles/moon_1.0atm_titania_stack.csv",
+   "sha256": "b6a46936495cb4c843688f69f8847b5a50a1a0f43ced9b5072aa87202a88ff6f",
+   "bytes": 24120
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/profiles/moon_1.0atm_titania_stack_ts298.csv",
+   "sha256": "decdc8ce6fd604018a839ef21d7e1b26120056d77e0815600ef372f539d7487b",
+   "bytes": 24072
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/profiles/moon_1.2atm_titania_stack.csv",
+   "sha256": "e7079c911c9e70c475dec5fd3c2eecdad7e5e9435e63a7b31c68c644cecc3605",
+   "bytes": 24044
+  },
+  {
+   "path": "atmosphere/middle_atmosphere/results/profiles/moon_1.2atm_titania_stack_ts298.csv",
+   "sha256": "2144c1b0f2818eb4eb09e5bf2bdd1d3d7fd1bf67326873a5f27fc631d4dffb0c",
+   "bytes": 23951
+  },
+  {
+   "path": "atmosphere/radiative_convective/METHODS.md",
+   "sha256": "14043b7693eab8b8cc16fc986f62c8e17ca04e6e64227fe1cdfc468ee2b9bfbc",
+   "bytes": 13774
+  },
+  {
+   "path": "atmosphere/radiative_convective/README.md",
+   "sha256": "add6e0d821abd966bdb40b2b5e1180efc2b7039b00e7cd510f32c8dab64efaf6",
+   "bytes": 18142
   },
   {
    "path": "atmosphere/radiative_convective/analysis.py",
@@ -53,6 +178,16 @@
    "bytes": 943
   },
   {
+   "path": "atmosphere/radiative_convective/inputs.json",
+   "sha256": "65f81b5a6d2c3f3045737712dad46f474efa8174f00e6ac43fe0ca1191688eea",
+   "bytes": 25361
+  },
+  {
+   "path": "atmosphere/radiative_convective/inputs_added.json",
+   "sha256": "ac524acf3182ce59d2c513f5ab57ef17d3f436c5f37d2dbe167e7cb2f4b957c3",
+   "bytes": 4884
+  },
+  {
    "path": "atmosphere/radiative_convective/longwave.py",
    "sha256": "87a40a93f2e82dab85908b9a44607dd05f604250f8c91ae66f7d0e60505ad468",
    "bytes": 3311
@@ -66,61 +201,6 @@
    "path": "atmosphere/radiative_convective/reduced_gases.py",
    "sha256": "cf59defa86f35b742560b2c038829fdbd522e8e53799f71c7abe446329b9fa58",
    "bytes": 14123
-  },
-  {
-   "path": "atmosphere/radiative_convective/run.py",
-   "sha256": "ebfcae823c19c2294adab59a47d7e8ed360a675a400787857e238104e880ca84",
-   "bytes": 8127
-  },
-  {
-   "path": "atmosphere/radiative_convective/shortwave.py",
-   "sha256": "c72e84955bdb6ab7c097f6db5dad8b6d1bc8bf63411c61dcffd2e6a5520cd102",
-   "bytes": 8479
-  },
-  {
-   "path": "atmosphere/radiative_convective/spectroscopy.py",
-   "sha256": "42df50591383ce4eb4769511de0654c8255fc08c2bf6abbaaf1ec00b14d98efc",
-   "bytes": 20124
-  },
-  {
-   "path": "atmosphere/radiative_convective/thermodynamics.py",
-   "sha256": "0200e9dd64e130cfaa5d132f73ae87067efcc4a7b038784bbdd8152cdabbcc8f",
-   "bytes": 14324
-  },
-  {
-   "path": "atmosphere/radiative_convective/trace_gases.py",
-   "sha256": "baa4700d8c20306f9c05a751ff3699c1dca5f7cede7c2d31385738bd19f57f90",
-   "bytes": 11581
-  },
-  {
-   "path": "atmosphere/radiative_convective/validate_ck.py",
-   "sha256": "1cffd908f22ee58ca5c6f543a9a7b77a131e0448da502a4fa94b0cc7e88b7ce5",
-   "bytes": 9597
-  },
-  {
-   "path": "atmosphere/radiative_convective/METHODS.md",
-   "sha256": "14043b7693eab8b8cc16fc986f62c8e17ca04e6e64227fe1cdfc468ee2b9bfbc",
-   "bytes": 13774
-  },
-  {
-   "path": "atmosphere/radiative_convective/README.md",
-   "sha256": "add6e0d821abd966bdb40b2b5e1180efc2b7039b00e7cd510f32c8dab64efaf6",
-   "bytes": 18142
-  },
-  {
-   "path": "atmosphere/radiative_convective/inputs.json",
-   "sha256": "65f81b5a6d2c3f3045737712dad46f474efa8174f00e6ac43fe0ca1191688eea",
-   "bytes": 25361
-  },
-  {
-   "path": "atmosphere/radiative_convective/inputs_added.json",
-   "sha256": "ac524acf3182ce59d2c513f5ab57ef17d3f436c5f37d2dbe167e7cb2f4b957c3",
-   "bytes": 4884
-  },
-  {
-   "path": "atmosphere/radiative_convective/validation.json",
-   "sha256": "e3b1f6e0c7df0b51ff26ca2d56b35860ca217d9c4764392afd9e5515f5d4f2e1",
-   "bytes": 8424
   },
   {
    "path": "atmosphere/radiative_convective/results/ck_validation.json",
@@ -153,44 +233,54 @@
    "bytes": 15200
   },
   {
-   "path": "atmosphere/middle_atmosphere/equilibrium.py",
-   "sha256": "265bc854a481936e739d9fc4b6a2a6e34986f35740ee89bd8793f7c8f3590f4f",
-   "bytes": 18733
+   "path": "atmosphere/radiative_convective/run.py",
+   "sha256": "ebfcae823c19c2294adab59a47d7e8ed360a675a400787857e238104e880ca84",
+   "bytes": 8127
   },
   {
-   "path": "atmosphere/middle_atmosphere/photolysis.py",
-   "sha256": "95965ecee7883f488d51c19cc8ff41c282f4fb4d4ec4f9c4eea4f302770fa25a",
-   "bytes": 13471
+   "path": "atmosphere/radiative_convective/shortwave.py",
+   "sha256": "c72e84955bdb6ab7c097f6db5dad8b6d1bc8bf63411c61dcffd2e6a5520cd102",
+   "bytes": 8479
   },
   {
-   "path": "atmosphere/middle_atmosphere/chemistry.py",
-   "sha256": "c7eb0ece06ef9fc181331fdf9c85db2afc0fcea1902d172b7ccbdb2fe00fd432",
-   "bytes": 16987
+   "path": "atmosphere/radiative_convective/spectroscopy.py",
+   "sha256": "42df50591383ce4eb4769511de0654c8255fc08c2bf6abbaaf1ec00b14d98efc",
+   "bytes": 20124
   },
   {
-   "path": "atmosphere/middle_atmosphere/fetch_inputs.py",
-   "sha256": "ddd37b9945fa41d5a08ca4f212cd1f4df5977773492bb775a2d9bfb8db8e41cd",
-   "bytes": 797
+   "path": "atmosphere/radiative_convective/thermodynamics.py",
+   "sha256": "0200e9dd64e130cfaa5d132f73ae87067efcc4a7b038784bbdd8152cdabbcc8f",
+   "bytes": 14324
   },
   {
-   "path": "atmosphere/middle_atmosphere/inputs.json",
-   "sha256": "30e5b72a2130d70c4f893011bc848d8aa875f8ef8e74c07b85f09b1d23f8686a",
-   "bytes": 13344
+   "path": "atmosphere/radiative_convective/trace_gases.py",
+   "sha256": "baa4700d8c20306f9c05a751ff3699c1dca5f7cede7c2d31385738bd19f57f90",
+   "bytes": 11581
   },
   {
-   "path": "atmosphere/middle_atmosphere/METHODS.md",
-   "sha256": "ab83601b53d6d6638afed376a8e0fca4bbb36b7c240469f9eb886f1c4c3b4fb2",
-   "bytes": 23155
+   "path": "atmosphere/radiative_convective/validate_ck.py",
+   "sha256": "1cffd908f22ee58ca5c6f543a9a7b77a131e0448da502a4fa94b0cc7e88b7ce5",
+   "bytes": 9597
   },
   {
-   "path": "atmosphere/middle_atmosphere/README.md",
-   "sha256": "a2b6bb99b1482506081a62695680d230fe24594eff088209ab750282ad1b455c",
-   "bytes": 31867
+   "path": "atmosphere/radiative_convective/validation.json",
+   "sha256": "e3b1f6e0c7df0b51ff26ca2d56b35860ca217d9c4764392afd9e5515f5d4f2e1",
+   "bytes": 8424
   },
   {
-   "path": "atmosphere/middle_atmosphere/results/middle_atmosphere.json",
-   "sha256": "4649fa5ccd6c70429eaf96ce6a2efb46c3d69f8e25d5a86bd2ff76e63bb1fcf8",
-   "bytes": 3302
+   "path": "atmosphere/tests/test_electricity_charging.py",
+   "sha256": "cce9be8a97775656f68b3d18b0fa7a4fa96d2bf2733fbddd802c2d404cbc193e",
+   "bytes": 2249
+  },
+  {
+   "path": "atmosphere/tests/test_electricity_conductivity.py",
+   "sha256": "0e64381bcf7b9e8942bd80377a2d7bf2883dd23870013077078cd1f70252b35e",
+   "bytes": 4677
+  },
+  {
+   "path": "atmosphere/tests/test_electricity_laws.py",
+   "sha256": "b7d90049a152fd7fec53968bc36c51983153572a6a9f747cc7d8880657021a24",
+   "bytes": 3860
   },
   {
    "path": "atmosphere/tests/test_radiative_convective.py",
@@ -198,119 +288,9 @@
    "bytes": 16884
   },
   {
-   "path": "illumination/sky/solver.py",
-   "sha256": "4734f86860f38f65a603c9e8bbea4f446c503978f31e12f4bc65446d6e65cf71",
-   "bytes": 12743
-  },
-  {
-   "path": "illumination/sky/atmospheres.py",
-   "sha256": "69065d459a41ef20e912cb22b9c611844e393da8c93ab8786cfa1e2149af3aca",
-   "bytes": 2674
-  },
-  {
-   "path": "illumination/sky/colour_matching.py",
-   "sha256": "485f65f4eccac4c91b1d2143d0c4c976ebe9ee74c6db88a4c41f5301aee031e7",
-   "bytes": 1013
-  },
-  {
-   "path": "illumination/sky/solved_optics.py",
-   "sha256": "9927832942de3f82896a25e14b9aca2d395b2a114b4bfda9e4ed54ea9b1815b3",
-   "bytes": 13662
-  },
-  {
-   "path": "illumination/sky/solved_transport.py",
-   "sha256": "3fe4c255e8ffe53227a57529e957a441daf5b1899cf4ba1e71b3a2d8906eb00c",
-   "bytes": 14254
-  },
-  {
-   "path": "illumination/sky/solved_reference.py",
-   "sha256": "4d7dafbd3aacc0bb4c338d32e3f772d5ca1a9141efd938d17ca9cd876f8a1a82",
-   "bytes": 6796
-  },
-  {
-   "path": "illumination/sky/conftest.py",
-   "sha256": "8ead096772e6a87a904cdf19bed51145a6fc7b8e8e26af8260bc566985b3817b",
-   "bytes": 628
-  },
-  {
-   "path": "illumination/sky/test_solver.py",
-   "sha256": "da8cbdf0a1d809363b7ccf7db5c2d353f7bc5bbe30bc5559e06cfed96f622d13",
-   "bytes": 5313
-  },
-  {
-   "path": "illumination/sky/test_solved_sky.py",
-   "sha256": "866bddec476484e04c89360091196cb9a7671f5409ad594c533a5dca51888a81",
-   "bytes": 5582
-  },
-  {
-   "path": "illumination/sky/METHODS.md",
-   "sha256": "f3d7007a9910123f6eab72d1d03f0e1f19aff27311fa622629d3fff2b49da034",
-   "bytes": 3100
-  },
-  {
-   "path": "illumination/sky/SOLVED_COLUMN.md",
-   "sha256": "17593811eb6370e585de8dffe841c3fa0071038923c9353b86048c5ee3899b94",
-   "bytes": 7765
-  },
-  {
-   "path": "illumination/sky/SOURCES.md",
-   "sha256": "67e8180751f60bf7b48097cbc4d87845225aa56b8deddcb655e50890405a2ef7",
-   "bytes": 4694
-  },
-  {
-   "path": "illumination/sky/LICENSES.txt",
-   "sha256": "3485781b0fbf45812fcc90c7e89e2791c3dddf19098b36d4dc2208be0b874092",
-   "bytes": 2056
-  },
-  {
-   "path": "illumination/sky/README.md",
-   "sha256": "88675aa3ead7a51f6f54ae947b6696b1c9a12f55d7a0af66b7682990be7b3a9f",
-   "bytes": 3535
-  },
-  {
-   "path": "illumination/sky/requirements.txt",
-   "sha256": "d17b09bf6c01bc8923f623c0468f8fe3889c3de2ac872c1b3d1077af4ae94a71",
-   "bytes": 36
-  },
-  {
-   "path": "illumination/sky/results/solved_sky.json",
-   "sha256": "a94333cd71a83169df57796cf199b06ec4efff12b1d1f2f9f9ac07bec01f7c6a",
-   "bytes": 283585
-  },
-  {
-   "path": "illumination/surface_light/model.py",
-   "sha256": "48749d6652dbd7f4d2b9744d8a28e3f2cb3b2e6c9ca01c5e75a310a62e1a34ca",
-   "bytes": 27021
-  },
-  {
-   "path": "illumination/surface_light/README.md",
-   "sha256": "e1eb4fe2d21d89402dcb25d4810883953ee803aa1ad5eb71ba1a92a86b25ad67",
-   "bytes": 8177
-  },
-  {
-   "path": "illumination/cloud_light/model.py",
-   "sha256": "7bb800ee4695c58856acd23125b8cee4579947106dd4c81b2a2411f46af009d3",
-   "bytes": 7592
-  },
-  {
-   "path": "illumination/tests/test_surface_light.py",
-   "sha256": "d8ebad914b8f81957ae86bd3b7b53579723e7fb6be1f8130ebfb40a9aa87133e",
-   "bytes": 4888
-  },
-  {
-   "path": "protection/spectra/shield_transmission.json",
-   "sha256": "0d05194e82f3e99f4d1c45e4f8ad549052b19d9c2e06a0cbefafa249d78f4886",
-   "bytes": 579457
-  },
-  {
-   "path": "protection/transmission/results/uv_transmission.json",
-   "sha256": "6589385e2665ade4409cfc529f9fef62f932fa75e9a3b2693bc63a0e13d9ec9f",
-   "bytes": 5216
-  },
-  {
-   "path": "climate/gcm/plasim_shortwave.py",
-   "sha256": "ebe41ca08091b0204f9ff6257b5240de0b634cf10bcdc2f7cf2e856e6c4421cc",
-   "bytes": 26673
+   "path": "climate/gcm/plasim_ice_optics.py",
+   "sha256": "c21af4d40819633b879fd599bf34ae6c929edf55e65d649831c1b263a5a9265b",
+   "bytes": 11964
   },
   {
    "path": "climate/gcm/plasim_longwave.py",
@@ -318,14 +298,9 @@
    "bytes": 20397
   },
   {
-   "path": "climate/gcm/plasim_ice_optics.py",
-   "sha256": "c21af4d40819633b879fd599bf34ae6c929edf55e65d649831c1b263a5a9265b",
-   "bytes": 11964
-  },
-  {
-   "path": "climate/gcm/twilight.py",
-   "sha256": "e59c31a0b2476e5ccec37c0c3c7ac3fccc6996df3ae2de6270334fe59012e3e4",
-   "bytes": 52116
+   "path": "climate/gcm/plasim_shortwave.py",
+   "sha256": "ebe41ca08091b0204f9ff6257b5240de0b634cf10bcdc2f7cf2e856e6c4421cc",
+   "bytes": 26673
   },
   {
    "path": "climate/gcm/sun_check.py",
@@ -333,96 +308,29 @@
    "bytes": 11424
   },
   {
-   "path": "climate/tests/test_plasim_shortwave.py",
-   "sha256": "6c40d671806fb4767a2f15053d939e3a8b725f6616f605e99500c0a7e463b615",
-   "bytes": 4253
+   "path": "climate/gcm/twilight.py",
+   "sha256": "e59c31a0b2476e5ccec37c0c3c7ac3fccc6996df3ae2de6270334fe59012e3e4",
+   "bytes": 52116
   },
   {
-   "path": "climate/tests/test_plasim_longwave.py",
-   "sha256": "9678a661de003194eb01291fefa1aad7e68478fee91aa3d2eb3a0f6d83dae0cb",
-   "bytes": 1921
+   "path": "climate/results/gcm/ice_optics.json",
+   "sha256": "524430dd47c4584ceccf9872bdeeb2142ea1571cbaefeceabb5c4f195c522e5f",
+   "bytes": 7788
   },
   {
-   "path": "climate/tests/test_plasim_ice_optics.py",
-   "sha256": "16531f501d411d65fced6729c8898e263b15c8a9c243e6523d911e75fdd4f078",
-   "bytes": 5905,
-   "terluna_sha256": "aadc0c9a58e9d7abdd66e6d8fb004dd0af0b679f112dc254b9b8a1c34c10db96",
-   "modified": "test_the_fortran_patch_matches_its_python_copy compiles the routines from models/exoplasim/patches/10-ice-optics.patch in place of the runner's ICE_ROUTINES string"
+   "path": "climate/results/gcm/longwave_A28_corrected_970_heating.json",
+   "sha256": "e58ad11b423ca3aa54723168798c03ff7a6f92ef3d12e06e7471ab3008c9abaf",
+   "bytes": 6295
   },
   {
-   "path": "climate/tests/test_twilight.py",
-   "sha256": "41cf1db7bf35a2db4cbd405f7ab939392fd3de00f8257eb02c0407430afeb5f3",
-   "bytes": 7503
+   "path": "climate/results/gcm/radiation_check_A28_dim5.json",
+   "sha256": "5ae1256b36a7d55ae3ced956ab37e28d661a20170ba2fd2c6a74748c20ab4121",
+   "bytes": 7612
   },
   {
-   "path": "climate/tests/test_gcm_sun_check.py",
-   "sha256": "70369d6e0ba20de815bc81e6504a47e7bbb3702c8845f1736a0c7d7cf799f4ef",
-   "bytes": 2461
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/cases/moon_1.2atm_titania_stack.json",
-   "sha256": "3045438e2bc6df545f09378248ab083d47c66bb626ddf4f73f05702a4c911fba",
-   "bytes": 1683
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/profiles/moon_1.2atm_titania_stack.csv",
-   "sha256": "e7079c911c9e70c475dec5fd3c2eecdad7e5e9435e63a7b31c68c644cecc3605",
-   "bytes": 24044
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/cases/moon_1.2atm_titania_stack_ts298.json",
-   "sha256": "eda1499f9ba2c3a5d3289aca15e4c3e81afa90d8adac33bb1d72c8446b9d75eb",
-   "bytes": 1694
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/profiles/moon_1.2atm_titania_stack_ts298.csv",
-   "sha256": "2144c1b0f2818eb4eb09e5bf2bdd1d3d7fd1bf67326873a5f27fc631d4dffb0c",
-   "bytes": 23951
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/cases/moon_1.0atm_titania_stack.json",
-   "sha256": "4d3f919f1ad2989767413a7246eb0de61de3b250756853634fa2923adf8f8916",
-   "bytes": 1674
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/profiles/moon_1.0atm_titania_stack.csv",
-   "sha256": "b6a46936495cb4c843688f69f8847b5a50a1a0f43ced9b5072aa87202a88ff6f",
-   "bytes": 24120
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/cases/moon_1.0atm_titania_stack_ts298.json",
-   "sha256": "5656fcabfd8d38b0707f00fc976120a2f036294366e43e102892abd959532c37",
-   "bytes": 1693
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/profiles/moon_1.0atm_titania_stack_ts298.csv",
-   "sha256": "decdc8ce6fd604018a839ef21d7e1b26120056d77e0815600ef372f539d7487b",
-   "bytes": 24072
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/cases/earth_control.json",
-   "sha256": "818d14f31281f697bb0d3ec0280a0f1bfaea70aa8a49b66adf33e690dfc0f512",
-   "bytes": 1620
-  },
-  {
-   "path": "atmosphere/middle_atmosphere/results/profiles/earth_control.csv",
-   "sha256": "1891eeb25de5083e49c47c0e973877738eb172dee9f8fe4b22705dad8f79b902",
-   "bytes": 27680
-  },
-  {
-   "path": "illumination/surface_light/results/surface_light.json",
-   "sha256": "e2406dbceb34193eaef5bd8a1dd6ea20940be72934301ef618221fdc79ad5572",
-   "bytes": 1187820
-  },
-  {
-   "path": "climate/results/gcm/twilight.json",
-   "sha256": "c7cdb8e252f8425ea5082551fdf5beb3ad3cbc49580b444340efad664a0130c5",
-   "bytes": 817128
-  },
-  {
-   "path": "climate/results/gcm/shortwave_gases.json",
-   "sha256": "52532952682c6026343b6aa9d9595e779cf4f62d32a48d5101b5c9fb887a6afd",
-   "bytes": 4568
+   "path": "climate/results/gcm/radiation_check_A28_dim5_moon.json",
+   "sha256": "82f2d3baff7cb2c3260818bcab20b9f0b940f84e36c4edb9a294fd477d373ae5",
+   "bytes": 7617
   },
   {
    "path": "climate/results/gcm/shortwave_fit_A28_dim5.json",
@@ -433,6 +341,11 @@
    "path": "climate/results/gcm/shortwave_fit_A28_dim5_lunar.json",
    "sha256": "f9a91bb28adf850d3dbe87efa908ba70a7c99d8c19e93d86884ad304f6073df8",
    "bytes": 6400
+  },
+  {
+   "path": "climate/results/gcm/shortwave_gases.json",
+   "sha256": "52532952682c6026343b6aa9d9595e779cf4f62d32a48d5101b5c9fb887a6afd",
+   "bytes": 4568
   },
   {
    "path": "climate/results/gcm/shortwave_validate_A28_dim5_moon.json",
@@ -450,16 +363,6 @@
    "bytes": 6390
   },
   {
-   "path": "climate/results/gcm/longwave_A28_corrected_970_heating.json",
-   "sha256": "e58ad11b423ca3aa54723168798c03ff7a6f92ef3d12e06e7471ab3008c9abaf",
-   "bytes": 6295
-  },
-  {
-   "path": "climate/results/gcm/ice_optics.json",
-   "sha256": "524430dd47c4584ceccf9872bdeeb2142ea1571cbaefeceabb5c4f195c522e5f",
-   "bytes": 7788
-  },
-  {
    "path": "climate/results/gcm/sun_check_A28_dim5.json",
    "sha256": "5b922f8d7afede955e791a78c0b3204988a1515f84bca1e670c1880df9162966",
    "bytes": 6420
@@ -475,14 +378,81 @@
    "bytes": 6412
   },
   {
-   "path": "climate/results/gcm/radiation_check_A28_dim5.json",
-   "sha256": "5ae1256b36a7d55ae3ced956ab37e28d661a20170ba2fd2c6a74748c20ab4121",
-   "bytes": 7612
+   "path": "climate/results/gcm/twilight.json",
+   "sha256": "c7cdb8e252f8425ea5082551fdf5beb3ad3cbc49580b444340efad664a0130c5",
+   "bytes": 817128
   },
   {
-   "path": "climate/results/gcm/radiation_check_A28_dim5_moon.json",
-   "sha256": "82f2d3baff7cb2c3260818bcab20b9f0b940f84e36c4edb9a294fd477d373ae5",
-   "bytes": 7617
+   "path": "climate/tests/test_gcm_sun_check.py",
+   "sha256": "70369d6e0ba20de815bc81e6504a47e7bbb3702c8845f1736a0c7d7cf799f4ef",
+   "bytes": 2461
+  },
+  {
+   "path": "climate/tests/test_plasim_ice_optics.py",
+   "sha256": "16531f501d411d65fced6729c8898e263b15c8a9c243e6523d911e75fdd4f078",
+   "bytes": 5905,
+   "terluna_sha256": "aadc0c9a58e9d7abdd66e6d8fb004dd0af0b679f112dc254b9b8a1c34c10db96",
+   "modified": "test_the_fortran_patch_matches_its_python_copy compiles the routines from models/exoplasim/patches/10-ice-optics.patch in place of the runner's ICE_ROUTINES string"
+  },
+  {
+   "path": "climate/tests/test_plasim_longwave.py",
+   "sha256": "9678a661de003194eb01291fefa1aad7e68478fee91aa3d2eb3a0f6d83dae0cb",
+   "bytes": 1921
+  },
+  {
+   "path": "climate/tests/test_plasim_shortwave.py",
+   "sha256": "6c40d671806fb4767a2f15053d939e3a8b725f6616f605e99500c0a7e463b615",
+   "bytes": 4253
+  },
+  {
+   "path": "climate/tests/test_twilight.py",
+   "sha256": "41cf1db7bf35a2db4cbd405f7ab939392fd3de00f8257eb02c0407430afeb5f3",
+   "bytes": 7503
+  },
+  {
+   "path": "illumination/cloud_light/model.py",
+   "sha256": "7bb800ee4695c58856acd23125b8cee4579947106dd4c81b2a2411f46af009d3",
+   "bytes": 7592
+  },
+  {
+   "path": "illumination/sky/LICENSES.txt",
+   "sha256": "3485781b0fbf45812fcc90c7e89e2791c3dddf19098b36d4dc2208be0b874092",
+   "bytes": 2056
+  },
+  {
+   "path": "illumination/sky/METHODS.md",
+   "sha256": "f3d7007a9910123f6eab72d1d03f0e1f19aff27311fa622629d3fff2b49da034",
+   "bytes": 3100
+  },
+  {
+   "path": "illumination/sky/README.md",
+   "sha256": "88675aa3ead7a51f6f54ae947b6696b1c9a12f55d7a0af66b7682990be7b3a9f",
+   "bytes": 3535
+  },
+  {
+   "path": "illumination/sky/SOLVED_COLUMN.md",
+   "sha256": "17593811eb6370e585de8dffe841c3fa0071038923c9353b86048c5ee3899b94",
+   "bytes": 7765
+  },
+  {
+   "path": "illumination/sky/SOURCES.md",
+   "sha256": "67e8180751f60bf7b48097cbc4d87845225aa56b8deddcb655e50890405a2ef7",
+   "bytes": 4694
+  },
+  {
+   "path": "illumination/sky/atmospheres.py",
+   "sha256": "69065d459a41ef20e912cb22b9c611844e393da8c93ab8786cfa1e2149af3aca",
+   "bytes": 2674
+  },
+  {
+   "path": "illumination/sky/colour_matching.py",
+   "sha256": "485f65f4eccac4c91b1d2143d0c4c976ebe9ee74c6db88a4c41f5301aee031e7",
+   "bytes": 1013
+  },
+  {
+   "path": "illumination/sky/conftest.py",
+   "sha256": "8ead096772e6a87a904cdf19bed51145a6fc7b8e8e26af8260bc566985b3817b",
+   "bytes": 628
   },
   {
    "path": "illumination/sky/reference_mc.py",
@@ -493,6 +463,101 @@
    "path": "illumination/sky/render_data.py",
    "sha256": "44620c917c6d539cc5a3c3d8688da43f5def86d60627b5138ed78440ecbc145a",
    "bytes": 6312
+  },
+  {
+   "path": "illumination/sky/requirements.txt",
+   "sha256": "d17b09bf6c01bc8923f623c0468f8fe3889c3de2ac872c1b3d1077af4ae94a71",
+   "bytes": 36
+  },
+  {
+   "path": "illumination/sky/results/solved_sky.json",
+   "sha256": "a94333cd71a83169df57796cf199b06ec4efff12b1d1f2f9f9ac07bec01f7c6a",
+   "bytes": 283585
+  },
+  {
+   "path": "illumination/sky/solved_optics.py",
+   "sha256": "9927832942de3f82896a25e14b9aca2d395b2a114b4bfda9e4ed54ea9b1815b3",
+   "bytes": 13662
+  },
+  {
+   "path": "illumination/sky/solved_reference.py",
+   "sha256": "4d7dafbd3aacc0bb4c338d32e3f772d5ca1a9141efd938d17ca9cd876f8a1a82",
+   "bytes": 6796
+  },
+  {
+   "path": "illumination/sky/solved_transport.py",
+   "sha256": "3fe4c255e8ffe53227a57529e957a441daf5b1899cf4ba1e71b3a2d8906eb00c",
+   "bytes": 14254
+  },
+  {
+   "path": "illumination/sky/solver.py",
+   "sha256": "4734f86860f38f65a603c9e8bbea4f446c503978f31e12f4bc65446d6e65cf71",
+   "bytes": 12743
+  },
+  {
+   "path": "illumination/sky/test_solved_sky.py",
+   "sha256": "866bddec476484e04c89360091196cb9a7671f5409ad594c533a5dca51888a81",
+   "bytes": 5582
+  },
+  {
+   "path": "illumination/sky/test_solver.py",
+   "sha256": "da8cbdf0a1d809363b7ccf7db5c2d353f7bc5bbe30bc5559e06cfed96f622d13",
+   "bytes": 5313
+  },
+  {
+   "path": "illumination/surface_light/README.md",
+   "sha256": "e1eb4fe2d21d89402dcb25d4810883953ee803aa1ad5eb71ba1a92a86b25ad67",
+   "bytes": 8177
+  },
+  {
+   "path": "illumination/surface_light/model.py",
+   "sha256": "48749d6652dbd7f4d2b9744d8a28e3f2cb3b2e6c9ca01c5e75a310a62e1a34ca",
+   "bytes": 27021
+  },
+  {
+   "path": "illumination/surface_light/results/surface_light.json",
+   "sha256": "e2406dbceb34193eaef5bd8a1dd6ea20940be72934301ef618221fdc79ad5572",
+   "bytes": 1187820
+  },
+  {
+   "path": "illumination/tests/test_surface_light.py",
+   "sha256": "d8ebad914b8f81957ae86bd3b7b53579723e7fb6be1f8130ebfb40a9aa87133e",
+   "bytes": 4888
+  },
+  {
+   "path": "protection/spectra/shield_transmission.json",
+   "sha256": "0d05194e82f3e99f4d1c45e4f8ad549052b19d9c2e06a0cbefafa249d78f4886",
+   "bytes": 579457
+  },
+  {
+   "path": "protection/transmission/results/uv_transmission.json",
+   "sha256": "6589385e2665ade4409cfc529f9fef62f932fa75e9a3b2693bc63a0e13d9ec9f",
+   "bytes": 5216
+  },
+  {
+   "path": "shared/README.md",
+   "sha256": "3b19d56a9d4f3d99c859a369e2fdd1ebbde9bcaaac9a337a5948e755bccfd8ef",
+   "bytes": 5108
+  },
+  {
+   "path": "shared/constants.json",
+   "sha256": "e59b5febb6cf6c1a50bd036691abb8550583c287eeeb6f71d799fcfcf18e1bd6",
+   "bytes": 6378
+  },
+  {
+   "path": "shared/constants.py",
+   "sha256": "0368e82a587d94ac1828a36f1a4c7f97d72f3803c531174c14f3fa1d2875d2c5",
+   "bytes": 3416
+  },
+  {
+   "path": "shared/external_inputs.py",
+   "sha256": "5b3fdf8291091761a66c8340248155946d431ad3eb77d397c1e13a362d104057",
+   "bytes": 4483
+  },
+  {
+   "path": "shared/provenance.py",
+   "sha256": "c59d32186d453a80992eb02203b644fe759aca869dc892d91af9aa74fd65c7f8",
+   "bytes": 3275
   }
  ],
  "checked": "2026-10-17: every other file byte-identical to Terluna 186b294"
