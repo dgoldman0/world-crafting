@@ -25,6 +25,9 @@ def fig_regimes():
                'Mars at 1 bar': (6, -3)}
     names_a = {'Open Moon 1.2 atm': 'Open Moon\n(1.2 and 1.0 atm)'}
     for r in rows:
+        if r['kind'] == 'illustrative':          # slowly rotating Earth-like planets: the day-and-gravity panel only
+            b.scatter([r['solar_day_days']], [r['g_m_s2']], s=22, color='white', edgecolor=CONTEXT, linewidth=1.1, zorder=3)
+            continue
         moon = r['name'].startswith('Open Moon')
         colour = BLUE if moon else CONTEXT
         size = 34 if moon else 26
@@ -44,14 +47,12 @@ def fig_regimes():
     a.axhline(1.0, color=AXIS, lw=0.8, zorder=1)
     label(a, earth['h_over_r'] * 1.08, 330, "PlaSim's horizon air mass, 35: exact here", ha='left', va='top', color=MUTED,
           fontsize=7)
-    label(a, 0.19, 0.85, "Earth's absorber paths:\nthe broadband fits' range", ha='right', va='top', color=MUTED, fontsize=7)
+    label(a, 0.19, 0.85, "Earth's column:\nthe broadband fits' range", ha='right', va='top', color=MUTED, fontsize=7)
     a.set(xscale='log', yscale='log', xlim=(8e-4, 0.25), ylim=(5e-3, 400),
           xlabel='Scale height over radius, H/R', ylabel="Mass per unit area, relative to Earth's")
     a.set_title('Geometry and column', pad=6)
     b.axvline(1.0, color=AXIS, lw=0.8, zorder=1)
     b.axhline(9.80665, color=AXIS, lw=0.8, zorder=1)
-    for day in (16.0, 64.0, 243.0):          # slowly rotating Earth-like planets of the GCM literature
-        b.scatter([day], [9.80665], s=22, color='white', edgecolor=CONTEXT, linewidth=1.1, zorder=3)
     label(b, 64.0, 9.80665, 'slowly rotating\nEarth-like planets', xytext=(0, -24), textcoords='offset points', ha='center',
           va='bottom', color=INK2)
     label(b, 1.08, 1.0, "PlaSim's per-day\nformulas exact", ha='left', va='bottom', color=MUTED, fontsize=7)
@@ -145,8 +146,8 @@ def fig_repairs():
     ax.grid(axis='y', visible=False)
     nrep = len([r for r in rows if r['kind'] == 'repair'])
     ax.text(-7.5, y[0] + 0.62, 'Repairs', color=INK, fontsize=7.5, fontweight='bold', va='bottom')
-    ax.text(-7.5, y[nrep] + 0.62, "The cloud-water bound and two of PlaSim's Earth-tuned cloud settings", color=INK,
-            fontsize=7.5, fontweight='bold', va='bottom')
+    ax.text(-7.5, y[nrep] + 0.62, "Sensitivity tests: the longwave by height, the cloud-water bound and two cloud settings",
+            color=INK, fontsize=7.5, fontweight='bold', va='bottom')
     ax.set(xlim=(-7.5, 13.5), ylim=(y[-1] - 0.6, y[0] + 1.3), xlabel='Change in the global-mean surface temperature (K)')
     save(fig, 'fig_repairs')
 

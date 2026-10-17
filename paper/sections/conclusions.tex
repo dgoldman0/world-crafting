@@ -1,25 +1,26 @@
 \section{Conclusions}
 
-Each Earth assumption in the four models was exact on Earth, which kept it out of sight in Earth's own
-runs: a horizon factor of 35 is right at Earth's scale height, a formula counted per day is right for a
-one-day solar day, and a Sun clock that restarts each day skips only a degree. A breathable Moon moves the
-scale height, the column, the gravity and the day together, more than seven times Earth's air standing tall
-under a sixth of its gravity through a month-long day, and so exposed them all at once: the clock's skip grew
-to 32.5\textdegree, the default orbit handed the Moon Earth's seasons, and formulas fitted to Earth's
-columns ran far past their range.
+Each Earth assumption in the four models held on Earth, which kept it out of sight in Earth's own runs: a
+horizon factor of 35 is right at Earth's scale height, a formula counted per day is right for a one-day
+solar day, fits made on Earth's columns hold on Earth's columns, and a Sun clock that restarts each model day
+is exact at a one-day rotation. A breathable Moon moves the scale height, the column, the gravity, the day
+and the tilt together, more than seven times Earth's air standing tall under a sixth of its gravity through
+a month-long day, and so exposed them all at once: the clock's skip grew to 32.5\textdegree, the default
+orbit handed the Moon Earth's seasons, and formulas fitted to Earth's columns ran far past their range.
 
-The repairs that removed this Earth are mostly general. Each turns a hidden value into a parameter whose
+The repairs that removed this Earth are mostly general. Most turn a hidden value into a parameter whose
 default reproduces the released code, and each takes its lunar value from a unit, a scaling law, a geometry
-or a missing process, so it carries unchanged to slowly rotating planets, to small bodies with breathable
-air and to worlds of other gravity. The calibrations are fewer and narrower: they tie PlaSim's radiation to
-the in-house reference on one design column, and, with PlaSim's cloud settings, they hold the lunar climate
-to that column and to cloud formulas fitted on Earth. Identity, reproduction, similarity and benchmark
-checks show the code doing what it states; the calibrations show agreement with a reference model; the lunar
-climate itself awaits a test, and the strongest available is agreement among independent models.
+or a missing process, so they should carry, within the limits the reach section sets, to slowly rotating
+planets, to small bodies with breathable air and to worlds of other gravity. The calibrations are fewer and
+narrower: they tie PlaSim's radiation to the in-house reference on the design case's columns, and, with
+PlaSim's cloud settings, they hold the lunar climate to that case and to cloud formulas fitted on Earth.
+Identity, reproduction, similarity and benchmark checks show the code doing what it states; the calibrations
+show agreement with a reference model; the lunar climate itself awaits a test, and the strongest available is
+agreement among independent models.
 
 The adapted models have located the uncertainty that remains. It lies where the models stay Earth's: in
-cloud amount, whose Earth-tuned settings move the Moon by up to 5~K, in the height at which the longwave
-cools the air, whose correction moves it by 11.5~K, and in the boundary layer, where the cloud-resolving
-model and the GCM still disagree by several kelvin near the ground. The next work is the work that loosens the tie to one column
-and one cloud scheme: a longwave fit at the settled state, cloud constrained by cloud-resolving runs, and an
-independent GCM.
+cloud amount, whose Earth-tuned settings move the Moon by up to about 6~K; in the height at which the
+longwave cools the air, whose correction, with the ice optics, moves it by about 11.5~K; and in the
+boundary layer, where the cloud-resolving model and the GCM still disagree by several kelvin near the
+ground. The next work is the work that loosens the tie to one case and one cloud scheme: a longwave fit at
+the settled state, cloud constrained by cloud-resolving runs, and an independent GCM.

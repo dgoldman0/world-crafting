@@ -120,6 +120,57 @@
    "column_mass_over_earth": 2.601,
    "chapman_horizon": 15.5,
    "convective_cover_bias": 0.003
+  },
+  {
+   "name": "Slow rotator, 16 d",
+   "kind": "illustrative",
+   "g_m_s2": 9.80665,
+   "radius_km": 6371.0,
+   "surface_pressure_bar": 1.01325,
+   "temperature_k": 288.0,
+   "molar_mass_g_mol": 28.97,
+   "solar_day_days": 16.0,
+   "basis": "Earth with a 16-day solar day",
+   "scale_height_km": 8.43,
+   "h_over_r": 0.00132,
+   "column_mass_t_m2": 10.332,
+   "column_mass_over_earth": 1.0,
+   "chapman_horizon": 34.5,
+   "convective_cover_bias": 0.347
+  },
+  {
+   "name": "Slow rotator, 64 d",
+   "kind": "illustrative",
+   "g_m_s2": 9.80665,
+   "radius_km": 6371.0,
+   "surface_pressure_bar": 1.01325,
+   "temperature_k": 288.0,
+   "molar_mass_g_mol": 28.97,
+   "solar_day_days": 64.0,
+   "basis": "Earth with a 64-day solar day",
+   "scale_height_km": 8.43,
+   "h_over_r": 0.00132,
+   "column_mass_t_m2": 10.332,
+   "column_mass_over_earth": 1.0,
+   "chapman_horizon": 34.5,
+   "convective_cover_bias": 0.52
+  },
+  {
+   "name": "Slow rotator, 243 d",
+   "kind": "illustrative",
+   "g_m_s2": 9.80665,
+   "radius_km": 6371.0,
+   "surface_pressure_bar": 1.01325,
+   "temperature_k": 288.0,
+   "molar_mass_g_mol": 28.97,
+   "solar_day_days": 243.0,
+   "basis": "Earth with a 243-day solar day",
+   "scale_height_km": 8.43,
+   "h_over_r": 0.00132,
+   "column_mass_t_m2": 10.332,
+   "column_mass_over_earth": 1.0,
+   "chapman_horizon": 34.5,
+   "convective_cover_bias": 0.687
   }
  ]
 }

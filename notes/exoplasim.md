@@ -28,7 +28,8 @@ current model day. For `rotspd` ≠ 1 the clock turns at the sidereal rotation r
 is the solar day `sidereal_day * N/(N-1)`, with N the rotations per 360-day year that ExoPlaSim's
 Python rounds to a multiple of 12 (`__init__.py` 2615–2620). Each model day the Sun therefore sweeps
 1 + 1/(N−1) turns and jumps back 1/(N−1) of a turn: 1.0° for N = 360, 2.0° at a 2-day rotation, 10°
-at 10 days, 33° for any rotation period of about 21–60 days (N = 12). At exactly one day (`rotspd` = 1)
+at 10 days, 16° for rotations of 12–20 days (N = 24) and 33° for any rotation slower than 20 days, since N is floored at 12
+(corrected 2026-10-17; `paper/data/regime_calc.json`, `exoplasim_slow_rotators`). At exactly one day (`rotspd` = 1)
 the clock is consistent. On the Moon the sweep left longitudes from 270° E through 0° to 57° E 8.3%
 short of their sunlight and the far side near 164° E up to 17% over (Terluna `climate/gcm/README.md`
 182–200).
@@ -216,7 +217,8 @@ day; the correction removes every layer's mean error, leaving 1–5 W/m² column
 2.5 W/m² in every band of latitude; in the GCM the patch reproduces the copy within 0.02 K a day.
 
 **Sensitivity and limits.** With ice optics the 20-year test settles near 307 K, 11.5 K above the design
-case, with high cloud from 20% to about 40% of the sky. The correction was fitted at 295 K on clear
+case, with cloud cover from 20% to 38% of the sky, most of the gain in the high layers (the 81–107 km layer from
+5.6% to 27% in the check year; corrected 2026-10-17 from "high cloud from 20% to about 40%"). The correction was fitted at 295 K on clear
 columns and scales with temperature alone: water vapour, which doubles at the settled state (a global
 mean of 170 kg/m² in the design case against 348 kg/m² in the test, years 15–19 of each, read from
 their output on 2026-10-17), does not enter it, and Terluna's plan records that its layers stray
@@ -258,7 +260,7 @@ radiation. The same hook carries any infrared source above the air: a host plane
 |---|---|---|
 | Cloud cover from relative humidity, thresholds `max(0.85, σ, 1−σ)`, saturation over liquid at all temperatures | High cloud starts at 136–149% of ice saturation; cover 17–46% depending on settings; moves the Moon between about 289 and 297 K across tested settings | CRM-informed cover; saturation over ice below freezing |
 | Earth's σ levels | The top three layers span 0–9, 9–20 and 20–32 kPa (above 107 km, 81–107 km, 63–81 km); each spans about 25 K and ice saturation changes 55-fold across the 81–107 km layer, where the coldest, most saturated air lies | More levels in the upper troposphere and tropopause region |
-| Instant rain-out | No fall or evaporation of rain; CM1 finds 85% of the falling water evaporating at lunar gravity | Rain evaporation with fall time; CRM calibration |
+| Instant rain-out | No fall or evaporation of rain; CM1 finds 85% of the falling water evaporating at lunar gravity in the boxes and 57–73% in the rings | Rain evaporation with fall time; CRM calibration |
 | Two layers in the lowest 6.5 km | The boundary layer's day–night shape is unresolved; the GCM stays stable by day where CM1 mixes 14–19 km deep | More levels; a boundary-layer scheme tested on long days |
 | Constant gravity and a thin shell | The column holds about 5% more air per unit area than p_s/g_s (the radiative–convective model's g(z) column); constant-g heights read about 5% low at 86 km; g there is 9% lower | Deep-atmosphere dynamics (White et al. 2005); or correct the mass and heights |
 | Top layer from 112 km to the top of the air (575 km for 0.1 Pa) | One layer carries the whole upper atmosphere's radiation | A higher-resolution top; the middle-atmosphere model for the base of the thermosphere |

@@ -38,7 +38,8 @@
   "sun_depression_deg": 12.190748644033187,
   "shadow_height_km": 40.08221788886676,
   "mass_above_isothermal": 0.4652088067172743,
-  "formula": "h = R (sec d - 1); mass above exp(-h/H), refraction ignored"
+  "formula": "h = R (sec d - 1); mass above exp(-h/H), refraction ignored",
+  "mass_above_design_profile": 0.45279428470799504
  },
  "shell": {
   "area_ratio_at_50km": 1.0583854793007246,
@@ -101,6 +102,57 @@
  "slingo_cover_bias": {
   "model_day": 0.42427858904325777,
   "formula": "0.125 ln(day / 1 d)"
+ },
+ "exoplasim_slow_rotators": {
+  "2d": {
+   "N": 180,
+   "skip_deg": 2.011173184357542,
+   "model_day_days": 2.011173184357542,
+   "solar_day_days": 2.011011699931177
+  },
+  "10d": {
+   "N": 36,
+   "skip_deg": 10.285714285714286,
+   "model_day_days": 10.285714285714286,
+   "solar_day_days": 10.28149190710767
+  },
+  "16d": {
+   "N": 24,
+   "skip_deg": 15.652173913043478,
+   "model_day_days": 16.695652173913043,
+   "solar_day_days": 16.732999284180387
+  },
+  "20d": {
+   "N": 24,
+   "skip_deg": 15.652173913043478,
+   "model_day_days": 20.869565217391305,
+   "solar_day_days": 21.15858073859522
+  },
+  "21d": {
+   "N": 12,
+   "skip_deg": 32.72727272727273,
+   "model_day_days": 22.90909090909091,
+   "solar_day_days": 22.28104575163399
+  },
+  "27.3217d": {
+   "N": 12,
+   "skip_deg": 32.72727272727273,
+   "model_day_days": 29.80544836363636,
+   "solar_day_days": 29.530629806841976
+  },
+  "64d": {
+   "N": 12,
+   "skip_deg": 32.72727272727273,
+   "model_day_days": 69.81818181818181,
+   "solar_day_days": 77.5966804979253
+  },
+  "243d": {
+   "N": 12,
+   "skip_deg": 32.72727272727273,
+   "model_day_days": 265.09090909090907,
+   "solar_day_days": 726.0184049079753
+  },
+  "formula": "N = max(int(360/P/12 + 0.5), 1) x 12; skip 1/(N-1) turn; model day P N/(N-1); solar day 1/(1/P - 1/365.25) for prograde rotation"
  },
  "rrtmg_extrapolated_depth_km": {
   "290K": 7.3754352803689995,

@@ -1,5 +1,5 @@
 {
- "about": "Global-mean surface temperature of each test run against its baseline over the README's stated years, from the runs' yearly summaries (progress.json); repairs, the cloud-water bracket's upper bound, and two tests of PlaSim's Earth-tuned cloud settings",
+ "about": "Global-mean surface temperature of each test run against its baseline over the README's stated years, from the runs' yearly summaries (progress.json); repairs in the design case, and sensitivity tests: the longwave correction with ice optics, the cloud-water bracket's upper bound, and two of PlaSim's Earth-tuned cloud settings",
  "sources": [
   {
    "path": "/media/projectspace/terluna-research/gcm-runs/A/progress.json",
@@ -173,7 +173,7 @@
   },
   {
    "label": "Longwave by height with ice optics",
-   "kind": "repair",
+   "kind": "test",
    "baseline": {
     "run": "A28_corrected_970",
     "years": [
@@ -193,7 +193,7 @@
     "n": 10
    },
    "change_k": 11.501,
-   "note": "settles at 306.8-307.1 K"
+   "note": "extrapolates to balance at 306.8-307.1 K; a sensitivity test, off in the design case"
   },
   {
    "label": "Cloud water at the full-column bound",

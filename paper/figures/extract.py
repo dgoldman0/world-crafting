@@ -90,8 +90,8 @@ REPAIRS = [  # (label, kind, baseline run, its years, test run, its years, note)
     ('Curved air: twilight, cone and slant path', 'repair', 'A28_dim5_moon', range(20, 30), 'A28_dim5_moon_geometry', range(10, 20), ''),
     ('CO2 and O2 in the sunlight', 'repair', 'A28_dim5_moon_geometry', range(10, 20), 'A28_dim5_moon_geometry_gases', range(10, 20),
      'still cooling 0.3 K a decade'),
-    ('Longwave by height with ice optics', 'repair', 'A28_corrected_970', range(10, 20), 'A28_corrected_970_lw_ice', range(10, 20),
-     'settles at 306.8-307.1 K'),
+    ('Longwave by height with ice optics', 'test', 'A28_corrected_970', range(10, 20), 'A28_corrected_970_lw_ice', range(10, 20),
+     'extrapolates to balance at 306.8-307.1 K; a sensitivity test, off in the design case'),
     ('Cloud water at the full-column bound', 'bracket', 'A', range(30, 40), 'A_full_column_clouds', range(10, 15), 'settles near 292.0 K'),
     ('Thinner convective cloud', 'cloud setting', 'A28_dim5_moon', range(20, 30), 'A28_dim5_moon_thin_convective', range(5, 15),
      'settles near 297.1 K'),
@@ -109,8 +109,9 @@ def repairs() -> None:
                          test=dict(run=test, years=[ty[0], ty[-1]], surface_k=round(t, 3), n=nt),
                          change_k=round(t - b, 3), note=note))
     write('repairs', "Global-mean surface temperature of each test run against its baseline over the README's stated years, "
-          "from the runs' yearly summaries (progress.json); repairs, the cloud-water bracket's upper bound, and two tests of "
-          "PlaSim's Earth-tuned cloud settings", sorted(paths), dict(rows=rows))
+          "from the runs' yearly summaries (progress.json); repairs in the design case, and sensitivity tests: the "
+          "longwave correction with ice optics, the cloud-water bracket's upper bound, and two of PlaSim's Earth-tuned cloud "
+          "settings", sorted(paths), dict(rows=rows))
 
 
 def gap45n() -> None:
@@ -133,6 +134,9 @@ WORLDS = [  # name, kind, g (m/s2), radius (km), surface pressure (bar), tempera
     ('Open Moon 1.2 atm', 'crafted', 1.6242, 1737.4, 1.2159, 295.0, 28.83, 29.53, "Terluna's design case at the water level"),
     ('Open Moon 1.0 atm', 'crafted', 1.6242, 1737.4, 1.01325, 295.0, 28.83, 29.53, "Terluna's pressure variant"),
     ('Mars at 1 bar', 'crafted', 3.721, 3389.5, 1.0, 288.0, 28.97, 1.0275, 'an illustrative breathable Mars, Earth-like air'),
+    ('Slow rotator, 16 d', 'illustrative', 9.80665, 6371.0, 1.01325, 288.0, 28.97, 16.0, 'Earth with a 16-day solar day'),
+    ('Slow rotator, 64 d', 'illustrative', 9.80665, 6371.0, 1.01325, 288.0, 28.97, 64.0, 'Earth with a 64-day solar day'),
+    ('Slow rotator, 243 d', 'illustrative', 9.80665, 6371.0, 1.01325, 288.0, 28.97, 243.0, 'Earth with a 243-day solar day'),
 ]
 
 

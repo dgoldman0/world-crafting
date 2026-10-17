@@ -101,6 +101,11 @@ corrected there. The companion note `verification_record.md` describes the check
 
 ## (a) Upstream defects exposed by the adaptation
 
+The paper classes three of these items differently: A3 (the 360-day calendar) and A7 (WRF-ELEC's missing clear-air
+conduction) as limitations in units of time, since the code does what it was written to do, and A8 (the flash log's
+reach threshold) as a constant on the lunar path. Of the remaining five, it counts A1, A2 and A5 as hidden by Earth's
+parameters or usual configurations, and A4 and A6 as defects whose tie to Earth's values is unknown.
+
 ### A1. ExoPlaSim: `solang`'s Sun clock (R)
 
 - **Defect.** PlaSim's `solang` (radmod.f90) turns the Sun at the planet's rotation rate and restarts its clock

@@ -2,70 +2,74 @@
 
 Five kinds of check were made, and they reach progressively further from the code
 (Table~\ref{tab:verification}). Identity and reproduction checks reach the code alone: a patch at its
-default leaves the released arithmetic unchanged along the trajectory tested, and the recorded code and
-results can be rebuilt. A similarity check reaches the consistency of the physics, showing that a run at
-scaled gravity, lengths and times reproduces the original in dimensionless form, so gravity enters the code
-consistently. Calibrations and benchmarks reach outside the code, to the reference model on the columns a
-fit was made on and to a scheme's published behaviour on Earth. Each stops short of a lunar climate: the
+default leaves the arithmetic of the build without it unchanged along the trajectory tested, and the recorded
+code and results can be rebuilt. A similarity check reaches the consistency of the physics, showing that a
+run at scaled gravity, lengths and times reproduces the original in dimensionless form, so gravity enters the
+code consistently. Calibrations and benchmarks reach outside the code, to the reference model on the columns
+a fit was made on and to a scheme's published behaviour on Earth. Each stops short of a lunar climate: the
 reference is itself a clear-sky model resting on its spectroscopy, a fit holds near its fitted state,
 similarity leaves Earth's empirical laws untested at lunar gravity, and a benchmark runs on Earth.
 
-\textbf{Identity and reproduction.} Five ExoPlaSim runs, each a model year from one restart, repeat the
-released model's restart file byte for byte with a patch at its neutral setting: the Rayleigh and
-continuum calibration at the released values, the cloud-water and convective-day patches, infrared from
-space at zero and the ice optics off. Two more show that the committed convective-day patch equals the
-staged code that ran, and that a year killed a minute in and resumed repeats the uninterrupted year's
-restart and every variable of its output, its files differing only in 12 bytes of HDF5 header; all seven
-restart hashes were confirmed again on 17 October 2026.\claim{V01} In CM1 the tilted-ring patches and the
-local-time advection repeat an existing run's first model day bit for bit, single-thread runs repeat, and
-the electrified supercell, restarted on four threads and on two, repeats its fields and its 41 flashes.
-Patched and stock SWAN at Earth's gravity write identical output.\claim{V02} Applied to the pinned
-upstream archives, the patch series rebuild every deployed source byte for byte, and prefixes of the
-ExoPlaSim series reproduce the source hashes of 32 of the 34 GCM runs that recorded one; the other two
-compiled drafts of a patch, and the committed form of one draft repeats its run's first year
-exactly.\claim{V03}
+\textbf{Identity and reproduction.} Five ExoPlaSim runs, each a model year from one restart, repeat byte for
+byte the restart file of the same build without the patch, with the patch at its neutral setting: the
+Rayleigh and continuum calibration at the released values, the cloud-water and convective-day patches,
+infrared from space at zero and the ice optics off. One of them compares against the released model itself;
+the other four compare against builds that already carried earlier patches, so the chain back to the
+release closes through those patches' own identities. Two more runs show that the committed convective-day
+patch equals the staged code that ran, and that a year killed a minute in and resumed repeats the
+uninterrupted year's restart and every variable of its output, its files differing only in 12 bytes of HDF5
+header; all seven restart hashes were confirmed again on 17 October 2026.\claim{V01} In CM1 the tilted-ring
+patches and the local-time advection repeat an existing run's first model day bit for bit, single-thread
+runs repeat, and the electrified supercell, restarted on four threads and on two, repeats its fields and its
+41 flashes. SWAN with the wind-input patch writes stock output at standard gravity.\claim{V02} Applied to the
+pinned upstream archives, the patch series rebuild byte for byte the deployed ExoPlaSim copy and the Fortran
+of the eight lunar CM1 builds behind the current results; older CM1 builds, the Earth-gravity benchmark
+builds among them, carry earlier states of the series. Prefixes of the ExoPlaSim series reproduce the source
+hashes of 32 of the 34 GCM runs that recorded one; the other two compiled drafts of a patch, and the
+committed form of one draft repeats its run's first year exactly.\claim{V03}
 
 \textbf{Similarity.} The similarity checks carry the strongest statements about gravity. Stock SWAN, run
 at a sixth of Earth's gravity with lengths, depths and durations six times longer and frequencies six
 times lower, misses its Earth twin by 5.44\% in significant wave height and 3.91\% in mean period; patched,
 by 0.303\% and 0.326\%, against a 1\% criterion, with the largest difference in peak period one spectral
 bin.\claim{V04} SWASH reproduces the linear dispersion relation within 1.76\% in amplitude and 0.289\% in
-phase at lunar, four times lunar and Earth gravity, preserves a linear waveform to 0.0009\% of its
-amplitude when gravity quadruples and the clock halves, and with breaking and a moving shoreline changes
-its 98th-percentile run-up by 1.20\%.\claim{V05} These checks make each lunar wave run the gravity-scaled
-image of an Earth run with the same Earth-fitted coefficients, and whether those coefficients hold on
-lunar seas stays open. CM1's gravity-scaled microphysics lacks such a test: the pair of runs designed for
-it failed to convect.\claim{V06}
+phase at lunar, four times lunar and Earth gravity, preserves a linear waveform to 0.0009\% of its amplitude
+when gravity quadruples and the clock halves, and, under the same scaling with breaking and a moving
+shoreline, changes its 98th-percentile run-up by 1.20\%.\claim{V05} These checks make each lunar wave run
+the gravity-scaled image of an Earth run with the same Earth-fitted coefficients, and whether those
+coefficients hold on lunar seas stays open. CM1's gravity-scaled microphysics lacks such a test: the pair of
+runs designed for it failed to convect.\claim{V06}
 
 \textbf{Calibration.} The calibrations hold on the columns they were fitted to and a little beyond. The
-clear-sky split of sunlight holds within 0.6 points rms on eleven columns of the corrected run outside
-the fit's set, and at 0\textdegree~E the air takes 31.4\% of the arriving sunlight against the line-by-line
-model's 31.1\%; a 303~K column carrying 338~kg\,m$^{-2}$ of vapour, outside the fit, falls 0.7 points short
-where the uncalibrated scheme fell 9.7 short.\claim{V07} The gas bands fit within 0.13\% of each band's
-energy and the layers within 0.97~W\,m$^{-2}$ rms, and the longwave correction leaves 1--5~W\,m$^{-2}$ from
-column to column, within 2.5~W\,m$^{-2}$ in every band of latitude. RRTMG, checked and left uncalibrated,
-lies within 2.5 points of the line-by-line shares of reflected, air-absorbed and ground-absorbed sunlight at
-the equatorial crossing, and on 990 cloud-free columns of the 45\textdegree\,N ring cools the air more than
-the correlated-$k$ model, by 4.5~W\,m$^{-2}$ in the lowest 1.8~km, 8.5 at 1.8--6.5~km and 10.2 at
-6.5--13.7~km.\claim{V08} Every calibration is clear-sky, and PlaSim's clouds remain uncalibrated.
-The reference bounds them all: its correlated-$k$ emulation reproduces the line-by-line outgoing longwave
-within 0.4--1.4~W\,m$^{-2}$ and the 15~\textmu m heating of carbon dioxide within about 5\% up to 5~Pa, and
-the line-by-line model rests on HITRAN2020 and MT\_CKD.
+clear-sky split of sunlight holds within 0.6 points rms on eleven columns of the corrected run outside the
+fit's set, and at 0\textdegree~E the air takes 31.4\% of the arriving sunlight, as the line-by-line model's
+air does; a 303~K column carrying 338~kg\,m$^{-2}$ of vapour, outside the fit, falls 0.7 points short where
+the scheme before its water recalibration fell 9.7 short.\claim{V07} The gas bands fit within 0.13\% of each
+band's energy and the layers within 0.97~W\,m$^{-2}$ rms, and the longwave correction leaves
+1--5~W\,m$^{-2}$ from column to column, within 2.5~W\,m$^{-2}$ in every band of latitude. RRTMG, checked and
+left uncalibrated, lies within 2.5 points of the line-by-line shares of reflected, air-absorbed and
+ground-absorbed sunlight at the equatorial crossing, and on 990 cloud-free columns of the 45\textdegree\,N
+ring cools the air more than the correlated-$k$ model, by 4.5~W\,m$^{-2}$ in the lowest 1.8~km, 8.5 at
+1.8--6.5~km and 10.2 at 6.5--13.7~km.\claim{V08} Every calibration is clear-sky, and PlaSim's clouds remain
+uncalibrated. The reference bounds them all: its correlated-$k$ emulation reproduces the line-by-line
+outgoing longwave within 0.4--1.4~W\,m$^{-2}$ and the 15~\textmu m heating of carbon dioxide within about
+5\% up to 5~Pa, and the line-by-line model rests on the HITRAN lines and MT\_CKD.
 
 \textbf{Benchmarks and arithmetic.} The electrified graft was benchmarked on Earth. Against CM1's own NSSL
-scheme in the Weisman--Klemp supercell \autocite{weisman1982dependence}, its largest updrafts stay within 6\%, its reflectivity within
-3.4~dBZ, its condensate within 9\% and its graupel within 12\%; hail differs by up to a factor of two, the
-two copies being different versions of the scheme.\claim{V09} Against published runs of the same charging
-and lightning schemes, the first flash comes at 28.5 minutes against a published 27--40, flash rates and
-charge per flash fall within the published ranges, and 1.1\% of flashes strike the ground; the charging
-runs several times stronger, traced to cloud ice reaching $2\times10^8$ crystals per kilogram where droplets
-freeze homogeneously in 50~m\,s$^{-1}$ updrafts.\claim{V10} The conductivity column reproduces Earth's
-measured fair-weather conductivity within 2--8\% from 5 to 30~km. Arithmetic checks rebuild the uneven
-sunlight of the Sun-clock defect from PlaSim's solar-position arithmetic with correlation 1.0000, place a
-tilted ring's Sun within $8\times10^{-7}$ of the spherical formula and its Coriolis parameter within
-$3\times10^{-12}$~s$^{-1}$ of $2\Omega\sin\phi$, match the field solver to a direct solve to one part in
-$10^5$, and hold the curved-air ledger's channels within 0.9~W\,m$^{-2}$ of the fine spectral grid in every
-layer.\claim{V11}
+scheme in the Weisman--Klemp supercell \autocite{weisman1982dependence}, its largest updrafts stay within
+6\%, its reflectivity within 3.4~dBZ at every half hour, its condensate within 9\% and its graupel within
+12\%; hail differs by up to a factor of two, the two copies being different versions of the
+scheme.\claim{V09} Against published runs of the same charging and lightning schemes, the first flash comes
+at 28.5 minutes against a published 27--40, and the flash rates and the median charge per flash fall within
+the published ranges; with WRF-ELEC's ground rule on, 1.1\% of flashes struck the ground, against 0.33\% in a
+published run. The charging runs several times stronger, traced to cloud ice reaching $2\times10^8$ crystals
+per kilogram where droplets freeze homogeneously in 50~m\,s$^{-1}$ updrafts.\claim{V10} The conductivity
+column reproduces Earth's measured fair-weather positive conductivity within 2--8\% from 5 to 30~km at a
+3~GV cutoff. Arithmetic checks rebuild the uneven sunlight of the Sun-clock defect from PlaSim's
+solar-position arithmetic with correlation 1.0000, place a tilted ring's Sun within $8\times10^{-7}$ of the
+spherical formula and its Coriolis parameter within $3\times10^{-12}$~s$^{-1}$ of $2\Omega\sin\phi$, match
+the field solver to a direct solve to one part in $10^5$, and hold the curved-air ledger's channels within
+0.9~W\,m$^{-2}$ of the fine spectral grid in every layer with the Sun overhead.\claim{V11}
 
 \textbf{Checks that fell short.} SWAN with depth breaking off failed its repeatability test by about 2.5\%,
 which exposed the uninitialised breaker parameter. SWAN's early growth depends on the time step: halving it
@@ -79,12 +83,14 @@ that channel's diffuse light at the ground.\claim{V13}
 
 \textbf{Checks still missing.} The missing checks mark where the results stand least supported. CM1 has yet
 to be forced from the longwave-corrected GCM, so whether the corrected physics closes the gap between the
-two models is untested. The longwave correction, fitted at 295~K, ran in a test that settled
-near 307~K with twice the water vapour, and its accuracy there is unchecked. The 45\textdegree\,N twilight
-pair lacks a control on the same build and an estimate of its realization noise. The Sun clock and the
-water scaling lack a runtime identity run, the second holding analytically for this spectrum. RRTMG's
-extrapolation below its tables, CM1's thread race and its gravity-scaled microphysics remain untested on
-their own, and an independent GCM has yet to run the scenario.\claim{V14}
+two models is untested. The longwave correction, fitted at 295~K, ran in a test that settled near 307~K with
+twice the water vapour, and its accuracy there is unchecked. The 45\textdegree\,N twilight pair lacks a
+control on the same build and an estimate of its realization noise. The Sun clock, the water scaling and the
+curved-air, gas-band and longwave patches at their off settings lack a runtime identity run, as does the
+move of every run into the separate copy that carries the last four; the water scaling holds analytically
+for this spectrum. CM1's thread race remains unlocated, RRTMG's extrapolation past its tables and CM1's
+gravity-scaled microphysics remain untested on their own, and an independent GCM has yet to run the
+scenario.\claim{V14}
 
 \begin{table}[tbp]
 \caption{The verification record at Terluna commit 186b294, condensed from the accompanying repository's
@@ -98,34 +104,34 @@ record, by kind of check, with what each leaves open.}
 Check & Result & Leaves open \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{Identity and reproduction}} \\
-ExoPlaSim patches at neutral settings, five runs & Restart byte-identical & Sun clock and water scaling at runtime \\
+ExoPlaSim patches at neutral settings, five runs & Restart identical to the build without the patch & Sun clock, water scaling and patches 07--09 off, at runtime \\
 Kill and resume, one model year & Restart identical; output identical in all 39 variables & 12 header bytes differ \\
 CM1 tilted rings, local-time advection & First model day bit for bit & Runs on several threads \\
 Electrified supercell restarted on 4 and 2 threads & Fields and 41 flashes bit for bit & The lunar boxes' race \\
-SWAN wind-input patch at Earth's gravity & Output identical & --- \\
-Patch series against pinned archives & Deployed sources byte for byte; 32 of 34 hashed GCM runs & 11 runs unhashed \\
+SWAN wind-input patch at standard gravity & Output identical & --- \\
+Patch series against pinned archives & ExoPlaSim copy and eight lunar CM1 builds byte for byte; 32 of 34 hashed GCM runs & 11 runs unhashed; older CM1 builds \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{Similarity}} \\
 SWAN at a sixth of Earth's gravity & 0.303\% in height, 0.326\% in period (stock 5.44\%, 3.91\%) & Wind input, whitecapping, breaking on the Moon \\
-SWASH at three gravities & Dispersion within 1.76\%; run-up within 1.20\% & Breaking coefficients \\
+SWASH dispersion at three gravities; run-up under gravity scaling & Within 1.76\%; within 1.20\% & Breaking coefficients \\
 CM1 gravity pair & Failed to convect & Microphysics similarity \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{Calibration against the reference}} \\
 Clear-sky split of sunlight & 0.6 points rms on 11 unseen columns & Clouds; states far from the fit \\
-Gas bands and layers & Within 0.13\% of band energy; 0.97~W\,m$^{-2}$ rms & 0.19~K of ground from water's lines \\
+Gas bands and layers & Within 0.13\% of band energy; 0.97~W\,m$^{-2}$ rms & 0.19~K of ground from water's lines\claim{V15} \\
 Longwave by height & Layer means removed; 1--5~W\,m$^{-2}$ by column & The 307~K state \\
-RRTMG (checked) & Within 2.5 points; cools 4.5--10.2~W\,m$^{-2}$ more & Its extrapolation below 1,054~hPa \\
+RRTMG (checked) & Within 2.5 points; cools 4.5--10.2~W\,m$^{-2}$ more & Its extrapolation past 1,053.63~hPa \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{Benchmark on Earth}} \\
 Electrified supercell against CM1's NSSL & Updrafts 6\%, reflectivity 3.4~dBZ, condensate 9\% & Hail within a factor of two \\
-Against published electrification & First flash 28.5~min (27--40); 1.1\% to ground & Charging several times stronger \\
-Conductivity column & Within 2--8\% at 5--30~km & The lunar aerosol \\
+Against published electrification & First flash 28.5~min (27--40); 1.1\% to ground with the rule on (published 0.33\%) & Charging several times stronger \\
+Conductivity column & Positive conductivity within 2--8\% at 5--30~km & The lunar aerosol \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{Arithmetic}} \\
 Sun clock rebuilt from \code{solang} & Correlation 1.0000 & --- \\
 Tilted ring's Sun and Coriolis & $8\times10^{-7}$; $3\times10^{-12}$~s$^{-1}$ & --- \\
 Field solver & One part in $10^5$ & Terrain under the solver \\
-Curved-air ledger & Channels within 0.9~W\,m$^{-2}$ per layer & One channel's orders at the cap \\
+Curved-air ledger & Channels within 0.9~W\,m$^{-2}$ per layer, Sun overhead & One channel's orders at the cap \\
 \bottomrule
 \end{tabularx}
 \end{table}

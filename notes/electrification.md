@@ -88,8 +88,10 @@ scheme by about a factor of two.
   the column below the channel's start (the drawn path is vertical) and leaves out whether a downward end
   forms, whether the cloud end holds the channel's potential through the 0.2–0.4 s crossing, and current
   cutoff in a long branched channel.
-- **Charging laws** come from laboratory collisions at Earth's impact speeds. Lunar graupel strikes ice at
-  1.3–1.5 m/s and snow at 0.8–1.0 m/s; Saunders and Peck's law nearly stops for graupel riming below its
+- **Charging laws** come from laboratory collisions. In the Morrison runs lunar graupel strikes ice at
+  1.3–1.5 m/s and snow at 0.8–1.0 m/s; in the NSSL runs that carry the lightning, hail does 82–88% of the charging
+  and strikes ice and snow at 4.4–7.6 m/s, inside the laboratory range, and graupel at 0.95–3.6 m/s (Terluna
+  `climate/crm/README.md` 2142–2151); Saunders and Peck's law nearly stops for graupel riming below its
   threshold, and hail, which rimes faster, does most of the charging. Under Takahashi's law the storms
   separate as much charge but carry an inverted dipole.
 - **Resolution**: 6 km columns (about 1 km at Earth scale). On the benchmark a coarser grid gives fewer,
@@ -125,16 +127,17 @@ three need the fetched inputs.
   regional aerosol rebuilds the column.
 - Mobility and recombination carry no humidity term; ionization below Earth's sea-level depth comes from
   muons alone, and the lunar cutoff rigidity and modulation are one choice.
-- The charging laws are Earth's laboratory laws; at the lunar impact speeds (graupel on ice 1.3–1.5 m/s) they
-  are extrapolated, and the deciding measurement, for fast rimed ice in little cloud water at −5 to −16 °C, is
-  unavailable.
+- The charging laws are Earth's laboratory laws, and they disagree on the sign in the lunar storms' little cloud
+  water. The deciding measurement is the sign rimed ice takes at 4–8 m/s in 0.02–0.2 g/m³ of cloud water at −5 to
+  −16 °C, conditions Earth's laboratories can reach (Terluna `climate/crm/README.md` 2167–2170).
 
 **Improvement.** Rebuild the column with the regional aerosol and the transition-regime attachment; carry the
-column's uncertainty into leakage as a bracket; laboratory or theoretical charging at lunar impact speeds.
+column's uncertainty into leakage as a bracket; the sign of rimed-ice charging at 4–8 m/s in little cloud water.
 
 ## Improvements in order of value
 
-1. Laboratory or theoretical charging rates at lunar impact speeds and riming rates.
+1. The sign of the charge rimed ice takes at 4–8 m/s in 0.02–0.2 g/m³ of cloud water at −5 to −16 °C, from
+   laboratory or theory (corrected 2026-10-17 from "charging rates at lunar impact speeds").
 2. A finer box over a stormy window with a sound initial state, to separate the grid from the physics.
 3. A leader model for the long crossing, with the drawn path's geometry.
 4. Ion drift, so point discharge and screening act in calm air as measured.

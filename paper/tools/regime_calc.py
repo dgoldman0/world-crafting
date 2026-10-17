@@ -112,6 +112,9 @@ def main() -> dict:
         exponential=num / den, design_profile=sum(mass) / (P_MOON / gm),
         design_profile_mass_mean_height_km=sum(m * h for m, h in zip(mass, z)) / sum(mass) / 1e3,
         formula='int rho dz / int rho (R/r)^2 dz for an exponential rho; sum(dp/g(z)) / (p_s/g_s) for the profile')
+    # The share of the design column's air above the geometric shadow one Earth day after sunset
+    above = sum(m for m, h in zip(mass, z) if h > shadow)
+    out['one_day_after_sunset']['mass_above_design_profile'] = above / sum(mass)
     out['constant_g_height_error'] = {f'{h:.0f}km': 1 - MOON_R / (MOON_R + h * 1e3) for h in (86, 150)}
     out['constant_g_height_error']['formula'] = 'z_const = R z/(R+z): heights from geopotential at surface g'
 
@@ -144,6 +147,17 @@ def main() -> dict:
                                  earth_sweep_deg=earth_sweep, earth_skip_deg=earth_sweep - 360,
                                  formula='360 x model day / rotation period, then back to the clock start')
     out['slingo_cover_bias'] = dict(model_day=0.125 * math.log(model_day_d), formula='0.125 ln(day / 1 d)')
+
+    # ExoPlaSim's count of rotations per 360-day year, its model day, and the true solar day, for slow rotators
+    # (exoplasim/__init__.py: N = max(int(360/P/12 + 0.5), 1) * 12; plasim.f90: solar_day = sidereal_day N/(N-1))
+    slow = {}
+    for period in (2.0, 10.0, 16.0, 20.0, 21.0, 27.321661, 64.0, 243.0):
+        n = max(int(360.0 / period / 12 + 0.5), 1) * 12
+        slow[f'{period:g}d'] = dict(N=n, skip_deg=360.0 / (n - 1), model_day_days=period * n / (n - 1),
+                                    solar_day_days=1.0 / (1.0 / period - 1.0 / 365.25))
+    out['exoplasim_slow_rotators'] = slow
+    out['exoplasim_slow_rotators']['formula'] = ('N = max(int(360/P/12 + 0.5), 1) x 12; skip 1/(N-1) turn; model day '
+                                                 'P N/(N-1); solar day 1/(1/P - 1/365.25) for prograde rotation')
 
     # RRTMG's table edge: depth of the lunar air below 1053.63 hPa at the water level
     p_hpa = P_MOON / 100

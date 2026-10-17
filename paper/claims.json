@@ -31,7 +31,7 @@
   },
   {
    "id": "S04",
-   "text": "One Earth day after sunset the Sun stands 12.2 deg down, the shadow 40.1 km up, with 0.465 of an isothermal column's mass above it",
+   "text": "One Earth day after sunset the Sun stands 12.2 deg down and the geometric shadow 40.1 km up, with 0.465 of an isothermal column's mass above it and 0.45 of the design profile's; refraction ignored",
    "source": [
     "repo:paper/data/regime_calc.json#one_day_after_sunset"
    ],
@@ -39,17 +39,18 @@
   },
   {
    "id": "S05",
-   "text": "121,590 Pa at the water level; O2 21,227 Pa (17.5%); Earth's Ar/N2; 400 ppm CO2; global mean 1.16 atm, 1.03-1.22 atm",
+   "text": "121,590 Pa at the water level; O2 21,227 Pa (17.5%); Earth's Ar/N2; 400 ppm CO2; global mean 1.16 atm, range 1.02-1.22 atm (A28_corrected_970, year 19)",
    "source": [
     "terluna:climate/gcm/README.md#L161-163",
     "terluna:climate/gcm/boundary.py#L238",
-    "repo:paper/data/regime_calc.json#air"
+    "repo:paper/data/regime_calc.json#air",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28_corrected_970"
    ],
    "state": "documented"
   },
   {
    "id": "S06",
-   "text": "Seas at 28% of the surface; with rain-fed lakes 40% of the GCM's cells are water",
+   "text": "Seas at 28% of the surface; with rain-fed lakes, 759 of the GCM's 2,048 cells, 40% of its surface, are water",
    "source": [
     "terluna:climate/gcm/README.md#L512-517"
    ],
@@ -111,10 +112,11 @@
   },
   {
    "id": "S12",
-   "text": "Lunar convection is Earth's stretched about sixfold in size and duration; 6 km columns resolve deep storms as 1 km columns do on Earth",
+   "text": "The dry dynamics stretch about sixfold in size and duration, so a 6 km column stands for about 1 km at Earth's scale; the microphysics and radiation do not stretch, and the gravity pair failed to convect",
    "source": [
     "terluna:climate/crm/README.md#L134-137",
-    "terluna:climate/crm/README.md#L257"
+    "terluna:climate/crm/README.md#L257",
+    "terluna:climate/crm/README.md#L2510-2528"
    ],
    "state": "documented"
   },
@@ -130,12 +132,13 @@
   },
   {
    "id": "H01",
-   "text": "CM1 sets g = 9.81 in constants.F, module_ra_etc.F, getcape.F and morrison.F; Morrison's fall-speed laws and caps hold Earth's gravity",
+   "text": "CM1 sets g = 9.81 in constants.F, module_ra_etc.F, getcape.F and morrison.F on the lunar paths, and in schemes the lunar cases leave unselected; Morrison's fall-speed laws and caps hold Earth's gravity",
    "source": [
     "repo:notes/defect_log.md#B1",
     "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/constants.F",
     "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/morrison.F",
-    "terluna:climate/crm/README.md#L25-36"
+    "terluna:climate/crm/README.md#L25-36",
+    "repo:notes/cm1.md#L47-55"
    ],
    "state": "documented"
   },
@@ -225,19 +228,22 @@
   },
   {
    "id": "H10",
-   "text": "WRF-ELEC's conduction is off by default; in a month-long lunar run ion charge persisted for weeks, holding ~20 kV/m at the ground",
+   "text": "WRF-ELEC carries no clear-air conduction (its screening option acts only at cloud edges); in a month-long lunar run ion charge persisted for weeks, holding ~20 kV/m at the ground",
    "source": [
     "repo:notes/defect_log.md#A7",
-    "terluna:climate/crm/README.md#L2216-2222"
+    "terluna:climate/crm/README.md#L2216-2222",
+    "drive:/media/projectspace/terluna-research/atmospheric-electricity/wrf4-elec-extra/registry.elec",
+    "terluna:climate/crm/README.md#L1704-1706"
    ],
    "state": "finding"
   },
   {
    "id": "H11",
-   "text": "The curved geometry takes in 10.3 W/m2 more sunlight, lets out 16.2 W/m2 more infrared, 5.8 W/m2 net, nearly all from the shells' widening; twilight 1.4 W/m2 on the ground",
+   "text": "Against the same air in flat layers (with a pseudo-spherical direct beam for the sunlight), the curved geometry takes in 10.3 W/m2 more sunlight and lets out 16.2 W/m2 more infrared, 5.8 net: shells' widening -6.5, curved light and escape +0.7; twilight 1.4 W/m2 on the ground",
    "source": [
     "terluna:research/decisions.md#L369",
-    "terluna:climate/gcm/README.md#L1007-1016"
+    "terluna:climate/gcm/README.md#L1007-1016",
+    "repo:python/climate/results/gcm/twilight.json"
    ],
    "state": "conditional model"
   },
@@ -272,7 +278,7 @@
   },
   {
    "id": "H15",
-   "text": "Rayleigh normalised to a 5772 K blackbody gives too low a coefficient for the filtered Sun; TH2OC over-absorbs; uncalibrated design case passed 310 K, 315.5 K at year 12",
+   "text": "Rayleigh normalised to a 5772 K blackbody gives too low a coefficient for the filtered Sun; TH2OC over-absorbs; the uncalibrated first design run (25% seas, undimmed shield) passed 310 K, 315.5 K at model year 12",
    "source": [
     "repo:notes/defect_log.md#B16",
     "terluna:climate/gcm/README.md#L222-252",
@@ -282,7 +288,7 @@
   },
   {
    "id": "H16",
-   "text": "PlaSim's two shortwave bands omit CO2 and O2, whose sunlight went to the water vapour lower down",
+   "text": "PlaSim's two shortwave bands omit CO2 and O2; the calibrated water multiplier took their share lower down",
    "source": [
     "repo:notes/defect_log.md#B15",
     "terluna:climate/gcm/README.md#L1088-1112"
@@ -291,10 +297,11 @@
   },
   {
    "id": "H17",
-   "text": "Sasamori longwave cools the lowest two layers 9.7-11.9 W/m2 too much and the air aloft up to 12 W/m2 too little against correlated-k",
+   "text": "PlaSim's longwave (Sasamori's absorptivities, with a water continuum the first calibration fitted to OLR) cools the lowest two layers 9.7-11.9 W/m2 too much and the air aloft up to 12 W/m2 too little against correlated-k",
    "source": [
     "repo:notes/defect_log.md#B18",
-    "terluna:climate/gcm/README.md#L767-790"
+    "terluna:climate/gcm/README.md#L767-790",
+    "terluna:climate/gcm/README.md#L1214"
    ],
    "state": "calibration"
   },
@@ -309,7 +316,7 @@
   },
   {
    "id": "H19",
-   "text": "Liquid optics for all cloud; saturation over liquid; high cloud at 180-204 K forms at 136-149% of ice saturation",
+   "text": "Liquid optics for all cloud; saturation over liquid sets the threshold, so high cloud at 180-204 K in the second layer from the top forms only at 136-149% of ice saturation",
    "source": [
     "repo:notes/defect_log.md#B19",
     "repo:notes/defect_log.md#B20",
@@ -331,7 +338,7 @@
   },
   {
    "id": "H21",
-   "text": "Morrison bounds rain's mean diameter at 2.8 mm (LAMMINR) and begins breakup above 0.3 mm (brkup_db default); the capillary length is 2.46x longer at lunar g",
+   "text": "Morrison as CM1 carries it bounds rain's mean diameter at 2.8 mm and begins breakup above 0.3 mm (breakup added after Verlinde and Cotton 1993, morrison.F line 27); the capillary length is 2.46x longer at lunar g",
    "source": [
     "repo:notes/defect_log.md#B28",
     "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/morrison.F#L489-498",
@@ -343,7 +350,7 @@
   },
   {
    "id": "H22",
-   "text": "Retained Earth calibrations: Wu drag, Komen, the AGROW coefficient, breaker index 0.73, SWASH breaking 0.6/0.3, the charging laws (Takahashi's inverts the lunar storms' polarity)",
+   "text": "Retained Earth calibrations: Wu drag, Komen, the AGROW coefficient, breaker index 0.73 (Battjes and Stive 1985), SWASH breaking 0.6/0.3, the charging laws (Takahashi's inverts the lunar storms' polarity)",
    "source": [
     "repo:notes/defect_log.md#B27",
     "repo:notes/defect_log.md#B7",
@@ -353,13 +360,14 @@
   },
   {
    "id": "H23",
-   "text": "solang turns the Sun at the rotation rate and restarts each model day: skip 32.5 deg a day on the Moon, ~1 deg on Earth; equator -8.3% at 270-57 E, +17% near 164 E",
+   "text": "solang turns the Sun at the rotation rate and restarts each model day in non-synchronous runs: skip 32.5 deg a day on the Moon, ~1 deg for a rotation near Earth's set away from one day, none at ExoPlaSim's default one-day rotation",
    "source": [
     "repo:notes/defect_log.md#A1",
     "terluna:climate/gcm/README.md#L182-214",
     "repo:python/climate/results/gcm/sun_check_A28_dim5.json",
     "repo:paper/data/regime_calc.json#sun_clock_skip",
-    "url:https://github.com/alphaparrot/ExoPlaSim/issues/69"
+    "url:https://github.com/alphaparrot/ExoPlaSim/issues/69",
+    "repo:paper/data/regime_calc.json#exoplasim_slow_rotators"
    ],
    "state": "finding"
   },
@@ -383,7 +391,7 @@
   },
   {
    "id": "H26",
-   "text": "CM1 on several threads parts at 3,000-7,400 s, first in total vertical momentum, in the plain Morrison box too; unlocated",
+   "text": "CM1 on several threads parts at 3,000-7,400 s, first in total vertical momentum, in the plain Morrison box too; placed in CM1's own loops by ruling out the patches; unlocated",
    "source": [
     "repo:notes/defect_log.md#A6",
     "terluna:climate/crm/README.md#L80-110"
@@ -423,16 +431,17 @@
   },
   {
    "id": "H30",
-   "text": "The ledger's first channels absorbed 104.5 W/m2 above 500 nm against the fine grid's 66.2, 58% too much",
+   "text": "The sky model's 114 production channels absorbed 104.5 W/m2 above 500 nm against the fine grid's 66.2 (58% too much); the ledger's first channels put near-IR sunlight too high (19.0 against 10.7 W/m2 at 66-85 km), and the two 20-year curved-air GCM tests ran on those terms",
    "source": [
     "repo:notes/defect_log.md#C3",
-    "terluna:climate/gcm/README.md#L987-991"
+    "terluna:climate/gcm/README.md#L987-991",
+    "terluna:climate/gcm/README.md#L993-998"
    ],
    "state": "finding"
   },
   {
    "id": "H31",
-   "text": "Terrain forcing by a corner column at 2.9 km; constant vapour above the GCM's 130 km top, 6-15x ice-saturated at 140-150 km; the 45 N twilight pair on -O2 and -O3 builds",
+   "text": "Terrain forcing by a corner column at 2.9 km; constant vapour above the GCM's 130 km top, 6-15x ice-saturated at 140-150 km in the 45 N rings; the 45 N twilight pair on -O2 and -O3 builds",
    "source": [
     "repo:notes/defect_log.md#C5",
     "repo:notes/defect_log.md#C4",
@@ -456,13 +465,14 @@
   },
   {
    "id": "R01",
-   "text": "Ten ExoPlaSim patches with identity defaults and three settings; CM1 gravity, CO2 and O2 as preprocessor constants and var1-var20; SWAN's knee identity at Earth's g; series rebuild the deployed sources byte for byte",
+   "text": "Ten ExoPlaSim patches with identity defaults and three settings; CM1 gravity, CO2 and O2 as preprocessor constants and var1-var20; the series rebuild the deployed ExoPlaSim copy and the Fortran of the eight lunar CM1 builds behind the current results byte for byte; older CM1 builds carry earlier states",
    "source": [
     "repo:models/exoplasim/README.md",
     "repo:models/cm1/README.md",
     "repo:models/swan/README.md",
     "repo:models/check_patches.sh",
-    "repo:PROVENANCE.md"
+    "repo:PROVENANCE.md",
+    "repo:models/cm1/builds.json"
    ],
    "state": "reproduction"
   },
@@ -479,7 +489,7 @@
   },
   {
    "id": "R03",
-   "text": "Rayleigh damping x g/9.81 and l_inf x 9.81/g; WRF-ELEC sub-step 0.75 -> 6.8 s keeps graupel settling ~1% of a 2 km layer at 0.44 of Earth's speed",
+   "text": "Rayleigh damping x g/9.81 and l_inf x 9.81/g; WRF-ELEC sub-step 0.75 -> 6.8 s keeps graupel settling ~1% of a 2 km layer at 0.44 of Earth's speed; the boxes run one 8 s sub-step per step",
    "source": [
     "terluna:climate/crm/README.md#L134-137",
     "terluna:climate/crm/README.md#L1623-1630",
@@ -490,7 +500,7 @@
   },
   {
    "id": "R04",
-   "text": "SWAN's knee at f g_E/g reproduces stock SWAN at Earth's gravity and restores gravity similarity (sixfold test 5.44% -> 0.303% in Hs, 3.91% -> 0.326% in mean period)",
+   "text": "SWAN's knee at f g_E/g reproduces stock SWAN at standard gravity (9.80665, set by input) and restores gravity similarity (sixfold test 5.44% -> 0.303% in Hs)",
    "source": [
     "terluna:climate/waves/first_experiments.md#L33-37",
     "terluna:climate/waves/audit.md#L45-60",
@@ -500,7 +510,7 @@
   },
   {
    "id": "R05",
-   "text": "The ledger: 10,697 channels within 1% of absorbed energy and the beam's loss by layer; 282 scattering channels below 1,250 nm; cone -6.5 W/m2 net; curved light and escape +0.7",
+   "text": "The ledger: 10,697 channels, each absorbing a direct beam within 1% of its sunlight as its members do and above 1,250 nm keeping the beam's loss by layer; single channels below 500 nm; 282 scattering channels; beam channels with pseudo-spherical two-stream diffuse light; cone -6.5 W/m2 net; curved light and escape +0.7",
    "source": [
     "terluna:climate/gcm/README.md#L975-1016",
     "repo:notes/reference_radiation.md#L290-410",
@@ -530,21 +540,23 @@
   },
   {
    "id": "R08",
-   "text": "The reference: line-by-line on HITRAN2020, MT_CKD 4.3, CIA, Rayleigh, g = GM/r^2, pseudo-spherical beam; correlated-k OLR within 0.4 W/m2 at 288-290 K and 1.4 W/m2 for a saturated 330 K lunar column",
+   "text": "The reference: line-by-line on HITRAN lines as served 2026-09-24 (HITRAN2020 or later), MT_CKD 4.3, CIA, Rayleigh, g = GM/r^2, pseudo-spherical beam; correlated-k OLR within 0.4 W/m2 at 288-290 K and 1.4 W/m2 for a saturated 330 K lunar column",
    "source": [
     "terluna:atmosphere/radiative_convective/README.md#L129-135",
     "repo:notes/reference_radiation.md#L36-123",
-    "repo:notes/verification_record.md#L141-148"
+    "repo:notes/verification_record.md#L141-148",
+    "terluna:atmosphere/radiative_convective/inputs.json"
    ],
    "state": "documented"
   },
   {
    "id": "R09",
-   "text": "First calibration: albedo within ~0.007 and OLR within ~2 W/m2; after the Sun repair the air was 8.1 points short and the water multiplier brought it within 0.3 points rms on 11 columns",
+   "text": "First calibration: albedo within ~0.007 and OLR within ~2 W/m2; when the Sun-clock and orbit faults were found, the split showed the air 7.7-8.2 points short, and with the repair the water multiplier brought it within 0.3 points rms on 11 columns",
    "source": [
     "terluna:climate/gcm/README.md#L222-252",
     "terluna:climate/gcm/README.md#L280-302",
-    "repo:notes/verification_record.md#L153-154"
+    "repo:notes/verification_record.md#L153-154",
+    "terluna:climate/gcm/README.md#L261-293"
    ],
    "state": "calibration"
   },
@@ -579,17 +591,18 @@
   },
   {
    "id": "R13",
-   "text": "Leakage through a computed conductivity column, point discharge, a leader's crossing at 1 kV/m at sea-level density placing ground strikes between the stopping-field and -7 C bounds",
+   "text": "Leakage through a computed conductivity column and a leader's crossing at 1 kV/m at sea-level density placing ground strikes between the stopping-field and -7 C bounds; point discharge ran in one window and is off in the lunar runs",
    "source": [
     "repo:notes/electrification.md#L61-70",
     "repo:notes/defect_log.md#B5",
-    "repo:notes/defect_log.md#A7"
+    "repo:notes/defect_log.md#A7",
+    "terluna:climate/crm/cm1_elec.py#L126-151"
    ],
    "state": "documented"
   },
   {
    "id": "R14",
-   "text": "Rings and boxes with their own Sun and Coriolis; nudging only above 8-16 km; the GCM's vertical wind through CM1's large-scale advection",
+   "text": "Ring columns each with their own Sun (a box takes one) and Coriolis on tilted rings; nudging only above 8-16 km; the GCM's vertical wind through CM1's large-scale advection",
    "source": [
     "repo:models/cm1/README.md",
     "repo:notes/cm1.md#L101-108"
@@ -598,17 +611,18 @@
   },
   {
    "id": "R15",
-   "text": "Local-time heating and moistening; terrain forcing by column height; SWAN forced by GCM stress through an inverted Wu law, spherical at the lunar radius, band scaled by g/g_E; SWASH unmodified",
+   "text": "Local-time heating and moistening; terrain forcing by column height; SWAN forced by GCM stress through an inverted Wu law, its friction velocity within -2.5 to +1.2% of the GCM's; spherical at the lunar radius, band scaled by g/g_E; SWASH unmodified",
    "source": [
     "repo:models/cm1/README.md",
     "repo:notes/waves.md#L30-42",
-    "terluna:climate/waves/review.md#L21-30"
+    "terluna:climate/waves/review.md#L21-30",
+    "repo:notes/waves.md#L124-146"
    ],
    "state": "documented"
   },
   {
    "id": "V01",
-   "text": "Five ExoPlaSim identity runs at neutral settings; committed convective-day patch equals the staged code; kill-and-resume restart identical, output identical in 39 variables, 12 header bytes differ; seven restart hashes confirmed 2026-10-17",
+   "text": "Five ExoPlaSim identity runs repeat the restart of the same build without the patch (one against the released model, four against builds with earlier patches); the committed convective-day patch equals the staged code; kill-and-resume restart identical, output identical in 39 variables, 12 header bytes differ; seven restart hashes confirmed 2026-10-17",
    "source": [
     "repo:notes/verification_record.md#L29-44",
     "terluna:climate/gcm/README.md#L150-155",
@@ -618,7 +632,7 @@
   },
   {
    "id": "V02",
-   "text": "CM1 tilted-ring patches and local-time advection repeat a first model day bit for bit; single-thread runs repeat; the electrified supercell restarted on 4 and 2 threads repeats fields and 41 flashes; SWAN patched equals stock at Earth's g",
+   "text": "CM1 tilted-ring patches and local-time advection repeat a first model day bit for bit; single-thread runs repeat; the electrified supercell restarted on 4 and 2 threads repeats fields and 41 flashes; SWAN with the wind-input patch equals stock at standard gravity",
    "source": [
     "repo:notes/verification_record.md#L59-83",
     "terluna:climate/crm/README.md#L557-560",
@@ -629,7 +643,7 @@
   },
   {
    "id": "V03",
-   "text": "The series rebuild every deployed source byte for byte; ExoPlaSim prefixes reproduce 32 of 34 hashed GCM runs; the two others compiled drafts",
+   "text": "The series rebuild the deployed ExoPlaSim copy and the Fortran of the eight lunar CM1 builds byte for byte; older CM1 builds carry earlier states; ExoPlaSim prefixes reproduce 32 of 34 hashed GCM runs; the two others compiled drafts",
    "source": [
     "repo:models/check_patches.sh",
     "repo:models/exoplasim/runs.json",
@@ -649,7 +663,7 @@
   },
   {
    "id": "V05",
-   "text": "SWASH: dispersion within 1.76% amplitude and 0.289% phase at three gravities; linear similarity 0.000908%; nonlinear run-up 1.20%",
+   "text": "SWASH: dispersion within 1.76% amplitude and 0.289% phase at three gravities; linear similarity 0.000908%; run-up within 1.20% under gravity and clock scaling with breaking",
    "source": [
     "terluna:climate/waves/runup.md#L200-212",
     "repo:notes/verification_record.md#L171-173"
@@ -667,11 +681,12 @@
   },
   {
    "id": "V07",
-   "text": "Clear-sky split within 0.6 points rms on 11 unseen columns; 0 E air 31.4% against 31.1%; a 303 K, 338 kg/m2 column 0.7 points short against 9.7",
+   "text": "Clear-sky split within 0.6 points rms on 11 columns outside the fit; at 0 E the air takes 31.4% as line-by-line's does; a 303 K, 338 kg/m2 column 0.7 points short against 9.7 before the water recalibration",
    "source": [
     "terluna:climate/gcm/README.md#L280-302",
     "repo:python/climate/results/gcm/radiation_check_A28_dim5_moon.json",
-    "repo:notes/verification_record.md#L154"
+    "repo:notes/verification_record.md#L154",
+    "terluna:climate/gcm/README.md#L302"
    ],
    "state": "calibration"
   },
@@ -687,7 +702,7 @@
   },
   {
    "id": "V09",
-   "text": "Electrified supercell against CM1's NSSL: updrafts within 6%, reflectivity 3.4 dBZ, condensate 9%, graupel 12%, hail within a factor of two",
+   "text": "Electrified supercell against CM1's NSSL: updrafts within 6%, reflectivity 3.4 dBZ at every half hour, condensate 9%, graupel 12% from 30 min, hail within a factor of two",
    "source": [
     "terluna:climate/crm/README.md#L1742-1754",
     "repo:notes/verification_record.md#L180"
@@ -696,17 +711,18 @@
   },
   {
    "id": "V10",
-   "text": "Against published electrification: first flash 28.5 min (27-40); rates and charge per flash in range; 1.1% ground strikes; charging several times stronger from cloud ice up to 2e8 per kg",
+   "text": "Against published electrification: first flash 28.5 min (27-40); rates and median charge per flash in range; with the ground rule on 1.1% ground strikes against 0.33% published; charging several times stronger from cloud ice up to 2e8 per kg",
    "source": [
     "terluna:climate/crm/README.md#L1755-1778",
     "terluna:climate/crm/README.md#L1764",
-    "repo:notes/electrification.md#L47-51"
+    "repo:notes/electrification.md#L47-51",
+    "terluna:climate/crm/README.md#L2036-2038"
    ],
    "state": "benchmark"
   },
   {
    "id": "V11",
-   "text": "Arithmetic checks: solang rebuild correlation 1.0000; Sun within 8e-7 and Coriolis within 3e-12 /s; field solver 1 part in 1e5; ledger channels within 0.9 W/m2 per layer; conductivity within 2-8% at 5-30 km",
+   "text": "Arithmetic checks: solang rebuild correlation 1.0000; Sun within 8e-7 and Coriolis within 3e-12 /s; field solver 1 part in 1e5; ledger channels within 0.9 W/m2 per layer with the Sun overhead; positive conductivity within 2-8% at 5-30 km at a 3 GV cutoff",
    "source": [
     "repo:python/climate/results/gcm/sun_check_A28_dim5.json",
     "terluna:climate/crm/README.md#L561-562",
@@ -738,7 +754,7 @@
   },
   {
    "id": "V14",
-   "text": "Missing checks: CM1 from the longwave-corrected GCM; the longwave fit at 307 K; the twilight pair's control; runtime identity of the Sun clock and water scaling; RRTMG's extrapolation; the thread race; CM1 microphysics similarity; an independent GCM",
+   "text": "Missing checks: CM1 from the longwave-corrected GCM; the longwave fit at 307 K; the twilight pair's control; runtime identity of the Sun clock, the water scaling and patches 07-09 off and of the move to the twilight copy; RRTMG's extrapolation; the unlocated thread race; CM1 microphysics similarity; an independent GCM",
    "source": [
     "repo:notes/verification_record.md#L211-250"
    ],
@@ -746,10 +762,12 @@
   },
   {
    "id": "G01",
-   "text": "Cloud water by pressure +2.30 K (A -> A_earth_path_clouds); convective cover per Earth day +1.76 K (-> A_corrected_clouds)",
+   "text": "On run A (25% seas, undimmed shield): cloud water by pressure +2.30 K over the averaged years, ~2.5 K settled; convective cover per Earth day +1.76 K, ~1.6 K settled",
    "source": [
     "repo:paper/data/repairs.json",
-    "terluna:climate/gcm/README.md#L414-490"
+    "terluna:climate/gcm/README.md#L414-490",
+    "terluna:climate/gcm/README.md#L436-437",
+    "terluna:climate/gcm/README.md#L485"
    ],
    "state": "sensitivity"
   },
@@ -765,12 +783,14 @@
   },
   {
    "id": "G03",
-   "text": "Curved air -0.65 K, clouds returning 3.5 of the clear sky's 5.4 W/m2; gas bands -2.23 K, the top layer warming 7 K and its cirrus 2.0% -> 0.05%",
+   "text": "Curved air -0.65 K, clouds returning 3.5 of the clear sky's 5.4 W/m2 in the first year; gas bands -2.23 K, a cloud-free column moving only 0.57 K, the high deck 16.2% -> 11.6% and the top layer's cirrus 2.0% -> 0.05% as it warmed 7 K",
    "source": [
     "repo:paper/data/repairs.json",
     "terluna:climate/gcm/README.md#L1042-1063",
     "terluna:climate/gcm/README.md#L1125-1135",
-    "repo:notes/exoplasim.md#L147-173"
+    "repo:notes/exoplasim.md#L147-173",
+    "terluna:climate/gcm/README.md#L1121-1133",
+    "terluna:climate/gcm/README.md#L1054-1055"
    ],
    "state": "sensitivity"
   },
@@ -785,11 +805,15 @@
   },
   {
    "id": "G05",
-   "text": "Thinner convective cloud +1.71 K; more low cloud -4.98 K; full-column cloud water -3.21 K; longwave by height with ice +11.50 K to ~307 K, vapour 348 against 170 kg/m2, high cloud ~40% against 20%",
+   "text": "Settled cloud-setting effects: thinner convective cloud ~+2.2 K, more low cloud ~-5.9 K, full-column cloud water ~-3.5 K on run A; longwave correction with ice +11.5 K over years 10-19 toward ~307 K, vapour 348 against 170 kg/m2, cloud cover 38% against 20%, most of the gain high",
    "source": [
     "repo:paper/data/repairs.json",
     "repo:notes/exoplasim.md#L217-224",
-    "terluna:climate/gcm/README.md#L1155"
+    "terluna:climate/gcm/README.md#L1155",
+    "terluna:climate/gcm/README.md#L1209-1210",
+    "terluna:climate/gcm/README.md#L422",
+    "terluna:climate/gcm/README.md#L900",
+    "terluna:climate/gcm/README.md#L870"
    ],
    "state": "sensitivity"
   },
@@ -805,25 +829,28 @@
   },
   {
    "id": "G07",
-   "text": "PlaSim's longwave over-cooling ~1.5 K of the rest; CM1 mixes 14-19 km deep by day; a 3-D box ran warmer, land at most 0.3 C, Earth-speed rain 1.0 C warmer",
+   "text": "PlaSim's longwave over-cooling ~1.5 K of the rest; the remainder, a degree or two, attributed by elimination to boundary-layer transport (CM1 mixes 14-19 km deep by day); at the 0 E crossing on pre-correction forcing a 3-D box ran warmer, land at most 0.3 C, Earth-speed rain 1.0 C warmer; the 45 N land test not run",
    "source": [
     "repo:notes/cm1.md#L120-124",
     "terluna:climate/crm/README.md#L1147-1196",
-    "terluna:climate/crm/README.md#L960-990"
+    "terluna:climate/crm/README.md#L960-990",
+    "terluna:climate/crm/README.md#L1171-1172",
+    "terluna:climate/crm/README.md#L1195-1196"
    ],
    "state": "conditional model"
   },
   {
    "id": "G08",
-   "text": "The small box: 34 mm per lunar day at the ground against the GCM's 180 mm; 85% of falling water evaporated against 64% at Earth's fall speeds",
+   "text": "The small box on pre-correction forcing: 34 mm per lunar day at the ground against the forcing GCM's 129 mm and the corrected GCM's 180 mm; 85% of falling water evaporated against 64% at Earth's fall speeds",
    "source": [
-    "terluna:climate/crm/README.md#L960-978"
+    "terluna:climate/crm/README.md#L960-978",
+    "terluna:climate/crm/README.md#L944-956"
    ],
    "state": "sensitivity"
   },
   {
    "id": "G09",
-   "text": "0 C level near 25 km, -40 C near 60 km, cloud tops 55-80 km in every run",
+   "text": "0 C level near 25 km and -40 C near 60 km, five to six times their heights in Earth's tropics; cloud tops 55-80 km",
    "source": [
     "terluna:climate/crm/README.md#L1454-1456"
    ],
@@ -831,19 +858,22 @@
   },
   {
    "id": "G10",
-   "text": "Main electrified run: 530 flashes, 106 negative to ground, none positive; 0.022 per km2 per year; start 35.8 km; 108 C in cloud, 149 C to ground; hail 87% of non-inductive charging; main negative charge 40-42 km at -13 to -14 C",
+   "text": "Main electrified run on pre-correction forcing: 530 flashes, up to a fifth negative to ground (an upper bound under WRF-ELEC's rule with the leader's crossing), none positive; 0.022 per km2 per year; start 35.8 km; 108 C in cloud, 149 C to ground; main negative charge 40-42 km at -13 to -14 C; hail 87% of non-inductive charging",
    "source": [
     "terluna:climate/crm/README.md#L2365-2397",
-    "repo:notes/electrification.md#L72-81"
+    "repo:notes/electrification.md#L72-81",
+    "terluna:climate/crm/README.md#L2050-2059",
+    "terluna:climate/crm/README.md#L2100-2104"
    ],
    "state": "conditional model"
   },
   {
    "id": "G11",
-   "text": "Takahashi's law inverts the polarity with as much charge; NSSL against Morrison: 1.0 C warmer at 2 m, night ground fog 29% against 56% of the box",
+   "text": "Takahashi's law inverts the polarity with as much charge, the laws disagreeing on the sign rimed ice takes in little cloud water; NSSL against Morrison: 1.0 C warmer at 2 m, night ground fog 29% against 56% of the box",
    "source": [
     "terluna:climate/crm/README.md#L2097-2120",
-    "terluna:climate/crm/README.md#L2409-2418"
+    "terluna:climate/crm/README.md#L2409-2418",
+    "terluna:climate/crm/README.md#L2142-2170"
    ],
    "state": "sensitivity"
   },
@@ -857,7 +887,7 @@
   },
   {
    "id": "W01",
-   "text": "General repairs carry to any world; calibrations (Rayleigh, water multiplier, continuum, longwave correction, gas fits) only near their column; the curved-air method is general and its tables per column",
+   "text": "General repairs carry to other worlds within Table 5's limits; calibrations (Rayleigh, water multiplier, continuum, longwave correction, gas fits) only near their case; the curved-air method is general and its tables per column; settings carry the lunar scenario's values",
    "source": [
     "repo:models/exoplasim/README.md",
     "repo:models/cm1/README.md",
@@ -867,27 +897,30 @@
   },
   {
    "id": "W02",
-   "text": "Chapman factors 22 (Mars), 24.5 (Venus), 14 (Titan), 7.2 (Moon); column 10x, 100x, 7.25x Earth's; Slingo bias 0.35 at 16 d and 0.60 at 117 d; Sun-clock skip 1, 2, 10 and 33 deg at rotations near 1, 2, 10 and 21-60 days",
+   "text": "Chapman factors 22 (Mars), 24.5 (Venus), 14 (Titan), 7.2 (Moon); columns 10x, 100x, 7.25x Earth's; Slingo bias 0.35 at 16 d and 0.60 at 117 d; Sun-clock skip 1/(N-1) turn with N rounded to a multiple of 12 and never below 12: ~1, 2, 10 deg and 33 deg for any rotation slower than 20 days",
    "source": [
     "repo:paper/data/worlds.json",
     "repo:notes/exoplasim.md#L23-34",
-    "repo:notes/exoplasim.md#L65-76"
+    "repo:notes/exoplasim.md#L65-76",
+    "repo:paper/data/regime_calc.json#exoplasim_slow_rotators"
    ],
    "state": "calculation"
   },
   {
    "id": "W03",
-   "text": "Slowly rotating Earth-air planets need only ExoPlaSim's general repairs in non-synchronous runs (Sun clock, convective cover, whole model days)",
+   "text": "Slowly rotating Earth-air planets should need only ExoPlaSim's general repairs (untested); above 20 days ExoPlaSim's model day departs from the solar day unless the year holds ~12 rotations (64 d: 69.8 against 77.6 d; 243 d: 265 against 726 d)",
    "source": [
     "repo:notes/exoplasim.md#L23-47",
     "repo:notes/exoplasim.md#L91-104",
-    "repo:models/exoplasim/README.md"
+    "repo:models/exoplasim/README.md",
+    "repo:paper/data/regime_calc.json#exoplasim_slow_rotators",
+    "terluna:climate/gcm/README.md#L179-181"
    ],
    "state": "finding"
   },
   {
    "id": "W04",
-   "text": "Mars at 1 bar: H/R 0.00655 (5x Earth's), column 2.6x Earth's, g 0.38 of Earth's; Chapman factor 15.5; inside RRTMG's pressure range",
+   "text": "Mars at 1 bar: H/R 0.00655 (5x Earth's), column 2.6x Earth's, g 0.38 of Earth's; Chapman factor 15.5; inside RRTMG's range at its 1-bar level",
    "source": [
     "repo:paper/data/worlds.json"
    ],
@@ -905,10 +938,12 @@
   },
   {
    "id": "N01",
-   "text": "Lunar graupel strikes ice at 1.3-1.5 m/s and snow at 0.8-1.0 m/s; the deciding charging measurement is unavailable",
+   "text": "In the NSSL runs hail does 82-88% of the charging and strikes ice and snow at 4.4-7.6 m/s; the deciding measurement is the sign rimed ice takes at 4-8 m/s in 0.02-0.2 g/m3 of cloud water at -5 to -16 C",
    "source": [
     "repo:notes/electrification.md#L91-94",
-    "repo:notes/defect_log.md#B7"
+    "repo:notes/defect_log.md#B7",
+    "terluna:climate/crm/README.md#L2142-2170",
+    "terluna:climate/crm/README.md#L2389"
    ],
    "state": "conditional model"
   },
@@ -938,6 +973,32 @@
     "repo:notes/defect_log.md#A1"
    ],
    "state": "documented"
+  },
+  {
+   "id": "V15",
+   "text": "With the gas bands, about 2 W/m2 of water's sunlight is still misplaced by layer, worth 0.19 K of ground in the middle-atmosphere column",
+   "source": [
+    "terluna:climate/gcm/README.md#L1103-1112"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "G13",
+   "text": "The longwave-with-ice test extrapolates to balance at 306.8-307.1 K (the run ends at 306.77 K in year 19, warming 0.08 K a year); the figure's bars are window means against four baselines",
+   "source": [
+    "terluna:climate/gcm/README.md#L889-891",
+    "repo:paper/data/repairs.json"
+   ],
+   "state": "sensitivity"
+  },
+  {
+   "id": "N03",
+   "text": "Snow takes the drops' gravity exponent where its own laws give a larger one; 85% of falling water evaporates in the boxes and 57-73% in the rings",
+   "source": [
+    "repo:notes/cm1.md#L64-66",
+    "terluna:climate/crm/README.md#L939-940"
+   ],
+   "state": "conditional model"
   }
  ]
 }
