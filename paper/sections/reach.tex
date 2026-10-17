@@ -11,20 +11,20 @@ unchanged and needs its calibrations and its ledger computed again, with tools t
 the reference model, the ledger and the offline copies of PlaSim's radiation.\claim{W01}
 
 \textbf{Where Earth's assumptions break.} Figure~\ref{fig:regimes} places found and crafted worlds against
-the ratios the hidden Earth depends on. PlaSim's horizon factor of 35 is exact only at Earth's scale height
-over radius: an isothermal Chapman factor gives 22 for present Mars, 24.5 for Venus, 14 for Titan and 7.2
-for the Moon, so the slant path is wrong for each of them, and most for the tallest air. Its broadband fits
-hold near Earth's absorber paths, which Titan exceeds tenfold, Venus a hundredfold and the Moon
-sevenfold. Its per-day formulas are exact only for a one-day solar day; Slingo's cover gains
-$0.125\ln(\text{day}/1\,\text{d})$, which is 0.35 for Titan's 16-day solar day and 0.60 for Venus's
-117-day one, and turns negative for days shorter than Earth's. Its cloud water, written in metres, is wrong
-at any gravity other than Earth's, too dry aloft under weaker gravity and too wet under stronger. Its Sun
-clock skips back $1/(N-1)$ of a turn each model day for a planet that turns $N$ times in its 360-day year:
-1\textdegree\ near Earth's rotation, 2\textdegree\ at a two-day rotation, 10\textdegree\ at ten days and
-33\textdegree\ at any rotation of about 21--60 days, and only a one-day rotation is exact.\claim{W02}
-Released CM1 breaks at any gravity but Earth's, under any day but Earth's 24 hours, and in any air whose
-carbon dioxide differs from Earth's calendar-year value; SWAN breaks gravity similarity through one
-constant.
+the ratios the hidden Earth depends on. Along the geometry and the column, PlaSim's horizon factor of 35 is
+exact only at Earth's scale height over radius, where an isothermal Chapman factor gives 22 for present Mars,
+24.5 for Venus, 14 for Titan and 7.2 for the Moon, so the slant path is wrong for each and most for the
+tallest air; and PlaSim's broadband fits hold near Earth's absorber paths, which Titan exceeds tenfold, Venus
+a hundredfold and the Moon sevenfold. Along the day and gravity, PlaSim's per-day formulas are exact only for
+a one-day solar day: Slingo's cover gains $0.125\ln(\text{day}/1\,\text{d})$, 0.35 for Titan's 16-day solar
+day and 0.60 for Venus's 117-day one, and loses cover for days shorter than Earth's. Its cloud water, written
+in metres, errs at any gravity other than Earth's, too dry aloft under weaker gravity and too wet under
+stronger. Its Sun clock, in a non-synchronous run, skips back $1/(N-1)$ of a turn each model day for a planet
+that turns $N$ times in its 360-day year: 1\textdegree\ near Earth's rotation, 2\textdegree\ at a two-day
+rotation, 10\textdegree\ at ten days and 33\textdegree\ at any rotation of about 21--60 days, exact only for a
+one-day rotation.\claim{W02} Released CM1 breaks at any gravity but Earth's, under any day but Earth's
+24 hours, and in any air whose carbon dioxide differs from Earth's calendar-year value; SWAN breaks gravity
+similarity through one constant.
 
 \begin{figure}[tbp]
 \centering

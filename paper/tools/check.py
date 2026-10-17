@@ -8,7 +8,8 @@
     terluna:<path>[#...]   a file in Terluna at commit 186b294 (checked with git cat-file in the local checkout);
     repo:<path>[#...]      a file in this repository;
     drive:<path>           a file on Terluna's research drive (a warning when the drive is absent);
-    calc:<text>            a calculation stated in the claim (its script or formula named in the text).
+    calc:<text>            a calculation stated in the claim (its script or formula named in the text);
+    url:<address>          a web record such as an upstream issue (reported, never fetched by this check).
 Evidence states: observation, calculation, conditional model, calibration, reproduction, identity, sensitivity,
 documented, finding, similarity, benchmark, implementation.
 These are completeness checks; they establish nothing about whether a claim is right.
@@ -87,6 +88,8 @@ def main() -> int:
                     warnings.append(f'claim {cid}: research drive not mounted, {path} unchecked')
                 elif not Path(path).exists():
                     errors.append(f'claim {cid}: {path} absent from the research drive')
+            elif kind == 'url':
+                warnings.append(f'claim {cid}: web source {rest} recorded, unchecked offline')
             elif kind != 'calc':
                 errors.append(f'claim {cid}: unknown source kind {kind!r}')
         if c.get('state') not in ('observation', 'calculation', 'conditional model', 'calibration', 'reproduction',

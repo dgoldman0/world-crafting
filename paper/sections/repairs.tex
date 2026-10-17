@@ -16,8 +16,8 @@ the Moon's orbit and calendar: the configured orbit held fixed, a year of 17,160
 twelve whole model days, and the synodic Sun clock. In CM1, gravity and the air's carbon dioxide and oxygen
 become preprocessor constants that default to 9.81~m\,s$^{-2}$, 400~ppm and Earth's oxygen, and CM1's
 twenty spare namelist reals carry the lunar Sun, the forcing and the electrification's settings. SWAN's
-wind-input knee moves with gravity and stays at 1~Hz under Earth's. Terluna's runners apply each patch by a
-marker into the installed source; the accompanying repository holds them as patch series against pinned
+wind-input knee moves with gravity and stays at 1~Hz under Earth's. Terluna's runners insert each change into
+the installed source at a marked anchor; the accompanying repository holds them as patch series against pinned
 upstream archives, and a script rebuilds the deployed sources from those archives byte for
 byte.\claim{R01}
 
@@ -27,15 +27,18 @@ $(b+1)/3$, and the Best number of a particle of fixed size is proportional to $g
 g^{(b+1)/3}$: at lunar gravity cloud droplets fall 6.04 times slower, raindrops 2.94 times and graupel
 2.27 times.\claim{R02} The scaling is exact for particles whose mass grows as $D^3$ and area as $D^2$,
 drops, graupel and hail, within their fitted regimes; for snow and ice crystals, whose mass and area follow
-other powers, the gravity exponent is larger than the patch's. The Morrison and NSSL schemes take the
-scaled speeds in their fall-speed laws, caps, collection and ventilation. CM1's Rayleigh damping rate and
+other powers, the gravity exponent is larger than the patch's. The Morrison and NSSL schemes carry
+the scaled speeds through their fall-speed laws and caps into collection and ventilation; in NSSL the
+ventilation needed its own scaling at eleven sites.
+
+Other lengths and times scale in the same way. CM1's Rayleigh damping rate and
 its boundary-layer length scale as $g$ and $1/g$, as the dynamics stretch, and WRF-ELEC's sub-step
 lengthens from 0.75 to 6.8~s, which keeps graupel settling through about 1\% of a layer per sub-step in the
 lunar charging zone's 2~km layers at 0.44 of Earth's fall speed.\claim{R03} The breakdown field already
 scales with the air's density, and lifting its 180~kV\,m$^{-1}$ cap lets that scaling act wherever lunar
 flashes start. SWAN's knee becomes a function of $f\,g_\mathrm{E}/g$, which reproduces stock SWAN at
-Earth's gravity and brings the sixfold similarity error from 5.44\% to 0.303\% in significant wave height
-and from 3.91\% to 0.326\% in mean period.\claim{R04} The repairs of units follow the same logic. Slingo's
+Earth's gravity and restores the model's gravity similarity.\claim{R04} The repairs of units and heights
+restore the quantity each formula was written for. Slingo's
 cover counts rain per 86,400~s; CCM3's cloud water counts heights and precipitable water at Earth's gravity
 and scales its mixing ratio by $g/g_\mathrm{E}$, which gives each cloud the water path it would hold at the
 same pressures on Earth; and CM1's soil layers deepen to 5--80~cm under the month-long thermal wave.

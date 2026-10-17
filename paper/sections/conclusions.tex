@@ -1,13 +1,12 @@
 \section{Conclusions}
 
-A breathable Moon could be modelled only once the Earth inside the models had been found, and the Moon found
-it because it moves several governing ratios at once: the air stands tall against the radius, weighs more than
-seven times Earth's over each square metre, falls under a sixth of Earth's gravity and sees the Sun return once a
-month. In ExoPlaSim, CM1 with WRF-ELEC's electrification, SWAN and SWASH, Earth sat in constants written
-into the code, in formulas counted per day, in flat columns lit only by day, in empirical fits used beyond
-their range, and in five defects that Earth's parameters or usual configurations kept small, the largest of
-them a Sun clock that skipped 32.5\textdegree\ each lunar model day and an orbit default that gave the Moon
-Earth's seasons.
+Each Earth assumption in the four models was exact on Earth, which kept it out of sight in Earth's own
+runs: a horizon factor of 35 is right at Earth's scale height, a formula counted per day is right for a
+one-day solar day, and a Sun clock that restarts each day skips only a degree. A breathable Moon moves the
+scale height, the column, the gravity and the day together, more than seven times Earth's air standing tall
+under a sixth of its gravity through a month-long day, and so exposed them all at once: the clock's skip grew
+to 32.5\textdegree, the default orbit handed the Moon Earth's seasons, and formulas fitted to Earth's
+columns ran far past their range.
 
 The repairs that removed this Earth are mostly general. Each turns a hidden value into a parameter whose
 default reproduces the released code, and each takes its lunar value from a unit, a scaling law, a geometry
@@ -20,7 +19,7 @@ climate itself awaits a test, and the strongest available is agreement among ind
 
 The adapted models have located the uncertainty that remains. It lies where the models stay Earth's: in
 cloud amount, whose Earth-tuned settings move the Moon by up to 5~K, in the height at which the longwave
-cools the air, whose correction moves it by 11.5~K, and in the boundary layer, where the cloud-resolving model and the GCM still
-disagree by several kelvin near the ground. The next work is the work that loosens the tie to one column
+cools the air, whose correction moves it by 11.5~K, and in the boundary layer, where the cloud-resolving
+model and the GCM still disagree by several kelvin near the ground. The next work is the work that loosens the tie to one column
 and one cloud scheme: a longwave fit at the settled state, cloud constrained by cloud-resolving runs, and an
 independent GCM.

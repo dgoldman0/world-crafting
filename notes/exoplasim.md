@@ -42,9 +42,10 @@ arithmetic predicts for 12.1 lunar days in a year. Identity: `NSUNCLOCK` 0 is up
 counts turns from step 0, so a run restarted under a different clock setting changes phase. Mode 1 (a
 turn per model day) is exact only when the model day equals the solar day.
 
-**Improvement.** Report upstream: the runner's comment (Terluna `exoplasim_run.py` 251) says the bug
-was reported, but no issue or record of a report exists in Terluna. The upstream fix is one line of
-arithmetic for any non-synchronous planet.
+**Improvement.** The author reported the defect upstream as ExoPlaSim issue #69 on 2026-09-29
+(github.com/alphaparrot/ExoPlaSim/issues/69), which places it in non-synchronous runs with `rotationperiod`
+≠ 1 and `keplerian=False`; it was open and unanswered on 2026-10-17, and Terluna's record does not link it.
+The upstream fix is one line of arithmetic for any non-synchronous planet.
 
 ### The orbit default (setting `fixed_orbit=True`)
 

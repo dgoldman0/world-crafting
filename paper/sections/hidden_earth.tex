@@ -7,29 +7,30 @@ defect log in the accompanying repository gives each one's discovery, evidence, 
 effect. The inventory separates two kinds. In a limitation the code does what it was written to do, on
 the world it was written for. In a defect the code is wrong on its own terms, on every world, and Earth's
 values or the configurations usual on Earth kept the error too small or too rare to see. Four of the five
-forms are limitations; the fifth holds the defects.
+forms are limitations; the fifth holds the released codes' defects.
 
-\textbf{Constants written into the code.} The plainest form is a dimensional constant. CM1 release 22
-sets gravity to 9.81~m\,s$^{-2}$ in four places: its dynamics, RRTMG's conversion of pressure to layer
-mass, its CAPE diagnostic and the Morrison microphysics, whose fall-speed laws $V = aD^b$ and their caps
-hold Earth's gravity in their coefficients.\claim{H01} WRF-ELEC's NSSL scheme sets 9.8 twice and ties the
-ventilation of evaporating rain and depositing ice to Earth's fall-speed coefficients.\claim{H02} Its
-lightning scheme holds Earth's air in three thresholds. A breakdown field capped at 180~kV\,m$^{-1}$ acts on
-Earth only below about 4.5~km, beneath where flashes start, and in lunar air below about 36~km, where it
-lowers the field by 44\% at the ground. A ground strike is declared when a channel reaches air warmer than
-$-7$\,\textdegree C, about 5~km above Earth's ground and 27--34~km above the Moon's. A 0.75~s sub-step is
-sized for 500~m layers and Earth's fall speeds.\claim{H03} SWAN reduces its linear wind input above a knee
-fixed at 1~Hz, a value its source comments call largely arbitrary; a fixed knee breaks the model's gravity
-similarity, and stock SWAN misses a sixfold similarity test by 5.44\% in significant wave height.\claim{H04}
-SWAN also fixes the air's density at 1.28~kg\,m$^{-3}$, where the air over the lunar seas holds about
-1.40.\claim{H05} RRTMG takes carbon dioxide from the calendar year and carries Earth's methane, nitrous
-oxide, halocarbons and ozone, and CM1's beta plane derives its gradient from Earth's rotation and a
-6,370~km radius.\claim{H06} Each constant is right for Earth, and becomes right for the Moon once it is a
-parameter or follows a scaling law.
+\textbf{Constants written into the code.} A dimensional constant carries the scale of the world it was
+set on, and gravity is the commonest. CM1 release 22 sets it to 9.81~m\,s$^{-2}$ in four places: its
+dynamics, RRTMG's conversion of pressure to layer mass, its CAPE diagnostic and the Morrison microphysics,
+whose fall-speed laws $V = aD^b$ and their caps hold Earth's gravity in their coefficients.\claim{H01}
+WRF-ELEC's NSSL scheme sets 9.8 twice and ties the ventilation of evaporating rain and depositing ice to
+Earth's fall-speed coefficients.\claim{H02} Earth's air sets three thresholds in WRF-ELEC's lightning. A
+breakdown field capped at 180~kV\,m$^{-1}$ acts on Earth only below about 4.5~km, beneath where flashes
+start, and in lunar air below about 36~km, where it lowers the field by 44\% at the ground. A ground strike
+is declared when a channel reaches air warmer than $-7$\,\textdegree C, about 5~km above Earth's ground and
+27--34~km above the Moon's. A 0.75~s sub-step is sized for 500~m layers and Earth's fall
+speeds.\claim{H03} Earth's seas set SWAN's constants. It reduces its linear wind input above a knee fixed at
+1~Hz, a value its source comments call largely arbitrary, and the fixed knee breaks the model's gravity
+similarity: stock SWAN misses a sixfold similarity test by 5.44\% in significant wave height.\claim{H04} It
+also fixes the air's density at 1.28~kg\,m$^{-3}$, where the air over the lunar seas holds about
+1.40.\claim{H05} Earth's composition and rotation complete the set: RRTMG takes carbon dioxide from the
+calendar year and carries Earth's methane, nitrous oxide, halocarbons and ozone, and CM1's beta plane
+derives its gradient from Earth's rotation and a 6,370~km radius.\claim{H06} Each constant is right for
+Earth, and becomes right for the Moon once it is a parameter or follows a scaling law.
 
 \textbf{Units of time.} A formula written per day, and a process that matters only over a long run, both
 hold Earth's calendar. Slingo's convective cover in PlaSim, $0.245 + 0.125\ln P$ with $P$ the convective
-rain in millimetres per day, converts the model's rain with the model's own solar day. ExoPlaSim sets that
+rain in millimetres per day, converts the model's rain to millimetres per day with the model's own solar day. ExoPlaSim sets that
 day from the planet's rotation and orbit, 29.8 Earth days for the Moon, so the formula reads lunar rain
 about 30 times too heavy and adds $0.125\ln 29.8 = 0.42$ to the cover, up to its cap of 0.8; on any world
 the bias is $0.125\ln(\text{day}/1\,\text{d})$.\claim{H07} ExoPlaSim's year of 360 days in 17,280
@@ -42,8 +43,8 @@ lunar run the charge that evaporating cloud handed to the small ions persisted f
 at the ground near 20~kV\,m$^{-1}$ across the whole domain.\claim{H10}
 
 \textbf{Geometry.} PlaSim and RRTMG treat each column as a stack of flat layers, lit only while the Sun
-stands above that column's horizon. In the Moon's air, whose mass sits on average 48.6~km up, the shells
-widen with height, sunlight crosses the air beyond each column's horizon and the infrared escapes through a
+stands above that column's horizon. In the Moon's tall air the shells widen with
+height, sunlight crosses the air beyond each column's horizon and the infrared escapes through a
 wider top. Against flat columns of the same air the curved geometry takes in 10.3~W\,m$^{-2}$ more sunlight
 and lets out 16.2~W\,m$^{-2}$ more infrared, a net loss of 5.8~W\,m$^{-2}$, nearly all of it from the
 shells' widening, and its twilight puts 1.4~W\,m$^{-2}$ on the ground while the Sun is below the
@@ -76,16 +77,17 @@ beyond them and are extrapolated in $\ln p$. Its ice optics end at 140~\textmu m
 falling lunar ice outgrows: the electrified box stopped at day 6.45 when its microphysics passed
 157~\textmu m to the radiation.\claim{H20}
 
-The microphysical and surface laws carry Earth in the same way. Morrison bounds the mean diameter of rain at 2.8~mm and begins
-breakup in rain's self-collection above a mean of 0.3~mm, both values taken from Earth's rain, while the
+The microphysical and surface laws carry Earth in the same way. Morrison bounds the mean diameter of
+rain at 2.8~mm and begins breakup in rain's self-collection above a mean of 0.3~mm, both values taken from Earth's rain, while the
 largest drop that survives its own fall scales with the capillary length $\sqrt{\sigma/\rho_w g}$, 2.46
 times longer at lunar gravity.\claim{H21} The laws of sea and storm are Earth's calibrations: Wu's drag,
 Komen's growth and whitecapping, the AGROW coefficient, a breaker index of 0.73, SWASH's breaking
 thresholds of 0.6 and 0.3, and WRF-ELEC's laboratory charging laws, between which the lunar storms'
 polarity turns over.\claim{H22}
 
-\textbf{Defects that Earth hid.} Five defects sat in the released codes. ExoPlaSim's solar-position
-routine turns the Sun at the planet's rotation rate and restarts its clock every model day, so each day
+\textbf{Defects that Earth hid.} Five defects sat in the released codes. In a non-synchronous run on its
+default solar geometry, ExoPlaSim's solar-position routine turns the Sun at the planet's rotation rate and
+restarts its clock every model day, so each day
 ends with the Sun skipped back by the excess of the model day over the rotation period: about 1\textdegree\
 on Earth and 32.5\textdegree\ on the Moon, where sunlight along the equator then ran 8.3\% short from
 270\textdegree\ to 57\textdegree~E and up to 17\% over near 164\textdegree~E
@@ -132,9 +134,9 @@ vapour constant above the GCM's 130~km top, 6--15 times saturated over ice at 14
 levels.\claim{H31} The last two remain in the runs made before they were found.
 
 \textbf{What a slice of the GCM lacks.} Running CM1 inside the GCM's climate adds a structural limit to
-the inherited ones. A ring of columns along a latitude circle lacks transport across the circle, a box
-lacks any day--night circulation larger than itself, and stock CM1 lacks a lunar Sun, forcing above its
-boundary layer and nudging that follows terrain. Each absence showed in a run. The first box, forced with
+the inherited ones. A ring of columns along a latitude circle misses the transport across the circle, a
+box misses any day--night circulation larger than itself, and stock CM1 needs three things added: a lunar
+Sun, forcing above its boundary layer and nudging that follows terrain. Each absence showed in a run. The first box, forced with
 the advection along the rings alone, rained in the mornings and stayed clear and hot in the afternoons
 until it was stopped at day 47, and at 45\textdegree\,N the missing transport across the circle accounts
 for about a third of CM1's warm offset from the GCM.\claim{H32} The forcing methods that answer these

@@ -1,12 +1,12 @@
 \section{Verification}
 
-Five kinds of check were made, and each establishes something different (Table~\ref{tab:verification}).
-An identity check shows that a patch at its default leaves the released model's arithmetic unchanged
-along the trajectory tested. A reproduction check shows that the recorded code and results can be rebuilt.
-A similarity check shows that gravity enters the code consistently: a run at scaled gravity, lengths and
-times reproduces the original in dimensionless form. A calibration shows that a fitted form matches the
-reference model on the columns it was fitted to. A benchmark shows that adapted or grafted code reproduces
-the published behaviour of the same scheme on Earth. Every one stops short of a lunar climate: the
+Five kinds of check were made, and they reach progressively further from the code
+(Table~\ref{tab:verification}). Identity and reproduction checks reach the code alone: a patch at its
+default leaves the released arithmetic unchanged along the trajectory tested, and the recorded code and
+results can be rebuilt. A similarity check reaches the consistency of the physics, showing that a run at
+scaled gravity, lengths and times reproduces the original in dimensionless form, so gravity enters the code
+consistently. Calibrations and benchmarks reach outside the code, to the reference model on the columns a
+fit was made on and to a scheme's published behaviour on Earth. Each stops short of a lunar climate: the
 reference is itself a clear-sky model resting on its spectroscopy, a fit holds near its fitted state,
 similarity leaves Earth's empirical laws untested at lunar gravity, and a benchmark runs on Earth.
 

@@ -1,6 +1,7 @@
 \section{Introduction}
 
-Terluna asks what weather, climate, storms and seas a breathable Moon would have: 1.2~atm of nitrogen
+Terluna asks what weather, climate, storms and seas a breathable Moon would offer the people and ecosystems
+it is designed to carry: 1.2~atm of nitrogen
 and oxygen at the water level, seas and lakes over 28\% of the surface, sunlight filtered by a shield in
 space, and the Moon's own gravity of \SI{1.62}{m.s^{-2}} and 29.53-day solar day
 \autocite{goldman2026terluna}.\claim{S01} Only numerical models can answer, and every model available to
@@ -13,16 +14,16 @@ sixth of Earth's gravity its air holds 7.25 times Earth's mass over each square 
 absorbing gas run far beyond the range that Earth-fitted radiation schemes were fitted on.\claim{S02} A
 scale height of about 52~km against a radius of 1,737~km makes the air tall against the curve of the
 ground, about 23 times taller in proportion than Earth's: the horizon air mass falls from Earth's 35 to
-about 7, and a full Earth day after sunset about half of the air above a place still stands in sunlight.\claim{S03}\claim{S04} Every height in
-pressure terms stands six times higher, raindrops fall about three times slower, and the Sun returns once
-in 29.5 Earth days. Exoplanet extensions of Earth models vary gravity, radius, rotation and starlight
+about 7, and a full Earth day after sunset about half of the air above a place still stands in
+sunlight.\claim{S03}\claim{S04} A sixth of Earth's gravity sets every pressure level six times higher and
+slows falling rain to about a third of its Earth speed, and the Sun returns once in 29.5 Earth days. Exoplanet extensions of Earth models vary gravity, radius, rotation and starlight
 \autocite{paradise2022exoplasim,way2017resolving}; on the Moon all four move together, in an air that is
 otherwise Earth's own.
 
-Three model families carry the work, each answering what the previous one leaves open. ExoPlaSim 3.4.2
+Three model families divide the work, each answering where the previous one stops. ExoPlaSim 3.4.2
 \autocite{paradise2022exoplasim}, the Planet Simulator \autocite{fraedrich2005planet} extended for other
-worlds, runs the global climate for decades in hours on a laptop, with clouds and convection diagnosed
-from formulas fitted to Earth. CM1 release 22 \autocite{bryan2002benchmark} resolves convection and forms
+worlds, runs the global climate for decades in an hour or two on four processor cores,\claim{S14} with
+clouds and convection diagnosed from formulas fitted to Earth. CM1 release 22 \autocite{bryan2002benchmark} resolves convection and forms
 its own clouds and rain on rings and boxes forced from the GCM; with the electrification of WRF-ELEC
 grafted in \autocite{mansell2010simulated,fierro2013implementation} it also carries charge and lightning.
 SWAN 41.51 \autocite{booij1999third} grows waves over the lunar seas from the GCM's surface stress, and SWASH
@@ -32,7 +33,7 @@ radiative--convective model, built on HITRAN2020 \autocite{gordon2022hitran2020}
 
 Carrying these models to the Moon exposed Earth inside them in five forms: dimensional constants written
 into the code, units of time, geometry, empirical fits used beyond the range they were fitted on, and
-latent defects that Earth's own parameters hide. The repairs fall into two classes with different reach.
+latent defects that Earth's parameters, or the configurations usual on Earth, keep hidden. The repairs fall into two classes with different reach.
 A general repair turns a hidden constant into a parameter whose default reproduces the released model,
 fixes a unit, applies a scaling law, restores a missing geometry or process, or removes a defect; it holds
 on any world. A calibration fits a multiplier or a correction to the reference model on the lunar design
@@ -48,7 +49,7 @@ visibly between the worlds, chiefly the gases, the star and the planet's constan
 and sets it in a geometry and a calendar far from Earth's, so its difficulties gather where Earth's values
 had hidden, in constants and fits that agreed with Earth because Earth had set them.
 
-Every change described here is recorded as a patch against a pinned upstream source, with its switch, its
+Every change is recorded as a patch against a pinned upstream source, with its switch, its
 default and its check, in an accompanying repository. Every lunar climate number is a conditional model
 result: it holds given the scenario and given the parts of each model that remain Earth's. Agreement with
 the reference model is calibration, and agreement between patched and released builds is

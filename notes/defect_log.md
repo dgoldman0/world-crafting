@@ -44,7 +44,7 @@ corrected there. The companion note `verification_record.md` describes the check
 
 | ID | Model | Defect | Found | Fix: switch (default) | Effect on results | Status | Src |
 |---|---|---|---|---|---|---|---|
-| A1 | ExoPlaSim | `solang` Sun clock sweeps 392.5° and skips back 32.5° each model day | 09-29, be50d8b | `NSUNCLOCK` via `sun_clock` (`'synodic'`), 74fed6c | With A2, 328 of 373 W/m² reached 0° E; −8.3% to +17% along the equator | Fixed; no upstream report found | R |
+| A1 | ExoPlaSim | `solang` Sun clock sweeps 392.5° and skips back 32.5° each model day | 09-29, be50d8b | `NSUNCLOCK` via `sun_clock` (`'synodic'`), 74fed6c | With A2, 328 of 373 W/m² reached 0° E; −8.3% to +17% along the equator | Fixed; reported upstream as ExoPlaSim issue #69 (open) | R |
 | A2 | ExoPlaSim | `fixedorbit` default replaces the configured orbit with Earth's for 1 AD (23.695°) | 09-29, be50d8b | `fixed_orbit` (1), 74fed6c | 149 against 29 W/m² at 86°; Earth's seasons carried rain to 60° | Fixed | R |
 | A3 | ExoPlaSim | 360-day year of 17,280 steps is not a whole number of 1,430-step model days | 09-29, be50d8b | `whole_lunar_days` (1), 74fed6c | Output means slipped 120 steps a year against the Sun | Fixed | R |
 | A4 | PlaSim | Lowest model level reads up to ~20 K too cold in 0.8% of 3-day windows | 09-25, 86bfb63 | None; screen in analyses | Lowest-level analyses only; surface fields unaffected | Open | R |
@@ -129,8 +129,11 @@ corrected there. The companion note `verification_record.md` describes the check
   - All runs before 2026-09-29 carry this, including the forcing of CM1 cases set up before that date
     (`research/status.json`, climate topic, unresolved list).
 - **Remains.**
-  - The runner's comment says "Reported upstream as a bug in solang (README)" (`exoplasim_run.py:251`), but the
-    README records no report and no report to ExoPlaSim's maintainers was found (V).
+  - The runner's comment says "Reported upstream as a bug in solang (README)" (`exoplasim_run.py:251`). The README
+    records no report, but one exists: the author opened ExoPlaSim issue #69 on 2026-09-29
+    (github.com/alphaparrot/ExoPlaSim/issues/69), "solang: Sun skips back once per model day when rotationperiod ≠ 1",
+    which states the condition as a non-synchronous run with `rotationperiod` ≠ 1 and `keplerian=False` and offers a
+    fix. It was open with no reply on 2026-10-17 (checked by the main session; found by the literature pass).
   - The Sun's 29.53-day day runs 3.2° per day behind the 29.8-day model day, so day–night analyses sort by `czen`
     (`climate/gcm/README.md:179-181`).
 
@@ -815,8 +818,9 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
 
 ## (d) Record inconsistencies found in this pass, not yet corrected in Terluna (V)
 
-- **Upstream report claim.** `climate/gcm/exoplasim_run.py:251` says the `solang` bug was "Reported upstream". No
-  report is recorded.
+- **Upstream report claim.** `climate/gcm/exoplasim_run.py:251` says the `solang` bug was "Reported upstream". The
+  claim holds (ExoPlaSim issue #69, opened by the author on 2026-09-29, open and unanswered on 2026-10-17), but
+  Terluna's record does not cite the issue. The history pass missed it; the literature pass found it.
 - **Twilight convergence flag.** `climate/results/gcm/twilight.json` has `channels.orders_converged: false`. The
   ledger's README section (`climate/gcm/README.md:958-1000`) does not mention it.
 - **Unbacked longwave caveat.** `research/plan.md:301-302` says the longwave refit's "layers stray 5–7 W/m² at

@@ -358,7 +358,8 @@
     "repo:notes/defect_log.md#A1",
     "terluna:climate/gcm/README.md#L182-214",
     "repo:python/climate/results/gcm/sun_check_A28_dim5.json",
-    "repo:paper/data/regime_calc.json#sun_clock_skip"
+    "repo:paper/data/regime_calc.json#sun_clock_skip",
+    "url:https://github.com/alphaparrot/ExoPlaSim/issues/69"
    ],
    "state": "finding"
   },
@@ -471,7 +472,8 @@
    "source": [
     "repo:paper/data/regime_calc.json#fall_speed_slowdown",
     "terluna:climate/crm/README.md#L30-36",
-    "repo:notes/cm1.md#L59-69"
+    "repo:notes/cm1.md#L59-69",
+    "repo:notes/defect_log.md#B3"
    ],
    "state": "calculation"
   },
@@ -488,7 +490,7 @@
   },
   {
    "id": "R04",
-   "text": "SWAN's knee at f g_E/g reproduces stock at Earth's g; sixfold similarity error 5.44% -> 0.303% in Hs and 3.91% -> 0.326% in mean period",
+   "text": "SWAN's knee at f g_E/g reproduces stock SWAN at Earth's gravity and restores gravity similarity (sixfold test 5.44% -> 0.303% in Hs, 3.91% -> 0.326% in mean period)",
    "source": [
     "terluna:climate/waves/first_experiments.md#L33-37",
     "terluna:climate/waves/audit.md#L45-60",
@@ -917,6 +919,25 @@
     "calc:git -C terluna log 186b294 --format=%b | grep -ci 'co-authored-by: claude opus 5.5' (374) against git log 186b294 --oneline | wc -l (487), run 2026-10-17"
    ],
    "state": "calculation"
+  },
+  {
+   "id": "S14",
+   "text": "ExoPlaSim at T21 runs a lunar model year in about 3.3-4.7 minutes on 4 MPI ranks, 20 years in roughly 70-95 minutes",
+   "source": [
+    "terluna:climate/gcm/README.md#L731",
+    "terluna:climate/gcm/README.md#L888",
+    "terluna:climate/gcm/README.md#L1044"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "N02",
+   "text": "The Sun-clock defect is ExoPlaSim issue #69, opened by the author on 2026-09-29, open with no reply on 2026-10-17; it names non-synchronous runs with rotationperiod != 1 and keplerian=False",
+   "source": [
+    "url:https://github.com/alphaparrot/ExoPlaSim/issues/69",
+    "repo:notes/defect_log.md#A1"
+   ],
+   "state": "documented"
   }
  ]
 }
