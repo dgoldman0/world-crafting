@@ -1,62 +1,67 @@
 \section{Introduction}
 
-Terluna asks what weather, climate, storms and seas a breathable Moon would offer the people and ecosystems
-it is designed to carry: 1.2~atm of nitrogen and oxygen at the water level, seas over 28\% of the surface
-with rain-fed lakes above them, sunlight filtered by a shield in space, and the Moon's own gravity of
-\SI{1.62}{m.s^{-2}} and 29.53-day solar day \autocite{goldman2026terluna}.\claim{S01} Only numerical models
-can answer, and every model available to answer was built, tuned and checked on Earth. Each lunar number
-therefore rests on an earlier question: what has to change in an Earth-built model before its answer for
-such a Moon can be trusted, and how far the changed model then reaches.
+Some exoplanet climate studies hold a planet's air close to Earth's and change the planet around it.
+\textcite{yang2014strong} and \textcite{way2018climates} slowed the rotation of planets with Earth-like air
+and followed their cloud and temperature as the day lengthened, \textcite{thomson2019effects} varied the
+gravity of a terrestrial planet in moist and dry general circulation models, and
+\textcite{boutle2017exploring} placed an Earth-like atmosphere on Proxima Centauri~b, under a cooler star.
+Work on constructed worlds asks how a planet could be made habitable \autocite{mckay1991making} and, for a
+designed world, what its climate would be \autocite{goldman2026terluna}. Many of the models used in such
+work descend from Earth models: ROCKE-3D from the GISS ModelE2, ExoCAM from NCAR's Community Atmosphere Model
+and ExoPlaSim from the Planet Simulator \autocite{way2017resolving,wolf2022exocam,paradise2022exoplasim}; the
+cloud-resolving models SAM and CM1 have simulated convection on tidally locked planets and in pure-steam air
+\autocite{yang2023cloud,tan2021convection}; and SWAN, a coastal wave model, has been run for the ancient
+seas of Mars \autocite{banfield2015winds}.
 
-The Moon makes that question hard because it moves several governing ratios at once. At 1.2~atm under a
-sixth of Earth's gravity its air holds 7.25 times Earth's mass over each square metre, so the paths of
-absorbing gas run far beyond the range that Earth-fitted radiation schemes were fitted on.\claim{S02} A
-scale height of about 52~km against a radius of 1,737~km makes the air tall against the curve of the
-ground, about 23 times taller in proportion than Earth's: the horizon air mass falls from about 35 to
-about 7, and a full Earth day after sunset about half of the air above a place still lies above the Moon's
-geometric shadow.\claim{S03}\claim{S04} A sixth of Earth's gravity sets every pressure level six times
-higher and slows falling rain to about a third of its Earth speed, and the Sun returns once in 29.5 Earth
-days. Exoplanet extensions of Earth models vary gravity, radius, rotation and starlight
-\autocite{paradise2022exoplasim,way2017resolving}; on the Moon all four move together, in an air close to
-Earth's own.
+The developers of several such ports found values fixed for Earth in the code. PlanetWRF's developers,
+finding WRF written to apply to Earth alone, redefined its second as 1/86,400 of the planet's rotation;
+TitanWRF's removed hard-wired Earth settings from the physics; and ROCKE-3D's found constants tied to the
+lengths of Earth's day and year, then eliminated or generalised its Earth-centric options one by one in a
+second release, measuring the effect of each
+\autocite{richardson2007planetwrf,newman2011stratospheric,way2017resolving,tsigaridis2025rocke3d}.
+ExoPlaSim's description records that the Planet Simulator's solar day had to be taken out of its unit
+conversions before slow rotators could be run, and that its near-infrared water absorptivity is tuned to a
+solar spectrum \autocite{paradise2022exoplasim}. In each of these ports the developers repaired what their own
+world required, and the developers of THOR, a model written for other planets from the start, describe planet-specific
+tunings as often built into codes and hard to find \autocite{deitrick2020thor}. On an Earth-like
+world, an Earth value left in the code can go unnoticed: the air and water stay within the regime the model
+was built for, so a constant set for Earth's gravity, or a formula that counts rain per Earth day, runs to
+completion and returns a plausible number. A modeller studying such worlds needs to know where a model's
+Earth values lie and which repairs made for one world hold on another.
 
-Three model families divide the work, each answering where the previous one stops. ExoPlaSim 3.4.2
-\autocite{paradise2022exoplasim,paradise2025exoplasim}, the Planet Simulator \autocite{fraedrich2005planet}
-extended for other worlds, runs the global climate for decades in an hour or two on four processor
-cores,\claim{S14} with clouds and convection diagnosed from formulas fitted to Earth. CM1 release 22
-\autocite{bryan2002benchmark,bryan2026cm1} resolves convection and forms its own clouds and rain on rings
-and boxes forced from the GCM; with the electrification of WRF-ELEC grafted in
-\autocite{mansell2010simulated,fierro2013implementation,mansell2026wrfelec} it also carries charge and
-lightning. SWAN 41.51 \autocite{booij1999third,swan4151user} grows waves over the lunar seas from the GCM's
-surface stress, and SWASH 12.01 \autocite{zijlema2011swash,swash1201user} carries them up the shore. Behind
-all three stands an in-house line-by-line radiative--convective model, built on HITRAN lines as served in
-September 2026 \autocite{gordon2022hitran2020} and the MT\_CKD continuum \autocite{mlawer2012development},
-against which the GCM's radiation was calibrated and CM1's checked.
+The work reported here took up both questions on one world, a breathable Moon designed in an open project
+\autocite{goldman2026terluna}, with 1.2~atm of nitrogen and oxygen at the water level, seas over 28\% of the
+surface, sunlight filtered by a shield in space, and the Moon's own gravity of \SI{1.62}{m.s^{-2}} and
+29.53-day solar day.\claim{S01} Its air is close to Earth's, while four ratios on which the models' Earth
+values depend lie far from Earth's at once: the air over each square metre is 7.25 times
+Earth's,\claim{S02} the scale height of about 52~km is 23 times Earth's in proportion to the
+radius,\claim{S03} gravity is a sixth of Earth's, and the solar day lasts 29.5 Earth days. Adapting models
+to this world exercised many of the Earth values they hold, with errors large enough to measure: the horizon
+air mass that PlaSim fixes at Earth's 35, for one, is about 7 for the Moon's well-mixed air.
 
-Carrying these models to the Moon exposed Earth inside them in five forms: dimensional constants written
-into the code, units of time, geometry, empirical fits and simplifications used beyond the range they were
-made for, and latent defects in the released code, most of them kept hidden by Earth's parameters or by the
-configurations usual on Earth. The repairs fall into two classes with different reach. A general repair
-turns a hidden constant into a parameter, fixes a unit, applies a scaling law, restores a missing geometry
-or process, or removes a defect; it holds on other worlds within limits set out below. A calibration fits a
-multiplier or a correction to the reference model on the lunar design case; it holds near that case and
-must be fitted again for any other. Settings that carry the scenario's values, capabilities the released
-codes lack, a bound and defects avoided by configuration complete the changes.
+The global climate comes from ExoPlaSim~3.4.2 \autocite{paradise2022exoplasim,paradise2025exoplasim}, the
+Planet Simulator \autocite{fraedrich2005planet} extended for other worlds, which runs decades of lunar
+climate in an hour or two on four processor cores\claim{S14} and diagnoses its clouds and convection from
+formulas fitted to Earth. Slices of that climate force CM1 release~22 \autocite{bryan2002benchmark,bryan2026cm1}
+on rings of columns along latitude circles or tilted great circles and in doubly periodic boxes, where it
+resolves the convection the GCM diagnoses and forms its own clouds and rain; with the electrification of WRF-ELEC grafted in
+\autocite{mansell2010simulated,fierro2013implementation,mansell2026wrfelec}, it also separates charge and
+makes lightning. The GCM's surface stress drives SWAN~41.51 \autocite{booij1999third,swan4151user} over the
+seas, and SWAN's spectra drive SWASH~12.01 \autocite{zijlema2011swash,swash1201user} up the shore. The
+radiation of both atmospheric models was tested against an in-house line-by-line radiative--convective model
+built on HITRAN lines as served in September 2026 \autocite{gordon2022hitran2020} and the MT\_CKD continuum
+\autocite{mlawer2012development}: the GCM's was calibrated to it, and CM1's checked against it. Each
+model's grid, levels, time step and runs are given in Table~\ref{tab:config}.
 
-Earth models have travelled before. PlanetWRF and TitanWRF generalised a mesoscale model's planetary
-constants, calendar and radiation for Mars and Titan \autocite{richardson2007planetwrf,newman2011stratospheric};
-ROCKE-3D and the LMD generic model carry correlated-$k$ radiation for other compositions
-\autocite{way2017resolving,wordsworth2011gliese}; ExoCAM, Isca and THOR, and the Met Office model in its
-deep-atmosphere form, opened slow rotation, other stars and tall envelopes
-\autocite{wolf2015evolution,wolf2022exocam,vallis2018isca,mendonca2016thor,mayne2014unified}. Those ports
-generalised what differed visibly between the worlds: the gases, the star, the planet's constants and its
-calendar. A breathable Moon keeps an air close to Earth's and sets it in a geometry and a calendar far from
-Earth's, so its difficulties gather where Earth's values had hidden, in constants and fits that agreed with
-Earth because Earth had set them.
-
-Every source change is recorded as a patch against a pinned upstream source, with its switch where it has
-one, its default and the checks made on it, in an accompanying repository. Every lunar climate number is a
-conditional model result: it holds given the scenario and given the parts of each model that remain
-Earth's. Agreement with the reference model is calibration, and agreement between patched and unpatched
-builds is identity. The lunar climate is unobservable, so the strongest test now open to these results is
-agreement among independent models, bounded by the processes those models share.
+Adapting the four models found Earth values in four forms, dimensional constants written into the code,
+units of time, geometry, and empirical fits and simplifications used beyond the range they were made for, and
+five defects in the released codes, three of which produce little or no error at Earth's values. Each repair
+falls into one of three classes with different reach: a general repair, which corrects a unit, applies a
+scaling law or a physical law, or removes a defect, and which another world takes unchanged; a general method with
+a table computed for each world's column, as for the curved geometry of a tall air; and a calibration, whose
+coefficients were fitted to the reference model on the columns of the lunar design case and are fitted again
+for any other world. On the case, the repaired models measure how far each Earth value moved the climate and
+which of those that remain move it most, and the three classes set which other worlds the adapted models can
+reach. Every lunar climate number is a conditional model result, holding given the scenario and the Earth
+values that remain; with the lunar climate unobserved, the strongest test open to these numbers is agreement
+among independent models.

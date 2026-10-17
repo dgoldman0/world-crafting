@@ -18,17 +18,17 @@ def label(ax, x, y, text, **kw):
 
 
 def fig_regimes():
-    """Where found and crafted worlds sit against the ratios the models' Earth assumptions depend on."""
+    """Where found and constructed worlds sit against the ratios the models' Earth values depend on."""
     rows = load('worlds')['rows']
     fig, (a, b) = plt.subplots(1, 2, figsize=(FULL, 2.9), gridspec_kw=dict(wspace=0.32))
-    offsets = {'Earth': (6, -9), 'Mars': (6, 2), 'Titan': (6, -3), 'Venus': (6, -3), 'Open Moon 1.2 atm': (7, -3),
+    offsets = {'Earth': (6, -9), 'Mars': (6, 2), 'Titan': (6, -3), 'Venus': (6, -3), 'Breathable Moon 1.2 atm': (7, -3),
                'Mars at 1 bar': (6, -3)}
-    names_a = {'Open Moon 1.2 atm': 'Open Moon\n(1.2 and 1.0 atm)'}
+    names_a = {'Breathable Moon 1.2 atm': 'Breathable Moon\n(1.2 and 1.0 atm)'}
     for r in rows:
         if r['kind'] == 'illustrative':          # slowly rotating Earth-like planets: the day-and-gravity panel only
             b.scatter([r['solar_day_days']], [r['g_m_s2']], s=22, color='white', edgecolor=CONTEXT, linewidth=1.1, zorder=3)
             continue
-        moon = r['name'].startswith('Open Moon')
+        moon = r['name'].startswith('Breathable Moon')
         colour = BLUE if moon else CONTEXT
         size = 34 if moon else 26
         face = colour if (r['kind'] == 'found' or moon) else 'white'
@@ -38,14 +38,14 @@ def fig_regimes():
             dx, dy = offsets[r['name']]
             label(a, r['h_over_r'], r['column_mass_over_earth'], names_a.get(r['name'], r['name']), xytext=(dx, dy),
                   textcoords='offset points', ha='left', va='center' if moon else 'baseline', color=INK if moon else INK2)
-        names_b = {'Open Moon 1.2 atm': 'Open Moon', 'Mars': 'Mars, present and at 1 bar'}
+        names_b = {'Breathable Moon 1.2 atm': 'Breathable Moon', 'Mars': 'Mars, present and at 1 bar'}
         if r['name'] in names_b or r['name'] in ('Earth', 'Titan', 'Venus'):
             label(b, r['solar_day_days'], r['g_m_s2'], names_b.get(r['name'], r['name']), xytext=(6, -3) if not moon else (-6, 5),
                   textcoords='offset points', ha='left' if not moon else 'right', color=INK if moon else INK2)
     earth = next(r for r in rows if r['name'] == 'Earth')
     a.axvline(earth['h_over_r'], color=AXIS, lw=0.8, zorder=1)
     a.axhline(1.0, color=AXIS, lw=0.8, zorder=1)
-    label(a, earth['h_over_r'] * 1.08, 330, "PlaSim's horizon air mass, 35: exact here", ha='left', va='top', color=MUTED,
+    label(a, earth['h_over_r'] * 1.08, 330, "PlaSim's horizon air mass, 35: right here", ha='left', va='top', color=MUTED,
           fontsize=7)
     label(a, 0.19, 0.85, "Earth's column:\nthe broadband fits' range", ha='right', va='top', color=MUTED, fontsize=7)
     a.set(xscale='log', yscale='log', xlim=(8e-4, 0.25), ylim=(5e-3, 400),
@@ -55,7 +55,7 @@ def fig_regimes():
     b.axhline(9.80665, color=AXIS, lw=0.8, zorder=1)
     label(b, 64.0, 9.80665, 'slowly rotating\nEarth-like planets', xytext=(0, -24), textcoords='offset points', ha='center',
           va='bottom', color=INK2)
-    label(b, 1.08, 1.0, "PlaSim's per-day\nformulas exact", ha='left', va='bottom', color=MUTED, fontsize=7)
+    label(b, 1.08, 1.0, "PlaSim's per-day\nformulas right", ha='left', va='bottom', color=MUTED, fontsize=7)
     b.set(xscale='log', yscale='log', xlim=(0.5, 400), ylim=(0.9, 14),
           xlabel='Solar day (Earth days)', ylabel='Surface gravity (m s$^{-2}$)')
     b.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f'{v:g}'))
@@ -164,7 +164,7 @@ def fig_gap():
     ax.scatter([c['ring_c'] for c in ctl], y, s=28, color=ORANGE, edgecolor='white', linewidth=1.0, zorder=3,
                label='CM1 ring')
     ax.scatter([s['ring_c'] for s in side], y, s=28, color=BLUE, edgecolor='white', linewidth=1.0, zorder=4,
-               label="CM1 ring with the GCM's\nsideways transport")
+               label="CM1 ring with the GCM's\ntransport across the circle")
     ax.set_yticks(y, names)
     ax.tick_params(axis='y', length=0)
     ax.grid(axis='y', visible=False)

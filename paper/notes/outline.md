@@ -1,182 +1,157 @@
-# Outline
+# Outline, second draft
 
-Stage 3 of the build. The argument by section, each paragraph's governing relation (charter G1), the
-figures and tables, and where each number comes from. Headings are unnumbered and few; run-in bold leads
-carry the few divisions a section needs.
+Stage 3 redone on 2026-10-17 after the author's reading of the first draft. The first draft's outline is in
+the Git history (commit 6c8a68f). Headings are unnumbered and few; each paragraph below names its governing
+relation (charter G1). The writing rules are in the repository's `AGENTS.md`.
 
-**Working title.** Earth inside the models: adapting ExoPlaSim 3.4.2, CM1 r22 and SWAN 41.51 to a
-breathable Moon. (GMD asks for model names and versions in a model paper's title.)
+**Title.** Modelling Earth-like worlds beyond Earth's range: ExoPlaSim, CM1, SWAN and SWASH adapted and
+tested on a breathable Moon.
 
-**Through-line.** The models carry Earth in five forms; the Moon exposes them because it moves several
-governing ratios at once; the repairs either remove a form of Earth for every world or calibrate it for
-one column; checks of each kind establish different things; the adapted models have located the lunar
-climate's remaining uncertainty and reach a definable set of other worlds; the next work follows from
-where the uncertainty now sits.
+**Subject.** Earth-like worlds beyond Earth's range: exoplanets and constructed worlds whose air and water
+are close to Earth's while their gravity, size, day or starlight differ. They are studied with models built
+and tuned for Earth, in which Earth's values remain as constants, units of time, geometry, empirical fits
+and latent defects. On such worlds those values run without failing, because the air and water stay inside
+the regime the models were built for, so their errors go unseen.
 
-## Abstract (≈250 words)
+**Through-line.** Each port of an Earth model to another world has repaired the Earth values its own world
+exposed; locating them in general, and knowing which repairs hold from world to world, remains open. The
+work so far was done on one world, a breathable Moon, which moves gravity, column mass, scale height over
+radius and the solar day together while keeping Earth-like air, so adapting four models to it made each
+Earth value's error large enough to find and measure. The repairs split into general repairs, which apply
+on other worlds as they stand, and calibrations, which hold near one column. Checks of different kinds
+establish different things. On the case, the Earth fits left in cloud and in the longwave cooling by height
+move the climate most. The general repairs open a definable set of other worlds, bounded by composition,
+surface pressure, scale height and the empirical laws.
 
-Question → regime → five forms → repairs in two classes → verification → what it gave (sensitivities,
-uncertainty located, storms, seas) → reach → availability. Lands on the general/calibration distinction
-as the portable result.
+**Departures from the first draft.** The paper stands alone; the project that designed the case is cited
+once as its source and again in the availability statement, and the ensemble Paper ID is gone. The
+introduction opens on the field's need and its literature. The world-regime figure moves from the reach
+section to the second section, which places found and constructed worlds before introducing the case. The
+"one rule" of the repairs becomes the main rule, with the other kinds beside it. Coined terms ("hidden
+Earth", "Earth inside the models") give way to "Earth values" and "Earth assumptions". The results section
+loses its closing summary of conditions, which now sit with each claim. The technical content, the claims
+register and the figures carry over, with the referees' corrections.
+
+## Abstract (about 250 words)
+
+Promise the subject and its difficulty; develop the case, the five forms with the defects named, the two
+classes of repair, the checks and what they establish, the measured effects on the case; land on the reach
+and its limits, the portable result.
 
 ## Introduction
 
-1. **The question** (need). Terluna's breathable Moon has to be known through models; every available
-   model was built on Earth. Relation: need → the question underneath every lunar result.
-2. **Why the Moon tests models hard**: it moves H/R, column mass, gravity and day length together (Table 1).
-   Relation: comparison with Earth and with the exoplanet regimes ExoPlaSim was extended for.
-3. **The models and why these** — a fast GCM for the global climate (ExoPlaSim), a cloud-resolving model
-   that makes its own clouds (CM1) with an electrification scheme grafted in (WRF-ELEC), a spectral wave
-   model and a phase-resolving shore model (SWAN, SWASH), and an in-house line-by-line reference.
-   Relation: sequence of scales, each model answering what the previous cannot.
-4. **Thesis**: five forms of hidden Earth; two classes of repair with different reach. Relation:
-   consequence of 2–3; sets up the sections.
-5. **Prior adaptations** (literature): Earth models taken to Mars, Titan and exoplanets (planetWRF,
-   TitanWRF, ROCKE-3D, LMD Generic, ExoCAM, Isca, THOR, the UM), each changing constants, radiation and
-   sometimes the dynamics; what is new here: a breathable atmosphere on a small, slow body, where Earth's
-   air sits in a non-Earth geometry, so the hidden Earth is neither the composition nor the gravity alone.
-   Relation: tension — earlier ports changed what differed visibly; the Moon's difficulty lies where
-   Earth's values hid.
+1. **The need.** Exoplanet and constructed-world studies ask about Earth-like worlds beyond Earth's range
+   (slow rotators, other gravities and sizes, other stars; terraformed planets and moons). Their GCMs,
+   cloud-resolving and wave models descend from Earth models. Relation: question → the tools that answer it.
+2. **The problem.** Ports to other worlds have each found values fixed for Earth in the code (PlanetWRF,
+   TitanWRF, ROCKE-3D 1.0 and 2.0, THOR 2.0, ExoPlaSim's own description) and repaired what their world
+   required. On an Earth-like world a remaining Earth value runs without failing and returns a plausible
+   number. Relation: tension → the open question: locating Earth values, and which repairs hold elsewhere.
+3. **The case.** A breathable Moon from an open design project: Earth-like air under a sixth of Earth's
+   gravity, a 29.5-day solar day, 7.25 times Earth's air per square metre, a scale height 23 times Earth's
+   in proportion to the radius. Relation: mechanism — four ratios move together, so each Earth value's error
+   grows large enough to measure.
+4. **The models.** ExoPlaSim for the global climate, CM1 with WRF-ELEC's electrification on GCM-forced
+   slices, SWAN and SWASH for seas and shores, an in-house line-by-line reference for the radiation.
+   Relation: sequence of scales joined by forcing.
+5. **What the adaptation found and built.** Five forms of Earth value, with defects separated from
+   limitations; two classes of repair with different reach; records of patches against pinned sources; the
+   evidence state of the lunar results, stated once. Relation: consequence.
 
-## A breathable Moon as a modelling regime
+## Worlds beyond Earth's range
 
-1. The scenario as the models take it (1.2 atm at the water level, O2 21.2 kPa, 400 ppm CO2, 28% water,
-   shield-filtered TSIS-1 sunlight dimmed to 0.970, placeholder land, 50 m slab sea). Relation: conditions.
-2. What the scenario does to the governing ratios (Table 1): H ≈ 52 km and H/R ≈ 0.03 (22× Earth);
-   7.3× Earth's mass per area; g/g_E = 0.166; 29.53-day solar day, 27.32-day rotation; 1.54° tilt;
-   horizon air mass 7.1 (air) and 13.5 (water) against Earth's 35; 0 °C level near 25 km and cloud tops
-   55–80 km; 6 km lunar columns resolve convection as 1 km Earth columns do. Relation: mechanism — each
-   ratio names the model parts it strains.
-3. The questions the models must answer (comfort, rain, cloud, the flight band's winds, storms and
-   lightning, seas and shores). Relation: consequence → which model owns which question.
+1. **The ratios.** Scale height over radius, column mass, gravity, solar day and rotation, composition and
+   starlight, each with the model parts whose Earth values depend on it. Figure 1 places found and
+   constructed worlds against them. Relation: mechanism, then comparison.
+2. **The case's scenario** as the models take it: pressure and composition, seas and lakes, filtered
+   sunlight, placeholder land, slab sea. Relation: the conditions every lunar number holds under.
+3. **Geometry and column on the case** (Table 1): column 7.25 times Earth's, water vapour paths, mass-mean
+   height, shell area, straight-ray horizon air masses against PlaSim's 35, the fall of gravity with height.
+   Relation: mechanism.
+4. **Gravity and calendar on the case**: pressure heights, fall speeds, sea roughness, wave speed, the
+   dry-dynamics stretch and its limits, soil wave, per-day formulas, Coriolis, tilt. Relation: mechanism →
+   the parts each model must change.
 
-## Where Earth hides in the models (the limitations and the defects)
+## Earth assumptions in the released models
 
-One paragraph per form, each crossing the models, each separating defect from limitation:
-
-1. **Constants written into code** — CM1's four g = 9.81 (and those left in unused schemes), SWAN's 1 Hz
-   AGROW knee and 1.28 kg/m³, PlaSim's horizon factor 35, WRF-ELEC's 180 kV/m cap, −7 °C ground level,
-   0.75 s sub-step, SWASH's Earth Ω. Relation: mechanism (dimensional constant → wrong scaling).
-2. **Units of time** — Slingo's cover per model day (+0.42 cover); contrast: PlaSim's diffusion and
-   friction already in 86,400 s units (ExoPlaSim generalised these). Relation: comparison.
-3. **Geometry** — flat, sunlit-only columns; Earth's slant factor; constant g and a thin shell (5% air,
-   heights 5–9% low aloft). Relation: mechanism and consequence (twilight, cone, escape).
-4. **Fits outside their range** — Lacis–Hansen water, Rayleigh normalisation, Sasamori longwave
-   (cooling by height), CCM3 cloud water in metres, liquid-only optics, RRTMG tables to 1,054 hPa,
-   Morrison size limits, Wu drag and Komen growth, Saunders–Peck's rime threshold vs slow graupel.
-   Relation: the range each was fitted on against the lunar range.
-5. **Latent defects** — ExoPlaSim's Sun clock (Figure 2), its orbit default, SWAN's uninitialised KTETA;
-   and the project's own defects found on the way (spectrum tail, discharge cadence, uninitialised memory
-   in a scaling, ventilation, ledger channel heights, sounding above the GCM top). Relation: tension —
-   Earth's own values hid these; the Moon's exposed them.
-6. **What the GCM leaves to a slice, and what a slice lacks** — a ring has no sideways transport; a box
-   has no day–night circulation; stock CM1 has no lunar Sun, no forcing aloft and no terrain nudging.
-   Relation: structural limits of forcing one model from another.
-
-Table 2: the inventory of hidden Earth (model; location; Earth value; lunar consequence; form; defect or
-limitation; repaired or open).
+0. **Two kinds.** A limitation is correct on its own terms for Earth; a defect is wrong on any world.
+   Table 2 lists both on the paths the lunar runs use. Relation: classification.
+1. **Constants written into the code** (CM1, NSSL, WRF-ELEC's thresholds and sub-step, SWAN's knee and air
+   density, RRTMG's gases, CM1's beta plane). Relation: a dimensional constant fixes its world's scale.
+2. **Units of time** (Slingo's cover per model day; ExoPlaSim's calendar; CM1's Sun and soil; WRF-ELEC's
+   missing clear-air conduction). Relation: a formula counted per day takes its world's day.
+3. **Geometry** (flat sunlit-only columns and the curved air's energy terms; PlaSim's horizon factor; thin
+   shell and constant gravity). Relation: mechanism and size.
+4. **Fits and simplifications beyond their range** (PlaSim's shortwave and longwave fits, cloud water,
+   cloud phase and saturation; RRTMG's tables and ice optics; Morrison's drop limits; the laws of sea and
+   charge). Relation: each fit's range against the lunar range.
+5. **Defects in the released codes** (Sun clock, orbit default, SWAN's breaker parameter; CM1's thread race
+   and PlaSim's lowest level, with their tie to Earth unknown). Relation: tension — exact or invisible at
+   Earth's parameters.
+6. **Defects of the adaptation**, found by its own checks. Relation: sequence of discovery.
+7. **What a slice of the GCM lacks.** Relation: structural limit → the forcing methods.
 
 ## Repairs
 
-1. **Principle: constant to parameter, default as identity** — every ExoPlaSim switch and the CM1 build
-   constants; identity tests. Relation: method.
-2. **Scaling laws** — fall speeds ∝ g^((b+1)/3) (exact for spheres, approximate for snow), damping and
-   PBL length ∝ 1/g, sub-step ∝ layer depth / fall speed, breakdown field ∝ density, AGROW knee ∝ g.
-   Relation: derivation from similarity.
-3. **Geometry restored** — the curved-air ledger: spherical multiple scattering vs flat columns, cone vs
-   curved light, by elevation and layer, with longwave escape (Figure 3: slant factors). Relation:
-   mechanism → terms → patches.
-4. **Calibration by height against a reference** — the in-house line-by-line model on the GCM's own
-   columns; why totals are not enough (the longwave continuum fitted to OLR left cooling by height free);
-   gas bands; Figure 4 (absorbed sunlight by layer). Relation: sequence of refinements, each forced by
-   the previous one's residual.
-5. **Processes added** — ice optics, CO2/O2 in the sunlight, infrared from space, electrical leakage,
-   point discharge, the leader's crossing. Relation: what each fills.
-6. **Forcing a slice of the GCM** — rings along latitudes and great circles with their own Sun and
-   Coriolis, nudging aloft, imposed vertical wind, local-time advection, sideways transport, terrain at
-   each column's height; waves forced by the GCM's stress through a Wu-equivalent wind. Relation: method.
-
-Table 3: the repairs (model; change; switch and default; class: general or calibration; state).
+0. **The main rule and the other kinds**: switchable parameters defaulting to the released code, the
+   exceptions, and the class set by where a lunar value comes from. Relation: method → classification.
+1. Constants to parameters. 2. Scaling laws. 3. Geometry restored. 4. Calibration by height, each step forced
+   by the last one's residual. 5. Processes added. 6. Forcing a slice of the GCM. Relation: method by method,
+   in the order the inventory raised them. Table 3.
 
 ## Verification
 
-1. **What each kind of check establishes** (G5): identity, reproduction and provenance, similarity,
-   calibration, benchmark; none validates a lunar climate. Relation: distinction.
-2. **Identity and provenance** — switches at default byte-identical; the series rebuilds the deployed
-   sources and the source of 32 GCM runs. Relation: evidence.
-3. **Similarity** — SWAN's sixfold gravity similarity (0.30% vs 5.44% stock), SWASH at 4× gravity;
-   CM1's gravity stretch. Relation: test design.
-4. **Calibration residuals** — clear air within 0.6 points rms; gas fits ≤0.13% of band; layers
-   0.97 W/m² rms; the longwave correction's residual 1–5 W/m² and its drift at 302 K. Relation: what
-   holds where.
-5. **Benchmarks** — the electrified supercell against CM1's own NSSL and published runs; arithmetic
-   checks (Sun elevation 8×10⁻⁷, Coriolis 3×10⁻¹²). Relation: evidence.
-6. **Checks still missing** — CM1 forced from the corrected GCM; the longwave refit at the settled
-   state; the twilight pair's mixed builds; unconverged scattering orders. Relation: boundary.
+0. What each kind of check establishes: code, consistency of gravity, agreement with the reference,
+   published behaviour on Earth; the lunar climate itself is unobserved. 1. Identity and reproduction.
+2. Similarity. 3. Calibration. 4. Benchmarks and arithmetic. 5. Checks that fell short. 6. Checks still
+   missing. Table 4.
 
-Table 4: verification record.
+## Results for the breathable Moon
 
-## What the adapted models have given
+1. Each repair's effect on the global-mean temperature (Figure 5) and the sensitivity tests: the climate
+   moves most where cloud and the longwave by height keep Earth's fits. 2. The near-ground gap between CM1
+   and the GCM, taken apart (Figure 6), and the rain gap. 3. Storms and lightning; the two choices that a
+   measurement or theory could settle. 4. Seas. Conditions attach to each claim.
 
-1. **Each repair's effect on the lunar climate** (Figure 5): cloud water +2.5 K, convective day +1.6 K,
-   Sun and tilt +0.6 K, curved air −0.65 K, gas bands −2.2 K, longwave by height with ice +11.5 K; and
-   the cloud scheme's settings 289–297 K. Relation: comparison → the climate is most sensitive where the
-   models stay Earth's (clouds; longwave by height).
-2. **The gap between CM1 and the GCM, decomposed** (Figure 6): sideways transport a third; PlaSim's
-   longwave about 1.5 K; the rest in how heat leaves the ground. Relation: sequence of eliminations.
-3. **Lunar storms and their lightning**: 85% of falling water evaporates; flashes a hundredth of Earth's
-   density, ten times the charge per strike, 20% to ground. Relation: consequence of gravity's scaling.
-4. **Lunar seas**: wave climate and run-up, forced by the GCM's stress (from the wave notes). Relation:
-   consequence.
-5. **What stays conditional**: the 307 K state; comfort as a range between models. Relation: boundary.
+## Reach to other worlds
 
-## Worlds within reach
-
-1. **Two classes, two reaches**: general repairs transfer; calibrations refit. Relation: distinction.
-2. **The regime map** (Figure 1, computed): worlds by H/R and column mass, and by solar day and gravity;
-   found worlds (Earth, Mars, Titan, Venus, the ancient Moon's transient atmosphere, slowly rotating
-   exoplanets) and crafted ones (the Open Moon at 1.0–1.2 atm and other dimmings, a breathable Mars);
-   lines where each Earth assumption breaks. Relation: calculation of conditions.
-3. **Table 5**: by world property, stock against adapted, for each model. Relation: catalogue (intended).
-4. **Limits of reach**: compositions PlaSim and RRTMG cannot carry; multi-bar surfaces beyond RRTMG's
-   tables; H/R beyond a few per cent (deep atmosphere); empirical source terms at ε far from Earth's.
-   Relation: boundary.
+1. The two classes reach differently; what another world needs and the tools that come with the repairs.
+2. Where each Earth assumption breaks, world by world (Figure 1 again; Table 5). 3. Within reach as adapted;
+   with a new column; beyond reach; the four limits.
 
 ## Next work
 
-Ordered by how much of the remaining uncertainty each removes: the longwave at the settled state; cloud
-amount and water constrained by CRM runs; deep-atmosphere dynamics; RRTMG's range and spectrum; drop
-size limits with gravity; two-way GCM–CRM coupling; an independent GCM; electrification at lunar impact
-speeds; waves with the air's density field and swell decay; upstream reports. Each item: the question it
-discriminates, alternatives, measured outputs, the result that would change the design (G5).
+Ordered by how far each step moves the case's climate: the longwave at the settled state; cloud from the
+cloud-resolving model; the tall air's dynamics; radiation in CM1; microphysics at lunar gravity; electricity
+and seas; upstream reports and the record. Each step names the question, the comparison and the result that
+would change the design (G5).
 
 ## Conclusions
 
-Gather into one relation: the Moon could only be modelled once Earth was found inside the models; the
-repairs that removed it are general; the calibrations tie the lunar climate to one column and one
-cloud scheme; the next work is where that tie is weakest. No section replay.
+Gather the lines into one relation: on Earth-like worlds Earth values fail without a trace; a world that
+moves several ratios at once made them measurable; the general repairs and the inventory carry to other
+worlds, the calibrations and the ledger are remade with the reference tools; the case's climate depends
+most on the Earth fits that remain in cloud and longwave cooling.
 
 ## Back matter
 
-Code and data availability (world-crafting repository; Terluna at 186b294; upstream pins; research-drive
-outputs as available); author contributions; competing interests; AI-assistance disclosure (charter);
-review history; acknowledgements; references.
+Code and data availability (world-crafting repository; Terluna at 186b294 as the source of the case and
+the runs; upstream pins and licences); author and assistance; competing interests (none: an unfunded
+personal project, public where licences allow); review history (first draft, two referees, the author's
+reading, the editorial rounds); acknowledgements.
 
 ## Figures and tables
 
 | Item | Content | Data | Script |
 |---|---|---|---|
-| Table 1 | Governing ratios, Earth and the Open Moon | `shared/constants.json`; computed | `figures/regime.py` |
-| Figure 1 | Regime map: H/R vs column mass; solar day vs gravity; worlds; assumption lines | computed from stated parameters | `figures/regime.py` |
-| Figure 2 | The Sun clock: equatorial sunlight by longitude, upstream vs synodic | `python/climate/results/gcm/sun_check_*.json` | `figures/sun_clock.py` |
-| Figure 3 | Slant-path factor vs solar elevation: flat, PlaSim's Earth formula, Moon water and air | `twilight.json` `column.slant` | `figures/slant.py` |
-| Figure 4 | Absorbed sunlight by GCM layer: line-by-line, PlaSim as run, with the bands | Terluna `climate/gcm/README.md` 1088–1100 | `figures/layers.py` |
-| Figure 5 | Each repair's effect on the global-mean surface temperature | run pairs' `progress.json` and the README tables | `figures/repairs.py` |
-| Figure 6 | CM1 vs GCM at 45° N by layer: control, sideways, GCM | `heat_budget_ring_45n_corrected*.json` | `figures/gap.py` |
-| Table 2–5 | Inventory, repairs, verification, reach | notes/, models/ | LaTeX |
-
-## Claims register
-
-`paper/claims.json` holds each number in the text with its source (Terluna file and line at 186b294, a
-results file, a run's `progress.json`, or a calculation here) and its evidence state. The build checks that
-every claim the sections cite exists in the register and that its source path exists.
+| Figure 1 | Found and constructed worlds: H/R against column mass; solar day against gravity | `data/worlds.json` | `figures/figures.py` |
+| Table 1 | The ratios, Earth against the case, and the model parts each strains | `data/regime_calc.json` | LaTeX |
+| Figure 2 | The Sun clock: equatorial sunlight by longitude, upstream and synodic | `data/sun_clock.json` | `figures/figures.py` |
+| Table 2 | Earth assumptions on the lunar paths | notes, defect log | LaTeX |
+| Figure 3 | Slant path against solar elevation | `data/slant.json` | `figures/figures.py` |
+| Figure 4 | Absorbed sunlight by GCM layer | `data/layers.json` | `figures/figures.py` |
+| Table 3 | The repairs, switches, settings and classes | `models/` READMEs | LaTeX |
+| Table 4 | The verification record | `notes/verification_record.md` | LaTeX |
+| Figure 5 | Each repair's effect on the global-mean surface temperature | `data/repairs.json` | `figures/figures.py` |
+| Figure 6 | CM1 and the GCM at 45° N by layer | `data/gap45n.json` | `figures/figures.py` |
+| Table 5 | Reach by world property | notes | LaTeX |

@@ -1,61 +1,81 @@
 \section{Next work}
 
-The next work follows from where the uncertainty now sits, and the order below follows how much of it each
-step would remove. Each step names the question it settles, the comparison that settles it and the result
-that would change the lunar design.
+The first two steps below address the two sensitivities that moved the case's climate most, in order of
+their size, and the third tests the reference both rest on; the rest are unordered, since their effects on the
+climate remain unmeasured. Each names the question it settles, the comparison that settles it and the result
+that would change the lunar design or the reach.
 
 \textbf{The longwave at the settled state.} The largest single sensitivity rests on a correction fitted at
 295~K and used near 307~K with twice the water vapour. Refitting the correction on the settled state's
-cloud-free columns and iterating to a consistent pair of fit and climate decides whether the warm state
-survives; a correction carrying humidity as well as temperature, and then a reduced correlated-$k$ scheme
-built from the reference model's own spectroscopy in place of Sasamori's, would remove the fit altogether.
-If the consistent state returns near 295~K, the design's dimming stands; if it stays near 307~K, the
-dimming that holds the design temperature must grow, and the rain and cloud would change with it.
+cloud-free columns, and iterating to a consistent pair of fit and climate, decides whether the warm state
+holds; a correction carrying humidity as well as temperature, and then a reduced correlated-$k$ scheme built
+from the reference model's own spectroscopy in place of Sasamori's fits, would remove the fit altogether. If
+the consistent state returns near 295~K, the design's dimming stands; if it stays near 307~K, the dimming that
+holds the design temperature must grow, and the rain and cloud change with it.
 
-\textbf{Cloud from the cloud-resolving model.} PlaSim's cloud amount and cloud water move the Moon by
-several kelvin and lack any lunar calibration. Forcing CM1 from the corrected GCM, with the transport across
-each ring imposed, tests first whether the near-ground gap closes, and then gives cloud cover and water by
-pressure against which PlaSim's humidity thresholds and its cloud-water profile can be fitted. Refitted cloud
-could move the Moon as far as the cloud settings do, up to about 6~K, and the design's dimming with it. An
-independent GCM on the same scenario, ROCKE-3D or the LMD generic model
-\autocite{way2017resolving,wordsworth2011gliese}, is the comparison that would show which of the two present
-models carries the disagreement in warmth and rain.
+\textbf{Cloud from the cloud-resolving model.} PlaSim's cloud amount and cloud water move the Moon by several
+kelvin and have no lunar calibration. Forcing CM1 from the design case, with the transport across each ring
+imposed, tests first whether the near-ground gap closes, and then gives cloud cover and water by pressure to
+which PlaSim's humidity thresholds and its cloud-water profile can be fitted. Refitted cloud could move the
+Moon as far as the cloud settings do, up to about 6~K, and the design's dimming with it. An independent GCM on
+the same scenario, ROCKE-3D or the LMD generic model \autocite{way2017resolving,wordsworth2011gliese}, would
+show which of the two present models departs near the ground: air as warm as CM1's would make PlaSim's
+boundary layer and longwave the next repairs, and air as cool as PlaSim's would point to the slices' forcing
+and CM1's microphysics.
 
-\textbf{The tall air's dynamics.} Both dynamical cores hold gravity constant in a thin shell, where the
-lunar air loses 5\% of its gravity by its mass-mean height and holds 11.5\% more air over each square metre
-of ground than a flat column of constant gravity. The consistent deep-atmosphere equations
-\autocite{white2005consistent} and the deep forms of global models \autocite{mayne2014unified} carry both
-effects; a first step corrects the GCM's column mass and heights, and a test of the circulation's
-sensitivity says whether the full equations are needed. A change in the heat carried poleward larger than
-the spread between the present models would make a deep core a requirement for the design case.
+\textbf{The reference against an independent code.} Every calibration rests on the line-by-line model, whose
+carbon dioxide, oxygen, collision-induced absorption and sunlight no independent code has checked on the lunar
+column. Running the design column through LBLRTM for the longwave and a DISORT-based solver for the sunlight,
+with every absorber on identical layers, tests the reference itself. Layer heating or a split of sunlight
+departing from the reference by more than the calibration residuals, 0.97~W\,m$^{-2}$ rms by layer or 0.6
+points in the split, would require the multipliers and the gas bands to be refitted and the dimming reset.
 
-\textbf{Radiation in CM1.} RRTMG extrapolates its tables over the lowest 7.5~km of air over the sea, takes
-the Sun's unfiltered spectrum and over-cools the lower air by 4.5--10~W\,m$^{-2}$ against the reference.
-Extending its tables past 1,053.63~hPa, or replacing it with the in-house correlated-$k$ scheme, and giving
-it the shield's spectrum would separate the table's edge from the other causes of that over-cooling, and
-would move the near-ground temperatures that the range between the models reports.
+\textbf{The tall air's dynamics.} Both dynamical cores hold gravity constant in a thin shell, where the lunar
+air loses 5\% of its gravity by its mass-mean height and, in spherical shells, holds 11.5\% more air over each
+square metre of ground than $p_s/g_s$. The consistent deep-atmosphere equations \autocite{white2005consistent}
+and the deep forms of global models \autocite{mayne2014unified} include both effects; a first step corrects
+the GCM's column mass and heights, and a test of the circulation's sensitivity shows whether the full
+equations are needed. A change in the heat carried poleward larger than the spread between the present models
+would make a deep core a requirement for the design case.
 
-\textbf{Microphysics at lunar gravity.} Morrison's limits on the size of rain, its breakup and the size of
-ice crystals stay Earth's; snow falls with the drops' gravity exponent where its own mass and area laws give
-a larger one; and in the boxes 85\% of the falling water evaporates, in the rings 57--73\%. A
-gravity-similarity pair under prescribed radiative cooling would measure how far the scaled microphysics
-departs from similarity, and limits scaled with the capillary length would show how much of the evaporation
-the small drops cause; larger drops reaching the ground would narrow the rain gap between CM1 and the
-GCM.\claim{N03}
+\textbf{Radiation in CM1.} RRTMG extrapolates its tables over the lowest 7.5~km of air over the sea, takes the
+Sun's unfiltered spectrum, and cools the lowest 1.8~km 4.5~W\,m$^{-2}$ more than the reference. Extending its
+tables past 1,053.63~hPa, or replacing it with the in-house correlated-$k$ scheme, and giving it the shield's
+spectrum would separate the table's edge from the other causes. If extended tables remove most of the
+4.5~W\,m$^{-2}$, the extrapolation was the cause and the near-ground range between the models narrows with it;
+if they remove little, the cause lies in RRTMG's other approximations, and replacing RRTMG becomes the step.
 
-\textbf{Electricity and seas.} The lightning's sign rests on laboratory charging laws that disagree in the
-lunar storms' little cloud water. The sign of the charge rimed ice takes at 4--8~m\,s$^{-1}$ in
+\textbf{Microphysics at lunar gravity.} Morrison's limits on the size of rain, its breakup and the size of ice
+crystals stay Earth's; snow falls with the drops' gravity exponent where its own mass and area laws give a
+larger one; and in the boxes 85\% of the falling water evaporates, in the rings 57--73\%. A gravity-similarity
+pair under prescribed radiative cooling would measure how far the scaled microphysics departs from
+similarity, and limits scaled with the capillary length would show how much of the evaporation the small
+drops cause.\claim{N03} If larger drops bring CM1's surface rain toward the GCM's, the rain gap closes on the
+GCM's side and the rain-fed lakes of the design keep their source; if CM1's rain stays near a fifth of the
+GCM's, the lakes' water budget has to be drawn from the cloud-resolving rain.
+
+\textbf{A test of the reach.} The repairs have run on the Moon alone. Released and repaired
+ExoPlaSim on the Earth-air slow rotators of Figure~\ref{fig:regimes}, with solar days of 16 and 64 days and the
+released radiation, which suits their Earth-sized columns, would test whether the general repairs carry
+without refitting. A general repair that needs retuning off the Moon would move to the calibrations, and the
+reach of Table~\ref{tab:reach} would narrow with it.
+
+\textbf{Electricity and seas.} The sign of the lunar lightning rests on laboratory charging laws that disagree
+in the lunar storms' little cloud water. The sign of the charge rimed ice takes at 4--8~m\,s$^{-1}$ in
 0.02--0.2~g\,m$^{-3}$ of cloud water at $-5$ to $-16$\,\textdegree C, conditions Earth's laboratories can
-reach, would settle which way round the lunar storms are charged.\claim{N01} A finer box over a stormy window
-would separate the grid from the physics in the flash rate, and a leader model would replace the bound on
-ground strikes. The seas need the air's density field in place of one value, swell decay, a test of
-convergence in frequency, and wind input and breaking checked against theory at the lunar ratio of air to
-water density.
+reach, would decide whether the lunar ground strikes are negative, as under Saunders and Peck's law, or
+positive, as under Takahashi's, and so the polarity that protection on the ground and in the air must
+meet.\claim{N01} A leader model would replace the bound on ground strikes, now between none and a fifth of
+flashes, with a rate. The seas need the air's density field in place of one value, swell decay over the long
+fetches where swell carries a third to two thirds of the wave energy,\claim{N04} a test of convergence in frequency for
+the small seas that fail it, and wind input and breaking checked against theory at the lunar ratio of air to
+water density; the last decides whether the similarity image of an Earth sea holds on the Moon at all.
 
-\textbf{Upstream and the record.} The Sun clock is reported to ExoPlaSim's maintainers and awaits a
-reply;\claim{N02} the orbit default and SWAN's uninitialised breaker parameter await reports that would serve
-every user of those codes, CM1's thread race, placed by elimination in its own loops, awaits locating and a
-report, and CM1 would gain from one gravity parameter honoured by every scheme. The record itself needs the
-twilight pair's control rerun on one build; runtime identity runs for the Sun clock, the water scaling and
-the curved-air, gas-band and longwave patches at their off settings; and forcing for the CM1 cases set up
-before the Sun and the sounding were corrected.
+\textbf{Reports and the record.} The Sun clock is reported to ExoPlaSim's maintainers and awaits a
+reply.\claim{N02} The convective-cover unit, with its bias in synchronous runs, the orbit default and SWAN's
+uninitialised breaker parameter await reports that would serve every user of those codes; CM1's thread race,
+placed by elimination in its own loops, awaits locating and a report; and PlaSim's cold lowest level awaits a
+test against smoothed terrain that would confirm or clear the spectral transform. CM1 would gain from one
+gravity parameter honoured by every scheme. The record itself needs the twilight pair's control rerun on one
+build, runtime identity runs for the Sun clock, the water scaling and patches 07--09 at their off settings,
+and forcing for the CM1 cases set up before the Sun and the starting soundings were corrected.

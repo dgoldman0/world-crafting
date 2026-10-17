@@ -154,6 +154,21 @@
   },
   "formula": "N = max(int(360/P/12 + 0.5), 1) x 12; skip 1/(N-1) turn; model day P N/(N-1); solar day 1/(1/P - 1/365.25) for prograde rotation"
  },
+ "exoplasim_synchronous_cover_bias": {
+  "TRAPPIST-1e": {
+   "rotation_period_days": 6.0996,
+   "N": 60,
+   "model_day_days": 6.2029830508474575,
+   "cover_bias": 0.22812878919688767
+  },
+  "Proxima Centauri b": {
+   "rotation_period_days": 11.1868,
+   "N": 36,
+   "model_day_days": 11.506422857142857,
+   "cover_bias": 0.30536317359721177
+  },
+  "formula": "synchronous runs keep N = max(int(360/P/12 + 0.5), 1) x 12 and model day P N/(N-1); cover bias 0.125 ln(model day / 1 d)"
+ },
  "rrtmg_extrapolated_depth_km": {
   "290K": 7.3754352803689995,
   "295K": 7.502597957616742,

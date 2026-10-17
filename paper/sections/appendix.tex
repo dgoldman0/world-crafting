@@ -1,0 +1,133 @@
+\section{Appendix: configurations, switches and checks}
+
+Table~\ref{tab:config} gives each model's configuration in the lunar runs, Table~\ref{tab:repairs} every
+change with its switch and lunar setting, and Table~\ref{tab:verification} the verification record by kind of
+check, condensed from the code repository's record.
+
+\begin{table}[htbp]
+\caption{The models as configured for the lunar runs. The GCM states are those of Table~\ref{tab:states}.}
+\label{tab:config}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.11\textwidth}LL>{\raggedright\arraybackslash}p{0.1\textwidth}L@{}}
+\toprule
+Model & Domain and grid & Levels & Step & Runs, forcing and physics \\
+\midrule
+ExoPlaSim 3.4.2 & Global, T21: 32 by 64 cells, 170~km on the Moon & Ten $\sigma$ levels, the lowest near 885~m, the top level near 130~km & 30~min, 1,430 a lunar model day & 10--40 model years per state on 4 MPI ranks; 50~m slab sea with sea ice; land albedo 0.2; no ozone \\
+CM1 r22, rings & Equatorial ring 10,916~km round in 1,816 columns 6.0~km wide; 45\textdegree\ rings 7,719~km round; two-dimensional & 111 levels to 150~km, 100~m apart near the ground and 2~km above 27~km; damping above 115~km & 40~s, stretched to at most 80~s & Two lunar days, nudged above 8--16~km to a GCM state; Morrison double-moment microphysics with graupel; RRTMG every 30~min; MM5 surface layer and soil; fixed sea surface; first-order boundary layer \\
+CM1 r22, boxes & 385~km square, 64 by 64 columns 6.0~km apart, doubly periodic & As the rings & Adaptive & As the rings; the electrified box over two lunar days with NSSL microphysics with hail and WRF-ELEC's charging, discharge and leakage \\
+SWAN 41.51 & Spherical at the lunar radius; the nearside sea on 1\textdegree\ nodes, 7,053 of them wet; Smythii--Marginis on a 1\textdegree\ basin grid; nests to 118~m at the shore & 36 directions; 48 frequencies from 0.00497 to 0.497~Hz, Earth's 0.03--3~Hz scaled by $g/g_\mathrm{E}$ & 300~s (nearside), 150~s (Smythii) & 60 days of the Sun-and-tilt run's stress, the first lunar cycle a spin-up; Komen growth and whitecapping, Wu drag, DIA, the AGROW knee; depth breaking with index 0.73 \\
+SWASH 12.01 & One-dimensional profiles on today's slopes, 0.25--1~m apart & --- & --- & SWAN's spectra at the boundary; lunar gravity; breaking thresholds 0.6 and 0.3 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\caption{The changes, their switches and the settings of the lunar runs. A default in parentheses reproduces
+the released code unless the row says otherwise; rows marked unconditional act in every build that has them.
+Class: general; a general method with a lunar table; a calibration to the lunar design case; a setting of the
+scenario; a capability the released code lacks; a bound; a mitigation; an avoidance; a coupling method. In
+the ExoPlaSim rows the lunar setting is the design case's; the longwave correction and ice optics are on in
+its 20-year sensitivity test.}
+\label{tab:repairs}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}L>{\raggedright\arraybackslash}p{0.13\textwidth}@{}}
+\toprule
+Change & Switch (default) & Lunar setting & Class \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{ExoPlaSim 3.4.2}} \\
+Sun clock (patch 04) & \code{NSUNCLOCK} (0) & 2: synodic, continuous & General \\
+Orbit & \code{fixedorbit} (False) & True: tilt 1.5424\textdegree, eccentricity 0.016715 & General \\
+Whole model days & \code{runsteps} (17,280) & 17,160 & General \\
+Convective cover (patch 03) & \code{CONVDAY} (0, model day) & 86,400~s & General \\
+Cloud water (patch 02) & \code{CWGREF}, \code{CWSCALE} (0, 1) & 9.80665, $g/9.80665$ & General \\
+Curved air, slant paths (patch 07) & \code{NTWILIGHT}, \code{NTWILW}, \code{ZMLUNAR} (0) & On; the ledger's table & Method, lunar table \\
+CO$_2$ and O$_2$ bands (patch 08) & \code{NGASBANDS} (0) & On; lunar fits & Calibration (structure general) \\
+Rayleigh (patch 01) & \code{RAYSCALE} (1) & 2.237 & Calibration \\
+Water continuum & \code{TH2OC} (0.024) & 0.004 & Calibration \\
+Near-infrared water (patch 05) & \code{SWH2OSCALE} (1; identity for this spectrum) & 1.292 & Calibration \\
+Longwave by height (patch 09) & \code{NLWCORR} (0) & 0; 1 in the test & Calibration \\
+Ice optics (patch 10) & \code{NICEOPT} (0), \code{TICEOPT} (235.15~K) & 0; 1 in the test & General \\
+Infrared from space (patch 06) & \code{IRTOPDAY}, \code{IRTOPNIGHT} (0) & 0 & Capability \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{CM1 release 22}} \\
+Gravity & \code{TERLUNA\_G} (9.81) & 1.6242~m\,s$^{-2}$ & General \\
+Fall speeds & With \code{TERLUNA\_G} & $(g/9.81)^{(b+1)/3}$ & General \\
+Air & \code{TERLUNA\_CO2} (400~ppm, in place of the calendar formula), \code{TERLUNA\_O2} (Earth's); other gases unconditional & 400~ppm; 17.46\%; others zero & Setting \\
+Sun & \code{var16}--\code{var19} (off) & 29.53~d at 1,198~W\,m$^{-2}$ (45\textdegree\ rings) or 1,173.5 (boxes), at equinox & General \\
+Soil & Unconditional & Five layers, 5--80~cm & General \\
+Damping, mixing length & \code{rdalpha}, \code{l\_inf} & $\times g/9.81$, $\times 9.81/g$ & General \\
+Twilight & \code{var20} (0) & 1 in twilight builds & Method, lunar table \\
+Land and water along the domain & \code{initsfc} 9 & From the GCM's surface & Capability \\
+Nudging aloft & \code{var14}, \code{var15} (off) & From 8~km, full at 16~km & Capability \\
+Vertical wind & \code{var13} (0) & By column or by height & Capability \\
+Day--night forcing & \code{var11} (0) & On & Capability \\
+Tilted rings & \code{var12} (0) & Coriolis by column & Capability \\
+Beta-plane Coriolis on departures from the base wind & Unconditional in beta-plane runs & Unused on the Moon & Capability \\
+Terrain forcing & Terrain series & Each column at its own height & Capability \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{WRF-ELEC, grafted into CM1}} \\
+Graft & Electrified series & NSSL with charge, field solver, lightning; screening available, off & Capability \\
+Gravity, ventilation & With \code{TERLUNA\_G} (9.81; released 9.8) & Scaled where each particle is present & General \\
+Sub-step & \code{var5} (0.75~s) & 6.8~s; 8~s per step in the boxes & General \\
+Breakdown cap & \code{var8} & 4: three-dimensional discharge, cap lifted & General \\
+Leader's crossing & \code{var1} & 1~kV\,m$^{-1}$ at sea-level density & Bound \\
+Leakage & \code{var9} (off) & On & Capability \\
+Point discharge & \code{var2} (off) & Off & Capability \\
+Ice size to RRTMG & Unconditional & Capped at 140~\textmu m, logged & Mitigation \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{SWAN 41.51}} \\
+Wind-input knee & Gravity (identity at 9.80665 set by input) & $g/g_\mathrm{E}$~Hz & General \\
+Air density & Unconditional & 1.40390~kg\,m$^{-3}$ & Setting \\
+Breaking, initial state & Input & Breaking on; \code{INIT ZERO} & Avoidance \\
+Forcing & Coupling & GCM stress as a Wu-equivalent wind & Coupling \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\caption{The verification record by kind of check, with what each leaves open.}
+\label{tab:verification}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth}L>{\raggedright\arraybackslash}p{0.27\textwidth}@{}}
+\toprule
+Check & Result & Leaves open \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Identity and reproduction}} \\
+ExoPlaSim patches at neutral settings, five runs & Restart identical to the build without the patch & Patches 04, 05 and 07--09 off, at runtime \\
+Kill and resume, one model year & Restart identical; output identical in all 39 variables & 12 header bytes differ \\
+CM1 tilted rings, local-time advection & First model day bit for bit & Runs on several threads \\
+Electrified supercell restarted on 4 and 2 threads & Fields and 41 flashes bit for bit & The lunar boxes' race \\
+SWAN wind-input patch at standard gravity & Output identical & --- \\
+Patch series against pinned archives & ExoPlaSim installation and eight lunar CM1 builds byte for byte; 32 of 34 hashed GCM runs & 11 runs unhashed; older CM1 builds \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Similarity}} \\
+SWAN at a sixth of Earth's gravity & 0.303\% in height, 0.326\% in period (stock 5.44\%, 3.91\%) & Wind input, whitecapping, breaking on the Moon \\
+SWASH dispersion at three gravities; run-up under gravity scaling & Within 1.76\%; within 1.20\% & Breaking coefficients \\
+CM1 gravity pair & Failed to convect & Microphysics similarity \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Calibration against the reference}} \\
+Clear-sky split of sunlight & 0.6 points rms on 11 unseen columns & Clouds; states far from the fit; an independent check of the reference \\
+Gas bands and layers & Within 0.13\% of band energy; 0.97~W\,m$^{-2}$ rms & 0.19~K of ground from water's lines\claim{V15} \\
+Longwave by height & Layer means removed; 1--5~W\,m$^{-2}$ by column & The 307~K state \\
+RRTMG (checked) & Within 2.5 points; cools 4.5--10.2~W\,m$^{-2}$ more & Its extrapolation past 1,053.63~hPa \\
+Reference against other codes & PyRADS for water-only longwave at constant gravity; Monte Carlo Rayleigh to depth 1.5 & CO$_2$, O$_2$, collision-induced absorption and sunlight on the lunar column \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Benchmark on Earth}} \\
+Electrified supercell against CM1's NSSL & Updrafts 6\%, reflectivity 3.4~dBZ, condensate 9\% & Hail within a factor of two \\
+Against published electrification & First flash 28.5~min (27--40); 1.1\% to ground with the rule on (published 0.33\%) & Charging several times stronger \\
+Conductivity column & Positive conductivity within 2--8\% at 5--30~km & The lunar aerosol \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Arithmetic}} \\
+Sun clock rebuilt from PlaSim's solar-position routine & Correlation 1.0000 & --- \\
+Tilted ring's Sun and Coriolis & $8\times10^{-7}$; $3\times10^{-12}$~s$^{-1}$ & --- \\
+Field solver & One part in $10^5$ & Terrain under the solver \\
+Curved-air ledger & Channels within 0.9~W\,m$^{-2}$ per layer, Sun overhead & One channel's orders at the cap \\
+\bottomrule
+\end{tabularx}
+\end{table}

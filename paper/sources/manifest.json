@@ -10,16 +10,16 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 142,
+  "total": 143,
   "with_local_original": 85,
-  "blocked": 57,
+  "blocked": 58,
   "deferred": 85,
   "passed": 0,
   "depth": {
    "full": 0,
    "claim-locators": 69,
    "abstract-only": 60,
-   "not read": 13
+   "not read": 14
   },
   "cited_in_paper": 53,
   "cited_blocked": [
@@ -6040,6 +6040,31 @@
    "cited_in_paper": true,
    "paper_use": null,
    "notes": "Added on finding the 0.73 attribution in SWAN's documentation. Wiley/AGU copy blocked; not read."
+  },
+  {
+   "key": "mckay1991making",
+   "citation": "McKay, Toon and Kasting (1991). Making Mars habitable. Nature, 352(6335), 489–496. doi:10.1038/352489a0",
+   "entry_type": "article",
+   "doi": "10.1038/352489a0",
+   "verified_via": "Crossref api.crossref.org/works/10.1038/352489a0 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "Closed access (OpenAlex oa_status closed, no repository full text, no stored abstract) on 2026-10-17; no legal local original obtained",
+   "cited_in_paper": true,
+   "paper_use": "Cited in the introduction for the subject its title names, the study of how a planet could be made habitable, as an example of constructed-world research",
+   "notes": "Added 2026-10-17 for the reframed introduction; bibliographic record only."
   }
  ]
 }

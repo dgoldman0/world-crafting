@@ -112,11 +112,12 @@
   },
   {
    "id": "S12",
-   "text": "The dry dynamics stretch about sixfold in size and duration, so a 6 km column stands for about 1 km at Earth's scale; the microphysics and radiation do not stretch, and the gravity pair failed to convect",
+   "text": "The dry dynamics stretch about sixfold in size and duration, so a 6 km column stands for about 1 km at Earth's scale; the microphysics and radiation do not stretch; the gravity pair, designed to measure how far lunar convection departs from Earth's stretched sixfold, failed to convect",
    "source": [
     "terluna:climate/crm/README.md#L134-137",
     "terluna:climate/crm/README.md#L257",
-    "terluna:climate/crm/README.md#L2510-2528"
+    "terluna:climate/crm/README.md#L2510-2528",
+    "terluna:climate/crm/README.md#L2508-2528"
    ],
    "state": "documented"
   },
@@ -198,11 +199,12 @@
   },
   {
    "id": "H07",
-   "text": "Slingo's convective cover converts rain with the model's solar day (29.8 Earth days for the Moon): rain read 30x too heavy, cover +0.42; bias 0.125 ln(day)",
+   "text": "Slingo's convective cover converts rain with the model's solar day (zrfac = solar_day*1000), a unit conversion that ExoPlaSim's replacement of the solar day by 86,400 s in its unit conversions (Paradise et al. 2022, Sect. 2.1) left in place: a defect; 29.8 Earth days for the Moon, rain read 30x too heavy, cover +0.42; bias 0.125 ln(day) on any world",
    "source": [
     "repo:notes/defect_log.md#B11",
     "terluna:climate/gcm/README.md#L454-461",
-    "repo:paper/data/regime_calc.json#slingo_cover_bias"
+    "repo:paper/data/regime_calc.json#slingo_cover_bias",
+    "repo:notes/exoplasim.md#L94-98"
    ],
    "state": "documented"
   },
@@ -441,14 +443,16 @@
   },
   {
    "id": "H31",
-   "text": "Terrain forcing by a corner column at 2.9 km; constant vapour above the GCM's 130 km top, 6-15x ice-saturated at 140-150 km in the 45 N rings; the 45 N twilight pair on -O2 and -O3 builds",
+   "text": "Terrain forcing by a corner column at 2.9 km; constant vapour above the GCM's top level near 130 km, the 45 N rings 6-15x ice-saturated at 140-150 km and holding 1.1 g/m2 of ice above 107 km in every column through both lunar days; the 45 N twilight pair on -O2 and -O3 builds, its 0.013-0.021 K effect below what the pair resolves",
    "source": [
     "repo:notes/defect_log.md#C5",
     "repo:notes/defect_log.md#C4",
     "repo:notes/defect_log.md#C8",
     "terluna:climate/crm/README.md#L1248-1258",
     "terluna:climate/crm/README.md#L1197-1209",
-    "drive:/media/projectspace/terluna-research/cm1/build/moon_omp/src/Makefile"
+    "drive:/media/projectspace/terluna-research/cm1/build/moon_omp/src/Makefile",
+    "terluna:climate/crm/README.md#L1197-1206",
+    "repo:notes/cm1.md#L13-22"
    ],
    "state": "finding"
   },
@@ -465,7 +469,7 @@
   },
   {
    "id": "R01",
-   "text": "Ten ExoPlaSim patches with identity defaults and three settings; CM1 gravity, CO2 and O2 as preprocessor constants and var1-var20; the series rebuild the deployed ExoPlaSim copy and the Fortran of the eight lunar CM1 builds behind the current results byte for byte; older CM1 builds carry earlier states",
+   "text": "Ten ExoPlaSim patches with identity defaults; CM1 gravity, CO2 and O2 as preprocessor constants and var1-var20; the series rebuild the deployed ExoPlaSim installation and the Fortran of the eight lunar CM1 builds behind the current results byte for byte; older CM1 builds were compiled from earlier states",
    "source": [
     "repo:models/exoplasim/README.md",
     "repo:models/cm1/README.md",
@@ -643,7 +647,7 @@
   },
   {
    "id": "V03",
-   "text": "The series rebuild the deployed ExoPlaSim copy and the Fortran of the eight lunar CM1 builds byte for byte; older CM1 builds carry earlier states; ExoPlaSim prefixes reproduce 32 of 34 hashed GCM runs; the two others compiled drafts",
+   "text": "The series rebuild the deployed ExoPlaSim installation and the Fortran of the eight lunar CM1 builds byte for byte; ExoPlaSim prefixes reproduce 32 of 34 hashed GCM runs",
    "source": [
     "repo:models/check_patches.sh",
     "repo:models/exoplasim/runs.json",
@@ -672,7 +676,7 @@
   },
   {
    "id": "V06",
-   "text": "The CM1 gravity pair (pair_moon, pair_earth) failed to convect",
+   "text": "The CM1 gravity pair (pair_moon, pair_earth), designed to measure how far lunar convection departs from Earth's stretched sixfold, failed to convect",
    "source": [
     "terluna:climate/crm/README.md#L2508-2528",
     "repo:notes/verification_record.md#L174"
@@ -754,9 +758,10 @@
   },
   {
    "id": "V14",
-   "text": "Missing checks: CM1 from the longwave-corrected GCM; the longwave fit at 307 K; the twilight pair's control; runtime identity of the Sun clock, the water scaling and patches 07-09 off and of the move to the twilight copy; RRTMG's extrapolation; the unlocated thread race; CM1 microphysics similarity; an independent GCM",
+   "text": "Missing checks: the full design column through an independent radiation code; CM1 from the longwave-corrected GCM; the longwave fit at 307 K; the twilight pair's control; RRTMG's extrapolation; the unlocated thread race; CM1 microphysics similarity; an independent GCM",
    "source": [
-    "repo:notes/verification_record.md#L211-250"
+    "repo:notes/verification_record.md#L211-250",
+    "repo:notes/reference_radiation.md#L271-276"
    ],
    "state": "documented"
   },
@@ -796,16 +801,17 @@
   },
   {
    "id": "G04",
-   "text": "At a sunlight scale of 0.970 (3.0% dimming) the corrected design case settles at 295.02 K with 2.31 mm/day",
+   "text": "With the curved air on the ledger's corrected terms and the gas bands, at a sunlight scale of 0.970 (3.0% dimming, eased from 5%), the design case settles at 295.02 K with 2.31 mm/day; the scale was chosen to hold the design temperature",
    "source": [
     "terluna:climate/gcm/README.md#L1148-1158",
-    "terluna:research/decisions.md#L370-372"
+    "terluna:research/decisions.md#L370-372",
+    "terluna:climate/gcm/README.md#L1143-1163"
    ],
    "state": "conditional model"
   },
   {
    "id": "G05",
-   "text": "Settled cloud-setting effects: thinner convective cloud ~+2.2 K, more low cloud ~-5.9 K, full-column cloud water ~-3.5 K on run A; longwave correction with ice +11.5 K over years 10-19 toward ~307 K, vapour 348 against 170 kg/m2, cloud cover 38% against 20%, most of the gain high",
+   "text": "Cloud-setting effects, window means and settled: thinner convective cloud +1.71 K, ~+2.2 K settled; more low cloud -4.98 K, ~-5.9 K; full-column cloud water -3.21 K, ~-3.5 K on the first calibrated run; longwave correction with ice +11.5 K over years 10-19 toward ~307 K, vapour 348 against 170 kg/m2, cloud cover 38% against 20%, most of the gain high",
    "source": [
     "repo:paper/data/repairs.json",
     "repo:notes/exoplasim.md#L217-224",
@@ -829,13 +835,16 @@
   },
   {
    "id": "G07",
-   "text": "PlaSim's longwave over-cooling ~1.5 K of the rest; the remainder, a degree or two, attributed by elimination to boundary-layer transport (CM1 mixes 14-19 km deep by day); at the 0 E crossing on pre-correction forcing a 3-D box ran warmer, land at most 0.3 C, Earth-speed rain 1.0 C warmer; the 45 N land test not run",
+   "text": "PlaSim's longwave over-cooling estimated at ~1.5 K of the rest (6 W/m2 at the ring's 4 W/m2 per K); the remainder, a degree or two, attributed by elimination to boundary-layer transport (CM1 mixes 14-19 km deep by day; the GCM has two layers in its lowest 6.5 km); at the 0 E crossing on the pre-correction forcing, which brought 12% too little sunlight there, a 3-D box ran warmer, land at most 0.3 C, Earth-speed rain 1.0 C warmer; the 45 N land test not run",
    "source": [
     "repo:notes/cm1.md#L120-124",
     "terluna:climate/crm/README.md#L1147-1196",
     "terluna:climate/crm/README.md#L960-990",
     "terluna:climate/crm/README.md#L1171-1172",
-    "terluna:climate/crm/README.md#L1195-1196"
+    "terluna:climate/crm/README.md#L1195-1196",
+    "terluna:climate/crm/README.md#L1190-1196",
+    "repo:notes/exoplasim.md#L264",
+    "terluna:climate/crm/README.md#L947-950"
    ],
    "state": "conditional model"
   },
@@ -887,7 +896,7 @@
   },
   {
    "id": "W01",
-   "text": "General repairs carry to other worlds within Table 5's limits; calibrations (Rayleigh, water multiplier, continuum, longwave correction, gas fits) only near their case; the curved-air method is general and its tables per column; settings carry the lunar scenario's values",
+   "text": "General repairs (Sun clock, fixed orbit, whole model days, cover per Earth day, cloud water by pressure, CM1 gravity and fall speeds, CM1's Sun and soil, breakdown cap, sub-step, SWAN's knee, ice optics) apply unchanged; leakage and the forcing methods travel with their inputs; the leader's crossing is a bound; the curved-air terms are a method with a per-column table; the calibrations (Rayleigh, water multiplier, continuum, longwave correction, gas fits) hold near their case",
    "source": [
     "repo:models/exoplasim/README.md",
     "repo:models/cm1/README.md",
@@ -908,7 +917,7 @@
   },
   {
    "id": "W03",
-   "text": "Slowly rotating Earth-air planets should need only ExoPlaSim's general repairs (untested); above 20 days ExoPlaSim's model day departs from the solar day unless the year holds ~12 rotations (64 d: 69.8 against 77.6 d; 243 d: 265 against 726 d)",
+   "text": "Slowly rotating and synchronous Earth-air planets should need only ExoPlaSim's general repairs (untested); above 20 days ExoPlaSim's model day departs from the solar day unless the year holds ~12 rotations (64 d: 69.8 against 77.6 d; 243 d: 265 against 726 d)",
    "source": [
     "repo:notes/exoplasim.md#L23-47",
     "repo:notes/exoplasim.md#L91-104",
@@ -920,9 +929,10 @@
   },
   {
    "id": "W04",
-   "text": "Mars at 1 bar: H/R 0.00655 (5x Earth's), column 2.6x Earth's, g 0.38 of Earth's; Chapman factor 15.5; inside RRTMG's range at its 1-bar level",
+   "text": "Mars at 1 bar: H/R 0.00655 (5x Earth's), column 2.6x Earth's, g 0.38 of Earth's; Chapman factor 15.5; inside RRTMG's range at its 1-bar level; a breathable moon of a giant planet needs the downward infrared at the model top for the host's glow",
    "source": [
-    "repo:paper/data/worlds.json"
+    "repo:paper/data/worlds.json",
+    "repo:models/exoplasim/README.md"
    ],
    "state": "calculation"
   },
@@ -997,6 +1007,59 @@
    "source": [
     "repo:notes/cm1.md#L64-66",
     "terluna:climate/crm/README.md#L939-940"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "H33",
+   "text": "PlaSim's ten sigma levels, set for Earth's air, put the top three layers above 107 km, at 81-107 km and at 63-81 km, each spanning about 25 K, ice saturation changing 55-fold across the 81-107 km layer, and leave two layers for the lowest 6.5 km",
+   "source": [
+    "repo:notes/exoplasim.md#L262-264"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "G14",
+   "text": "The first calibration: the uncalibrated first design run passed 310 K and was still warming at 315.5 K in year 12 (A_uncalibrated); calibrated (run A) the same configuration settled at 295.5 K over years 30-39, at least 20 K cooler",
+   "source": [
+    "terluna:climate/gcm/README.md#L226-233",
+    "terluna:climate/gcm/README.md#L304-320",
+    "repo:paper/data/repairs.json"
+   ],
+   "state": "sensitivity"
+  },
+  {
+   "id": "G15",
+   "text": "Rain and cloud at a place in the CM1 rings change by a factor of several with the slice's direction, while temperature, humidity and wind agree within about a degree and 0.3 m/s between crossing rings",
+   "source": [
+    "repo:notes/cm1.md#L88-91"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "V16",
+   "text": "The reference's checks against other codes: PyRADS for water-only longwave at constant gravity, and a Monte Carlo Rayleigh reference to optical depth 1.5 (the lunar column reaches about 4 at 360 nm); no independent code checks its CO2, O2, collision-induced or solar calculation on the lunar column; the correlated-k emulation within 0.4-1.4 W/m2 of line-by-line OLR",
+   "source": [
+    "repo:notes/reference_radiation.md#L20-26",
+    "repo:notes/reference_radiation.md#L271-276"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "W06",
+   "text": "ExoPlaSim's synchronous mode sets only NFIXED and FIXEDLON (__init__.py 2628-2630), keeping N = max(int(360/P/12+0.5),1)x12 and the model day P N/(N-1) from the rotation period (2616-2619; plasim.f90 1296-1300), so the convective-cover unit (rainmod.f90 1890) biases the cover by 0.125 ln(model day): +0.23 for TRAPPIST-1e's 6.1-day rotation, +0.31 for Proxima b's 11.2 days; the orbit default discards a configured obliquity and eccentricity in any run without fixedorbit",
+   "source": [
+    "calc:paper/tools/regime_calc.py exoplasim_synchronous_cover_bias",
+    "repo:paper/data/regime_calc.json#exoplasim_synchronous_cover_bias",
+    "repo:notes/exoplasim.md#L52-66"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "N04",
+   "text": "Swell that has outrun the local wind carries a third to two thirds of the wave energy on the lunar seas",
+   "source": [
+    "terluna:climate/waves/README.md#L38-39"
    ],
    "state": "conditional model"
   }

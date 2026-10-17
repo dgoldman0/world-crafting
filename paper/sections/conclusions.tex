@@ -1,26 +1,27 @@
 \section{Conclusions}
 
-Each Earth assumption in the four models held on Earth, which kept it out of sight in Earth's own runs: a
-horizon factor of 35 is right at Earth's scale height, a formula counted per day is right for a one-day
-solar day, fits made on Earth's columns hold on Earth's columns, and a Sun clock that restarts each model day
-is exact at a one-day rotation. A breathable Moon moves the scale height, the column, the gravity, the day
-and the tilt together, more than seven times Earth's air standing tall under a sixth of its gravity through
-a month-long day, and so exposed them all at once: the clock's skip grew to 32.5\textdegree, the default
-orbit handed the Moon Earth's seasons, and formulas fitted to Earth's columns ran far past their range.
+On a breathable Moon, where scale height, column, gravity and day all lie far from Earth's in air close to
+Earth's own, the Earth values left in four models erred by amounts large enough to measure, and three of the
+five defects found beside them produce little or no error at Earth's values: a Sun clock exact at a one-day
+rotation, a rain unit exact at a one-day model day, and an orbit default that moves Earth's tilt by a fraction
+of a degree. All three act in other users' runs as well, the clock in any non-synchronous run whose rotation
+differs from a day, the rain unit in synchronous runs too, and the orbit default in any run that sets a tilt
+without fixing the orbit.
 
-The repairs that removed this Earth are mostly general. Most turn a hidden value into a parameter whose
-default reproduces the released code, and each takes its lunar value from a unit, a scaling law, a geometry
-or a missing process, so they should carry, within the limits the reach section sets, to slowly rotating
-planets, to small bodies with breathable air and to worlds of other gravity. The calibrations are fewer and
-narrower: they tie PlaSim's radiation to the in-house reference on the design case's columns, and, with
-PlaSim's cloud settings, they hold the lunar climate to that case and to cloud formulas fitted on Earth.
-Identity, reproduction, similarity and benchmark checks show the code doing what it states; the calibrations
-show agreement with a reference model; the lunar climate itself awaits a test, and the strongest available is
-agreement among independent models.
+Removing the Earth values sorted the models' parts twice, by how far each moved the Moon and by how far each
+travels, and the two orders run against each other. The general repairs, which another world takes unchanged,
+moved the Moon's global mean by a few kelvin at most and moved where its sunlight and rain fall, cutting the
+rain by nearly a quarter and raising the share of land under half a millimetre a day from a tenth to two
+fifths. The parts another world must remake moved it most: the first calibration by at least 20~K, PlaSim's
+Earth-tuned cloud by up to about 6~K, and its longwave cooling by height, corrected with ice optics, by about
+11.5~K in a run outside the correction's fitted state. Where CM1 forms its own cloud and rain at lunar gravity,
+the freezing level stands five to six times higher than Earth's, most of the falling water evaporates before it
+reaches the ground, and the lightning is rarer and larger than Earth's, with a sign set by a laboratory
+charging law; SWAN, by similarity, raises waves four to five times higher than Earth's under the same wind.
 
-The adapted models have located the uncertainty that remains. It lies where the models stay Earth's: in
-cloud amount, whose Earth-tuned settings move the Moon by up to about 6~K; in the height at which the
-longwave cools the air, whose correction, with the ice optics, moves it by about 11.5~K; and in the
-boundary layer, where the cloud-resolving model and the GCM still disagree by several kelvin near the
-ground. The next work is the work that loosens the tie to one case and one cloud scheme: a longwave fit at
-the settled state, cloud constrained by cloud-resolving runs, and an independent GCM.
+The work that would narrow the Moon's remaining uncertainty is therefore the work that would extend the
+models to other Earth-like worlds. A radiation scheme built from the reference's own spectroscopy in place of
+fitted coefficients, cloud constrained by cloud-resolving runs in place of Earth's settings, and a reference
+checked against an independent code would each turn a part that holds near one column into one that holds
+wherever its physics does, and runs of the repaired ExoPlaSim on Earth-air slow rotators would show whether
+the parts already classed as general hold off the Moon.

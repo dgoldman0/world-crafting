@@ -1,22 +1,18 @@
 \begin{abstract}
-\noindent Terluna's breathable Moon, 1.2~atm of nitrogen and oxygen under lunar gravity and a 29.53-day
-solar day,\claim{S01} can be studied only through numerical models built and tuned on Earth. Carrying four of
-them to the Moon, the ExoPlaSim~3.4.2 general circulation model, the CM1 release~22 cloud-resolving model
-with WRF-ELEC's electrification grafted in, and the SWAN~41.51 and SWASH~12.01 wave models, exposed Earth
-inside them in five forms: dimensional constants, formulas counted per day, flat and sunlit-only geometry,
-empirical fits and simplifications used beyond their range, and latent defects. Among the defects,
-ExoPlaSim's Sun clock skipped 32.5\textdegree\ each lunar model day,\claim{H23} its default orbit replaced
-the configured tilt with Earth's, and SWAN read a breaking parameter uninitialised. The repairs fall into
-two classes. General repairs, most of them parameters whose defaults reproduce the released code, apply
-scaling laws such as fall speeds proportional to $g^{(b+1)/3}$, restore the curved geometry of an atmosphere
-whose scale height is 3\% of the radius, add missing processes and remove defects; they carry to other
-worlds within stated limits. Calibrations fit PlaSim's broadband radiation to an in-house line-by-line model
-on the design case's columns, and hold near them. Identity runs, patch series that rebuild the deployed
-sources behind the current results, gravity-similarity tests and Earth benchmarks verify the code, and the
-lunar climate itself awaits a test. The adapted models place the climate's largest remaining uncertainty in
-cloud amount, in the height at which the longwave cools the air, a correction worth about 11.5~K with the
-ice optics,\claim{G05} and in the boundary layer, where CM1 and the GCM still differ by 3.7~K in the lowest
-1.8~km at 45\textdegree\,N with the GCM's sideways transport imposed.\claim{G06} The general repairs should
-extend to slowly rotating planets and to breathable small bodies; compositions, pressures and scale heights
-beyond the adapted radiation and dynamics remain beyond reach.
+\noindent Exoplanets and constructed worlds whose air and water resemble Earth's, while their gravity, size,
+day or starlight differ, are studied with models built for Earth, in which an Earth value left in the code runs
+without failing. Four such models were adapted to a breathable Moon, which changes gravity, column mass, scale
+height and day length together: ExoPlaSim~3.4.2, CM1 release~22 with WRF-ELEC's electrification, SWAN~41.51
+and SWASH~12.01. The adaptation found Earth values in four forms (constants, units of time, geometry, and fits
+beyond their range) and five defects in the released codes. Three defects produce little or no error at
+Earth's values and affect other users' runs: ExoPlaSim's Sun clock, which skipped back 32.5\textdegree\ each
+lunar model day;\claim{H23} its convective-cover unit, which also biases synchronous runs;\claim{W06} and its
+default orbit, which replaced the Moon's tilt with Earth's. General repairs correct units, apply scaling
+laws or remove defects and serve other worlds unchanged; a method computes the curved geometry for each world's
+column; and calibrations to an in-house line-by-line model hold near the design case. Identity, reproduction, similarity and benchmark checks test the code; the lunar climate is
+unobserved. On the case, the general repairs moved the global mean by a few kelvin and the distribution of rain
+further, the calibrations and PlaSim's Earth-tuned cloud and longwave cooling moved it most,\claim{G05} and the
+storms' freezing level stood five to six times higher than Earth's, their lightning rarer and
+larger.\claim{G09}\claim{G10} Building those parts from the reference's physics and from cloud-resolving runs
+would narrow the Moon's uncertainty and widen the models' reach together.
 \end{abstract}
