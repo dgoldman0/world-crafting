@@ -134,6 +134,11 @@ abstract, the opening pages and the conclusion promise, develop and land on the 
 **Technical meaning survives editing.** Each edit keeps the claim's conditions, numbers, scope and
 evidence state. Reproducibility and physical validation stay distinct.
 
+**Claims stay within their evidence.** A statement about a field or its literature says what the cited
+works did, scoped to them ("some", "these", the authors by name); characterising a whole field takes
+evidence about the whole field. The same holds for "each", "every", "most" and "all" anywhere: each
+universal claim is checked against what was actually examined.
+
 **Examples from the first draft**, rejected by the author on 2026-10-17:
 
 | First draft | What fails | Direction of repair |
@@ -145,6 +150,7 @@ evidence state. Reproducibility and physical validation stay distinct.
 | "Three model families divide the work, each answering where the previous one stops." | Empty action | Say what each model computes and what it takes from the others |
 | "Carrying these models to the Moon exposed Earth inside them in five forms" | Witticism and empty action | Name the five forms of Earth value found in the code |
 | "The repairs follow one rule ..." | Overstatement | The main rule, with the other kinds of repair beside it |
+| "Exoplanet climate studies compute the temperature, cloud and rain of rocky planets whose air resembles Earth's ..." | A whole field characterised from four studies | Say what the cited studies did: some hold the air near Earth's and vary rotation, gravity or star |
 | "Each constant is right for Earth, and can be made right for the Moon as far as its lunar value is known." | Landing that restates the paragraph | Land on a consequence, or end at the evidence |
 
 ## Review
