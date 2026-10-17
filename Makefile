@@ -2,11 +2,15 @@
 PYTHON ?= python3
 export OPENBLAS_NUM_THREADS ?= 1
 
-.PHONY: check check-patches
+.PHONY: check check-patches test-python
 
-check: check-patches
+check: check-patches test-python
 
 # Each patch series applied to its pinned upstream source reproduces the deployed sources (upstream/ is
 # ignored by Git; see models/pins.sha256 for what it must hold).
 check-patches:
 	models/check_patches.sh
+
+# The in-house tools' tests (numba for the sky solver's; the spectroscopic inputs for ten of them).
+test-python:
+	$(PYTHON) -m pytest -q

@@ -1,0 +1,10 @@
+# The Python tools live under python/ with their Terluna package paths (for example
+# `from atmosphere.radiative_convective import ck`); they are not installed as a package.
+# Dependencies: numpy, scipy, pytest; numba for the sky solver's tests; netCDF4 for the drivers that read GCM output.
+
+[tool.pytest.ini_options]
+testpaths = ["python"]
+python_files = ["test_*.py"]
+pythonpath = ["python"]
+addopts = "--import-mode=importlib"
+norecursedirs = [".*", "__pycache__", "results", "inputs", "cache"]

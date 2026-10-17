@@ -44,3 +44,10 @@ the pinned sources reproduces the deployed sources (see each model's README and 
 Case set-up, run bookkeeping and analysis scripts (`climate/gcm/exoplasim_run.py`, `climate/crm/cm1_run.py`
 and the CRM analysis modules, `climate/waves/*` runners) stay in Terluna. Model output stays on the research
 drive. Upstream source code is never committed whole.
+
+## Python tools
+
+The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna at
+186b294, under their Terluna package paths; `python/provenance.json` lists all 98 files with their sha256.
+One file differs: `python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
+`models/exoplasim/patches/10-ice-optics.patch` in place of the runner's Python string (both hashes recorded).
