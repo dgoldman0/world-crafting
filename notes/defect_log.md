@@ -74,7 +74,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B20 | PlaSim | Saturation over liquid at all temperatures; Earth's spacing of the top levels | 10-17, 9e30a1f | None | High cloud starts at 136–149% of ice saturation | Open | R |
 | B21 | PlaSim, CM1 | Constant gravity and a thin shell in the dynamics | S | None | Not quantified; g is 5.4% lower at 48.6 km | Open | S, V |
 | B22 | CM1 RRTMG | Reference pressures stop at 1053.63 hPa; deeper layers extrapolated | S | None | Lowest ~7 km over the sea extrapolated; not quantified | Open | S, V |
-| B23 | CM1 RRTMG | Ice optics end at 140 µm | 10-04, 0b9507d | Size passed to radiation capped at 140 µm and logged | Crash at day 6.45 avoided; capped ice optically too thick | Mitigated | R |
+| B23 | CM1 RRTMG | Ice optics end at 140 µm | 10-04, 0b9507d | Size passed to radiation capped at 140 µm and logged | Crash at day 6.45 avoided; capped ice 7% optically too thick in the main run | Mitigated | R |
 | B24 | SWAN | AGROW knee fixed at 1 Hz | 10-02, 8785f7e | Patched knee at g/g_ref Hz | Similarity error 5.44% → 0.303% in Hs | Fixed | R |
 | B25 | SWAN | Air density fixed at 1.28 kg/m³ | 10-02, 8785f7e | Patched to 1.40390 kg/m³ in the coupled build | Not quantified | Fixed in coupled build | R |
 | B26 | SWAN | INIT 2-s period; ST6 and exact-XNL paths at Earth's g; Earth radius default | 10-02, 8785f7e | Bypassed or set by input | None in the selected configuration | Avoided | R |
@@ -530,7 +530,10 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 - **Fix.** The size the radiation reads is capped at 140 µm, as CM1's Morrison scheme already caps it.
   `terluna_ice_optics.txt` logs the ice above the cap every ten steps (`fortran/terluna_elec.F`; test
   `test_cm1_elec.py:78`).
-- **Effect.** The capped ice reaches the radiation optically thicker than its size gives. This is not quantified.
+- **Effect.** The capped ice reaches the radiation optically thicker than its size gives. In the main electrified run
+  the radiation's ice was cut at 140 µm in a third of its mass, at a mean radius of 150 µm above the cap, so the
+  radiation saw that ice 7% optically thicker than its size gives (`climate/crm/README.md:2403-2406`; R, found in this
+  repository's review after the history pass).
 
 ### B24. SWAN: the AGROW knee at 1 Hz (R)
 

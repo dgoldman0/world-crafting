@@ -741,6 +741,117 @@
     "repo:notes/verification_record.md#L211-250"
    ],
    "state": "documented"
+  },
+  {
+   "id": "G01",
+   "text": "Cloud water by pressure +2.30 K (A -> A_earth_path_clouds); convective cover per Earth day +1.76 K (-> A_corrected_clouds)",
+   "source": [
+    "repo:paper/data/repairs.json",
+    "terluna:climate/gcm/README.md#L414-490"
+   ],
+   "state": "sensitivity"
+  },
+  {
+   "id": "G02",
+   "text": "Sun clock, tilt and split: +0.59 K; rain 2.91 -> 2.24 mm/day; land under 0.5 mm/day 9% -> 42%",
+   "source": [
+    "repo:paper/data/repairs.json",
+    "repo:notes/defect_log.md#A2",
+    "terluna:climate/gcm/README.md#L626-680"
+   ],
+   "state": "sensitivity"
+  },
+  {
+   "id": "G03",
+   "text": "Curved air -0.65 K, clouds returning 3.5 of the clear sky's 5.4 W/m2; gas bands -2.23 K, the top layer warming 7 K and its cirrus 2.0% -> 0.05%",
+   "source": [
+    "repo:paper/data/repairs.json",
+    "terluna:climate/gcm/README.md#L1042-1063",
+    "terluna:climate/gcm/README.md#L1125-1135",
+    "repo:notes/exoplasim.md#L147-173"
+   ],
+   "state": "sensitivity"
+  },
+  {
+   "id": "G04",
+   "text": "At a sunlight scale of 0.970 (3.0% dimming) the corrected design case settles at 295.02 K with 2.31 mm/day",
+   "source": [
+    "terluna:climate/gcm/README.md#L1148-1158",
+    "terluna:research/decisions.md#L370-372"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G05",
+   "text": "Thinner convective cloud +1.71 K; more low cloud -4.98 K; full-column cloud water -3.21 K; longwave by height with ice +11.50 K to ~307 K, vapour 348 against 170 kg/m2, high cloud ~40% against 20%",
+   "source": [
+    "repo:paper/data/repairs.json",
+    "repo:notes/exoplasim.md#L217-224",
+    "terluna:climate/gcm/README.md#L1155"
+   ],
+   "state": "sensitivity"
+  },
+  {
+   "id": "G06",
+   "text": "45 N ring: lowest 1.8 km 5.9 K above the GCM; the imposed transport (~15 W/m2 out of the air below 8 km) cuts it to 3.7 K",
+   "source": [
+    "repo:paper/data/gap45n.json",
+    "terluna:climate/crm/README.md#L1125-1196",
+    "repo:notes/cm1.md#L117-120"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G07",
+   "text": "PlaSim's longwave over-cooling ~1.5 K of the rest; CM1 mixes 14-19 km deep by day; a 3-D box ran warmer, land at most 0.3 C, Earth-speed rain 1.0 C warmer",
+   "source": [
+    "repo:notes/cm1.md#L120-124",
+    "terluna:climate/crm/README.md#L1147-1196",
+    "terluna:climate/crm/README.md#L960-990"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G08",
+   "text": "The small box: 34 mm per lunar day at the ground against the GCM's 180 mm; 85% of falling water evaporated against 64% at Earth's fall speeds",
+   "source": [
+    "terluna:climate/crm/README.md#L960-978"
+   ],
+   "state": "sensitivity"
+  },
+  {
+   "id": "G09",
+   "text": "0 C level near 25 km, -40 C near 60 km, cloud tops 55-80 km in every run",
+   "source": [
+    "terluna:climate/crm/README.md#L1454-1456"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G10",
+   "text": "Main electrified run: 530 flashes, 106 negative to ground, none positive; 0.022 per km2 per year; start 35.8 km; 108 C in cloud, 149 C to ground; hail 87% of non-inductive charging; main negative charge 40-42 km at -13 to -14 C",
+   "source": [
+    "terluna:climate/crm/README.md#L2365-2397",
+    "repo:notes/electrification.md#L72-81"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G11",
+   "text": "Takahashi's law inverts the polarity with as much charge; NSSL against Morrison: 1.0 C warmer at 2 m, night ground fog 29% against 56% of the box",
+   "source": [
+    "terluna:climate/crm/README.md#L2097-2120",
+    "terluna:climate/crm/README.md#L2409-2418"
+   ],
+   "state": "sensitivity"
+  },
+  {
+   "id": "G12",
+   "text": "Waves 4-5x as high and periods 5x as long as Earth's for the same wind; nearside sea 5.29 million km2, mean Hs 1.39 m, 68% >= 1 m, largest 4.9 m (19.3 s); 0.41 of Earth's speed; run-up 2.1 m (98th percentile) at the western Smythii face",
+   "source": [
+    "terluna:climate/waves/README.md#L12-62"
+   ],
+   "state": "conditional model"
   }
  ]
 }

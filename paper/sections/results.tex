@@ -1,0 +1,90 @@
+\section{What the adapted models have given}
+
+The repaired models are instruments for the lunar climate, and their first products are sensitivities: how
+far each Earth assumption, once removed, moves the climate, and where the uncertainty that remains now sits.
+Every climate number below is a conditional model result, holding given the scenario and the Earth-fitted
+parts each model keeps.
+
+\textbf{What each repair moved.} Figure~\ref{fig:repairs} sets each repair's effect on the global-mean
+surface temperature beside the effects of cloud settings that remain Earth's. Counting cloud water by
+pressure warmed the Moon by 2.3~K, and counting convective rain per Earth day warmed it by a further
+1.8~K.\claim{G01} The Sun clock, the Moon's own tilt and the recalibrated split of sunlight warmed it by
+only 0.6~K, yet cut its rain from 2.91 to 2.24~mm per day and raised the share of land receiving under
+0.5~mm per day from 9 to 42\%.\claim{G02} The curved air cooled it by 0.65~K, its clouds giving back 3.5
+of the 5.4~W\,m$^{-2}$ that the geometry took from the clear sky, and the carbon dioxide and oxygen bands
+cooled it by a further 2.2~K, mostly through PlaSim's high cloud, which fell from 2.0 to 0.05\% of the sky
+in the top layer as that layer warmed by 7~K.\claim{G03} Held at the design temperature by dimming the
+sunlight 3.0\% in place of the earlier 5\%, the corrected Moon settles at 295.0~K, with 2.31~mm of rain a
+day.\claim{G04}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_repairs.pdf}
+\caption{Change in the global-mean surface temperature from each repair, each pair of runs averaged over
+the years shown in the accompanying data, and from the cloud-water bound and two of PlaSim's Earth-tuned
+cloud settings. Warming bars are red and cooling bars blue; the grey bars hold the bound and the settings,
+which are tests of sensitivity. The longwave-by-height test settles at 306.8--307.1~K.}
+\label{fig:repairs}
+\end{figure}
+
+The climate is most sensitive where the models remain Earth's. Two of PlaSim's Earth-tuned cloud settings
+move the Moon as far as the repairs do: thinner convective cloud warms it by 1.7~K, and more low cloud cools
+it by 5.0~K, farther than any repair but one; cloud water at its full-column bound cools it by 3.2~K. The
+one repair that moves the cooling by height, the longwave correction with ice optics, warms the Moon by 11.5~K, to a state near
+307~K with twice the water vapour, 348 against 170~kg\,m$^{-2}$, and high cloud over 40\% of the sky in
+place of 20\%.\claim{G05} Cloud amount and the vertical placement of the longwave cooling therefore carry
+the lunar climate's largest open uncertainty, and both rest on fits that only cloud-resolving runs and the
+reference model can constrain.
+
+\textbf{The gap between the models.} The cloud-resolving model and the GCM disagree near the ground, and the
+forcing methods let the disagreement be taken apart. On the 45\textdegree\,N ring the lowest 1.8~km of CM1
+ran 5.9~K warmer than the GCM over the second lunar day; imposing the GCM's transport across the circle,
+about 15~W\,m$^{-2}$ of heat carried out of the air below 8~km, cut the offset to 3.7~K
+(Figure~\ref{fig:gap}).\claim{G06} PlaSim's longwave over-cooling of its own lowest layers accounts for
+about 1.5~K of the rest; what remains lies in how the two models carry the ground's heat upward, CM1 mixing
+its lower air 14--19~km deep by day where the GCM's stays stable. Three other suspects were tested and
+cleared: a three-dimensional box ran warmer still, the land surface moved the air by at most
+0.3~\textdegree C, and rain falling at Earth's speeds warmed the air by a further 1.0~\textdegree C.\claim{G07} Rain shows the
+larger disagreement. On the GCM's forcing before its corrections, a small box brought 34~mm to the ground
+per lunar day where the GCM rained 180~mm, and at lunar gravity 85\% of the water falling from its clouds
+evaporated on the way down, against 64\% when the same drops fell at Earth's speeds.\claim{G08}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=0.62\textwidth]{figures/fig_gap.pdf}
+\caption{Layer-mean air temperature over the second lunar day on the 45\textdegree\,N ring: CM1 alone, CM1
+with the GCM's transport across the circle imposed, and the GCM's design case on the same row. The imposed
+transport removes about a third of CM1's warm offset in the lowest 1.8~km.}
+\label{fig:gap}
+\end{figure}
+
+\textbf{Storms and lightning.} At lunar gravity the storms stand five to six times taller than Earth's: in
+every run the 0\,\textdegree C level lies near 25~km and the $-40$\,\textdegree C level near 60~km, and
+cloud tops reach 55--80~km.\claim{G09} The main electrified run, two lunar days of a box at 0\textdegree~E,
+made 530 flashes, 20\% of them negative ground strikes and none positive, or 0.022 flashes per square
+kilometre per year, about a hundredth of Earth's average. Its flashes start a median 35.8~km up; in-cloud
+flashes neutralise a median 108~C and ground strikes lower 149~C, where Earth's lower 5--30~C. Hail does
+87\% of the non-inductive charging, and the main negative charge sits at 40--42~km, at $-13$ to
+$-14$\,\textdegree C, just above the $-7$\,\textdegree C level as on Earth.\claim{G10} Two results hang on
+choices that only measurement could settle. Under Takahashi's charging law in place of Saunders and Peck's the
+storms separate as much charge with their polarity inverted, so the lightning's sign rests on laboratory
+laws measured at Earth's impact speeds; and with the NSSL microphysics in place of Morrison's the same box
+runs 1.0~\textdegree C warmer at 2~m and its night fog at the ground covers 29\% of the box in place of 56\%,
+so the lunar night fog depends on the microphysics by about a factor of two.\claim{G11}
+
+\textbf{Seas.} Forced by sixty days of the GCM's surface stress, SWAN finds the light lunar winds raising
+big, slow waves: the same wind, fetch and duration build waves 4--5 times as high as on Earth, with periods
+five times as long. Over the nearside sea, 5.29 million~km$^2$, the mean significant wave height is 1.39~m,
+68\% of area and time stands at or above 1~m, and the largest sea reaches 4.9~m with a 19.3~s mean period.
+Lunar waves keep Earth's steepness and travel at 0.41 of the speed of an Earth wave of the same length.
+SWASH runs them up today's steep slopes to a 98th-percentile run-up of 2.1~m on the exposed face of the
+eastern Smythii headland.\claim{G12} These wave results rest on the corrected design climate as it stood
+before the curved air and the gas bands, and on Earth's laws for wind input, whitecapping and breaking.
+
+\textbf{What stays conditional.} Every number above is conditional, and the conditions differ in weight.
+The design temperature of 295~K is a target held by dimming the sunlight; the 307~K state of the longwave
+test is a sensitivity resting on a correction used beyond its fit. The warmth and humidity of the air near
+the ground stand best as a range between the models, 3.7~K wide in the lowest 1.8~km at 45\textdegree\,N.
+The lunar rain depends on a convection scheme fitted to Earth in the GCM and on Earth's drop limits in
+CM1, the lightning's polarity on a laboratory charging law, and the seas on Earth's wave physics carried to
+lunar gravity by similarity.
