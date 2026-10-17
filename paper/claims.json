@@ -1,0 +1,455 @@
+{
+ "about": "Every number the text cites, with its source and evidence state. Sources: terluna:<path> at commit 186b294, repo:<path> in this repository, drive:<path> on Terluna's research drive, calc:<text>. States: observation, calculation, conditional model, calibration, reproduction, identity, sensitivity, documented, finding.",
+ "claims": [
+  {
+   "id": "S01",
+   "text": "The scenario: 1.2 atm of N2 and O2 at the water level, seas and lakes over 28% of the surface, shield-filtered sunlight, g 1.62 m/s2, a 29.53-day solar day",
+   "source": [
+    "terluna:climate/gcm/README.md#L157-180",
+    "terluna:shared/constants.json",
+    "terluna:climate/gcm/boundary.py#L238"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "S02",
+   "text": "The lunar column holds 7.25 times Earth's air per square metre (74,861 against 10,332 kg/m2)",
+   "source": [
+    "repo:paper/data/regime_calc.json#column_mass"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "S03",
+   "text": "Scale height about 52 km against a 1,737 km radius, H/R about 23 times Earth's; horizon air mass from 35 to about 7",
+   "source": [
+    "repo:paper/data/regime_calc.json#scale_height",
+    "repo:paper/data/regime_calc.json#horizon_air_mass_chapman",
+    "repo:python/climate/results/gcm/twilight.json"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "S04",
+   "text": "One Earth day after sunset the Sun stands 12.2 deg down, the shadow 40.1 km up, with 0.465 of an isothermal column's mass above it",
+   "source": [
+    "repo:paper/data/regime_calc.json#one_day_after_sunset"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "S05",
+   "text": "121,590 Pa at the water level; O2 21,227 Pa (17.5%); Earth's Ar/N2; 400 ppm CO2; global mean 1.16 atm, 1.03-1.22 atm",
+   "source": [
+    "terluna:climate/gcm/README.md#L161-163",
+    "terluna:climate/gcm/boundary.py#L238",
+    "repo:paper/data/regime_calc.json#air"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "S06",
+   "text": "Seas at 28% of the surface; with rain-fed lakes 40% of the GCM's cells are water",
+   "source": [
+    "terluna:climate/gcm/README.md#L512-517"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "S07",
+   "text": "TSIS-1 through the titania shield: 1,235 W/m2 at the top of the air, dimmed to 1,198 W/m2 (scale 0.970) in the design case; no ozone behind the shield",
+   "source": [
+    "terluna:climate/gcm/README.md#L169-171",
+    "terluna:climate/gcm/README.md#L561",
+    "terluna:climate/gcm/boundary.py#L241-242",
+    "terluna:research/decisions.md#L372"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "S08",
+   "text": "Column water vapour 170 kg/m2 in the design case and 348 kg/m2 in the longwave-and-ice test (years 15-19 of each); Earth about 25",
+   "source": [
+    "terluna:climate/gcm/README.md#L1155",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28_corrected_970_lw_ice",
+    "repo:notes/exoplasim.md#L218-221"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "S09",
+   "text": "Mass-mean height 48.6 km; a shell 50 km up has 5.8% more area; horizon air mass 7.1 for air and 13.5 for water against PlaSim's 35",
+   "source": [
+    "terluna:climate/gcm/README.md#L963",
+    "repo:paper/data/regime_calc.json#shell",
+    "repo:python/climate/results/gcm/twilight.json",
+    "terluna:climate/gcm/README.md#L1025-1027"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "S10",
+   "text": "Gravity at the 86 km tropopause 9% below the surface's; a constant-area column with falling gravity holds about 6% more air than p_s/g_s",
+   "source": [
+    "terluna:climate/gcm/README.md#L823",
+    "repo:paper/data/regime_calc.json#shell",
+    "repo:paper/data/regime_calc.json#column_with_falling_gravity"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "S11",
+   "text": "Pressure levels six times higher; droplets 6.04x, rain 2.94x, graupel 2.27x slower; sea roughness 6.04x longer; deep-water waves 0.41 of Earth's speed",
+   "source": [
+    "repo:paper/data/regime_calc.json#fall_speed_slowdown",
+    "repo:paper/data/regime_calc.json#sea",
+    "terluna:climate/crm/README.md#L30-36"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "S12",
+   "text": "Lunar convection is Earth's stretched about sixfold in size and duration; 6 km columns resolve deep storms as 1 km columns do on Earth",
+   "source": [
+    "terluna:climate/crm/README.md#L134-137",
+    "terluna:climate/crm/README.md#L257"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "S13",
+   "text": "Soil thermal wave about 0.6 m deep, 5.4 times Earth's diurnal depth; Coriolis 5.2e-6 /s at 80 deg, inertial period 14 days",
+   "source": [
+    "terluna:climate/crm/README.md#L43-44",
+    "repo:paper/data/regime_calc.json#soil_wave_depth_ratio",
+    "repo:paper/data/regime_calc.json#rotation"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "H01",
+   "text": "CM1 sets g = 9.81 in constants.F, module_ra_etc.F, getcape.F and morrison.F; Morrison's fall-speed laws and caps hold Earth's gravity",
+   "source": [
+    "repo:notes/defect_log.md#B1",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/constants.F",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/morrison.F",
+    "terluna:climate/crm/README.md#L25-36"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H02",
+   "text": "WRF-ELEC's NSSL sets gr = 9.8 twice and ties rain and ice ventilation to Earth's fall-speed coefficients",
+   "source": [
+    "repo:notes/defect_log.md#B2",
+    "repo:notes/defect_log.md#B3",
+    "terluna:climate/crm/README.md#L1607-1617"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H03",
+   "text": "Breakdown cap 180 kV/m acts below ~4.5 km on Earth and ~36 km in lunar air (-44% at the ground); -7 C ground-strike level 5 km on Earth, 27-34 km on the Moon; 0.75 s sub-step for 500 m layers",
+   "source": [
+    "repo:notes/defect_log.md#B4",
+    "repo:notes/defect_log.md#B5",
+    "repo:notes/defect_log.md#B6",
+    "terluna:climate/crm/README.md#L1640-1651",
+    "terluna:climate/crm/README.md#L2016-2030",
+    "terluna:climate/crm/README.md#L1623-1630"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H04",
+   "text": "SWAN's AGROW knee fixed at 1 Hz, called largely arbitrary in its comments; stock SWAN misses the sixfold similarity test by 5.44% in Hs",
+   "source": [
+    "repo:notes/defect_log.md#B24",
+    "terluna:climate/waves/audit.md#L45-60",
+    "terluna:climate/waves/first_experiments.md#L33-37"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H05",
+   "text": "SWAN fixes air density at 1.28 kg/m3; CM1's air over the equatorial seas averages 1.40390 kg/m3",
+   "source": [
+    "repo:notes/defect_log.md#B25",
+    "terluna:climate/waves/build.py#L117-131",
+    "terluna:climate/waves/first_experiments.md#L84-90"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H06",
+   "text": "RRTMG sets CO2 by calendar year and carries Earth's CH4, N2O, halocarbons and ozone; CM1's beta plane uses Earth's rotation and a 6,370 km radius",
+   "source": [
+    "repo:notes/defect_log.md#B8",
+    "repo:notes/defect_log.md#B10",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/constants.F",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/param.F"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H07",
+   "text": "Slingo's convective cover converts rain with the model's solar day (29.8 Earth days for the Moon): rain read 30x too heavy, cover +0.42; bias 0.125 ln(day)",
+   "source": [
+    "repo:notes/defect_log.md#B11",
+    "terluna:climate/gcm/README.md#L454-461",
+    "repo:paper/data/regime_calc.json#slingo_cover_bias"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H08",
+   "text": "ExoPlaSim's 360-day year of 17,280 steps holds 12.08 lunar model days of 1,430 steps; output slips 120 steps a year",
+   "source": [
+    "repo:notes/defect_log.md#A3",
+    "terluna:climate/gcm/README.md#L171-180",
+    "repo:paper/data/regime_calc.json#plasim_calendar"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "H09",
+   "text": "CM1's Sun follows Earth's day, calendar and a 23.5 deg obliquity (radconst); soil layers 1-16 cm; the lunar thermal wave about 0.6 m",
+   "source": [
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/radiation_driver.F#L832-862",
+    "repo:notes/defect_log.md#B10",
+    "terluna:climate/crm/README.md#L43-44"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H10",
+   "text": "WRF-ELEC's conduction is off by default; in a month-long lunar run ion charge persisted for weeks, holding ~20 kV/m at the ground",
+   "source": [
+    "repo:notes/defect_log.md#A7",
+    "terluna:climate/crm/README.md#L2216-2222"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H11",
+   "text": "The curved geometry takes in 10.3 W/m2 more sunlight, lets out 16.2 W/m2 more infrared, 5.8 W/m2 net, nearly all from the shells' widening; twilight 1.4 W/m2 on the ground",
+   "source": [
+    "terluna:research/decisions.md#L369",
+    "terluna:climate/gcm/README.md#L1007-1016"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "H12",
+   "text": "PlaSim's horizon magnification 35/sqrt(1 + 1224 mu^2); the Moon's factor 13.5 for water and 7.1 for air",
+   "source": [
+    "repo:notes/defect_log.md#B13",
+    "terluna:climate/gcm/README.md#L1025-1027",
+    "repo:python/climate/results/gcm/twilight.json"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H13",
+   "text": "PlaSim's thin shell and CM1's flat slab hold g constant; reference models use GM/r^2; g 5.4% lower at 48.6 km and 15.3% at 150 km",
+   "source": [
+    "repo:notes/defect_log.md#B21",
+    "terluna:atmosphere/radiative_convective/METHODS.md#L43",
+    "repo:paper/data/regime_calc.json#shell"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "H14",
+   "text": "Lacis-Hansen water absorptivity left the air absorbing 7.7-8.2 points too little on 11 columns",
+   "source": [
+    "repo:notes/defect_log.md#B17",
+    "terluna:climate/gcm/README.md#L280-302"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "H15",
+   "text": "Rayleigh normalised to a 5772 K blackbody gives too low a coefficient for the filtered Sun; TH2OC over-absorbs; uncalibrated design case passed 310 K, 315.5 K at year 12",
+   "source": [
+    "repo:notes/defect_log.md#B16",
+    "terluna:climate/gcm/README.md#L222-252",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A_uncalibrated/progress.json"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "H16",
+   "text": "PlaSim's two shortwave bands omit CO2 and O2, whose sunlight went to the water vapour lower down",
+   "source": [
+    "repo:notes/defect_log.md#B15",
+    "terluna:climate/gcm/README.md#L1088-1112"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H17",
+   "text": "Sasamori longwave cools the lowest two layers 9.7-11.9 W/m2 too much and the air aloft up to 12 W/m2 too little against correlated-k",
+   "source": [
+    "repo:notes/defect_log.md#B18",
+    "terluna:climate/gcm/README.md#L767-790"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "H18",
+   "text": "CCM3 cloud water falls off on 700 ln(1+PW) m of geometric height; lunar cloud above ~20 km left nearly dry",
+   "source": [
+    "repo:notes/defect_log.md#B12",
+    "terluna:climate/gcm/README.md#L367-399"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H19",
+   "text": "Liquid optics for all cloud; saturation over liquid; high cloud at 180-204 K forms at 136-149% of ice saturation",
+   "source": [
+    "repo:notes/defect_log.md#B19",
+    "repo:notes/defect_log.md#B20",
+    "terluna:climate/gcm/README.md#L811-822"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H20",
+   "text": "RRTMG reference pressures begin at 1,053.63 hPa; the lowest 7.4-7.5 km over the sea are extrapolated in ln p; ice optics end at 140 um; the box stopped at day 6.45 at 157 um",
+   "source": [
+    "repo:notes/defect_log.md#B22",
+    "repo:notes/defect_log.md#B23",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/module_ra_rrtmg_lw.F#L3674-3683",
+    "repo:paper/data/regime_calc.json#rrtmg_extrapolated_depth_km",
+    "terluna:climate/crm/README.md#L1859-1867"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H21",
+   "text": "Morrison bounds rain's mean diameter at 2.8 mm (LAMMINR) and begins breakup above 0.3 mm (brkup_db default); the capillary length is 2.46x longer at lunar g",
+   "source": [
+    "repo:notes/defect_log.md#B28",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/morrison.F#L489-498",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/morrison.F#L2265-2276",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/cm1.F#L404",
+    "repo:paper/data/regime_calc.json#capillary_length_ratio"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H22",
+   "text": "Retained Earth calibrations: Wu drag, Komen, the AGROW coefficient, breaker index 0.73, SWASH breaking 0.6/0.3, the charging laws (Takahashi's inverts the lunar storms' polarity)",
+   "source": [
+    "repo:notes/defect_log.md#B27",
+    "repo:notes/defect_log.md#B7",
+    "terluna:climate/waves/runup.md#L147-158"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H23",
+   "text": "solang turns the Sun at the rotation rate and restarts each model day: skip 32.5 deg a day on the Moon, ~1 deg on Earth; equator -8.3% at 270-57 E, +17% near 164 E",
+   "source": [
+    "repo:notes/defect_log.md#A1",
+    "terluna:climate/gcm/README.md#L182-214",
+    "repo:python/climate/results/gcm/sun_check_A28_dim5.json",
+    "repo:paper/data/regime_calc.json#sun_clock_skip"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H24",
+   "text": "The fixedorbit default puts Earth's orbit for 1 AD (23.695 deg) in place of the configured one: 149 against 29 W/m2 at 86 deg; summer rain to 60 deg",
+   "source": [
+    "repo:notes/defect_log.md#A2",
+    "terluna:climate/gcm/README.md#L201-212"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H25",
+   "text": "SWAN reads KTETA uninitialised with breaking off; repeated Earth runs differed ~2.5% in Hs; hidden with breaking on",
+   "source": [
+    "repo:notes/defect_log.md#A5",
+    "terluna:climate/waves/audit.md#L68-83"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H26",
+   "text": "CM1 on several threads parts at 3,000-7,400 s, first in total vertical momentum, in the plain Morrison box too; unlocated",
+   "source": [
+    "repo:notes/defect_log.md#A6",
+    "terluna:climate/crm/README.md#L80-110"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H27",
+   "text": "PlaSim's lowest level reads up to ~20 K too cold in 0.8% of 3-day windows, most likely from the spectral transform over steep terrain",
+   "source": [
+    "repo:notes/defect_log.md#A4",
+    "terluna:climate/gcm/README.md#L497-501"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H28",
+   "text": "The runner's held infrared tail put 86% of sunlight in the near infrared and warmed the first run past 320 K",
+   "source": [
+    "repo:notes/defect_log.md#C1",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A_invalid_ir_tail/model/MOST_DIAG.00000"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H29",
+   "text": "First electrified build: field a median 3.2x breakdown at discharge, 150 C removed; uninitialised scaling and a privatised variable caught by thread-count changes; ventilation missed, rain evaporating 1.3-1.5x too fast",
+   "source": [
+    "repo:notes/defect_log.md#C9",
+    "repo:notes/defect_log.md#C10",
+    "repo:notes/defect_log.md#C11",
+    "repo:notes/defect_log.md#C12",
+    "terluna:climate/crm/README.md#L1653-1667",
+    "terluna:climate/crm/README.md#L1607-1617"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H30",
+   "text": "The ledger's first channels absorbed 104.5 W/m2 above 500 nm against the fine grid's 66.2, 58% too much",
+   "source": [
+    "repo:notes/defect_log.md#C3",
+    "terluna:climate/gcm/README.md#L987-991"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H31",
+   "text": "Terrain forcing by a corner column at 2.9 km; constant vapour above the GCM's 130 km top, 6-15x ice-saturated at 140-150 km; the 45 N twilight pair on -O2 and -O3 builds",
+   "source": [
+    "repo:notes/defect_log.md#C5",
+    "repo:notes/defect_log.md#C4",
+    "repo:notes/defect_log.md#C8",
+    "terluna:climate/crm/README.md#L1248-1258",
+    "terluna:climate/crm/README.md#L1197-1209",
+    "drive:/media/projectspace/terluna-research/cm1/build/moon_omp/src/Makefile"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H32",
+   "text": "The first box rained in the mornings and was stopped at day 47; at 45 N the missing sideways transport is about a third of CM1's warm offset",
+   "source": [
+    "repo:notes/defect_log.md#C6",
+    "terluna:climate/crm/README.md#L830-832",
+    "terluna:climate/crm/README.md#L405-408",
+    "terluna:climate/crm/README.md#L1125-1128"
+   ],
+   "state": "finding"
+  }
+ ]
+}

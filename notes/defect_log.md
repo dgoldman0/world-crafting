@@ -79,6 +79,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B25 | SWAN | Air density fixed at 1.28 kg/m³ | 10-02, 8785f7e | Patched to 1.40390 kg/m³ in the coupled build | Not quantified | Fixed in coupled build | R |
 | B26 | SWAN | INIT 2-s period; ST6 and exact-XNL paths at Earth's g; Earth radius default | 10-02, 8785f7e | Bypassed or set by input | None in the selected configuration | Avoided | R |
 | B27 | SWAN, SWASH | Earth-calibrated laws: Wu drag, Komen, AGROW coefficient, breaker index 0.73, SWASH breaking 0.6/0.3 | 10-02 to 10-03 | Retained | Not quantified | Open | R |
+| B28 | CM1 Morrison | Rain's mean diameter capped at 2.8 mm and breakup begun at 0.3 mm, Earth's values | 10-17 | None | Not quantified; lunar drops held small | Open | S, V |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
 | C2 | CM1–GCM check | GCM's missing sunlight booked as reflection | 09-29, be50d8b retracts 36e29c4 | Each model's own arriving sunlight | A false "reflects too much" finding | Fixed | R |
 | C3 | Twilight ledger | Sky model's channels overstate absorbed energy by 58%; ledger's first channels put near-IR sunlight too high | 10-14, 2ac4359 and 55e5020 | 10,697 channels keeping heights | First two 20-year GCM tests used the old terms | Fixed | R |
@@ -580,6 +581,20 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 - **Remains.** Lunar calibration of these laws is open. `waves.json` records `empirical_validation: "Not
   established"`.
 
+### B28. CM1 Morrison: rain's size limits and breakup (S, V; open)
+
+- **Defect.** Morrison bounds each species' slope parameter (`morrison.F:486-503`, "SIZE LIMITS FOR LAMBDA"). For
+  rain, `LAMMINR = 1/2800 µm` caps the mean diameter at 2.8 mm; snow and graupel are capped at 2 mm. Rain's
+  self-collection turns to breakup above a mean diameter `D_b` (`morrison.F:2265-2276`), which defaults to 300 µm
+  when the namelist's `brkup_db` is zero (`morrison.F:494-498`; `cm1.F:404`). Terluna's runner sets neither
+  (V: no `brkup` in `climate/crm/` at 186b294), and the core patches scale fall speeds but leave these bounds.
+- **Why it is Earth's.** The largest raindrop that survives its fall scales with the capillary length,
+  (σ/(ρ_w g))^½, 2.46 times longer at lunar gravity (`paper/data/regime_calc.json`), and slower drops collide with
+  less energy. Earth's caps keep lunar drops small, and small drops evaporate faster.
+- **Found** on 2026-10-17 by this repository's main session, reading pristine cm1r22.0. No run tested it.
+- **Effect.** Not quantified. It bears on the 85% of falling water that evaporates in the lunar boxes and on the
+  rain gap with the GCM.
+
 ## (c) Defects in Terluna's own work
 
 ### C1. GCM runner: the solar spectrum's tail (R; evidence V)
@@ -810,7 +825,7 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
 - **Build flags.** `climate/crm/README.md:76-78` (every OpenMP build at `-O3`) does not match the `moon_omp`
   executable (C8).
 
-## Items listed by the main session and not checked here
+## Items listed by the main session and checked afterwards
 
-`paper/notes/ideation.md` also lists Earth-fitted drop size limits among the fits used outside their range. This pass
-did not locate or check them.
+`paper/notes/ideation.md` also lists Earth-fitted drop size limits among the fits used outside their range. The
+history pass did not check them; the main session did, and they are entry B28.

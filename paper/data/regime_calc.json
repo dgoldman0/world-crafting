@@ -1,0 +1,103 @@
+{
+ "about": "Every number the paper calculates from stated constants; model results come from the runs.",
+ "air": {
+  "o2_fraction": 0.1745785015215067,
+  "n2_fraction": 0.815269668774136,
+  "ar_fraction": 0.009751829704357397,
+  "molar_mass_g_mol": 28.831947786753435,
+  "formula": "mole fractions from partial pressures; M = sum x_i M_i"
+ },
+ "gravity": {
+  "moon_surface_m_s2": 1.6242188765608128,
+  "ratio_to_standard": 0.16562423218538572,
+  "ratio_to_cm1_earth": 0.16556767345166287,
+  "formula": "g = GM/R^2"
+ },
+ "column_mass": {
+  "moon_kg_m2": 74860.6002273903,
+  "earth_kg_m2": 10332.27452799886,
+  "ratio": 7.245316607154572,
+  "formula": "p_s / g_s (constant gravity)"
+ },
+ "scale_height": {
+  "moon_km": 52.37664362087367,
+  "earth_km": 8.430182229150557,
+  "moon_T_K": 295.0,
+  "earth_T_K": 288.0,
+  "moon_over_radius": 0.030146565915087874,
+  "earth_over_radius": 0.0013232117766678003,
+  "ratio_of_ratios": 22.782873041687218,
+  "formula": "H = R T / (M g)"
+ },
+ "horizon_air_mass_chapman": {
+  "moon": 7.218401170053189,
+  "earth": 34.454445094007795,
+  "formula": "sqrt(pi R / 2H), exponential atmosphere"
+ },
+ "one_day_after_sunset": {
+  "sun_depression_deg": 12.190748644033187,
+  "shadow_height_km": 40.08221788886676,
+  "mass_above_isothermal": 0.4652088067172743,
+  "formula": "h = R (sec d - 1); mass above exp(-h/H), refraction ignored"
+ },
+ "shell": {
+  "area_ratio_at_50km": 1.0583854793007246,
+  "g_drop_at_48_6km": 0.0536828185877718,
+  "g_drop_at_86km": 0.09210477195120392,
+  "g_drop_at_100km": 0.10588740989454759,
+  "g_drop_at_150km": 0.15263263675636662,
+  "formula": "(r/R)^2; g(z) = GM/(R+z)^2"
+ },
+ "column_with_falling_gravity": {
+  "mass_over_ps_over_gs": 1.058664349916867,
+  "formula": "int rho dz / int rho (R/r)^2 dz, exponential rho"
+ },
+ "fall_speed_slowdown": {
+  "cloud_droplets_B2": 6.039826369197293,
+  "rain_B0.8": 2.9418103549307233,
+  "graupel_B0.37": 2.273358009055883,
+  "formula": "V proportional to g^((B+1)/3) at fixed size; CM1 reference 9.81"
+ },
+ "sea": {
+  "charnock_roughness_ratio": 6.037763839295477,
+  "deep_water_speed_ratio": 0.406969571571863,
+  "formula": "z0 = a u*^2/g; c = sqrt(g L / 2 pi)"
+ },
+ "capillary_length_ratio": {
+  "value": 2.457186162930167,
+  "formula": "sqrt(sigma/(rho_w g)), lunar over Earth"
+ },
+ "rotation": {
+  "omega_s": 2.6616995272150692e-06,
+  "coriolis_80deg_s": 5.2425246611806575e-06,
+  "inertial_period_days": 13.871570830160449,
+  "formula": "f = 2 Omega sin(lat); 2 pi / f"
+ },
+ "soil_wave_depth_ratio": {
+  "value": 5.434205553712521,
+  "formula": "depth proportional to sqrt(period)"
+ },
+ "plasim_calendar": {
+  "model_day_days": 29.791666666666668,
+  "model_days_per_360d_year": 12.083916083916083,
+  "slip_steps_per_year": 120,
+  "slip_days_per_year": 2.5,
+  "formula": "1,430 half-hour steps a model day; 17,280 steps a 360-day year"
+ },
+ "sun_clock_skip": {
+  "moon_sweep_deg": 392.54568014733803,
+  "moon_skip_deg": 32.54568014733803,
+  "earth_sweep_deg": 360.98564749546097,
+  "earth_skip_deg": 0.9856474954609666,
+  "formula": "360 x model day / rotation period, then back to the clock start"
+ },
+ "slingo_cover_bias": {
+  "model_day": 0.42427858904325777,
+  "formula": "0.125 ln(day / 1 d)"
+ },
+ "rrtmg_extrapolated_depth_km": {
+  "290K": 7.3754352803689995,
+  "295K": 7.502597957616742,
+  "formula": "H ln(p_s / 1053.63 hPa), dry air at 1,215.9 hPa"
+ }
+}

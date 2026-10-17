@@ -21,7 +21,7 @@ PATTERNS = {
     'self-reference': r'\b(this (paper|article|study|work|section)|the present (paper|analysis|work)|we (show|present|argue|demonstrate))\b',
     'reader management': r'\b(note that|it is (important|worth noting|clear)|as (we will|we shall) see|recall that|importantly|interestingly|notably)\b',
     'stock transition': r'^\s*(Moreover|Furthermore|In addition|Additionally|However|Thus|Hence|Therefore|Overall|In summary|In conclusion)\b',
-    'promotional': r'\b(novel|first time|groundbreaking|crucial|key|unprecedented|robust|powerful|significant(ly)?|state-of-the-art|comprehensive)\b',
+    'promotional': r'\b(novel|first time|groundbreaking|crucial|key|unprecedented|robust|powerful|significant(ly)?(?! wave height)|state-of-the-art|comprehensive)\b',
     'vague intensifier': r'\b(very|quite|rather|somewhat|really|extremely|highly)\b',
 }
 
@@ -37,7 +37,7 @@ def prose(text: str) -> list[tuple[int, str]]:
 
 
 def main(argv) -> int:
-    files = [Path(a) for a in argv] or sorted((PAPER / 'sections').glob('*.tex'))
+    files = [Path(a).resolve() for a in argv] or sorted((PAPER / 'sections').glob('*.tex'))
     total = {k: 0 for k in PATTERNS}
     for f in files:
         hits = []

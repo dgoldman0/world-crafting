@@ -70,7 +70,7 @@ warmer and more humid near the ground.
 
 **Limits (found 2026-10-17, not in Terluna's record).** Morrison's size limits stay Earth's: the slope
 bounds cap rain's mean diameter at 2.8 mm and graupel's at 2 mm, and raindrop self-collection is cut
-above a 300 µm breakup diameter (Verlinde and Cotton). The largest stable raindrop scales as
+above a 300 µm breakup diameter (the scheme's breakup term, CM1's default `brkup_db`). The largest stable raindrop scales as
 (σ/(Δρ g))^½, about 2.5 times larger at lunar gravity, and slower drops collide more gently. Earth's
 caps and breakup therefore keep lunar drops small, and small drops evaporate faster, which bears on the
 85% evaporation and on the gap with the GCM. Autoconversion and accretion rates carry no gravity and
