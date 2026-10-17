@@ -101,10 +101,12 @@ corrected there. The companion note `verification_record.md` describes the check
 
 ## (a) Upstream defects exposed by the adaptation
 
-The paper classes three of these items differently: A3 (the 360-day calendar) and A7 (WRF-ELEC's missing clear-air
-conduction) as limitations in units of time, since the code does what it was written to do, and A8 (the flash log's
-reach threshold) as a constant on the lunar path. Of the remaining five, it counts A1, A2 and A5 as hidden by Earth's
-parameters or usual configurations, and A4 and A6 as defects whose tie to Earth's values is unknown.
+The paper (third draft, 2026-10-17) classes these items as follows. A3 (the 360-day calendar) is a limitation in
+units of time, avoided by configuration; A7 (WRF-ELEC's missing clear-air conduction) a simplification that holds for
+runs of hours; A8 (the flash log's reach threshold) a constant on the lunar path. Its five defects in the released
+codes are A1, A2 and B11 (ExoPlaSim's convective-cover unit, classed here under (b)), which produce little or no error
+at Earth's values; A5, hidden by SWAN's usual configuration; and A6, CM1's thread race, independent of the world. A4,
+PlaSim's cold lowest level, is a fault of uncertain cause.
 
 ### A1. ExoPlaSim: `solang`'s Sun clock (R)
 
