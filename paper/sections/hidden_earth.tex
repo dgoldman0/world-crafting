@@ -11,7 +11,7 @@ forms are limitations; the fifth holds the released codes' defects.
 
 \textbf{Constants written into the code.} A dimensional constant carries the scale of the world it was
 set on, and gravity is the commonest. CM1 release 22 sets it to 9.81~m\,s$^{-2}$ in four places: its
-dynamics, RRTMG's conversion of pressure to layer mass, its CAPE diagnostic and the Morrison microphysics,
+dynamics, the conversion of pressure to layer mass in its RRTMG radiation \autocite{iacono2008radiative}, its CAPE diagnostic and the Morrison microphysics,
 whose fall-speed laws $V = aD^b$ and their caps hold Earth's gravity in their coefficients.\claim{H01}
 WRF-ELEC's NSSL scheme sets 9.8 twice and ties the ventilation of evaporating rain and depositing ice to
 Earth's fall-speed coefficients.\claim{H02} Earth's air sets three thresholds in WRF-ELEC's lightning. A
@@ -29,7 +29,7 @@ derives its gradient from Earth's rotation and a 6,370~km radius.\claim{H06} Eac
 Earth, and becomes right for the Moon once it is a parameter or follows a scaling law.
 
 \textbf{Units of time.} A formula written per day, and a process that matters only over a long run, both
-hold Earth's calendar. Slingo's convective cover in PlaSim, $0.245 + 0.125\ln P$ with $P$ the convective
+hold Earth's calendar. Slingo's convective cover in PlaSim \autocite{slingo1987development}, $0.245 + 0.125\ln P$ with $P$ the convective
 rain in millimetres per day, converts the model's rain to millimetres per day with the model's own solar day. ExoPlaSim sets that
 day from the planet's rotation and orbit, 29.8 Earth days for the Moon, so the formula reads lunar rain
 about 30 times too heavy and adds $0.125\ln 29.8 = 0.42$ to the cover, up to its cap of 0.8; on any world
@@ -56,18 +56,17 @@ reference models take $g = GM/r^2$; lunar gravity falls 5.4\% by the air's mass-
 CM1's 150~km top.\claim{H13}
 
 \textbf{Fits beyond their range.} The radiation schemes rest on fits to Earth's columns and Earth's Sun,
-and the lunar columns lie far outside them. PlaSim's near-infrared water absorptivity, Lacis and Hansen's
-fit to Earth's water paths, levels off toward half the sunlight, and over the Moon's longer paths it left
+and the lunar columns lie far outside them. PlaSim's near-infrared water absorptivity, Lacis and Hansen's fit to Earth's water paths \autocite{lacis1974parameterization}, levels off toward half the sunlight, and over the Moon's longer paths it left
 the air absorbing 7.7--8.2 points too little of the arriving sunlight on eleven columns.\claim{H14}
 ExoPlaSim normalises its Rayleigh coefficient to the ultraviolet of a 5772~K blackbody, which for the
 shield-filtered Sun gives a coefficient too low, and PlaSim's water continuum over-absorbs at lunar paths;
 uncalibrated, the design case passed 310~K and was still warming at 315.5~K in its twelfth
 year.\claim{H15} PlaSim's two shortwave bands omit carbon dioxide and oxygen, whose lines take sunlight
 high in a column 7.25 times Earth's; the model gave that sunlight to the water vapour lower
-down.\claim{H16} Sasamori's broadband longwave has a continuum fitted to the outgoing flux, which leaves the
+down.\claim{H16} Sasamori's broadband longwave \autocite{sasamori1968radiative} has a continuum fitted to the outgoing flux, which leaves the
 cooling by height free: against the correlated-$k$ reference it cools the lowest two layers by
 9.7--11.9~W\,m$^{-2}$ too much and the air aloft by up to 12~W\,m$^{-2}$ too little.\claim{H17} PlaSim
-diagnoses its clouds' water with CCM3's profile, which falls off with geometric height on a scale of
+diagnoses its clouds' water with CCM3's profile \autocite{kiehl1996description}, which falls off with geometric height on a scale of
 $700\ln(1+\mathrm{PW})$~m written for Earth's gravity; with every pressure level six times higher, clouds
 above about 20~km, most of the lunar cover, were left nearly dry.\claim{H18} It gives every cloud the
 optics of liquid water and reckons saturation over liquid at every temperature, so its high cloud, at
@@ -77,12 +76,12 @@ beyond them and are extrapolated in $\ln p$. Its ice optics end at 140~\textmu m
 falling lunar ice outgrows: the electrified box stopped at day 6.45 when its microphysics passed
 157~\textmu m to the radiation.\claim{H20}
 
-The microphysical and surface laws carry Earth in the same way. Morrison bounds the mean diameter of
-rain at 2.8~mm and begins breakup in rain's self-collection above a mean of 0.3~mm, both values taken from Earth's rain, while the
+The microphysical and surface laws carry Earth in the same way. Morrison \autocite{morrison2005new} bounds the mean diameter of rain at 2.8~mm and begins breakup in rain's self-collection above a mean of 0.3~mm, both values taken from Earth's rain, while the
 largest drop that survives its own fall scales with the capillary length $\sqrt{\sigma/\rho_w g}$, 2.46
-times longer at lunar gravity.\claim{H21} The laws of sea and storm are Earth's calibrations: Wu's drag,
-Komen's growth and whitecapping, the AGROW coefficient, a breaker index of 0.73, SWASH's breaking
-thresholds of 0.6 and 0.3, and WRF-ELEC's laboratory charging laws, between which the lunar storms'
+times longer at lunar gravity.\claim{H21} The laws of sea and storm are Earth's calibrations: Wu's drag \autocite{wu1982wind},
+Komen's growth and whitecapping \autocite{komen1984existence}, the AGROW coefficient \autocite{cavaleri1981wind}, a
+breaker index of 0.73 \autocite{battjes1978energy}, SWASH's breaking thresholds of 0.6 and 0.3, and WRF-ELEC's
+laboratory charging laws \autocite{saunders1998laboratory,takahashi1978riming}, between which the lunar storms'
 polarity turns over.\claim{H22}
 
 \textbf{Defects that Earth hid.} Five defects sat in the released codes. In a non-synchronous run on its
@@ -92,7 +91,8 @@ ends with the Sun skipped back by the excess of the model day over the rotation 
 on Earth and 32.5\textdegree\ on the Moon, where sunlight along the equator then ran 8.3\% short from
 270\textdegree\ to 57\textdegree~E and up to 17\% over near 164\textdegree~E
 (Figure~\ref{fig:sunclock}).\claim{H23} Its default orbit setting silently replaces the configured
-obliquity with Earth's orbit for the model's starting year, 23.7\textdegree, which on a Moon tilted
+obliquity with Earth's orbit for the model's starting year from Berger's series \autocite{berger1978long},
+23.7\textdegree, which on a Moon tilted
 1.54\textdegree\ put 149~W\,m$^{-2}$ of sunlight on 86\textdegree\ of latitude against the Moon's 29 and
 carried Earth's seasons and summer rain to 60\textdegree; on Earth the substitution is
 invisible.\claim{H24} SWAN reads its breaker parameter uninitialised whenever depth-induced breaking is off
