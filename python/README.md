@@ -23,7 +23,9 @@ below). Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=p
 python -m pytest                      # from the repository root: 111 tests
 ```
 
-On 2026-10-17 all 95 then present passed under Python 3.13 with numpy, scipy and numba 0.68, with the
+On 2026-10-17, after the electricity tools were added, all 111 passed in the research drive's `optics`
+environment (Python 3.13.7, numpy 2.3.3, scipy 1.16.2, numba 0.68.0) with every input restored; the system Python, lacking numba, collects 77 and passes
+them. Before that addition all 95 then present passed under Python 3.13 with numpy, scipy and numba 0.68, with the
 spectroscopic inputs restored (176 MB for the radiative–convective model, fetched and hash-checked by
 `python -m atmosphere.radiative_convective.fetch_inputs --download`; git-ignored). The 16 electricity tests
 added the same day passed with their inputs restored (`python -m atmosphere.electricity.fetch_inputs
