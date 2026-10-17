@@ -852,6 +852,54 @@
     "terluna:climate/waves/README.md#L12-62"
    ],
    "state": "conditional model"
+  },
+  {
+   "id": "W01",
+   "text": "General repairs carry to any world; calibrations (Rayleigh, water multiplier, continuum, longwave correction, gas fits) only near their column; the curved-air method is general and its tables per column",
+   "source": [
+    "repo:models/exoplasim/README.md",
+    "repo:models/cm1/README.md",
+    "repo:notes/exoplasim.md#L179-228"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "W02",
+   "text": "Chapman factors 22 (Mars), 24.5 (Venus), 14 (Titan), 7.2 (Moon); column 10x, 100x, 7.25x Earth's; Slingo bias 0.35 at 16 d and 0.60 at 117 d; Sun-clock skip 1, 2, 10 and 33 deg at rotations near 1, 2, 10 and 21-60 days",
+   "source": [
+    "repo:paper/data/worlds.json",
+    "repo:notes/exoplasim.md#L23-34",
+    "repo:notes/exoplasim.md#L65-76"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "W03",
+   "text": "Slowly rotating Earth-air planets need only ExoPlaSim's general repairs in non-synchronous runs (Sun clock, convective cover, whole model days)",
+   "source": [
+    "repo:notes/exoplasim.md#L23-47",
+    "repo:notes/exoplasim.md#L91-104",
+    "repo:models/exoplasim/README.md"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "W04",
+   "text": "Mars at 1 bar: H/R 0.00655 (5x Earth's), column 2.6x Earth's, g 0.38 of Earth's; Chapman factor 15.5; inside RRTMG's pressure range",
+   "source": [
+    "repo:paper/data/worlds.json"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "W05",
+   "text": "Titan, present Mars and Venus lie outside PlaSim's and RRTMG's radiation and Morrison's water-only microphysics; the four limits of reach",
+   "source": [
+    "repo:notes/exoplasim.md#L254-264",
+    "repo:notes/cm1.md#L140-156",
+    "repo:paper/data/worlds.json"
+   ],
+   "state": "documented"
   }
  ]
 }
