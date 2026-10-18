@@ -38,7 +38,10 @@
 
 \title{\textbf{Modelling Earth-like worlds beyond Earth's range:\\ ExoPlaSim, CM1, SWAN and SWASH\\ adapted and tested on a breathable Moon}}
 \author{Daniel S. Goldman\,\orcidlink{0000-0003-2835-3521}}
-\date{17 October 2026}
+% The date of the last commit that changed the paper's sources: the build sets TeX's clock from it
+% (SOURCE_DATE_EPOCH with FORCE_SOURCE_DATE=1 in the Makefile), so the same sources print the same date.
+\date{\number\day\space\ifcase\month\or January\or February\or March\or April\or May\or June\or July\or
+  August\or September\or October\or November\or December\fi\space\number\year}
 
 \begin{document}
 \maketitle
