@@ -103,7 +103,7 @@ scenario.
 | `rotation.solar_day_days` | d | Optional, stated with its basis; otherwise 1/(1/P_rot − 1/P_year) |
 | `orbit.star`, `semi_major_axis_au`, `sidereal_year_days`, `eccentricity` | –, AU, d, – | The orbit about the star |
 | `orbit.from_host` | – | For a moon, the host planet whose orbit it follows, in place of the four fields above |
-| `star.id`, `star.spectrum`, `star.constant_w_m2` | –, pinned name, W m⁻² | The spectrum, and its total at 1 AU |
+| `star.id`, `star.spectrum`, `star.spectrum_form`, `star.constant_w_m2`, `star.temperature_k` | –, pinned name or `blackbody`, –, W m⁻², K | The spectrum: a pinned measured or model spectrum, its tails the star's blackbody, or the blackbody alone; `irradiance` for a pinned irradiance at 1 AU, kept as measured with its tails holding the rest of the constant, or `shape` for one scaled whole to the constant; the total at 1 AU; and the effective temperature that sets the blackbody |
 | `host.id`, `host.neglected` | – | A moon's planet, and the forcings from it left out, with their size |
 | `surface.geometry` | pinned name | Heights over the geoid from a pinned source, `model-default` or `unchosen` |
 
@@ -140,14 +140,14 @@ scenario.
 | PlaSim's model day | P_rot · N/(N − 1) (`plasim.f90:1292-1300`); exactly one day when `rotationperiod` is 1 (`:1287`) | 29.8054 d | PlaSim's `solar_day`, which registry entry B11 tests |
 | Steps per model day | PlaSim first rounds the steps of a 24-hour day to an even count and divides the day by them, then counts nint(model day) ÷ nint(that step) as an integer division (`plasim.f90:1343-1348`) | 1,430 at 30 min | `NSTPW` 143 for the 3-day means, 10 a model day; `N_RUN_STEPS` 17,160 for 12 whole days; 120 means a year |
 | The stepped model day | The steps per model day times PlaSim's step | 1,430 × 1,800 s, 29.7917 d | The calendar the outputs follow, the paper's `model_day_days` |
-| Sunlight at the top | ∫ S_λ T_λ dλ over the measured spectrum, plus the rest of the total at the longest measured wavelength's transmission (`exoplasim_run.py:976-984`); times (1 AU/a)² and the scale | 1,235.25 W/m² through the shield; 1,198.19 W/m² at Terluna's scale of 0.970 | ExoPlaSim `flux` (`GSOL0`); CM1 `var17` |
+| Sunlight at the top | ∫ S_λ T_λ dλ × (1 AU/a)² × the scale, on the union of the spectrum's points and the filter's: S_λ the star's spectrum, holding its stated constant, and T_λ the filter's transmission, held at its end values beyond its range | 1,236.12 W/m² through the shield. TSIS-1 stands as measured, 1,326.23 W/m², and its tails hold the rest: 0.16 W/m² below 202 nm, where the Sun has about 0.1, and 34.61 W/m² past 2,730 nm. Terluna's 1,235.25 passed all 34.77 W/m² at the shield's 0.904 at 2,730 nm, and the lab's tails pass at the shield's own transmission along them, 0.070% more. Of the total, 6.21 W/m² passes beyond the shield file's 5 µm end at its held 0.934, where the file's model leaves out silica's absorption | ExoPlaSim `flux` (`GSOL0`) and its spectrum files; CM1 `var17` |
 | Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at `air.reference_temperature_k` | At 295 K: 52.4 km, 0.03015, 74,861 kg/m², 7.2 (`paper/data/worlds.json`) | The reach report; deciding whether a column needs a ledger of its own |
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
 | CM1 lengths, times and rates | Lengths × H/H_ref, times × (H/c)/(H/c)_ref, rates × (c/H)/(c/H)_ref (rule 9) | A factor of 1 at the reference state, and 1 + 5.05 × 10⁻⁶ on the Moon with the spin term: 6 km columns, a 150 km top, nudging from 8 to 16 km, a 40 s step | CM1's grid, top, nudging heights, `dtl`, `l_inf` and `rdalpha` (`cm1_run.py:1979-2035`) |
 | CM1's raindrop limits | Morrison's 0.3 mm breakup and 2.8 mm cap on rain's mean diameter × (9.81/g)^½ | × 2.4576: 0.737 mm and 6.88 mm | `brkup_db`; the cap through a planned patch (registry B28) |
 | CM1's soil layers | CM1's 1 cm top layer × (solar day/1 d)^½, the four below doubling | × 5.4342: a 5.4 cm top layer, 5.4 to 86.9 cm | `slab_dzs`, through a planned patch after core 17 (registry `cm1-soil-day`) |
 | CM1's Sun | Declination asin(sin ε · sin L_s), from the obliquity ε and the case's solar longitude L_s | 0 at the equinox the study's cases take | A planned patch after core 17 (registry `cm1-equinox-sun`); the case's sunrise, −acos(−tan φ tan δ) |
-| Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | From the filtered spectrum; Terluna's 0.6164, 0.2283, 0.0811 and 0.0742 came from the unfiltered TSIS-1 | The planned ExoPlaSim patch 11; patch 10's constants until it passes, when registry entry `exoplasim-ice-weights` warns |
+| Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | 0.6295, 0.2276, 0.0752 and 0.0677 through the shield, the fourth 0.0581 were the shield opaque past 5 µm. From the unfiltered TSIS-1, 0.6202, 0.2297, 0.0816 and 0.0685; patch 10's 0.6164, 0.2283, 0.0811 and 0.0742 came from a tail 11% brighter than the rest of the constant, with the whole spectrum scaled to it | The planned ExoPlaSim patch 11; patch 10's constants until it passes, when registry entry `exoplasim-ice-weights` warns |
 | ExoPlaSim's output steps | `mean_interval_days`: below a model day, the divisor of the steps per model day whose mean lies nearest it; from a model day up, the divisor of the year's model days nearest it, the shorter at a tie, so that whole means fill each year | 10 means of 143 steps, 2.98 d; on Earth, 3 days give daily means | `NSTPW` |
 | ExoPlaSim's time-step limit | The advective limit set by the radius a, the truncation N and the run's largest wind u: u·Δt·N/a below 1 | Checked in stage 1 against the largest winds of Terluna's runs, which ran stable at 30 minutes | The guard on `timestep_min` |
 
@@ -158,10 +158,10 @@ a case's top soil layer against 1 cm × (solar day/1 d)^½.
 
 ## Settled in code
 
-`lab/worldlab/derive.py` computes the quantities of the table above, and its `planet()` gathers them into
-the planet record under the registry's names, each stated value beside its derivation. Three wait for later
-parts of stage 1, which read the manifest's data: the sunlight at the top, the ice-optics weights and the
-pressure at the surface's lowest point. Each derivation takes its plainest form, and the calendar follows
+`lab/worldlab/derive.py` computes the table's quantities, and its `planet()` gathers them into the planet
+record under the registry's names, each stated value beside its derivation. The sunlight at the top and the
+ice-optics weights come from `lab/worldlab/sunlight.py`, and the pressure at the surface's lowest point, still
+to code, will come from the world's heights. Each derivation takes its plainest form, and the calendar follows
 the rounding of ExoPlaSim's configure and `plasim.f90`, which the model applies. The derivations agree with
 `paper/data/regime_calc.json` to one part in 10¹² and with `worlds.json` to its stated digits, and with
 Terluna's records within each comparison's stated tolerance.
@@ -192,6 +192,25 @@ Terluna's records within each comparison's stated tolerance.
   Python writes them, its descriptive fields left out. It covers an item's own settings; stage 4's product
   keys add the scenario and the upstream keys.
 - **Unchosen fields** are listed by path, for the stages that read them to refuse.
+
+`lab/worldlab/sunlight.py` gives the sunlight at the top and the ice-optics weights, reading the star's
+spectrum and the scenario's filter through the manifest:
+
+- **The star's spectrum** is a pinned file of wavelengths in nm and irradiance in W m⁻² nm⁻¹ below one header
+  row, or `blackbody`, the blackbody at `star.temperature_k` from where hc/(λkT) = 50 to 1 mm. A pinned
+  spectrum takes that blackbody past each end where it leaves room, at the level of its own light within 2%
+  of the end's wavelength. As an `irradiance` its values stand and its tails hold the rest of
+  `star.constant_w_m2`; a spectrum holding more than the constant is refused. As a `shape` the spectrum and its
+  tails are scaled together to the constant. The one spectrum gives the total and the band weights alike.
+- **The filter** is `none` or a pinned JSON file of `wavelength_nm` and a `transmission` table, whose entry
+  the pin names with `#`. Its transmissions lie between 0 and 1, read linearly between its points and held
+  at its end values beyond them, and the filtered light is integrated on the union of the spectrum's points
+  and the filter's.
+- **The record** gives the star's total at the orbit's semi-major axis; for a pinned spectrum, the light it
+  measures and the light each tail holds; what the filter passes, and the part of that beyond the filter's
+  own range; the filter's share; and the filtered light times the scale where the scale is a number. It ends
+  with the ice-optics weights of the filtered light and of the unfiltered star, each band's edges set into the
+  grid.
 
 `lab/worldlab/data.py` codes rule 4, and `lab/data/manifest.toml` holds its records:
 
@@ -245,8 +264,8 @@ while builds compile the air in.
 
 - Rotation locked to the star: ExoPlaSim's synchronous mode and substellar longitude, and CM1 with a fixed
   Sun.
-- Stellar spectra besides the Sun's, as a blackbody or a pinned model spectrum, and systems of more than one
-  star.
+- Stellar spectra in formats beyond the comma-separated wavelength and irradiance the lab reads, such as
+  model-atmosphere grids, and systems of more than one star.
 - Surface geometry beyond Terluna's atlas: aquaplanets, idealized continents, other bodies' heights.
 - Vertical grids chosen for the world, where today PlaSim's σ levels are Earth's and the ledger's GCM terms
   are computed on them.

@@ -39,12 +39,13 @@ runner's first client, and a user interface can be a second.
   specifications, adapters and case writers, run bookkeeping, analyses, builds and runs, and the data it
   reads, copied with their provenance. Terluna's files serve the comparison tests alone, which skip where
   Terluna is absent (the author's decision of 2026-10-17).
-- **One description, with every derived value computed.** Surface gravity comes from GM, R and the spin,
-  the solar day from the rotation and the year, PlaSim's model day from ExoPlaSim's own rounding rule, and
-  CM1's domain length from the radius and the latitude. CM1's grid follows the scale height, its raindrop
-  limits the capillary length, its soil layers the solar day and its Sun the season. A scenario's sunlight
-  scale may follow its reference temperature, which the target stage meets over GCM runs. A world may state
-  such a value with its basis, as Earth's seed states the standard gravity of 9.80665 m/s², and the lab
+- **One description, with every derived value computed.** Surface gravity comes from GM, R and the spin, the
+  solar day from the rotation and the year, PlaSim's model day from ExoPlaSim's own rounding rule, and CM1's
+  domain length from the radius and the latitude. The sunlight at the top comes from the star's spectrum, or
+  its temperature alone, the orbit and the scenario's filter. CM1's grid follows the scale height, its
+  raindrop limits the capillary length, its soil layers the solar day and its Sun the season. A scenario's
+  sunlight scale may follow its reference temperature, which the target stage meets over GCM runs. A world may
+  state such a value with its basis, as Earth's seed states the standard gravity of 9.80665 m/s², and the lab
   records it beside its derivation (world_spec.md, rule 2).
 - **One register for the world and its scenario.** The Open Moon charter requires one versioned register of
   pressure and composition, water, gravity, rotation and the filtered spectrum (Terluna
@@ -141,7 +142,7 @@ flowchart TB
 | Component | Working module | Does | Built from |
 |---|---|---|---|
 | Specifications | `lab/worlds/`, `lab/configs/`, `lab/studies/` | Worlds, scenarios, model defaults and studies in TOML; `extends`, `set` and `variants` express a derived item and its delta | `EXPERIMENTS`, `MODEL`, `CASES` |
-| Derive | `worldlab.derive` | Pure functions from a specification to the quantities the models need: g; Ω; the solar day; the scale height, H/R, the column mass and the Chapman horizon factor; ExoPlaSim's calendar (rotations per year, model day, steps per day, whole-day run steps); the gas mass fractions and gas constant; CM1's domain lengths and Coriolis parameters | `paper/tools/regime_calc.py`, `boundary.planet()`, arithmetic spread through the runners |
+| Derive | `worldlab.derive`, `worldlab.sunlight` | Pure functions from a specification to the quantities the models need: g; Ω; the solar day; the scale height, H/R, the column mass and the Chapman horizon factor; ExoPlaSim's calendar (rotations per year, model day, steps per day, whole-day run steps); the gas mass fractions and gas constant; CM1's domain lengths and Coriolis parameters. `worldlab.sunlight` gives the sunlight at the top and the ice-optics weights from the star's spectrum and the filter | `paper/tools/regime_calc.py`, `boundary.planet()`, arithmetic spread through the runners |
 | Registry and reach | `worldlab.registry`, `lab/registry/` | Earth-assumption entries and calibration envelopes, evaluated for a world, a scenario and a run's settings into a reach report | `notes/defect_log.md`, classes (a) and (b); the paper's table of reach |
 | Stage graph and store | `worldlab.stages`, `worldlab.store` | Stage definitions, product keys and headers, read-set tracking, staleness, priced plans | Terluna's run key, `case.json`'s input hashes, `shared/provenance.py` |
 | Model adapters | `worldlab.models.exoplasim`, `worldlab.models.cm1` | Builds, input files, namelists, runs and guards for each model | `exoplasim_run.py`, `cm1_run.py`, `cm1_elec.py` |

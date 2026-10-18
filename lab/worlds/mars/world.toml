@@ -27,6 +27,8 @@ eccentricity = 0.0935
 id = "sun"
 spectrum = "tsis1-hsrs-stride100"
 constant_w_m2 = 1361.0               # at 1 AU; the flux at Mars follows from the semi-major axis
+temperature_k = 5772.0               # the Sun's nominal effective temperature (IAU 2015 Resolution B3)
+spectrum_form = "irradiance"         # TSIS-1 is the Sun's irradiance at 1 AU; the rest of the constant fills its tails
 
 [surface]
 geometry = "unchosen"                # MOLA heights would need a pinned source and its licence reviewed
