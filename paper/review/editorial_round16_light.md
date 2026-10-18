@@ -75,3 +75,21 @@ their full abstract (OSTI 1563031) and the two tools against their abstracts.
 | 2 | `assumptions.tex`:47 | "A geometry that suits air a tenth of a percent of the radius tall" disagreed with a cited 1.5 W m⁻² error on Earth | Applied: "a geometry made for air a tenth of a percent of the radius tall" |
 | 3 | `next.tex`:27 | "Both steps" had three candidates in the sentence before, and ecCKD performs neither check | Applied: "Free tools exist for the reduction and for its check" |
 | 4 | `next.tex`:29 | "Built around Earth's air" contrasted the wrong thing, since the test world's air is also nitrogen and oxygen; what is Earth's is the columns | Applied: "both were built around Earth's columns" |
+
+## The Introduction, after the body's four steps (943ad6f)
+
+The Introduction took in the body's new sources: Earth-built models joined to GCMs off Earth, the spread among four
+GCMs on the same moist TRAPPIST-1e cases, and the fits' effects set against such spreads. It also names the
+calculations of atmospheric escape made for the design, the clarification the author asked for in the abstract,
+since the same unclear phrase stood here. Verdict: needs the listed fixes, the first MAJOR. The reader found the
+sources matched, apart from the items below, and the claim of what is new resting on the classification and the
+split into classes, as the related-work scan advises.
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1 | `introduction.tex`:54–56, MAJOR | "Across models, such choices add up to measured spreads" said retained Earth values sum to the THAI spread; Sergeev et al. relate it to parameterization choices in general, and "such choices" renamed the undetected values as choices | Applied: "Plausible results can still disagree: four GCMs given the same moist cases of TRAPPIST-1e all keep it temperate, yet differ in global-mean surface temperature by 14 K with nitrogen-dominated air and 24 K with carbon dioxide, a spread their authors relate to the models' parameterization choices" |
+| 2 | `introduction.tex`:55 | "14 and 24 K" left each case unnamed, and the 24 K case lies outside the Gaean class | Applied with item 1 |
+| 3 | `introduction.tex`:57 | "So those values affect both ..." lost its antecedent | Applied: "so the retained Earth values affect both ..." |
+| 4 | `introduction.tex`:20–21 | "Runs ... tuned the GCM's convection" gave the runs an action; Battalio et al. tuned the convection scheme with runs and observations | Applied: "\textcite{rafkin2022interaction} started a cloud-resolving model from a GCM's unstable profiles and \textcite{battalio2022interaction} tuned the GCM's convection scheme with its runs and observations" |
+| 5 | `introduction.tex`:22–23 | The body's contrast, shared physics against separately built codes, was missing | Applied: "so that the global and resolved calculations share their physics", which the paragraph on separately built codes then answers |
+| 6 | `introduction.tex`:33–34 | "Its exobase" bound to "the design" | Applied: "the Moon's exobase" |
