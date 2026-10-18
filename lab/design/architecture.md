@@ -35,12 +35,14 @@ rules can later run on a cluster.
   specifications, adapters and case writers, run bookkeeping, analyses, builds and runs, and the data it
   reads, copied with their provenance. Terluna's files serve the tests that reproduce Terluna's runs, and
   those tests skip where Terluna is absent (the author's decision of 2026-10-17).
-- **One description, with every derived value computed.** Surface gravity comes from GM and R, the solar
-  day from the rotation and the year, PlaSim's model day from ExoPlaSim's own rounding rule, and CM1's
-  domain length from the radius and the latitude. A world may state such a value with its basis, as Earth's
-  seed states the standard gravity of 9.80665 m/s², and the lab records it beside its derivation
-  (world_spec.md, rule 2). A study's compatibility settings may override a derived value to reproduce a
-  Terluna run, and the override is recorded with every product it reaches.
+- **One description, with every derived value computed.** Surface gravity comes from GM, R and the spin,
+  the solar day from the rotation and the year, PlaSim's model day from ExoPlaSim's own rounding rule, and
+  CM1's domain length from the radius and the latitude. CM1's grid follows the scale height, its raindrop
+  limits the capillary length, its soil layers the solar day and its Sun the season, and a scenario may ask
+  the lab to find its sunlight scale from a target temperature. A world may state such a value with its
+  basis, as Earth's seed states the standard gravity of 9.80665 m/s², and the lab records it beside its
+  derivation (world_spec.md, rule 2). A study's compatibility settings may override a derived value to
+  reproduce a Terluna run, and the override is recorded with every product it reaches.
 - **One register for the world and its scenario.** The Open Moon charter requires one versioned register of
   pressure and composition, water, gravity, rotation and the filtered spectrum (Terluna
   `ensemble/planning/Open_Moon_Editorial_Charter_control-01.md`, E3). In Terluna these values are typed into
@@ -142,7 +144,7 @@ flowchart TB
 | Stage graph and store | `worldlab.stages`, `worldlab.store` | Stage definitions, product keys and headers, read-set tracking, staleness, priced plans, and the Snakemake rules that run the stages | Terluna's run key, `case.json`'s input hashes, `shared/provenance.py` |
 | Model adapters | `worldlab.models.exoplasim`, `worldlab.models.cm1` | Builds, input files, namelists, runs and guards for each model | `exoplasim_run.py`, `cm1_run.py`, `cm1_elec.py` |
 | Coupling | `worldlab.couple` | GCM state to CRM inputs: reference profiles, mean vertical wind, sideways forcing, surfaces along rings and in boxes; a ring's output to a box's day–night forcing | `cm1_run.py:1162-1956`, `ring_crossings.day_night_advection`, `ring_heat_budget.gcm_sideways` |
-| Producers | `worldlab.produce.*`, calling `python/` | The surface grid and sunlight files, reference columns, the curved-air ledger, the gas-band, shortwave, water-continuum and longwave fits, the ice optics | `boundary.py`, `exoplasim_run.sunlight`, `python/climate/gcm/*`, `python/atmosphere/*`, `python/illumination/sky/*` |
+| Producers | `worldlab.produce.*`, calling `python/` | The surface grid and sunlight files, reference columns, the curved-air ledger, the gas-band, shortwave, water-continuum and longwave fits, the ice optics; the seas from the heights and the lakes from runoff; the infrared of a glow in space. Each runs on the scenario's own values, where Terluna's tools default to Earth's air and a ground albedo of 0.1 | `boundary.py`, `exoplasim_run.sunlight`, `python/climate/gcm/*`, `python/atmosphere/*`, `python/illumination/sky/*`; Terluna's `geography/atlas.py`, `geography/drainage.py` and `glow.py` |
 | Jobs | `worldlab.jobs` | Each model job's wrapper: locks, segments, resume, stop files and the machine checks before it starts; chains run as Snakemake targets | Both runners' loops; the shell chains in `session-tools/` |
 | Diagnostics | `worldlab.diag` | One implementation of the diagnostics every world needs: global and zonal means, energy budgets, composites by local solar time, profiles by band, GCM–CRM comparisons | `summarise_year`, `climatology.py`, the generic parts of the ring and box analyses |
 
@@ -236,10 +238,13 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   means (`exoplasim_run.py:98`).
 - **Namelists and guards.** The namelist edits of `build_model` (`exoplasim_run.py:1010-1085`) become a
   function of the resolved inputs. The guards remain: the band split, Terluna's run key against resuming a
-  changed run, free disk and the output count.
+  changed run, free disk and the output count. A new guard checks the time step against the advective
+  limit at the world's radius and the truncation, with the run's largest wind, each model year, and the
+  output interval is given in days and rounded to whole steps (world_spec.md, derived quantities).
 - **Patch 10's solar weights.** Patch 10 writes the near-infrared weights of the TSIS-1 Sun into
-  PlaSim as Fortran constants (regeneration.md, cross-dependency 13). The adapter keys the build by those
-  weights until a version of the patch reads them from the namelist.
+  PlaSim as Fortran constants (regeneration.md, cross-dependency 13). The adapter computes them from the
+  spectrum at the top of the air, the filter included, and keys the build by them until a version of the
+  patch reads them from the namelist.
 
 **CM1.**
 
@@ -266,16 +271,28 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
 - **Variants.** Twilight, terrain, sea and the electrified build are variants in CM1's defaults, each adding
   its patch series and the settings it needs (`lab/configs/cm1/defaults.toml`). A case names its variants,
   and those names form its declared delta.
-- **Lengths and times scaled with gravity.**
+- **Lengths, times and rates scaled with the scale height.**
   - The Rayleigh damping rate and the boundary layer's length already follow g (`cm1_run.py:2004-2005`).
   - The column width, the vertical grid, the model top, the nudging heights and the time step follow it in
-    the lunar cases only through the values chosen for them. The defaults state these at the Moon's
-    gravity, where Terluna's rings ran them, and the adapter multiplies them by g_ref/g: by 1 on the Moon,
-    which reproduces Terluna's values exactly, and by 0.166 at CM1's Earth gravity of 9.81 m/s², where
-    they come to columns of 993 m and a 24.8 km top.
+    the lunar cases only through the values chosen for them. The defaults state these at the Open Moon's
+    state, where Terluna's rings ran them. The adapter multiplies lengths by H/H_ref, with H = RT/(Mg) at
+    the scenario's reference temperature, times by (H/c)/(H/c)_ref, with c = (RT/M)^½, and rates by the
+    inverse: by 1 at the Open Moon's state, which reproduces Terluna's values exactly, and by 0.161 for
+    lengths at Earth's 288 K and air with CM1's 9.81 m/s², where they come to columns of 965 m and a
+    24.1 km top.
   - **Unscaled:** with the world's Sun in a case, the run length is set in the world's solar days, and the
     output, restart and nudging intervals stay in seconds. Terluna's gravity pair, which ran without a Sun,
     scaled those too (`time_scale`, `cm1_run.py:1974-2029`).
+- **Raindrops, soil and the Sun.** Each follows the world through a planned change with an identity
+  default (registry B28, `cm1-soil-day`, `cm1-equinox-sun`):
+  - the breakup diameter and the cap on rain's mean diameter scale as (9.81/g)^½, the capillary length,
+    through the namelist's `brkup_db` and a planned patch, and NSSL's rain limits alike;
+  - the slab soil's layers scale as (solar day/1 d)^½, through a planned version of patch 08, which now
+    fixes the lunar 5–80 cm on every world;
+  - the Sun takes the declination of the case's season, through a planned version of patch 05, whose Sun
+    stands at the equinox.
+
+  The cloud droplets per cm³ come from the scenario's air.
 - **Refused schemes.** At a gravity more than 0.5% from 9.81 m/s², the registry refuses the schemes that
   hard-code Earth's gravity (`notes/cm1.md`): MYNN, the GFS EDMF and GFDL layers, P3, WSM6, Jensen–Ishmael,
   LFO and Goddard radiation. The tolerance is proposed; it passes the Earth control's 9.80665 m/s².
@@ -320,6 +337,10 @@ Each refit changes the climate that supplies the next columns, so a **fixpoint s
   after n passes" or "calibration, unconverged after n passes".
 - **First use.** The first such loop is the paper's first item of next work, the longwave at the settled
   state.
+
+A **target stage** finds the sunlight scale of a scenario that asks for it: secant steps over GCM runs move
+the scale until the global-mean surface temperature meets the scenario's reference temperature, and each
+run is kept as the stage's record. Terluna took the same steps by hand (regeneration.md, "Loops").
 
 ## The registry of Earth assumptions and the reach report
 
@@ -426,4 +447,5 @@ lab status
 | Decision | Choice | Reason |
 |---|---|---|
 | Engine | Snakemake schedules and runs the stages; the lab's own code computes product keys, writes headers and records, and applies the registry and envelope checks | Snakemake reruns a step when its inputs, parameters or code change, keeps jobs within thread and memory limits, prints its plan before running and can later submit jobs to a cluster, all of which the lab would otherwise write. Product keys name the output paths, so Snakemake's graph of files follows the lab's keys ("Running under Snakemake"). The author leaned against draft 2's in-house engine |
-| Registry thresholds | The schemes that hard-code Earth's gravity refused beyond 0.5% from 9.81 m/s²; a ledger of the world's own column required beyond 10% from Earth's horizon air mass of 35; the thin-shell warning above H/R = 0.01 | 0.5% passes the Earth control's 9.80665 m/s², and 0.01 is about 7.5 times Earth's H/R (`lab/registry/earth_assumptions.toml`) |
+| Registry thresholds | The schemes that hard-code Earth's gravity refused beyond 0.5% from 9.81 m/s²; a ledger of the world's own column required beyond 10% from Earth's horizon air mass of 35; the thin-shell warning above H/R = 0.01; the soil-layer warning beyond 10% of the day's depth; the equinox-Sun warning above an obliquity of 5° | 0.5% passes the Earth control's 9.80665 m/s², 0.01 is about 7.5 times Earth's H/R, and 10% admits Terluna's lunar layers (`lab/registry/earth_assumptions.toml`) |
+| Time-step guard | A warning where a run's largest wind passes 80% of the advective limit | A margin below the limit, to be checked against Terluna's stable runs in stage 1 |

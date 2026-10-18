@@ -18,6 +18,11 @@ exoplasim_sw_water_absorption = 1.292
 exoplasim_h2o_continuum = 0.004                 # Terluna's hand trials
 cm1_run_days = 59.06                            # two lunar days as Terluna typed them; 2 solar days come to 59.0612
 cm1_series_through = { core = 17, elec = 9 }    # each CM1 series before the namelist patches: gravity and the air compiled in
+gravity = "gm-over-r2"                          # Terluna's g, without the spin term (5 ppm on the Moon)
+sunlight_scale = 0.970                          # Terluna's trials: 0.9655, 0.9685, then 0.970 at 295.02 K
+cm1_soil_factor = 5.0                           # patch 08's fixed layers, 0.05-0.80 m; (29.53 d / 1 d)^(1/2) gives 5.43
+cm1_rain_size_limits = "earth"                  # Morrison's own, as Terluna's runner left them
+exoplasim_ice_weights = [0.6164, 0.2283, 0.0811, 0.0742]   # patch 10's, from the unfiltered TSIS-1 spectrum
 
 [compatibility.cm1_build_labels]                # the deployed build whose sources each case's build reproduces, by the
 ring_45n_corrected = "moon_omp_o3"              # label Terluna's Makefile patch writes into the OPTS comment
@@ -33,6 +38,8 @@ A28_corrected_970_lw_ice = { run = "terluna-drive:gcm-runs/A28_corrected_970", m
 ledger = "terluna:climate/results/gcm/twilight.json@c7cdb8e252f8425e"
 gas_bands = "terluna:climate/results/gcm/shortwave_gases.json@52532952682c6026"
 longwave = "terluna:climate/results/gcm/longwave_A28_corrected_970_heating.json@e58ad11b423ca3aa"
+seas = "terluna:geography/products/atlas_28pct_4ppd.npz@dc283827f349fdc1"
+lakes = "terluna:geography/products/drainage_28pct_16ppd.npz@98842fc2a648f889"
 
 [gcm.A28_corrected_970]
 model = "exoplasim"
@@ -60,6 +67,8 @@ model_years = [10, 19]                          # the GCM's model years averaged
 kind = "ring"                                   # a circle of latitude
 latitude_deg = 45.0
 band_deg = 3.0                                  # the GCM row nearest the latitude
+solar_longitude_deg = 0.0                       # the equinox, as Terluna's rings ran; with the obliquity it sets the Sun's
+                                                # declination (cm1/defaults, sun_declination)
 large_scale_w = "gcm"
 land_moisture = "gcm"
 purpose = "the 45 N ring on the corrected design case"
@@ -79,6 +88,7 @@ extends = "cm1/defaults"
 forced_by = "A28_corrected_970"
 model_years = [10, 19]
 kind = "box"
+solar_longitude_deg = 0.0
 variants = ["terrain", "sea", "twilight"]
 site = { ring = "ring_45n_corrected", latitude_deg = 45.0, longitude_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes
 columns = { nx = 100, ny = 90 }

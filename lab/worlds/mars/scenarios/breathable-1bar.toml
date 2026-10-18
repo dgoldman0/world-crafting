@@ -13,6 +13,7 @@ title = "Mars held at 1 bar of Earth-like air"
 reference_level = "mean-radius"      # Mars has no sea level; the pressure holds at the mean radius
 surface_pressure_pa = 100000.0       # 1 bar, the illustration's premise
 reference_temperature_k = 288.0      # Earth's mean, as paper/data/worlds.json takes it for "Mars at 1 bar"
+cloud_droplets_per_cm3 = "unchosen"   # the aerosol of a breathable Mars
 o2_partial_pressure_pa = 21227.0
 co2_ppm = 400.0
 ar_per_n2 = 0.011961477
@@ -22,6 +23,7 @@ water_vapour = "prognostic"
 
 [water]
 seas_share = "unchosen"
+seas = "from-heights"                # once the world's heights and the share are chosen
 ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }   # a model choice: the Open Moon runs' ocean
                                                                    # (exoplasim_run.py:92), held for comparison
 

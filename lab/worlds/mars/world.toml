@@ -9,7 +9,8 @@ title = "Mars"
 
 [body]
 radius_m = 3389500.0                 # volumetric mean radius 3389.5 km
-gm_m3_s2 = 4.2828375816e13           # solar_system_gm_m3_s2.mars; GM/R^2 = 3.728 m/s2 (the fact sheet's mean gravity: 3.73)
+gm_m3_s2 = 4.2828375816e13           # solar_system_gm_m3_s2.mars; GM/R^2 = 3.728 m/s2 (the fact sheet's mean gravity: 3.73);
+                                     # less the spin term, 3.7165 m/s2
 
 [rotation]
 sidereal_period_days = 1.02595417    # 24.6229 h

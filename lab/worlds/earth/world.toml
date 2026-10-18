@@ -8,9 +8,9 @@ title = "Earth"
 
 [body]
 radius_m = 6371000.0                 # earth.radius_m
-gm_m3_s2 = 3.986004418e14            # earth.gm_m3_s2; GM/R^2 = 9.8203 m/s2
-gravity_m_s2 = 9.80665               # given: standard gravity, the effective surface value with rotation; the
-                                     # models' own Earth values are their adapters' (CM1 9.81, PlaSim 9.80665)
+gm_m3_s2 = 3.986004418e14            # earth.gm_m3_s2; GM/R^2 = 9.8203 m/s2, and 9.7977 m/s2 less the spin term
+gravity_m_s2 = 9.80665               # given: standard gravity, PlaSim's own Earth value, so that the control and the
+                                     # released run share it; the derived area mean, 9.7977 m/s2, is 0.09% lower
 
 [rotation]
 sidereal_period_days = 0.99726957    # earth.sidereal_day_s 86164.0905 / 86400

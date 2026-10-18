@@ -27,6 +27,7 @@ flowchart LR
   SUN --> COL
   COL --> LED[curved-air ledger]
   CG --> LED
+  S -- ground albedo --> LED
   COL --> GAS[gas-band fits]
   SUN --> GAS
   LED --> SWF[shortwave fits]
@@ -40,7 +41,7 @@ flowchart LR
   S --> H2O
   SWF -. multipliers .-> LED
   CG --> EXB[ExoPlaSim build]
-  W -- ice-optics weights --> EXB
+  SUN -- ice-optics weights --> EXB
   EXB --> GCM[GCM experiment]
   PL --> GCM
   S --> GCM
@@ -55,6 +56,10 @@ flowchart LR
   GCM -. columns .-> SWF
   GCM -. columns .-> H2O
   GCM -. heating diagnostics .-> LWF
+  GCM -. surface temperature, where the scale follows it .-> SUN
+  S -- glow design --> IRS[infrared from space]
+  IRS --> GCM
+  GCM -. efficacy .-> IRS
   GCM -. runoff .-> GEO
   CC -- variants --> CMB[CM1 builds]
   PL -- while compiled in --> CMB
@@ -98,6 +103,8 @@ flowchart LR
 | Shortwave fit | `python -m climate.gcm.plasim_shortwave fit RUN --years A B --lunar`, then copied by hand into `MODEL` | Minutes |
 | Longwave correction | `python -m climate.gcm.plasim_longwave fit RUN --year 0`, on a run with heating diagnostics | About 2 min |
 | Water continuum (`TH2OC`) | Hand trials in calibration runs (`gcm-runs/cal_*`), the chosen value typed into `MODEL` | A GCM run for each value tried |
+| Seas and lakes | Terluna's `geography/atlas.py`, from the heights and the seas share, and `geography/drainage.py`, from a GCM run's runoff | Not timed |
+| Infrared from space | Terluna's `research/studies/solar_shield_array/glow.py`, copied into a study's runner | Not timed |
 | CM1 builds | `python -m climate.crm.cm1_run build LABEL…` | Minutes each |
 | GCM experiment | `python -m climate.gcm.exoplasim_run A28 --folder NAME --years 20 --ncpus 4 [--set …] [--start-from …]` | 2.5–4.7 min a model year |
 | CM1 case | `python -m climate.crm.cm1_run setup CASE`, then `run CASE --hours H --threads T` | 1.8–12.3 h a ring and 2.3–27.2 h a box, for two lunar days |
@@ -131,7 +138,7 @@ The product groups that head the columns:
 | Parameter | Plan | Srf | Sun | Col | Led | Gas | SW | LW | ExB | CMB | GCM | Case | Down |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Radius or GM | ● | ● | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
-| Rotation period | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
+| Rotation period | ● | ● | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | Solar day, where stated | ● | — | — | — | — | — | — | — | — | — | ● where the stated day becomes or ceases to be exactly one day, otherwise c | ● | ● |
 | Tilt, year, eccentricity | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | Star spectrum (shape) | ● | — | ● | ● | ● | ● | ●○ | ○ | ● with ice optics on | c | ● | ● | ● |
@@ -139,11 +146,12 @@ The product groups that head the columns:
 | Surface pressure | ● | — | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | O2 or CO2 | ● | — | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | Ar/N2 alone | ● | — | — | ● | ● | ● | ●○ | ●○ | — | — | ● | ● | ● |
-| Reference temperature | ● | — | — | ● | ● | ● | ●○ | ○ | — | — | ● | ● | ● |
+| Reference temperature | ● | — | ● where the scale follows it | ● | ● | ● | ●○ | ○ | — | — | ● | ● | ● |
+| Cloud droplets | — | — | — | — | — | — | — | — | — | — | — | ● | ● |
 | Surface heights (world) | ● | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
-| Water share, seas, lakes | ● | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
-| Land albedo | — | — | — | — | c | — | ○ | ○ | — | — | ● | ● | ● |
-| Shield (filter) | ● | — | ● | ● | ● | ● | ●○ | ○ | — | c | ● | ● | ● |
+| Water share, seas, lakes | ● | ● | — | — | ● | — | ●○ | ○ | — | — | ● | ● | ● |
+| Land albedo | — | — | — | — | ● | — | ●○ | ○ | — | — | ● | ● | ● |
+| Shield (filter) | ● | — | ● | ● | ● | ● | ●○ | ○ | ● with ice optics on | c | ● | ● | ● |
 | Sunlight scale | ● | — | ● | ● | c | c | ○ | ○ | — | — | ● | ● | ● |
 | Infrared from space | — | — | — | — | — | — | ○ | ○ | — | c | ● | ● | ● |
 | GCM resolution | — | ● | — | — | — | — | ○ | ○ | ● | — | ● | ● | ● |
@@ -180,8 +188,9 @@ The product groups that head the columns:
    - CM1's placeholder land row in `LANDUSE.TBL` holds its own albedo of 20%, typed apart from the GCM's 0.2
      (`cm1_run.py:1088`). In the lab both read the scenario's land albedo, so a change alters the CM1 case
      inputs and leaves the builds as they are.
-   - The ledger assumes its own ground albedo of 0.1, which a change of land albedo leaves in place after a
-     check.
+   - Terluna's ledger assumes its own ground albedo of 0.1 (`python/illumination/sky/atmospheres.py:24`). The
+     lab's takes the scenario's, the land's and the sea's weighted by the seas share, so a change of either
+     makes the ledger stale.
 8. **RRTMG takes the Sun's spectrum unfiltered** (defect log B9), so CM1 receives a shield as the lowered
    total in `var17`.
 9. **The design temperature enters as an input,** as the scenario's `air.reference_temperature_k`. The
@@ -192,15 +201,23 @@ The product groups that head the columns:
 11. **PlaSim's levels enter four calibrations.** The ledger's GCM terms and the longwave correction are
     computed per PlaSim layer, and the offline shortwave copy and the water-continuum fit run on PlaSim's
     levels.
-12. **The air has two Ar/N2 ratios.** The reference tools build the air with 0.0093/0.7808, and the GCM
-    runner with 0.00934/0.78084. A composition change made in one recipe leaves the other behind.
+12. **The air has two Ar/N2 ratios.** The reference tools build the air with 0.0093/0.7808 by default
+    (`python/atmosphere/radiative_convective/thermodynamics.py:124, 148`), and the GCM runner with
+    0.00934/0.78084. Terluna's products hold both; the lab passes the scenario's air to every tool.
 13. **Patch 10 compiles in a property of the star.** It writes the weights of Ebert and Curry's four
     near-infrared bands inside PlaSim's band 2 as Fortran constants, `zew(4)` = 0.6164, 0.2283, 0.0811,
     0.0742 (`models/exoplasim/patches/10-ice-optics.patch:70`). Terluna computed them from the unshielded
-    TSIS-1 spectrum.
+    TSIS-1 spectrum, where the clouds see the light after the shield; the lab computes them from the
+    spectrum at the top of the air.
     - With ice optics on, another star needs a new patch 10 and a new build.
     - A namelist input would remove the dependency, at the cost of a new patch version and its identity
       test.
+
+14. **Gravity carries the spin term.** The lab takes g as GM/R² less (2/3)Ω²R, so a change of rotation
+    reaches every consumer of g, by 5 parts per million on the Moon and 0.23% on Earth.
+15. **CM1's raindrops and soil follow the world.** Its breakup diameter and rain cap scale with the capillary
+    length, and its soil layers with the square root of the solar day, so a change of gravity or of the day
+    reaches the case inputs through them.
 
 ## Loops
 
@@ -215,7 +232,7 @@ The product groups that head the columns:
 
 ## Worked examples
 
-**(a) The sunlight scale from 0.970 to 0.960.**
+**(a) A stated sunlight scale from 0.970 to 0.960.**
 
 - **Produced again:** the flux (`GSOL0`), the design column, the GCM experiment, the CM1 cases' `var17`, the
   CM1 runs and the analyses.
@@ -231,7 +248,9 @@ The product groups that head the columns:
 - **Produced again:** the derived air and everything downstream of it:
   - ExoPlaSim's gases, `GASCON` and `ZGASW`, and an O2 mole fraction of 0.20949 against 0.17458;
   - the middle-atmosphere case, the design column, the ledger and the gas fits;
-  - every CM1 build while builds compile the air in, then the GCM experiment;
+  - every CM1 build while builds compile the air in, then the GCM experiment, with the sunlight scale found
+    again by the target stage, since the scenario's scale follows its reference temperature;
+  - CM1's lengths, by 0.46%, through the air's molar mass;
   - through the loop, the radiation check, the shortwave and longwave fits and the GCM again;
   - the cases and the analyses.
 - **Range check:** the 1,053.63 hPa limit of RRTMG's tables.
@@ -244,6 +263,7 @@ The product groups that head the columns:
   |---|---|
   | The column cases | 15–30 min |
   | The ledger | About 50 min |
+  | The target stage's GCM runs, three or four | About 75 min each |
   | Two GCM runs | About 3 h |
   | The radiation check and fits | About 40 min |
   | The rings | 1.8–12.3 h each |
@@ -254,16 +274,17 @@ The product groups that head the columns:
 **(c) A new body: Mars held at 1 bar** (`mars/breathable-1bar`).
 
 - **Produced again:** everything.
-- **The registry entries the reach report must raise,** some of them beyond the eleven-entry seed (A3, the
-  equinox Sun, the column-mass envelope), which stage 6 adds:
-  - a gravity of 3.73 m/s² against CM1's 9.81: the core patches are required, and the schemes that hard-code
-    Earth's gravity are refused;
+- **The registry entries the reach report must raise,** two of them beyond the thirteen-entry seed (A3 and
+  the column-mass envelope), which stage 6 adds:
+  - a gravity of 3.72 m/s² against CM1's 9.81: the core patches are required, the schemes that hard-code
+    Earth's gravity are refused, and rain's limits scale 1.62 times by the capillary length;
   - a solar day of 1.0275 d, 0.15% longer than the rotation: PlaSim's own clock would skip back about 1° a
     model day, which the synodic clock repairs, and each model year must still hold whole model days
     (defect log A3);
   - H/R of 0.0066 and a horizon factor of 15.5 against PlaSim's 35: a ledger of its own column;
   - a column 2.6 times Earth's: every calibration refitted;
-  - a tilt of 25.19°: CM1's equinox Sun becomes a stated limit.
+  - a tilt of 25.19°: the equinox-Sun entry warns until the planned version of patch 05 gives each case its
+    season's declination.
 - **Before any of this:** the lab refuses every stage that reads an unchosen field (the world's surface
   heights, the scenario's seas, land and ozone) until it is chosen.
 

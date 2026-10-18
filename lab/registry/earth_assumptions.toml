@@ -1,4 +1,4 @@
-# The registry of Earth assumptions: a seed of eleven entries in draft schema 0 (lab/design/architecture.md,
+# The registry of Earth assumptions: a seed of thirteen entries in draft schema 0 (lab/design/architecture.md,
 # "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
 # it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
 # specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
@@ -144,11 +144,40 @@ evidence = ["notes/defect_log.md B22", "notes/cm1.md, Radiation inputs and range
 [[entry]]
 id = "B28"
 model = "cm1"
-where = "morrison.F (slope bounds; brkup_db)"
+where = "morrison.F (slope bounds, LAMMINR; brkup_db)"
 form = "fit beyond its range"
 assumes = "Earth's largest raindrops and breakup, (sigma / (delta-rho g))^(1/2)"
-when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 0.005 }, { config = "cm1.physics.microphysics", eq = "morrison" }]
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 0.005 }, { config = "cm1.physics.microphysics", eq = "morrison" },
+        { config = "cm1.physics.rain_size_limits", eq = "earth" }]
 effect = "rain's mean diameter capped at 2.8 mm, breakup from 0.3 mm; at lunar gravity the stable drop is about 2.5 times larger"
 state = "open"
 action = "warn"
+planned = { namelist = "brkup_db", patch = "core: rain's mean-diameter cap from the namelist", scaling = "(9.81/g)^(1/2)", setting = "cm1.physics.rain_size_limits" }
+note = "the repair is a scaling law, which no low-gravity measurement in the sources tests; NSSL's rain limits take the same scaling; snow's and graupel's 2 mm caps stay Earth's, since surface tension limits liquid drops alone"
 evidence = ["notes/defect_log.md B28", "notes/cm1.md, Fall speeds"]
+
+[[entry]]
+id = "cm1-soil-day"
+model = "cm1"
+where = "the slab soil's five layers: CM1's 1-16 cm; Terluna's patch 08 fixes 5-80 cm on every world"
+form = "unit of time"
+assumes = "layers sized for one solar day: CM1's for Earth's, patch 08's for the Moon's"
+when = [{ q = "soil_layer_ratio", outside = [0.9, 1.1] }]    # proposed; the case's top layer against 1 cm x (solar day / 1 d)^(1/2)
+effect = "the day's heat wave is resolved in too few layers or too many: patch 08's 5 cm top layer is five times CM1's own on Earth"
+state = "open"
+action = "warn"
+planned = { patch = "08, a version reading the layers from the namelist, identity default CM1's own", setting = "cm1.diurnal.soil_layers_m" }
+evidence = ["models/cm1/README.md, patch 08"]
+
+[[entry]]
+id = "cm1-equinox-sun"
+model = "cm1"
+where = "radiation_driver.F, patch 05: coszen = cos(latitude) cos(hour angle)"
+form = "geometry"
+assumes = "the Sun at the equinox, its declination zero"
+when = [{ field = "rotation.obliquity_deg", gt = 5.0 }, { config = "cm1.physics.sun_declination", eq = "equinox" }]   # proposed
+effect = "a case's Sun misses its season's declination, up to the obliquity: 25.19 deg on Mars"
+state = "open"
+action = "warn"
+planned = { patch = "05, a version reading the declination from the namelist", setting = "cm1.physics.sun_declination" }
+evidence = ["models/cm1/patches/core/05-a-solar-day-of-var19-s.patch:43", "lab/design/regeneration.md, example (c)"]

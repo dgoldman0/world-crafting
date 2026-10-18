@@ -8,7 +8,8 @@ title = "The Moon"
 
 [body]
 radius_m = 1737400.0                 # shared/constants.json moon.radius_m
-gm_m3_s2 = 4.902800118e12            # moon.gm_m3_s2; g = GM/R^2 = 1.6242188765608128 m/s2 is derived
+gm_m3_s2 = 4.902800118e12            # moon.gm_m3_s2; g is derived: GM/R^2 less the spin term, 1.6242107 m/s2
+                                     # (Terluna took GM/R^2, 1.6242188765608128)
 
 [rotation]
 sidereal_period_days = 27.321661     # moon.sidereal_month_days: one turn against the stars per sidereal month

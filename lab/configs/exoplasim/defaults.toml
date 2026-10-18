@@ -10,12 +10,14 @@ patches = "models/exoplasim/patches/series"    # all ten applied; each switch be
 
 resolution = "T21"
 levels = 10
-timestep_min = 30.0
+timestep_min = 30.0                            # checked against the advective limit at the world's radius and the
+                                               # truncation (architecture.md, ExoPlaSim's guards)
 ranks = 4                                      # Terluna's design case ran on 4 MPI ranks
 precision = 8
 seed = 1
 initial = "model-default"                      # ExoPlaSim's own starting state; a run may branch from another run of its study
-means_per_model_day = 10                       # 3-day means on the Moon
+mean_interval_days = 3.0                       # rounded to whole model days, or below a model day to a whole number of
+                                               # means in it: 10 a model day on the Moon (2.98 d, NSTPW 143)
 whole_model_days = true                        # defect log A3; Terluna's whole_lunar_days
 fixed_orbit = true                             # defect log A2; NFIXORB 1
 clear_sky = true                               # NDIAGCF 1

@@ -1,5 +1,5 @@
-# Earth's air at sea level, built with the recipe of the lunar design air at 1 atm, so that the control runs the
-# same derivation of the gases as every other scenario. The ozone, seas and land are ExoPlaSim's own Earth settings.
+# Earth's dry air at sea level, given by mole fraction; the lab derives its partial pressures as it does every
+# scenario's. The ozone, seas and land are ExoPlaSim's own Earth settings.
 # The sunlight is the world's TSIS-1 spectrum at 1361 W/m2, where released ExoPlaSim runs Earth at 1367 W/m2 by
 # default (exoplasim/__init__.py:2003), so the released run of the comparison takes the same sunlight and air
 # through ExoPlaSim's own interface. Draft schema 0.
@@ -8,17 +8,18 @@ schema = "worldlab.scenario/0"
 id = "earth/control"
 world = "earth"
 kind = "found"
-title = "Earth control: 1 atm, Earth's O2 partial pressure and Ar/N2, 400 ppm CO2"
+title = "Earth control: 1 atm of Earth's dry air with 400 ppm CO2"
 
 [air]
 reference_level = "sea"
 surface_pressure_pa = 101325.0               # the standard atmosphere
-o2_partial_pressure_pa = 21227.0             # 0.2095 of it, Earth's dry air (Terluna exoplasim_run.py:78)
+o2_mole_fraction = 0.2095                    # Earth's dry air (Terluna exoplasim_run.py:78)
 co2_ppm = 400.0                              # a model choice: the lunar design air's value (exoplasim_run.py:80),
                                              # so the control and the Moon share their CO2
-ar_per_n2 = 0.011961477                      # Earth's 0.00934/0.78084 (exoplasim_run.py:79)
+ar_mole_fraction = 0.00934                   # Earth's dry air (exoplasim_run.py:79)
 balance = "N2"
 reference_temperature_k = 288.0      # Earth's global mean (paper/data/worlds.json, "global means")
+cloud_droplets_per_cm3 = 100.0       # a model choice: the Open Moon's value, held for the comparison
 ozone = "model-default"              # ExoPlaSim's ozone profile, as the released model runs Earth
 water_vapour = "prognostic"
 

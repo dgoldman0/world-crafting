@@ -25,6 +25,7 @@ draft 2, and the author's answers to the open questions led to draft 3.
 | 7 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 3 seed; 4 between the documents | 2 | — |
 | 8 | 2026-10-17 | A: README, architecture, plan, with AGENTS.md and the seeds (the single round on draft 3) | 3 prose | — | 9, and 3 minor |
 | 8 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 2 prose; 3 seed; 2 between the documents | 1 | — |
+| 9 | 2026-10-18 | One round on draft 4 | pending | — | — |
 
 ## Round 1 dispositions
 
@@ -352,3 +353,26 @@ regeneration legend's turn back to Terluna.
 Round 8 was the single round on draft 3, at the author's direction, and its findings are revised with no
 confirmation round after them. Before stage 1, the author's confirmations of the engine and the three
 registry thresholds remain.
+
+## Draft 4
+
+Draft 3, as revised after round 8, is tagged `lab-design-draft-3` (commit 4b313c3). On 2026-10-18 the
+author asked whether raindrop size was hard-coded, and then for a look over every value the lab should
+compute from a world's base parameters. Draft 4 carries the answers:
+
+- **Raindrops.** Morrison's breakup diameter and its cap on rain's mean diameter scale with the capillary
+  length, through the namelist's `brkup_db` and a planned patch, with NSSL's limits alike; the cloud
+  droplets per cm³ moved from CM1's defaults to the scenario's air.
+- **In the schema.** The sunlight scale may follow the reference temperature through a target stage; CM1's
+  lengths, times and rates follow the scale height; gravity carries the spin term; the air may be given by
+  mole fraction; ExoPlaSim's output interval is given in days and its time step checked against the
+  advective limit.
+- **In the models and tools.** CM1's soil layers follow the solar day and its Sun the season, through
+  planned versions of patches 08 and 05; the ledger takes the scenario's ground albedo, the reference
+  tools the scenario's air, and patch 10's ice-optics weights the spectrum at the top of the air.
+- **Producers.** The geography producer derives the seas from the heights and the lakes from runoff, and
+  the glow producer the infrared from space, both brought from Terluna.
+- **Compatibility.** The `open-moon` study holds Terluna's values for each: its gravity, sunlight scale,
+  soil layers, rain limits and ice-optics weights, and its seas and lakes by hash.
+- **Registry.** Two entries joined the seed, `cm1-soil-day` and `cm1-equinox-sun`, and B28 names its
+  planned repair.

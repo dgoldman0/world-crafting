@@ -1,11 +1,13 @@
 # CM1's shared defaults: the settings of Terluna's rings (climate/crm/cm1_run.py, CASES['ring'] at :1094-1101 and
 # case_settings at :1979-2035), stated for any world. A study's CM1 case extends them and names its variants.
-# Draft schema 0 (lab/design/world_spec.md, rule 9).
+# Draft schema 0 (lab/design/world_spec.md, rules 7 and 9).
 #
-# Lengths and the time step follow gravity: the adapter multiplies them by g_ref/g, and the damping rate by g/g_ref.
-# They are given at the reference gravity, the Moon's, where Terluna's rings ran them, so on the Moon they stand as
-# written. At CM1's Earth gravity of 9.81 m/s2 they come to columns of 993 m, a top at 24.8 km, nudging from 1.3
-# to 2.6 km, a 6.6 s time step, a 75 m boundary-layer length and a damping rate of 1/300 per second.
+# Lengths follow the scale height H = RT/(Mg) at the scenario's reference temperature, times follow H/c, with
+# c = (RT/M)^(1/2) setting the speeds, and rates follow c/H (rule 9). The values are given at the reference state,
+# the Open Moon's, where Terluna's rings ran them, so there they stand as written. At Earth's 288 K and air, with
+# CM1's 9.81 m/s2, they come to columns of 965 m, a top at 24.1 km, nudging from 1.29 to 2.57 km, a 6.5 s time
+# step, a 73 m boundary-layer length and a damping rate of 1/296 per second. Terluna derived the lunar values from
+# CM1's Earth 75 m and 1/300 per second by gravity alone, which leaves that 3%.
 
 schema = "worldlab.defaults.cm1/0"
 id = "cm1/defaults"
@@ -16,11 +18,15 @@ optimization = "-O3 -march=native"             # Terluna's OpenMP default since 
 threads = 6
 ranks_multiple = 8                             # a ring's column count is rounded to a multiple of 8
                                                # (cm1_run.py:2051-2056); a box states its own
-reference_gravity_m_s2 = 1.6242188765608128    # the Moon's GM/R^2
 world_constants = "build"                      # gravity, CO2 and O2 compiled in, as Terluna's builds have them;
                                                # "namelist" once the namelist patches pass plan stage 3
 
-[scaled]                                       # times g_ref/g
+[reference]                                    # the state at which the scaled values hold: the Open Moon's
+gravity_m_s2 = 1.6242188765608128              # GM/R^2, as Terluna's rings ran
+temperature_k = 295.0                          # the scenario's reference temperature
+molar_mass_g_mol = 28.8319                     # the design air at 1.2 atm (world_spec.md, derived quantities)
+
+[scaled_length]                                # times H/H_ref
 column_target_m = 6000.0
 dz0_m = 100.0                                  # the vertical grid: dz0 up to z_fine, then stretched to dz_max
 z_fine_m = 1000.0
@@ -28,11 +34,22 @@ dz_max_m = 2000.0
 ztop_m = 150000.0
 nudge_start_m = 8000.0                         # nudging toward the GCM from here, fully from nudge_full_m
 nudge_full_m = 16000.0
-time_step_s = 40.0
 pbl_length_m = 452.98697768979696              # l_inf, 75 m x 9.81/g at the reference; cm1_run.py:2005 rounds it to 453.0
 
-[scaled_inverse]                               # times g/g_ref
+[scaled_time]                                  # times (H/c)/(H/c)_ref
+time_step_s = 40.0
+
+[scaled_rate]                                  # times (c/H)/(c/H)_ref
 rayleigh_rate_per_s = 0.0005518922448388763    # rdalpha, (g/9.81)/300 at the reference; cm1_run.py:2004 rounds it to 0.00055189
+
+[capillary]                                    # times (9.81/g)^(1/2): the largest stable raindrop follows the capillary
+                                               # length (sigma/(rho_w g))^(1/2). Given at CM1's Earth gravity, where
+                                               # Morrison set them; 2.46 times larger on the Moon (registry B28)
+breakup_diameter_m = 3.0e-4                    # brkup_db, read from the namelist (cm1.F:404; morrison.F:494-498)
+rain_max_mean_diameter_m = 2.8e-3              # 1/LAMMINR (morrison.F:486-503); a planned patch reads it from the namelist
+
+[diurnal]                                      # times (solar day / 1 d)^(1/2), the depth the day's heat reaches
+soil_layers_m = [0.01, 0.02, 0.04, 0.08, 0.16] # CM1's slab soil; Terluna's patch 08 fixes 0.05-0.80 m on every world
 
 [unscaled]
 z_stretch = 1.08                               # the grid's growth per level, a ratio
@@ -46,12 +63,15 @@ nudge_ramp_s = 86400.0
 radiation_s = 1800.0
 
 [physics]
-microphysics = "morrison"                      # ptype 5
-droplets_cm3 = 100.0
+microphysics = "morrison"                      # ptype 5; its cloud droplets per cm3 come from the scenario's air
 radiation = "rrtmg"                            # radopt 2
 surface_layer = "mm5"                          # sfcmodel 2, oceanmodel 1
 pbl = "cm1-simple"                             # ipbl 2
 twilight = "none"                              # the curved air's twilight in RRTMG, var20; the twilight variant sets it
+rain_size_limits = "capillary"                 # the [capillary] values; "earth" keeps Morrison's own, the identity
+                                               # default of the planned patch (registry B28)
+sun_declination = "from-season"                # from the world's obliquity and the case's solar longitude, through a
+                                               # planned version of patch 05, whose Sun stands at the equinox
 
 # Variants: the named changes a case may declare. Each adds its patch series and sets what it needs, by dotted
 # path as a study's [set] does, and the lab's pair check accepts a pair that differs by its declared variants alone.

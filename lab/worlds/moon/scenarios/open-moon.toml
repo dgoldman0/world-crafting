@@ -5,7 +5,7 @@ schema = "worldlab.scenario/0"
 id = "moon/open-moon"
 world = "moon"
 kind = "crafted"
-title = "The Open Moon: 1.2 atm at the water level, 28% seas with rain-fed lakes, the titania stack at 0.970"
+title = "The Open Moon: 1.2 atm at the water level, 28% seas with rain-fed lakes, under the titania stack"
 
 [air]
 reference_level = "water"            # pressures are stated at the water level; land stands above it
@@ -14,16 +14,18 @@ o2_partial_pressure_pa = 21227.0     # Earth's (exoplasim_run.py:78)
 co2_ppm = 400.0                      # of the total pressure (exoplasim_run.py:80, :820)
 ar_per_n2 = 0.011961477              # Earth's 0.00934/0.78084 (exoplasim_run.py:79)
 balance = "N2"
-reference_temperature_k = 294.9      # the design column's surface: A28_dim5_moon's global mean (atmosphere/lower_air.py:29);
-                                     # the paper's table of reach takes 295 K
+reference_temperature_k = 295.0      # the design aim near 295 K, which the paper's table of reach takes (Terluna's final
+                                     # target is open: research/decisions.md, 2026-10-17). Terluna's design column holds
+                                     # 294.9 K, A28_dim5_moon's mean (atmosphere/lower_air.py:29), in its recorded products
+cloud_droplets_per_cm3 = 100.0       # cloud droplets the air's aerosol supports: Terluna's rings (cm1_run.py, CASES['ring'])
 ozone = "none"                       # the titania stack's design (moon_gcm_configuration.json, atmosphere.ozone)
 water_vapour = "prognostic"
 
 [water]
 seas_share = 0.28                    # shared/scenarios/water.json, chosen 2026-09-25
-seas = "terluna:geography/atlas_28pct_4ppd"
-lakes = "terluna:geography/drainage_28pct_16ppd"   # rain-fed lakes at their own levels; with them the GCM's mask
-                                                   # holds about 40% water (land share 0.5995 in A28_corrected_970)
+seas = "from-heights"                # the world's heights flooded to the seas share (Terluna: geography/atlas.py)
+lakes = "from-runoff"                # rain-fed lakes at their own levels, from a GCM run's runoff (geography/drainage.py);
+                                     # with them the GCM's mask holds about 40% water (land share 0.5995 in A28_corrected_970)
 ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }   # exoplasim_run.py:92
 
 [land]
@@ -32,7 +34,8 @@ albedo = 0.2                         # placeholder: no soil or vegetation map ye
 
 [sunlight]
 filter = "terluna:protection/shield_transmission#titania_stack"   # protection/spectra/shield_transmission.json
-scale = 0.970                        # the design case since 2026-10-14 (--set sunlight_scale=0.970)
+scale = "to-reference-temperature"   # found by the lab's target stage; Terluna's trials gave 0.970 (295.02 K), a
+                                     # compatibility setting of the open-moon study
 
 [forcing]
 top_infrared_w_m2 = { day = 0.0, night = 0.0 }   # none in the design case; the glow runs had 10.1718 and 0.5165
