@@ -12,8 +12,9 @@ Use informative commit messages. Multiple phrases for a commit message.
 ## System usage limits
 
 Be mindful of system resource availability, especially when other sessions run tests or models on the
-same machine. The GCM, CM1 and SWAN runs themselves stay in Terluna; work here runs patches, offline
-tools and tests.
+same machine. Terluna's GCM, CM1 and SWAN runs stay in Terluna. Once built, the lab files its own runs in
+its store under a machine budget (`lab/design/architecture.md`); until then, work here runs patches,
+offline tools and tests.
 
 ## Where work goes
 
@@ -23,10 +24,13 @@ tools and tests.
 | An in-house reference or calibration tool | `python/`, under the package path it had in Terluna so its imports and history stay traceable |
 | Notes on correctness, limitations and room for improvement | `notes/`, one file per component |
 | The paper | `paper/`: notes, sections, figures, data extracts, source records, review records |
-| The integrated lab's design, its draft specifications and its registry of Earth assumptions | `lab/` (see `lab/README.md`; on the `lab` branch since 2026-10-17) |
+| The integrated lab: its design, specifications and registry of Earth assumptions and, as it is built, its code, case set-up, run bookkeeping and analyses | `lab/` (see `lab/README.md`; on the `lab` branch since 2026-10-17) |
 
-Case set-up, run bookkeeping and analysis scripts stay in Terluna. Upstream source code is never
-committed whole: patches are applied to the pinned upstream archives named in each model's README.
+World-crafting is a standalone project (the author's decision of 2026-10-17). What the lab uses for its
+own work, case set-up, run bookkeeping, analyses and data included, lives in `lab/` and the lab's store,
+and Terluna's files serve its tests alone; Terluna's own case set-up, bookkeeping and analysis scripts stay
+in Terluna. Upstream source code is never committed whole: patches are applied to the pinned upstream
+archives named in each model's README.
 
 ## File and evidence practice
 

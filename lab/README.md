@@ -10,7 +10,7 @@ Every product records its producer, its inputs and the values it read, from whic
 changed parameter makes stale. A fit also records the states it was fitted on, against which the lab checks
 each run that uses it.
 
-**State (2026-10-17): design.**
+**State (2026-10-17): design, draft 3.**
 
 ## Reading order
 
@@ -37,6 +37,7 @@ each run that uses it.
 | The notes' improvements in order of value | The order of model work once the lab can run it |
 | `paper/tools/regime_calc.py`, `paper/data/worlds.json`, the paper's table of reach | The derived quantities and the reach report, with the paper's numbers as their first test |
 
-Terluna's runners, case definitions and records remain where they are, and the lab only reads them. Under
-the proposed decisions (design/architecture.md), runs continue in Terluna until the lab reproduces their
-inputs byte for byte.
+The lab is self-contained: what it uses for its own work lives in this repository and the lab's store, the
+Terluna data it needs among them, copied with their provenance. Terluna's runners, case definitions and
+records stay where they are, and the lab's reproduction tests read them there (design/architecture.md,
+Principles).

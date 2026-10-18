@@ -22,14 +22,15 @@ water_vapour = "prognostic"
 
 [water]
 seas = "model-default"               # ExoPlaSim's Earth land-sea mask
-ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }
+ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }   # a model choice: the Open Moon runs' ocean
+                                                                   # (exoplasim_run.py:92), so both run on one ocean
 
 [land]
 albedo = "model-default"
 
 [sunlight]
-filter = "none"
-scale = 1.0
+filter = "none"                      # the Sun reaches Earth's air unfiltered
+scale = 1.0                          # the world's TSIS-1 total, 1361 W/m2 at 1 AU
 
 [forcing]
-top_infrared_w_m2 = { day = 0.0, night = 0.0 }
+top_infrared_w_m2 = { day = 0.0, night = 0.0 }   # zero: the most Earth receives, from the full Moon, is about 0.03 W/m2

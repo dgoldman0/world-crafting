@@ -16,6 +16,7 @@ flowchart LR
   CG[GCM settings: defaults and study] --> PL
   W --> GEO[surface geometry: heights, seas, lakes]
   S --> GEO
+  GEO -- lowest point --> PL
   GEO --> SRF[T21 mask and geopotential]
   PL --> SRF
   CG --> SRF
@@ -34,6 +35,9 @@ flowchart LR
   CG --> LWF
   PL --> LWF
   S --> LWF
+  CG --> H2O[water-continuum fit]
+  PL --> H2O
+  S --> H2O
   SWF -. multipliers .-> LED
   CG --> EXB[ExoPlaSim build]
   W -- ice-optics weights --> EXB
@@ -47,11 +51,14 @@ flowchart LR
   GAS --> GCM
   SWF --> GCM
   LWF[longwave correction] --> GCM
+  H2O --> GCM
   GCM -. columns .-> SWF
+  GCM -. columns .-> H2O
   GCM -. heating diagnostics .-> LWF
   GCM -. runoff .-> GEO
-  PL --> CMB[CM1 builds]
-  S --> CMB
+  CC -- variants --> CMB[CM1 builds]
+  PL -- while compiled in --> CMB
+  S -- while compiled in --> CMB
   GCM --> EXT[extraction: profiles, vertical wind, sideways forcing]
   GCM --> BOX[ring and box surfaces]
   GEO --> BOX
@@ -71,8 +78,9 @@ flowchart LR
 ```
 
 - **Dashed edges:** a run's output, or the refitted multipliers, returning to a product upstream.
-- **Scenario to CM1 builds:** the lab's source for the builds' air. Terluna's builds read CO2 and O2 from a
-  GCM run's record (inventory.md, hand step 9).
+- **Planet record and scenario to CM1 builds:** gravity and the air, while CM1's builds compile them in. Once
+  the namelist patch passes plan stage 3, those values reach the case inputs alone. Terluna's builds read CO2
+  and O2 from a GCM run's record (inventory.md, hand step 9).
 
 ## Producers today
 
@@ -88,6 +96,7 @@ flowchart LR
 | Radiation check on a GCM run's columns | `python -m climate.gcm.radiation_check RUN --years A B` | About 30 min on 8 cores |
 | Shortwave fit | `python -m climate.gcm.plasim_shortwave fit RUN --years A B --lunar`, then copied by hand into `MODEL` | Minutes |
 | Longwave correction | `python -m climate.gcm.plasim_longwave fit RUN --year 0`, on a run with heating diagnostics | About 2 min |
+| Water continuum (`TH2OC`) | Hand trials in calibration runs (`gcm-runs/cal_*`), the chosen value typed into `MODEL` | A GCM run for each value tried |
 | CM1 builds | `python -m climate.crm.cm1_run build LABEL…` | Minutes each |
 | GCM experiment | `python -m climate.gcm.exoplasim_run A28 --folder NAME --years 20 --ncpus 4 [--set …] [--start-from …]` | 2.5–4.7 min a model year |
 | CM1 case | `python -m climate.crm.cm1_run setup CASE`, then `run CASE --hours H --threads T` | 1.8–12.3 h a ring and 2.3–27.2 h a box, for two lunar days |
@@ -96,7 +105,9 @@ flowchart LR
 ## Parameter by parameter
 
 Marks: ● produced again; ○ produced again through a loop, once the GCM experiment has run again and if the
-loop is closed; c kept, after a consistency or range check; — unaffected.
+loop is closed; b produced again while CM1's builds compile gravity and the air in, and unaffected once the
+namelist patch passes plan stage 3 (cross-dependency 3); c kept, after a consistency or range check;
+— unaffected.
 
 The product groups that head the columns:
 
@@ -109,7 +120,7 @@ The product groups that head the columns:
 | Led | Ledger |
 | Gas | Gas-band fits |
 | SW | Shortwave fits |
-| LW | Longwave correction |
+| LW | Longwave correction and water continuum, which share their marks |
 | ExB | ExoPlaSim build |
 | CMB | CM1 builds |
 | GCM | GCM experiment |
@@ -118,17 +129,17 @@ The product groups that head the columns:
 
 | Parameter | Plan | Srf | Sun | Col | Led | Gas | SW | LW | ExB | CMB | GCM | Case | Down |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Radius or GM | ● | ● | — | ● | ● | ● | ●○ | ●○ | — | ● | ● | ● | ● |
+| Radius or GM | ● | ● | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | Rotation period | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
-| Solar day, where stated | c | — | — | — | — | — | — | — | — | — | c | ● | ● |
+| Solar day, where stated | ● | — | — | — | — | — | — | — | — | — | ● where the change crosses one day, otherwise c | ● | ● |
 | Tilt, year, eccentricity | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | Star spectrum (shape) | ● | — | ● | ● | ● | ● | ●○ | ○ | ● with ice optics on | c | ● | ● | ● |
 | Star total, or distance | ● | — | ● | ● | c | c | ○ | ○ | — | — | ● | ● | ● |
-| Surface pressure | ● | — | — | ● | ● | ● | ●○ | ●○ | — | ● | ● | ● | ● |
-| O2 or CO2 | ● | — | — | ● | ● | ● | ●○ | ●○ | — | ● | ● | ● | ● |
+| Surface pressure | ● | — | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
+| O2 or CO2 | ● | — | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | Ar/N2 alone | ● | — | — | ● | ● | ● | ●○ | ●○ | — | — | ● | ● | ● |
-| Surface heights (world) | — | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
-| Water share, seas, lakes | — | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
+| Surface heights (world) | ● | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
+| Water share, seas, lakes | ● | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | Land albedo | — | — | — | — | c | — | ○ | ○ | — | — | ● | ● | ● |
 | Shield (filter) | ● | — | ● | ● | ● | ● | ●○ | ○ | — | c | ● | ● | ● |
 | Sunlight scale | ● | — | ● | ● | c | c | ○ | ○ | — | — | ● | ● | ● |
@@ -148,9 +159,10 @@ The product groups that head the columns:
    The shortwave fit then uses the ledger's slant factors.
 2. **The Rayleigh multiplier scales a coefficient that ExoPlaSim derives from the spectrum,** so a
    multiplier fitted under one spectrum is refitted under another.
-3. **CM1's builds compile gravity, CO2 and O2.** O2 is held as a partial pressure, so a change of surface
-   pressure moves its mole fraction and with it every build, even with the O2 partial pressure, the CO2
-   ppm and the Ar/N2 ratio unchanged.
+3. **CM1's builds compile gravity, CO2 and O2** until the namelist patch passes plan stage 3. O2 is held as a
+   partial pressure, so a change of surface pressure moves its mole fraction and with it every build, even
+   with the O2 partial pressure, the CO2 ppm and the Ar/N2 ratio unchanged. Once the patch passes, the same
+   change reaches the case inputs alone.
 4. **The tables depend on the sunlight's total through the column's state.**
    - The design column is computed under a stated sunlight, so a new scale or a new stellar total makes
      it stale.
@@ -174,8 +186,9 @@ The product groups that head the columns:
    surface light and the glow are computed at a prescribed surface temperature of 294.9 K. A run that
    settles elsewhere, as the 307 K test does, leaves them describing another state.
 10. **Only the GCM receives infrared from space,** through patch 06.
-11. **PlaSim's levels enter three calibrations.** The ledger's GCM terms and the longwave correction are
-    computed per PlaSim layer, and the offline shortwave copy runs on PlaSim's levels.
+11. **PlaSim's levels enter four calibrations.** The ledger's GCM terms and the longwave correction are
+    computed per PlaSim layer, and the offline shortwave copy and the water-continuum fit run on PlaSim's
+    levels.
 12. **The air has two Ar/N2 ratios.** The reference tools build the air with 0.0093/0.7808, and the GCM
     runner with 0.00934/0.78084. A composition change made in one recipe leaves the other behind.
 13. **Patch 10 compiles in a property of the star.** It writes the weights of Ebert and Curry's four
@@ -215,7 +228,7 @@ The product groups that head the columns:
 - **Produced again:** the derived air and everything downstream of it:
   - ExoPlaSim's gases, `GASCON` and `ZGASW`, and an O2 mole fraction of 0.20949 against 0.17458;
   - the middle-atmosphere case, the design column, the ledger and the gas fits;
-  - every CM1 build, then the GCM experiment;
+  - every CM1 build while builds compile the air in, then the GCM experiment;
   - through the loop, the radiation check, the shortwave and longwave fits and the GCM again;
   - the cases and the analyses.
 - **Range check:** the 1,053.63 hPa limit of RRTMG's tables.
@@ -253,6 +266,5 @@ The product groups that head the columns:
 
 **(d) Ice optics switched on.**
 
-- **Produced again:** the GCM experiment and what is forced from it.
-- **For the author to choose:** whether to refit the longwave correction with ice optics on, since it was
-  fitted with them off. The lab records the choice.
+- **Produced again:** the GCM experiment and what is forced from it, and the longwave correction, which was
+  fitted with ice optics off. The fixpoint refits it with them on, as the author chose on 2026-10-17.

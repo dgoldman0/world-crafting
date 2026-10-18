@@ -14,7 +14,7 @@ gravity_m_s2 = 9.80665               # given: standard gravity, the effective su
 
 [rotation]
 sidereal_period_days = 0.99726957    # earth.sidereal_day_s 86164.0905 / 86400
-solar_day_days = 1.0                 # given; ExoPlaSim's Earth path keeps the 24-hour solar day exactly
+solar_day_days = 1.0                 # given: the mean solar day, 86,400 s; the two periods give 0.9999999 d
 obliquity_deg = 23.4393              # earth.obliquity_deg
 
 [orbit]

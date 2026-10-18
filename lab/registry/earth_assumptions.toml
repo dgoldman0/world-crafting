@@ -48,6 +48,7 @@ effect = "dynamics, RRTMG's layer masses, CAPE and fall speeds at Earth's gravit
 state = "repaired"
 repair = { patches = ["core/01-04"], build_constant = "TERLUNA_G" }
 action = "require-build"
+note = "a planned core patch reads g from the namelist (architecture.md, Model adapters); once it passes, the action becomes require-switch"
 evidence = ["notes/defect_log.md B1", "notes/cm1.md, Gravity"]
 
 [[entry]]

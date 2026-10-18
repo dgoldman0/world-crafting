@@ -2,7 +2,9 @@
 # and three CM1 cases forced from the first, each extending its model's shared defaults (lab/configs/). Draft
 # schema 0 (lab/design/world_spec.md); the targets of plan.md stages 2 and 3. The names are Terluna's folder
 # names, and the lab files each run under its product key. Terluna's definitions: climate/gcm/exoplasim_run.py
-# (EXPERIMENTS, MODEL) and climate/crm/cm1_run.py (CASES, :1093-1526).
+# (EXPERIMENTS, MODEL) and climate/crm/cm1_run.py (CASES, :1093-1526). Its compatibility settings serve the
+# tests that reproduce Terluna's runs; a study extending it runs the same chain with the lab's own stages and
+# starts (world_spec.md, rule 8).
 
 schema = "worldlab.study/0"
 id = "open-moon"
@@ -21,6 +23,10 @@ ring_45n_corrected = "moon_omp_o3"              # label Terluna's Makefile patch
 ring_45n_corrected_twilight = "moon_omp_twilight"
 box_jura = "moon_omp_terrain_sea_twilight"
 
+[compatibility.initial_states]                  # the restart files Terluna's runs started from, by recorded hash
+A28_corrected_970 = { run = "terluna-drive:gcm-runs/A28_corrected_9685", year = 19, sha256_16 = "d65b88aa68443890" }
+A28_corrected_970_lw_ice = { run = "terluna-drive:gcm-runs/A28_corrected_970", year = 19, sha256_16 = "cc83ad0f936e5c02" }
+
 [compatibility.products]                        # the products Terluna's runs read, used as recorded in place of the
                                                 # lab's own stages; stage 5 reproduces each separately
 ledger = "terluna:climate/results/gcm/twilight.json@c7cdb8e252f8425e"
@@ -31,7 +37,6 @@ longwave = "terluna:climate/results/gcm/longwave_A28_corrected_970_heating.json@
 model = "exoplasim"
 extends = "exoplasim/defaults"
 years = 20
-initial = { from = "A28_corrected_9685", year = 19, sha256_16 = "d65b88aa68443890" }   # a branch, as recorded
 purpose = "the design case of the corrected radiation, at the sunlight scale that holds the design temperature"
 recorded_key = "b4d10329a8723d42"               # Terluna's run key in progress.json; stage 2 must reproduce it
 
@@ -41,7 +46,7 @@ purpose = "the longwave by height and ice optics, from the design case's year 19
 recorded_key = "14070719b35c52d7"
 
 [gcm.A28_corrected_970_lw_ice.set]              # the declared delta; the lab refuses the pair if anything else differs
-"initial" = { from = "A28_corrected_970", year = 19, sha256_16 = "cc83ad0f936e5c02" }
+"initial" = { from = "A28_corrected_970", year = 19 }
 "switches.longwave_correction" = true
 "switches.ice_optics" = true
 "heating_diagnostics" = true                    # diagnostics only: nine more outputs, the same prognostic fields
@@ -74,7 +79,7 @@ forced_by = "A28_corrected_970"
 years = [10, 19]
 kind = "box"
 variants = ["terrain", "sea", "twilight"]
-site = { ring = "ring_45n_corrected", lat_deg = 45.0, lon_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes
+site = { ring = "ring_45n_corrected", latitude_deg = 45.0, longitude_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes
 columns = { nx = 100, ny = 90 }
 terrain = { half_width_deg = 0.125, passes = 2, taper_km = 50.0 }
 day_night = { from_case = "ring_45n_corrected_twilight", from_days = 29.5, wavenumbers = 5, bins = 36, harmonics = 4, top_m = 16000.0 }

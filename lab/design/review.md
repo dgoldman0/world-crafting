@@ -4,8 +4,8 @@ Reviews of the design documents against the author's prose rules (Terluna
 `ensemble/planning/source_controls/STYLE_NOTES.md`, `Jewish_Papers_Updated_Style_Notes.md`,
 `Agent_Working_State_Editorial_Gates.md` and the Open Moon charter's G1–G4). Each reviewer was a fresh,
 read-only agent briefed with the rules and the four sources. None had seen an earlier round's findings.
-Lexical scans served as screening only. The author's one question so far, on draft 1's model
-configurations, led to draft 2.
+Lexical scans served as screening only. The author's question on draft 1's model configurations led to
+draft 2, and the author's answers to the open questions led to draft 3.
 
 | Round | Date | Reviewer and files | Blocking | Minor | Technical |
 |---|---|---|---|---|---|
@@ -21,6 +21,9 @@ configurations, led to draft 2.
 | 5 | 2026-10-17 | B: world_spec, regeneration and every seed, schema against seeds | 0 prose; 10 schema and seed | 3 | — |
 | 6 | 2026-10-17 | A: README, architecture, plan, with the seeds (confirmation round on draft 2 as revised) | 0 | — | 9 |
 | 6 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 1 prose; 4 schema and seed; 1 between the documents | 4 | — |
+| 7 | 2026-10-17 | A: README, architecture, plan, with the seeds (confirmation round) | 2 prose; 5 technical | — | — |
+| 7 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 3 seed; 4 between the documents | 2 | — |
+| 8 | 2026-10-17 | One round on draft 3 | pending | — | — |
 
 ## Round 1 dispositions
 
@@ -251,3 +254,49 @@ rule 1 allows.
 - **README, architecture, plan:** no blocking finding in round 6. Its nine technical items are revised.
 - **Specification, regeneration map, seeds and registry:** round 6's blocking items are revised. Round 7
   confirms them.
+
+## Round 7 dispositions
+
+**Revised: reviewer A's two prose items.** The scaling bullet's parallel now runs "by 1 on the Moon … and by
+0.166 at CM1's Earth gravity", and CM1's run length "is set in the world's solar days".
+
+**Adopted: every technical item from both reviewers.**
+
+- **The Earth control** opens plan stage 8, with its study and its two runs.
+- **A box's forcing from a ring** enters the architecture's definition of a case and its coupling.
+- **Build labels** stay outside the pair check, since a label is a Makefile comment that leaves the
+  executable unchanged.
+- **Calibration products** are read where a run's switches use them, so the design case leaves the
+  longwave fit unread.
+- **The water continuum** joins the architecture's producers and calibrations, and the regeneration graph,
+  producers table and matrix, where it shares the longwave correction's marks.
+- **The design run's starting state** moved to the study's compatibility settings beside the lw_ice run's.
+  A run of the lab's own starts from ExoPlaSim's own state unless it branches from another run of its
+  study.
+- **The 1.0 atm scenario** cites the architecture's decisions and regeneration example (b).
+- **The Earth control's sources.** Its ocean, sunlight and forcing name their bases, rule 3 asks a basis
+  of a model choice in any scenario, and Earth's stated solar day rests on the mean solar day.
+- **The regeneration graph** gained the edges from CM1's variants to its builds and from the surface
+  geometry to the planet record. The matrix marks the planet record as produced again by a change in the
+  heights or the seas, and by a stated solar day, and the GCM run where that day crosses one day.
+
+**Adopted: reviewer B's two minor items.** The box names its site by `latitude_deg` and `longitude_deg`,
+and the model day takes PlaSim's one-day branch, so registry entry B11 stays silent on Earth.
+
+## Draft 3
+
+Draft 2 is tagged `lab-design-draft-2` (commit 42a0ef3). The author answered the open questions on
+2026-10-17, and draft 3 carries the answers with round 7's revisions:
+
+- **Self-contained.** World-crafting becomes a standalone project: what the lab uses for its own work lives
+  here and in its store, and Terluna's files serve its tests alone. Stage 1 copies the data the seeds pin,
+  with their provenance, and AGENTS.md's rule on case set-up and runs changed on this branch.
+- **CM1 compiled once.** A planned core patch reads gravity, CO2 and O2 from the namelist. Stage 3 checks
+  it against Terluna's lunar build and against the build compiled with the macros' defaults.
+- **Accepted as proposed:** the order after the 1.2 atm Moon, the refusal outside an envelope with an
+  explicit override and a clear warning, and the Earth control's test.
+- **The longwave correction** is refitted with ice optics on.
+- **The engine.** The author leaned against draft 2's in-house engine, and draft 3 proposes Snakemake to
+  schedule and run the stages, for the author to confirm. The three registry thresholds remain proposed.
+- **Review cadence.** The author asked for fewer rounds: from round 8, one round follows each substantive
+  revision, and its findings are acted on without a confirmation round.

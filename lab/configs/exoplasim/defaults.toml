@@ -14,6 +14,7 @@ timestep_min = 30.0
 ranks = 4                                      # Terluna's design case ran on 4 MPI ranks
 precision = 8
 seed = 1
+initial = "model-default"                      # ExoPlaSim's own starting state; a run may branch from another run of its study
 means_per_model_day = 10                       # 3-day means on the Moon
 whole_model_days = true                        # defect log A3; Terluna's whole_lunar_days
 fixed_orbit = true                             # defect log A2; NFIXORB 1
@@ -34,10 +35,12 @@ longwave_correction = false                    # 09: NLWCORR
 ice_optics = false                             # 10: NICEOPT, TICEOPT
 top_infrared = "from-scenario"                 # 06: IRTOPDAY, IRTOPNIGHT
 
-[calibration]                                  # the stages whose products, fitted to the study's scenario, the run reads
+[calibration]                                  # the stages whose products, fitted to the study's scenario, a run reads
+                                               # where its switches use them
 shortwave = "calibration:plasim-shortwave"     # Open Moon: RAYSCALE 2.237, SWH2OSCALE 1.292, typed into MODEL from
                                                # climate/results/gcm/shortwave_fit_A28_dim5_lunar.json
 water_continuum = "calibration:plasim-th2oc"   # Open Moon: TH2OC 0.004, from hand trials on cloud-free columns at 280 and 310 K
 ledger = "ledger:curved-air"                   # Open Moon: climate/results/gcm/twilight.json
 gas_bands = "calibration:plasim-gas-bands"     # Open Moon: climate/results/gcm/shortwave_gases.json
-longwave = "calibration:plasim-longwave"       # Open Moon: climate/results/gcm/longwave_A28_corrected_970_heating.json
+longwave = "calibration:plasim-longwave"       # read with longwave_correction on. Open Moon:
+                                               # climate/results/gcm/longwave_A28_corrected_970_heating.json
