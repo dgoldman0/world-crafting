@@ -82,3 +82,30 @@ from the rest of its paragraph. A local `enlargethispage` command adds two basel
 assistant inspected the rendered page after rebuilding: the final paragraph now remains together and
 retains separation from the page number. The reviewed wording is unchanged. The final source hash and
 exact committed build are recorded with the visual inspection below.
+
+## Exact build and visual inspection
+
+The final source commit is `1b5b03d6c0e0724b209997a1cd00b280f37f68b3`, following the reviewed prose
+and record changes at `acf23d57a66a428dcb853a89581de8ee0a49030c`. A forced latexmk build used the
+Makefile's flags with `SOURCE_DATE_EPOCH=1792333461` and `FORCE_SOURCE_DATE=1`.
+
+The 34-page `paper/build/main.pdf` has SHA-256
+`7f36737caa33fa5c82196b2f2c0128cce0cf583e2b7e9de051d53a35566d188d`.
+The final Conclusion source, including the page-height command, has SHA-256
+`b1a0cb6ab18c6febfcf35cd7a9f2d01cdb0dd849e5a32a7176b194462761ff8a`.
+The build completed with zero overfull-box warnings and the existing underfull reference line.
+
+The drafting assistant rendered pages 1–3 and 24–30 from that PDF with Poppler at 1,400 pixels high and
+inspected the images at readable scale. The renders remain in the ignored
+`paper/build/ensemble-conclusion-review/` directory.
+
+| Pages | Observations |
+|---|---|
+| 1–3 | The abstract and Introduction remain legible, including the revised purpose statements. The next section's heading stays with its opening paragraph. |
+| 24–25 | The Conclusion begins below the end of Next steps and occupies two pages. Its final paragraph and closing sentence remain together on page 25, with separation from the footer. |
+| 26–28 | Appendix text and tables remain legible. The previously recorded SWAN group label at the foot of page 27 still precedes its rows on page 28; that detail remains for the whole-document production pass. |
+| 29–30 | The assistance disclosure and review history include the author's latest reading and the ensemble rewrite. The references follow the acknowledgements legibly. |
+
+This inspection covers the changed regions and their neighbours. Whole-document release judgments remain
+DEFERRED or BLOCKED as recorded in the release register; the historical artifact's judgments retain their
+own hashes. The current Conclusion is ready for the author's reading.
