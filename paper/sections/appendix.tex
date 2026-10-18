@@ -104,16 +104,22 @@ Forcing & Input & GCM stress as a Wu-equivalent wind & Coupling \\
 \end{xltabular}
 }
 
-\begin{table}[htbp]
-\caption{The verification record by kind of check, with what each leaves open.}
-\label{tab:verification}
-\footnotesize
+{\footnotesize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth}L>{\raggedright\arraybackslash}p{0.27\textwidth}@{}}
+\begin{xltabular}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth}L>{\raggedright\arraybackslash}p{0.27\textwidth}@{}}
+\caption{The verification record by kind of check, with what each leaves open.}\label{tab:verification}\\
 \toprule
 Check & Result & Leaves open \\
 \midrule
+\endfirsthead
+\multicolumn{3}{@{}l}{\small Table~\ref{tab:verification}, continued}\\
+\toprule
+Check & Result & Leaves open \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
 \multicolumn{3}{@{}l}{\textit{Identity and reproduction}} \\
 ExoPlaSim patches at neutral settings, five runs & Restart identical to the build before the patch; the chain to the release closes for patches 01--03 & Patches 04, 05 and 07--09 off, at runtime \\
 Kill and resume, one model year & Restart identical; output identical in all 39 variables & 12 header bytes differ \\
@@ -142,6 +148,5 @@ Reference against other codes & PyRADS for water-only longwave at constant gravi
 Electrified supercell against CM1's NSSL & Updrafts 6\%, reflectivity 3.4~dBZ, condensate 9\% & Hail within a factor of two \\
 Against published electrification & First flash 28.5~min (27--40); 1.1\% to ground with the rule on (published 0.33\%) & Charging several times stronger \\
 Conductivity column, run for Earth at a 3~GV cutoff & Earth's measured positive conductivity within 2--8\% at 5--30~km & The lunar aerosol \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\end{xltabular}
+}

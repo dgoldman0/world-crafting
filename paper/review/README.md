@@ -20,6 +20,16 @@ written out in `AGENTS.md`, acting on the challenge at the same time. Its prose 
 of fresh reviewer agents who see only the text and the rules, until a round finds nothing blocking; the
 author's own readings are the decisive review.
 
+The first editorial round read the second draft: five fresh reviewers, four by part and one across the whole
+paper, raised 172 findings, 20 blocking. While it ran, the author read the second draft and found it still
+centred on the Moon. The third draft (c63df43) acts on both; its dispositions are in
+`editorial_round1_dispositions.md`. The author then read the third draft, judged the rest of the paper to stand
+for now, and rejected its conclusions as a summary that implied reach to untested worlds. The closing section was
+rewritten as discussion and conclusions (bb5d0f0) and read again in rounds of two fresh reviewers, one for prose
+and the author's direction and one for evidence and scope: round 2 (bb5d0f0), round 3 (e89a394) and round 4
+(798f68b). Each round's records name the snapshot they read; the revisions between rounds are in the commits
+that follow them.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
@@ -27,8 +37,8 @@ author's own readings are the decisive review.
 | Claude Opus 5.5, the drafting assistant (main session) | Drafted both drafts; silent prose passes on the first draft; dispositions | `passes_<section>.md` (first draft), `*_dispositions.md` |
 | Claude subagents, technical referees | Checked every claim and table row of the first draft against its sources | `referee_technical_part1.md`, `referee_technical_part2.md`, `referee_dispositions.md` |
 | A Claude subagent, whole-manuscript challenger | Challenged the first draft as a whole against G1–G5 | `whole_manuscript.md`, `whole_manuscript_dispositions.md` |
-| Fresh Claude subagents, editorial reviewers | Read the second draft against the rules, by part and as a whole, round by round | `editorial_round<n>_<part>.md`, `editorial_round<n>_dispositions.md` |
-| The author | Readings of the drafts, decisive on framing and prose; resolution of exceptions; the competing-interests declaration | First draft read 2026-10-17 (framing and prose rejected; served as its cadence review) |
+| Fresh Claude subagents, editorial reviewers | Read the second draft against the rules, by part and as a whole (round 1), then the rewritten closing section for prose and for evidence (rounds 2–4) | `editorial_round<n>_<part>.md`, `editorial_round<n>_dispositions.md` |
+| The author | Readings of the drafts, decisive on framing and prose; resolution of exceptions; the competing-interests declaration | First draft read 2026-10-17 (framing and prose rejected; the author counts this stream-of-thought reading as its cadence review); second draft read during round 1 (still Moon-centred); third draft read 2026-10-17 (the rest stands for now; conclusions rejected) |
 
 Every reviewer above except the author is the same model as the drafting assistant, so none of these records
 is independent review in the sense of a person or a journal; each separate pass is recorded as such.
@@ -41,6 +51,7 @@ is independent review in the sense of a person or a journal; each separate pass 
 | `referee_technical_part*.md`, `referee_dispositions.md` | The technical referees' findings on the first draft and what was done with each |
 | `whole_manuscript.md`, `whole_manuscript_dispositions.md` | The whole-manuscript challenge of the first draft and its dispositions in the second |
 | `editorial_round<n>_*.md` | Each editorial round's records by reviewer, and the round's dispositions |
+| `g7_visual_review.md` | The exact-build page review: renderers, the PDF hash and page-by-page observations |
 | `release_register.md` | PASS / BLOCKED / DEFERRED by gate, with the exact PDF and source hashes |
 
 The automated checks (`tools/check.py`, `tools/lint.py`) establish record completeness and list candidate
