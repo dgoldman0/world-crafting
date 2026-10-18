@@ -101,7 +101,7 @@ runner's first client, and a user interface can be a second.
 |---|---|---|---|
 | World | A body: its size and mass, rotation, orbit, star and any host planet | Name and content hash | `shared/constants.json`, through `climate/gcm/boundary.py`, into `moon_gcm_configuration.json`; the year and eccentricity typed into `exoplasim_run.py:841-842` |
 | Scenario | A designed or supposed state of a world: air, water, shield and sunlight scale, surface properties, outside forcings | Name and content hash | `EXPERIMENTS` (`exoplasim_run.py:85-94`), parts of `MODEL`, command-line flags |
-| Model defaults | One model's settings for any world: upstream pin, patch-series state and switches, grid, physics options, output. CM1's also name variants and give lengths, times and rates at a reference state | Name and content hash | `MODEL` (`exoplasim_run.py:98-145`), `BUILDS`, `case_settings` (`cm1_run.py:1979-2035`) |
+| Model defaults | One model's settings for any world: upstream pin, patch-series state and switches, grid, physics options, output, guards. CM1's also name variants and give lengths, times and rates at a reference state | Name and content hash | `MODEL` (`exoplasim_run.py:98-145`), `BUILDS`, `case_settings` (`cm1_run.py:1979-2035`) |
 | Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults | Name and content hash | `EXPERIMENTS` and `CASES` together |
 | Calibration | A fitted product, with the states it was fitted on and its residuals | Content hash | Scalars typed into `MODEL`; JSON products in `climate/results/gcm/` |
 | Experiment | A GCM run in a study: its settings, calibrations, initial state and length | Its product key ("The stage graph and staleness"), which names its folder in the store | GCM run folders and their run key (`exoplasim_run.py:905-911`) |
@@ -195,7 +195,8 @@ before the product exists. The producer receives a tracking view of the specific
 value it reads by name and value and refuses a read outside the declaration. A derived value enters as
 its value, so a consumer that reads only g stays current when GM and R change together and leave g where
 it was. Terluna's `shared/provenance.py` applies this rule to its constants; the lab extends it to every
-input.
+input. A run's guards, such as `guards.wind_share_of_limit`, warn without changing what the run computes, so its
+read set leaves them out and a new share leaves every run current.
 
 **Plan.** `lab plan` computes the keys from the current specifications and compares them with the store.
 It lists the stale products in the order it would rebuild them, each priced from the wall times in its
@@ -510,11 +511,11 @@ lab stop open-moon-0.960:design                  # the runner writes the job's s
 | Engine | A custom runner, a small local service with its job queue in the store; the command line is its first client, and a user interface can be a second ("The stage graph and staleness") |
 | Workflow | The lab's code follows AGENTS.md's software workflow, in small tested changes each reviewed once; drafts and review rounds stay with the paper |
 | Native code | Work that needs compiled speed or the models' own numerics is written in Fortran, and scaffolding stays in Python, as the author directed on 2026-10-18 ("Native code") |
+| Time-step guard | A warning where a run's largest 3-day-mean wind passes 90% of the advective limit, `guards.wind_share_of_limit` in ExoPlaSim's defaults; the hottest of Terluna's 45 scanned runs, all stable, reached 83.5% (`lab/validation/timestep_guard.json`, which holds no unstable run) |
 
 **Proposed values,** kept as data that later work may change without code:
 
 | Decision | Choice | Reason |
 |---|---|---|
 | Registry thresholds | The schemes that hard-code Earth's gravity refused beyond 0.5% from 9.81 m/s²; a ledger of the world's own column required beyond 10% from Earth's horizon air mass of 35; the thin-shell warning above H/R = 0.01; the soil-layer warning beyond 10% of the day's depth; the equinox-Sun warning above an obliquity of 5° | 0.5% passes the Earth control's 9.80665 m/s², 0.01 is about 7.5 times Earth's H/R, and 10% admits Terluna's lunar layers (`lab/registry/earth_assumptions.toml`) |
-| Time-step guard | A warning where a run's largest wind passes 80% of the advective limit | Set against Terluna's runs, stable at 30 minutes, in stage 1 |
 | Target stage and seasons | The target stage averages each run's last ten model years and stops within 0.1 K or after six runs; a CM1 case's GCM reference averages ±15° of solar longitude around its season | Ten years, as Terluna's ring references average; Terluna's trials stopped at 295.02 K, within 0.1 K; ±15° spans a twelfth of the year |

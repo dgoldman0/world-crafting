@@ -26,8 +26,8 @@ TOLERANCE = {'gravity_m_s2': 2e-3, 'solar_day_days': 1e-5}
 def planet(world: dict, scenario: dict, *, exoplasim: dict | None = None) -> dict:
     """The planet record: the quantities of world_spec.md's table that the world and scenario fix, under the
     registry's names, and ExoPlaSim's calendar where its defaults are given. `stated` holds each stated value
-    beside its derivation. The sunlight at the top, the ice-optics weights and the pressure at the surface's
-    lowest point come with the derivations that read the manifest's data."""
+    beside its derivation. The sunlight at the top and the ice-optics weights come from `worldlab.sunlight`, and
+    the pressure at the surface's lowest point from stage 2's geography producer."""
     g = gravity(world)
     stated = {}
     if world['body'].get('gravity_m_s2') is not None:
@@ -291,6 +291,27 @@ def sun_clock_skip_deg(n_days: int) -> float:
 def advective_limit_wind_m_s(radius_m: float, truncation: int, timestep_s: float) -> float:
     """The wind above which u·Δt·N/a exceeds 1, the guard on ExoPlaSim's time step."""
     return radius_m / (truncation * timestep_s)
+
+
+TRUNCATION_BY_LATITUDES = {32: 21, 64: 42, 96: 63, 128: 85, 160: 106, 192: 127, 256: 170}   # ExoPlaSim's grids
+
+
+def truncation(resolution: str) -> int:
+    """The spectral truncation N of an ExoPlaSim resolution, one of its grids from "T21" to "T170"."""
+    grids = sorted(TRUNCATION_BY_LATITUDES.values())
+    if not (isinstance(resolution, str) and resolution[:1] == 'T' and resolution[1:].isdigit()
+            and int(resolution[1:]) in grids):
+        raise SpecError(f'resolution {resolution!r}: one of ExoPlaSim\'s grids, {", ".join(f"T{n}" for n in grids)}')
+    return int(resolution[1:])
+
+
+def time_step_guard(largest_wind_m_s: float, radius_m: float, defaults: dict) -> dict:
+    """The guard on a run's time step: its largest wind's share of the advective limit, and whether that share
+    passes the defaults' `guards.wind_share_of_limit`, where the guard warns."""
+    step = plasim_step_s(defaults['timestep_min'])
+    limit = advective_limit_wind_m_s(radius_m, truncation(defaults['resolution']), step)
+    share = largest_wind_m_s / limit
+    return dict(limit_m_s=limit, share_of_limit=share, warns=share > defaults['guards']['wind_share_of_limit'])
 
 
 def _nint(x: float) -> int:

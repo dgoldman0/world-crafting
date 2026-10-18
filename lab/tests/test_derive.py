@@ -182,6 +182,37 @@ def test_the_advective_limit_of_exoplasims_step():
     assert derive.advective_limit_wind_m_s(1737400.0, 21, 1800.0) == pytest.approx(45.96, abs=5e-3)
 
 
+def test_the_time_step_guard_warns_past_its_share_of_the_limit():
+    limit = derive.advective_limit_wind_m_s(1737400.0, 21, 1800.0)
+    quiet, loud = (derive.time_step_guard(f * limit, 1737400.0, EXOPLASIM) for f in (0.89, 0.91))
+    assert quiet['limit_m_s'] == pytest.approx(limit, rel=1e-12) and not quiet['warns'] and loud['warns']
+    at = derive.time_step_guard(30.0, 1737400.0, EXOPLASIM)['share_of_limit']        # a wind at the share itself
+    assert not derive.time_step_guard(30.0, 1737400.0, {**EXOPLASIM, 'guards': {'wind_share_of_limit': at}})['warns']
+    assert derive.truncation('T42') == 42
+
+
+@pytest.mark.parametrize('resolution', ['R15', 'T0', 'T31', 21, 'T'])
+def test_resolutions_off_exoplasims_grids_are_refused(resolution):
+    with pytest.raises(SpecError, match="ExoPlaSim's grids"):
+        derive.truncation(resolution)
+
+
+GUARD_RECORD = json.loads((LAB / 'validation' / 'timestep_guard.json').read_text())
+
+
+def test_the_guard_stays_silent_on_each_of_terlunas_scanned_runs():
+    """Terluna's 45 lunar runs scanned in lab/validation/timestep_guard.json ran stable at 30 minutes. At 90% of
+    the advective limit the guard warns on none of them; the 80% first proposed would warn on the hottest."""
+    shares = {}
+    for run, best in GUARD_RECORD['runs'].items():
+        defaults = {**EXOPLASIM, 'resolution': f"T{best['truncation']}", 'timestep_min': best['timestep_min']}
+        guard = derive.time_step_guard(best['m_s'], best['radius_m'], defaults)
+        assert not guard['warns'], run
+        shares[run] = guard['share_of_limit']
+    hottest = max(shares, key=shares.get)
+    assert len(shares) == 45 and hottest == 'A28_corrected_970_lw_ice' and 0.8 < shares[hottest] < 0.9
+
+
 # The paper's data (paper/data/regime_calc.json, worlds.json), each derived from the basis it states.
 
 REGIME = json.loads((PAPER / 'regime_calc.json').read_text())

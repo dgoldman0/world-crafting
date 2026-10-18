@@ -11,7 +11,7 @@ plan.md writes to read the seeds takes those derivations over.
 |---|---|---|---|
 | World | The body: its size and mass, rotation, orbit, star, host planet and surface geometry. Its `kind` is `found` for an observed body and `illustrative` for a supposed one | `moon` | `lab/worlds/<world>/world.toml` |
 | Scenario | The state of the world's air, water and land, the sunlight's filter and scale, and outside forcings, as observed, made or supposed. Its `kind` is `found`, `crafted` or `illustrative` | `moon/open-moon` | `lab/worlds/<world>/scenarios/<name>.toml` |
-| Model defaults | One model's settings for any world: upstream pin, patches and switches, grid, physics, output and the calibration stages it reads. CM1's also define named variants and give lengths, times and rates at a reference state | `cm1/defaults` | `lab/configs/<model>/defaults.toml` |
+| Model defaults | One model's settings for any world: upstream pin, patches and switches, grid, physics, output, guards and the calibration stages it reads. CM1's also define named variants and give lengths, times and rates at a reference state | `cm1/defaults` | `lab/configs/<model>/defaults.toml` |
 | Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults | `open-moon` | `lab/studies/<study>.toml` |
 
 World and scenario kinds combine freely. The Open Moon and its 1.0 atm extension (`moon/open-moon-1.0atm`)
@@ -160,11 +160,11 @@ a case's top soil layer against 1 cm × (solar day/1 d)^½.
 
 `lab/worldlab/derive.py` computes the table's quantities, and its `planet()` gathers them into the planet
 record under the registry's names, each stated value beside its derivation. The sunlight at the top and the
-ice-optics weights come from `lab/worldlab/sunlight.py`, and the pressure at the surface's lowest point, still
-to code, will come from the world's heights. Each derivation takes its plainest form, and the calendar follows
-the rounding of ExoPlaSim's configure and `plasim.f90`, which the model applies. The derivations agree with
-`paper/data/regime_calc.json` to one part in 10¹² and with `worlds.json` to its stated digits, and with
-Terluna's records within each comparison's stated tolerance.
+ice-optics weights come from `lab/worldlab/sunlight.py`, and the pressure at the surface's lowest point comes
+with stage 2's geography producer, from the world's heights and seas. Each derivation takes its plainest form,
+and the calendar follows the rounding of ExoPlaSim's configure and `plasim.f90`, which the model applies. The
+derivations agree with `paper/data/regime_calc.json` to one part in 10¹² and with `worlds.json` to its stated
+digits, and with Terluna's records within each comparison's stated tolerance.
 `lab/worldlab/spec.py` codes these rules:
 
 - **Ids.** A world takes its folder's name, a scenario `<world>/<name>`, a model's defaults `<model>/defaults`
@@ -229,9 +229,10 @@ spectrum and the scenario's filter through the manifest:
 - **Comparisons** read Terluna's records in place, under the Terluna roots, and skip without them; their
   files enter neither the manifest nor the store.
 
-Still to settle, each in the commit that codes it: the field tables of the defaults, studies, runs and
-cases, with optional fields and their defaults; the pressure at the surface's lowest point
-and the `water` and `sea` reference levels; and whether sources stay as comments.
+Still to settle, each with the stage whose code first reads it, where stage 1 left them on 2026-10-18: the field
+tables of the defaults, studies, runs and cases, with optional fields and their defaults, as stage 2's and 3's
+adapters read them; the `water` and `sea` reference levels, with the pressure at the surface's lowest point, in
+stage 2; and whether sources stay as comments, with stage 4's product headers.
 
 ## The Moon worked through
 

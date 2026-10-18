@@ -1,5 +1,6 @@
 """ExoPlaSim's own configure and PlaSim's own calendar, run in the lab's environment, against worldlab.derive."""
 import json
+import os
 import subprocess
 
 import pytest
@@ -95,3 +96,57 @@ def test_configure_and_plasim_keep_the_calendar_that_derive_predicts():
             assert int(found['steps_per_day']) == cal['steps_per_model_day'], where
     assert [c['n_days_per_year'] for c in calendars[1:3]] == [365, 365]
     assert [c['n_days_per_year'] for c in calendars[-4:]] == [36, 24, 24, 12]
+
+
+@needs_env
+@pytest.mark.skipif(root('terluna-drive') is None, reason="Terluna's research drive is unset (lab/local.example.toml)")
+def test_the_guard_record_holds_the_hottest_runs_largest_wind():
+    record = json.loads((LAB / 'validation' / 'timestep_guard.json').read_text())
+    hottest = max(record['runs'], key=lambda run: record['runs'][run]['m_s'])
+    best = record['runs'][hottest]
+    path = root('terluna-drive') / 'gcm-runs' / hottest / 'model' / f"MOST.{best['model_year']:05d}.nc"
+    read = ('import json, sys; from worldlab.winds import largest_wind_m_s; '
+            'print(json.dumps(largest_wind_m_s(sys.argv[1])))')
+    done = subprocess.run([PYTHON, '-c', read, str(path)], capture_output=True, text=True, timeout=120,
+                          env={**os.environ, 'PYTHONPATH': str(LAB)})
+    assert done.returncode == 0, done.stderr[-2000:]
+    speed, latitudes = json.loads(done.stdout)
+    assert speed == pytest.approx(best['m_s'], rel=1e-12) and latitudes == best['latitudes']
+
+
+READER_PROBE = r'''
+import json, sys
+from pathlib import Path
+import netCDF4, numpy as np
+from worldlab.winds import largest_wind_m_s
+folder = Path(sys.argv[1])
+def write(name, u):
+    with netCDF4.Dataset(folder / name, 'w') as output:
+        for dim, size in (('time', 2), ('lev', 2), ('lat', 32), ('lon', 4)):
+            output.createDimension(dim, size)
+        for name_, values in (('ua', u), ('va', np.zeros(u.shape, dtype='f4'))):
+            output.createVariable(name_, 'f4', ('time', 'lev', 'lat', 'lon'), fill_value=9.96921e36)[:] = values
+u = np.full((2, 2, 32, 4), 3.0, dtype='f4')
+u[0, 0, 0, 0] = 4.0
+masked = np.ma.masked_array(u.copy(), mask=np.zeros(u.shape, dtype=bool))
+masked[1, 1, 1, 1] = np.ma.masked                                  # written as the fill value, 9.97e36
+write('masked.nc', masked)
+unstable = u.copy()
+unstable[1, 0, 0, 0] = np.nan
+write('unstable.nc', unstable)
+out = dict(masked=largest_wind_m_s(folder / 'masked.nc'))
+try:
+    largest_wind_m_s(folder / 'unstable.nc')
+except ValueError as error:
+    out['unstable'] = str(error)
+print(json.dumps(out))
+'''
+
+
+@needs_env
+def test_the_wind_reader_leaves_out_fill_values_and_refuses_non_finite_winds(tmp_path):
+    done = subprocess.run([PYTHON, '-c', READER_PROBE, str(tmp_path)], capture_output=True, text=True, timeout=120,
+                          env={**os.environ, 'PYTHONPATH': str(LAB)})
+    assert done.returncode == 0, done.stderr[-2000:]
+    out = json.loads(done.stdout)
+    assert out['masked'] == [4.0, 32] and 'non-finite' in out.get('unstable', '')

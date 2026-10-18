@@ -27,6 +27,12 @@ output = ["ta", "ua", "va", "hus", "cl", "ts", "tas", "maxt", "mint", "ps", "psl
           "clt", "sic", "sit", "snd", "mrso", "rst", "rsut", "rlut", "ntr", "nbr", "rss", "rls", "hfss", "hfls",
           "alb", "czen", "lsm"]
 
+[guards]
+wind_share_of_limit = 0.9                      # a warning where a run's largest 3-day-mean wind passes this share of the
+                                               # advective limit a/(N·Δt): the author's choice of 2026-10-18, above the
+                                               # 83.5% that the hottest of Terluna's stable runs reached at 30 minutes
+                                               # (lab/validation/timestep_guard.json)
+
 [switches]                                     # patch: namelist setting
 sun_clock = "synodic"                          # 04: NSUNCLOCK 2
 convective_day_s = 86400.0                     # 03: CONVDAY
