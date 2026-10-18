@@ -30,8 +30,9 @@ scenario.
    - The Moon's seed states its solar day as the synodic month, 29.53059 d, the value CM1's `var19` takes in
      Terluna's runner, against 29.5305882 d from 1/(1/P_rot − 1/P_year).
    - Earth's seed states the standard gravity of 9.80665 m/s², PlaSim's own Earth value. The derivation, GM/R²
-     less the spin term, gives the area mean of 9.7977 m/s², 0.09% lower, which sets the tolerance a stated
-     gravity needs.
+     less the spin term, gives the area mean of 9.7977 m/s², 0.09% lower.
+   - **Tolerances.** A stated gravity lies within 0.2% of its derivation, and a stated solar day within one
+     part in 10⁵; a breach refuses the world.
 3. **Sources.** Every value of a found world or scenario names its source, and every crafted or illustrative
    value its basis. A model choice in a scenario of any kind, such as a slab ocean and its depth, names its
    basis.
@@ -161,12 +162,13 @@ scenario.
 | Solar day | 1/(1/P_rot − 1/P_year), or stated | 29.53059 d stated; 29.5305882 d derived | CM1 `var19` (`cm1_run.py:2016`; 2,551,443.0 s). PlaSim's synodic clock derives its own from the rotation and the year (patch 04), 0.2 s a lunar day shorter than CM1's |
 | Partial pressures | p_CO2 = x·p; p_N2 + p_Ar = p − p_O2 − p_CO2, split by Ar/N2 | N2 0.99128639, O2 0.21227, Ar 0.01185725, CO2 0.00048636 bar | ExoPlaSim `configure` |
 | Mole fractions | p_i/p | CO2 4.0 × 10⁻⁴, O2 0.17457850 | CM1's CO2 and O2, compiled in as `TERLUNA_CO2` and `TERLUNA_O2` (written as 0.174579) until the namelist patches |
-| Mass fractions | x_i M_i / Σ x_j M_j | CO2 6.1057 × 10⁻⁴, O2 0.19375 | PlaSim `ZGASW` (patch 08) |
+| Mass fractions | x_i M_i / Σ x_j M_j, from the partial pressures as Terluna's runner computes them (`exoplasim_run.py:878-882`) | CO2 6.1057 × 10⁻⁴, O2 0.19375 | PlaSim `ZGASW` (patch 08) |
 | Molar mass and gas constant | Σ x_i M_i; 8314.46/M | 28.8319 g/mol; 288.38 J kg⁻¹ K⁻¹ | ExoPlaSim `GASCON`, computed inside ExoPlaSim |
 | ExoPlaSim's rotation period | 1 for a stated one-day solar day, otherwise P_rot (rule 7) | 27.321661 d | `rotationperiod` |
 | ExoPlaSim's days per year | The year in whole days when `rotationperiod` is 1 (`exoplasim/__init__.py:2609-2610`); otherwise N = 12 · max(1, ⌊360/(12 P_rot) + 0.5⌋) (`:2618-2619`) | 12 | `N_DAYS_PER_YEAR` |
-| PlaSim's model day | P_rot · N/(N − 1) (`plasim.f90:1292-1300`); exactly one day when `rotationperiod` is 1 (`:1287`) | 29.8054 d | The calendar every output follows |
-| Steps per model day | nint(model day) ÷ nint(time step), as an integer division (`plasim.f90:1348`) | 1,430 at 30 min | `NSTPW` 143 for the 3-day means, 10 a model day; `N_RUN_STEPS` 17,160 for 12 whole days; 120 means a year |
+| PlaSim's model day | P_rot · N/(N − 1) (`plasim.f90:1292-1300`); exactly one day when `rotationperiod` is 1 (`:1287`) | 29.8054 d | PlaSim's `solar_day`, which registry entry B11 tests |
+| Steps per model day | PlaSim first rounds the steps of a 24-hour day to an even count and divides the day by them, then counts nint(model day) ÷ nint(that step) as an integer division (`plasim.f90:1343-1348`) | 1,430 at 30 min | `NSTPW` 143 for the 3-day means, 10 a model day; `N_RUN_STEPS` 17,160 for 12 whole days; 120 means a year |
+| The stepped model day | The steps per model day times PlaSim's step | 1,430 × 1,800 s, 29.7917 d | The calendar the outputs follow, the paper's `model_day_days` |
 | Sunlight at the top | ∫ S_λ T_λ dλ over the measured spectrum, plus the rest of the total at the longest measured wavelength's transmission (`exoplasim_run.py:976-984`); times (1 AU/a)² and the scale | 1,235.25 W/m² through the shield; 1,198.19 W/m² at Terluna's scale of 0.970 | ExoPlaSim `flux` (`GSOL0`); CM1 `var17` |
 | Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at `air.reference_temperature_k` | At 295 K: 52.4 km, 0.03015, 74,861 kg/m², 7.2 (`paper/data/worlds.json`) | The reach report; deciding whether a column needs a ledger of its own |
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
@@ -175,7 +177,7 @@ scenario.
 | CM1's soil layers | CM1's 1 cm top layer × (solar day/1 d)^½, the four below doubling | × 5.4342: a 5.4 cm top layer, 5.4 to 86.9 cm | `slab_dzs`, through a planned patch after core 17 (registry `cm1-soil-day`) |
 | CM1's Sun | Declination asin(sin ε · sin L_s), from the obliquity ε and the case's solar longitude L_s | 0 at the equinox the study's cases take | A planned patch after core 17 (registry `cm1-equinox-sun`); the case's sunrise, −acos(−tan φ tan δ) |
 | Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | From the filtered spectrum; Terluna's 0.6164, 0.2283, 0.0811 and 0.0742 came from the unfiltered TSIS-1 | The planned ExoPlaSim patch 11; patch 10's constants until it passes, when registry entry `exoplasim-ice-weights` warns |
-| ExoPlaSim's output steps | `mean_interval_days`: below a model day, the divisor of the steps per model day whose mean lies nearest it; from a model day up, whole model days | 10 means of 143 steps, 2.98 d | `NSTPW` |
+| ExoPlaSim's output steps | `mean_interval_days`: below a model day, the divisor of the steps per model day whose mean lies nearest it; from a model day up, the divisor of the year's model days nearest it, the shorter at a tie, so that whole means fill each year | 10 means of 143 steps, 2.98 d; on Earth, 3 days give daily means | `NSTPW` |
 | ExoPlaSim's time-step limit | The advective limit set by the radius a, the truncation N and the run's largest wind u: u·Δt·N/a below 1 | Checked in stage 1 against the largest winds of Terluna's runs, which ran stable at 30 minutes | The guard on `timestep_min` |
 
 The registry's tests (`q`) name these quantities in snake case with their units: `gravity_m_s2`,
@@ -183,8 +185,15 @@ The registry's tests (`q`) name these quantities in snake case with their units:
 `lowest_level_pressure_hpa`, the air's pressure at the lowest point of the surface, and `soil_layer_ratio`,
 a case's top soil layer against 1 cm × (solar day/1 d)^½.
 
-## Settled by the loader
+## Settled in code
 
+`lab/worldlab/derive.py` computes the quantities of the table above, and its `planet()` gathers them into
+the planet record under the registry's names, each stated value beside its derivation. Three wait for later
+parts of stage 1: the sunlight at the top and the ice-optics weights for the data manifest, and the pressure
+at the surface's lowest point for the world's heights. Where the module reproduces a record bit for bit, its
+arithmetic follows the order the record was computed in: the partial pressures and mass fractions as
+Terluna's GCM runner builds them, the mole fractions, molar mass and scale height as
+`paper/tools/regime_calc.py` does, and the calendar as ExoPlaSim's configure and `plasim.f90` count it.
 `lab/worldlab/spec.py` codes these rules:
 
 - **Ids.** A world takes its folder's name, a scenario `<world>/<name>`, a model's defaults `<model>/defaults`
@@ -218,8 +227,7 @@ a case's top soil layer against 1 cm × (solar day/1 d)^½.
 
 Still to settle, each in the commit that codes it: the field tables of the defaults, studies, runs, cases
 and compatibility keys, with optional fields and their defaults; the pressure at the surface's lowest point
-and the `water` and `sea` reference levels; the tolerance of each stated value against its derivation, and
-what a breach does; and whether sources stay as comments.
+and the `water` and `sea` reference levels; and whether sources stay as comments.
 
 ## The Moon worked through
 

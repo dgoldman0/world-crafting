@@ -12,7 +12,7 @@ reference_level = "water"            # pressures are stated at the water level; 
 surface_pressure_pa = 121590.0       # 1.2 atm (exoplasim_run.py:92, EXPERIMENTS['A28'])
 o2_partial_pressure_pa = 21227.0     # Earth's (exoplasim_run.py:78)
 co2_ppm = 400.0                      # of the total pressure (exoplasim_run.py:80, :820)
-ar_per_n2 = 0.011961477              # Earth's 0.00934/0.78084 (exoplasim_run.py:79)
+ar_per_n2 = 0.011961477383330772   # Earth's 0.00934/0.78084, the double Terluna's runner computes (exoplasim_run.py:79)
 balance = "N2"
 reference_temperature_k = 295.0      # the design aim near 295 K, which the paper's table of reach takes (Terluna's final
                                      # target is open: research/decisions.md, 2026-10-17). Terluna's design column holds

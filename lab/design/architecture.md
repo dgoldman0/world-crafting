@@ -424,8 +424,9 @@ and input files, which stage 2 must reproduce.
   case records, which name a GCM run by its name and years, to keys.
 - **Paths.** Paths enter keys relative to configurable roots, so the ledger takes from a root the run folder
   that Terluna's ledger hard-codes (`notes/reference_radiation.md`, section 3). Terluna's pins resolve
-  through `$TERLUNA_REPO` and `$TERLUNA_DRIVE`, which the reproduction tests read and skip without, and the
-  lab's own pins through the manifest at `lab/data/manifest.toml`.
+  through `$TERLUNA_REPO` and `$TERLUNA_DRIVE`, or `lab/local.toml` where those are unset, which the
+  reproduction tests read and skip without (`lab/worldlab/roots.py`); the lab's own pins resolve through the
+  manifest at `lab/data/manifest.toml`.
 
 **Importing Terluna.** A read-only importer registers Terluna's GCM runs, CM1 cases and builds as records.
 It takes the keys, configurations and hashes they recorded, and the patch-series state matched in

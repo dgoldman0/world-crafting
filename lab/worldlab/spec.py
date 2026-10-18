@@ -4,7 +4,7 @@ A world lives in worlds/<world>/world.toml, a scenario in worlds/<world>/scenari
 "<world>/<name>"), a model's defaults in configs/<model>/defaults.toml (id "<model>/defaults") and a study
 in studies/<study>.toml (id "<study>"), all under the lab's root. Inside a study, GCM runs sit under
 [gcm.<name>] and CM1 cases under [crm.<name>], their names local to the study. lab/design/world_spec.md states
-the rules this module codes, and its section "Settled by the loader" records the choices made here.
+the rules this module codes, and its section "Settled in code" records the choices made here.
 """
 from __future__ import annotations
 
@@ -122,7 +122,9 @@ class Item:
 
     `settings_hash` covers the item's own resolved settings alone. Stage 4's product key adds the
     scenario, the upstream products' keys and the compatibility state, so the lab's own run and its
-    reproduction of Terluna's share a settings hash and differ in their keys.
+    reproduction of Terluna's share a settings hash and differ in their keys. `set_paths` are the paths that
+    [set] changed along the item's chain, with the compatibility paths applied to it: values a study states
+    as they apply there, which CM1's scaling leaves as they are (world_spec.md, rule 9).
     """
     study: str
     name: str
@@ -131,6 +133,7 @@ class Item:
     settings: dict
     delta: dict
     settings_hash: str
+    set_paths: frozenset = frozenset()
 
 
 @dataclass(frozen=True)
@@ -271,25 +274,31 @@ class Library:
                 raise SpecError(f'{where}: a {model} item extends {parent_id!r}')
             parent = {k: v for k, v in defaults.items() if k not in IDENTITY | {'variants'}}
             parent.update(model=model, variants=[])
+            inherited = frozenset()
         else:
             if parent_id not in items:
                 raise SpecError(f'{where}: extends {parent_id!r}, which the study does not define')
-            parent = self._item(study_id, items, parent_id, model, memo, seen + (name,)).settings
+            parent_item = self._item(study_id, items, parent_id, model, memo, seen + (name,))
+            parent, inherited = parent_item.settings, parent_item.set_paths
         settings = _derive(parent, raw, where=where, may_add='/' in parent_id, defaults=defaults)
         added = [v for v in settings['variants'] if v not in parent['variants']]
         item = Item(study_id, name, model, parent_id, settings,
-                    {'set': copy.deepcopy(raw.get('set', {})), 'variants': added}, spec_hash(settings))
+                    {'set': copy.deepcopy(raw.get('set', {})), 'variants': added}, spec_hash(settings),
+                    inherited | frozenset(raw.get('set', {})))
         memo[name] = item
         return item
 
     def _reproduce(self, item: Item, compat_set: dict) -> Item:
         settings = copy.deepcopy(item.settings)
         defaults = self.defaults(f'{item.model}/defaults')
+        applied = set()
         for path, value in compat_set.items():
             root, _, rest = path.partition('.')
             if root == item.model:
                 _apply_compat(settings, defaults, rest, value, where=f'{item.study}:{item.name} [compatibility.set]')
-        return Item(item.study, item.name, item.model, item.parent, settings, item.delta, spec_hash(settings))
+                applied.add(rest)
+        return Item(item.study, item.name, item.model, item.parent, settings, item.delta, spec_hash(settings),
+                    item.set_paths | applied)
 
     def _check_compat_paths(self, study_id: str, scenario_id: str, compat_set: dict) -> None:
         """Every compatibility path names a field, whether or not this resolution applies it."""
