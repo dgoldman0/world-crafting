@@ -99,6 +99,17 @@ abstract should draw the reader in. The drafting assistant rewrote the rest, and
 clarification. The author had also made the world-crafting repository public, and Availability now names it as
 the place where work on the ensemble will continue; `abstract_and_repository_2026-10-18.md` records both.
 
+The related-work scan (`paper/notes/related_work_scan_2026-10-18.md`) then entered the paper at the author's
+direction, in the order the author set as a general pattern: the body first, in four steps (corrections and
+missing citations, the ensemble beside its nearest neighbours, the lunar numbers beside the field's measured
+spreads, existing tools for the next steps), then the Introduction, the Conclusion and the abstract, each step
+followed by a light reading by one fresh Claude Opus 5.5 subagent. Those seven readings form round 16,
+`editorial_round16_light.md`, with their dispositions. Round 17 then read the whole paper with two fresh agents,
+one for prose and the author's direction and one for evidence and scope (`editorial_round17_prose.md`,
+`editorial_round17_evidence.md`); nothing was blocking, five findings were MAJOR, and
+`editorial_round17_dispositions.md` records what was done with each, five findings on wording the author had
+approved left for the author.
+
 ## Reviewers
 
 | Reviewer | Role | Records |

@@ -45,6 +45,12 @@ world-crafting repository, public since 18 October 2026 (`abstract_and_repositor
 `90753d2f371741a0d1a6e19ee50be59012fe3763` builds a PDF of 35 pages with SHA256
 `4a8f9ddcce6da1a7f407cb3657976b348d289f03f311cc1cd12d8658a1b087eb`; every page was inspected for layout, and the gates
 stand as before.
+The revision from the related-work scan, round 16's light readings and round 17's dispositions end at
+`51a6a606ad6686312e0be30e1aea3f62e52f483e`. Two clean builds from it gave the same PDF, 38 pages with SHA256
+`754fd508559b979c37d3244d687580f622ea26e349e63889eeca2f06479b1620`, zero overfull boxes and every font embedded;
+every page was inspected for layout on contact sheets, with two stranded lines on page 24 left for the final layout.
+Twenty-three sources entered the citations, which moves G6's counts below; the other gates stand as before, and
+five round-17 findings on approved wording await the author.
 
 ## The artifact
 
@@ -63,7 +69,7 @@ These establish record completeness and code integrity; they clear no editorial 
 
 | Check | Result, 18 October 2026 |
 |---|---|
-| `paper/tools/check.py` | Exit 0: 13 TeX files, 73 cited keys of 152, 106 of 108 claims cited. Warnings: S01 and V14 registered and uncited; the web source of H23 and N02, ExoPlaSim issue #69, recorded and unchecked offline |
+| `paper/tools/check.py` | Exit 0: 13 TeX files, 96 cited keys of 167, 107 of 109 claims cited. Warnings: S01 and V14 registered and uncited; the web source of H23 and N02, ExoPlaSim issue #69, recorded and unchecked offline |
 | `make check-patches` | Exit 0, 18 checks: the pinned archives of ExoPlaSim 3.4.2, CM1 r22.0, SWAN 41.51 and SWASH 12.01 and three WRF-ELEC source files match their pins; the ten ExoPlaSim patches reproduce the deployed `radmod.f90` and `rainmod.f90`; nine CM1 r22.0 build variants reproduce their deployed sources; the SWAN patches apply |
 | Python tests | 111 passed, in the research drive's `optics` environment (numba 0.68.0, pytest 9.0.2); the code under `python/` and the patch series are unchanged since the run recorded at 6c8a68f |
 | `paper/tools/lint.py` | Run as screening during the rounds; its candidate places were read, and it clears nothing |
@@ -76,7 +82,7 @@ These establish record completeness and code integrity; they clear no editorial 
 | G1, G2, G4 for the rest of the body | DEFERRED | Round 1 read the second draft (172 findings, dispositions in `editorial_round1_dispositions.md`); the third draft acted on them; the author judged the rest of the paper to stand for now; passages revised beside the closing section were read in rounds 2–8 | The author's reading of the third draft's body as revised; a fresh round on the whole body if the author wants one |
 | G3 Inheritance, syntax, transitions and cadence | DEFERRED | Silent cadence readings in every round, recorded as silent; the author counted the stream-of-thought reading of the first draft as that draft's cadence review | The read-aloud pass of the conclusion, the major transitions and the dense passages, which the charter requires, by the author |
 | G5 Technical meaning, evidence status and discriminating tests | DEFERRED | The claims register resolves every marker; two technical referees checked the first draft's claims and table rows; evidence rounds 2–8 checked the closing section and the revised passages against the register, the run records and the archived sources; round 7 found and the revision corrected a factual error on the sign of the ground strikes | An evidence check of the third draft's body as a whole, last made by the first draft's referees; the author's reading |
-| G6 Full-document source admission | BLOCKED | Of the 73 cited sources, 30 have no legal local original (admission BLOCKED); 43 have an archived original (DEFERRED), 33 of them read at claim locators, 7 at the abstract, 2 unread and 1, the author's own issue report, in full; none is admitted | Originals for the 30, and full readings, with appendices and bibliographies, of every cited source; or a substantive revision of each dependent use |
+| G6 Full-document source admission | BLOCKED | Of the 96 cited sources, 49 have no legal local original (admission BLOCKED), 36 of them read at the abstract, 1 at claim locators and 12 unread; 47 have an archived original (DEFERRED), 36 of them read at claim locators, 8 at the abstract, 2 unread and 1, the author's own issue report, in full; none is admitted. The 23 sources cited from the related-work scan on 18 October were read at the abstract or by title | Originals for the 49, and full readings, with appendices and bibliographies, of every cited source; or a substantive revision of each dependent use |
 | G7 Exact-build visual and production review | PASS | `g7_visual_review.md`: every page of the PDF above read in the poppler render, the six figure pages again in MuPDF's; fonts embedded, metadata set, links present; no blocking finding | The author's own inspection; three notes for the author in that record (the title page's date, one loosely set reference line, Table 4's last row alone on page 22) |
 | Whole-manuscript challenge (E4) | DEFERRED | The first draft was challenged (`whole_manuscript.md`, dispositions in `whole_manuscript_dispositions.md`) | A challenge of the third draft as revised |
 | E4 Release integrity | BLOCKED | This register | G6; the paper's release commit in the world-crafting repository, public since 18 October 2026, which the availability statement promises; the author's confirmation of the AI-assistance disclosure's wording on Codex and ChatGPT; the author's final reading; the deferred gates above |
