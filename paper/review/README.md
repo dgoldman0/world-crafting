@@ -86,8 +86,9 @@ findings, 28 MAJOR and 73 MINOR: 9 and 21 in the abstract, Introduction, Worlds 
 Repairs, Verification and Results; 4 and 24 in Reach, Next steps, the Conclusion, the appendix's prose and
 Availability, the Conclusion's three marked for the author. Each MAJOR finding carries a sample rewrite that keeps
 its passage's claims, numbers, citations and claim markers. The records are `editorial_round15_flow_opening.md`,
-`editorial_round15_flow_middle.md` and `editorial_round15_flow_closing.md`; their dispositions follow the author's
-reading.
+`editorial_round15_flow_middle.md` and `editorial_round15_flow_closing.md`; the author then asked for the findings
+to be acted on section by section, and `editorial_round15_dispositions.md` records what was done with each, the
+Conclusion's three left for the author.
 
 ## Reviewers
 

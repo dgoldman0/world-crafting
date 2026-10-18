@@ -27,6 +27,11 @@ After the author's reading of that check, the statement of where the repaired co
 `17c54b1d1de431fe487b9909d8dff4a30cc76204`. Its PDF, 35 pages, has SHA256
 `7423314cfb7cb12f302e86005a782d93ea9c5419d33ee1235029b8731a797bcc`; the pages whose render changed were read or
 inspected for layout, and the gates stand as for the build before it.
+The section-by-section revision for flow after round 15 ends at `770b0cc5b549def8ed0e86c3f20f65aff6ba98d2`, with
+the paper's new title, the names Gaean and Open Moon, and the dispositions in `editorial_round15_dispositions.md`.
+Its clean build, 35 pages with zero overfull boxes and every font embedded, has SHA256
+`2bafee085d6f12436ca24e7e3558483149ae7aa8fbe2ca74764698c1dccefe4e`; every page was inspected for layout, and the
+gates stand as for the build before it.
 
 ## The artifact
 
