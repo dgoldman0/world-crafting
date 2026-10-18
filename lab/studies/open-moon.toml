@@ -1,8 +1,8 @@
 # The Open Moon design study: the chain Terluna ran on the design case of the corrected radiation, two GCM runs
 # and three CM1 cases forced from the first, each extending its model's shared defaults (lab/configs/). Draft
 # schema 0 (lab/design/world_spec.md); the targets of plan.md stages 2 and 3. The names are Terluna's folder
-# names, and the lab identifies each run by the key of its resolved inputs. Terluna's definitions:
-# climate/gcm/exoplasim_run.py (EXPERIMENTS, MODEL) and climate/crm/cm1_run.py (CASES, :1093-1526).
+# names, and the lab files each run under its product key. Terluna's definitions: climate/gcm/exoplasim_run.py
+# (EXPERIMENTS, MODEL) and climate/crm/cm1_run.py (CASES, :1093-1526).
 
 schema = "worldlab.study/0"
 id = "open-moon"
@@ -10,7 +10,17 @@ scenario = "moon/open-moon"
 
 [compatibility]                                 # Terluna's quirks, for byte-for-byte reproduction (world_spec.md, rule 8)
 exoplasim_radius_divisor_m = 6371000.0          # ExoPlaSim's own is 6,371,220 m
+exoplasim_eccentricity = 0.016715               # typed into exoplasim_run.py:842; Earth's file gives 0.0167
+exoplasim_rayleigh_scale = 2.237                # MODEL's rounded copies of the fit on A28_dim5, a run at sunlight scale 0.95
+exoplasim_sw_water_absorption = 1.292
+exoplasim_h2o_continuum = 0.004                 # Terluna's hand trials
 cm1_run_days = 59.06                            # two lunar days as Terluna typed them; 2 solar days come to 59.0612
+
+[compatibility.products]                        # the products Terluna's runs read, used as recorded in place of the
+                                                # lab's own stages; stage 5 reproduces each separately
+ledger = "terluna:climate/results/gcm/twilight.json@c7cdb8e252f8425e"
+gas_bands = "terluna:climate/results/gcm/shortwave_gases.json@52532952682c6026"
+longwave = "terluna:climate/results/gcm/longwave_A28_corrected_970_heating.json@e58ad11b423ca3aa"
 
 [gcm.A28_corrected_970]
 model = "exoplasim"
@@ -18,15 +28,15 @@ extends = "exoplasim/defaults"
 years = 20
 initial = { from = "A28_corrected_9685", year = 19, sha256_16 = "d65b88aa68443890" }   # a branch, as recorded
 purpose = "the design case of the corrected radiation, at the sunlight scale that holds the design temperature"
-recorded_key = "b4d10329a8723d42"               # progress.json; stage 2 must reproduce it
+recorded_key = "b4d10329a8723d42"               # Terluna's run key in progress.json; stage 2 must reproduce it
 
 [gcm.A28_corrected_970_lw_ice]
 extends = "A28_corrected_970"
-initial = { from = "A28_corrected_970", year = 19 }
 purpose = "the longwave by height and ice optics, from the design case's year 19; settles near 307 K"
 recorded_key = "14070719b35c52d7"
 
 [gcm.A28_corrected_970_lw_ice.set]              # the declared delta; the lab refuses the pair if anything else differs
+"initial" = { from = "A28_corrected_970", year = 19, sha256_16 = "cc83ad0f936e5c02" }
 "switches.longwave_correction" = true
 "switches.ice_optics" = true
 "heating_diagnostics" = true                    # diagnostics only: nine more outputs, the same prognostic fields
@@ -47,10 +57,10 @@ purpose = "the 45 N ring on the corrected design case"
 extends = "ring_45n_corrected"
 variants = ["twilight"]                         # the declared delta (cm1/defaults, [variants.twilight])
 purpose = "the 45 N ring with the curved air's twilight and side light"
-# Both cases take their builds from the same defaults and differ by the twilight variant alone. Terluna ran the
-# control on moon_omp, compiled at -O2 and never rebuilt, and this case on moon_omp_twilight at -O3 -march=native
-# (defect log C8); the importer's pair check compares the two imported records and flags the optimisation
-# difference outside the declared variant.
+# Both cases take their builds from the same defaults, at -O3 -march=native, and differ by the twilight variant
+# alone. Terluna ran the control on moon_omp, compiled at -O2 and never rebuilt, and this case on moon_omp_twilight
+# at -O3 (defect log C8). The lab keeps its own control at -O3, and the importer's pair check flags the
+# optimisation difference between Terluna's two records.
 
 [crm.box_jura]
 model = "cm1"
@@ -62,7 +72,7 @@ variants = ["terrain", "sea", "twilight"]
 site = { ring = "ring_45n_corrected", lat_deg = 45.0, lon_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes
 columns = { nx = 100, ny = 90 }
 terrain = { half_width_deg = 0.125, passes = 2, taper_km = 50.0 }
-day_night = { from_case = "ring_45n_corrected_twilight", from_day = 29.5, wavenumbers = 5, bins = 36, harmonics = 4, top_m = 16000.0 }
+day_night = { from_case = "ring_45n_corrected_twilight", from_days = 29.5, wavenumbers = 5, bins = 36, harmonics = 4, top_m = 16000.0 }
 large_scale_w = "gcm"
 land_moisture = "gcm"
 surface_output = true

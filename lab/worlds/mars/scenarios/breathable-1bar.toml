@@ -28,3 +28,6 @@ albedo = "unchosen"
 [sunlight]
 filter = "none"
 scale = 1.0
+
+[forcing]
+top_infrared_w_m2 = { day = 0.0, night = 0.0 }

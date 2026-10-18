@@ -16,7 +16,9 @@ Lexical scans served as screening only. The author has read none of these docume
 | 3 | 2026-10-17 | B: inventory, regeneration, world_spec (the same) | 1 | — | 6 |
 | 4 | 2026-10-17 | A: README, architecture, plan (confirmation round) | 4 | — | 2 |
 | 4 | 2026-10-17 | B: inventory, regeneration, world_spec (confirmation round) | 0 | — | 2 |
-| 5 | 2026-10-17 | Draft 2's changed files, fresh reviewers | pending | pending | pending |
+| 5 | 2026-10-17 | A: README, architecture, plan, with the new seeds for consistency | 4 | — | 10 groups |
+| 5 | 2026-10-17 | B: world_spec, regeneration and every seed, schema against seeds | 0 prose; 10 schema and seed | 3 | — |
+| 6 | 2026-10-17 | Confirmation round on draft 2 as revised | pending | — | pending |
 
 ## Round 1 dispositions
 
@@ -156,4 +158,44 @@ configurations come from a base and where the unified set-up sits. Draft 2 answe
 
 The architecture, the specification schema, the plan, the regeneration graph, the README and the registry's
 conditions changed with them, and those sections reopen for review in round 5.
+
+## Round 5 dispositions
+
+**Revised: reviewer A's four blocking prose items.** These were:
+
+- the excluded scenarios, now stated as what the adapted models exclude;
+- the pair check's counterfactual and restatement, now one sentence of what the importer does;
+- the doubled "give" in the gravity-scaling bullet;
+- the run-length sentence, now its own bullet with the reason the pair scaled it.
+
+**Adopted: every technical item from both reviewers.** These were:
+
+- **The lw_ice pair's initial state,** which moved into its declared delta. A set value now replaces the
+  parent's whole, and descriptive fields may sit outside the delta (world_spec rule 6).
+- **Byte-for-byte reproduction.** The study's compatibility settings now hold:
+  - Terluna's typed calibration values and eccentricity;
+  - the products its runs read, by recorded hash, which carry the reference tools' Ar/N2 and the 0.95
+    design column with them (rule 8).
+- **Stage targets.** Stage 2 holds only the study's two runs, the other 32 move to stage 7 with the
+  importer, and stage 3 names the builds the study's cases resolve to.
+- **Keys.** A run's product key names its folder, and Terluna's run key stays beside it as a guard.
+- **"Default".** "Identity default" now names a patch's released behaviour, and the lab's model defaults
+  switch repairs on for every world.
+- **Scaling with gravity** applies where a grid follows the scale height, as CM1's does; ExoPlaSim's
+  defaults hold no scaled lengths.
+- **CM1's damping rate and boundary-layer length** are values at the reference gravity, unrounded, which
+  scale to 1/300 per second and 75 m on Earth.
+- **Variants** change settings through `set`, so the electrified variant switches the microphysics.
+- **Registry tolerances** are relative. The refused schemes' gravity test (0.5%, proposed) passes the Earth
+  control. B13 credits patch 08 for the air's slant factor, and A1's skip angles are corrected at 12 days.
+- **The Moon's orbit** follows Earth's file, and the Earth control's geometry is the model's own.
+- **Units, sources and fields.**
+  - Units follow their suffixes (rule 1), and `from_days` gains its suffix.
+  - The Earth control names its sources.
+  - `none` is allowed for a filter, and the Earth and Mars scenarios state their infrared from space.
+- **The regeneration matrix** marks the derived quantities for the shield, the scale and the CM1 grid, and
+  the graph feeds the CM1 settings into them.
+
+**Corrected: three numbers.** Earth's CM1 lengths are given at CM1's 9.81 m/s², H/R is 0.03015, and the Sun
+clock's step lies just above 12 days.
 

@@ -1,7 +1,8 @@
 # The registry of Earth assumptions: a seed of eleven entries in draft schema 0 (lab/design/architecture.md,
 # "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
 # it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
-# specification fields (field) or the run's settings (config: its model's defaults with the study's changes).
+# specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
+# calibration's envelope (calibration). Tolerances are relative (rel_tolerance).
 # Thresholds marked "proposed" come from the design and await the author's decision before the reach report uses
 # them. `rotation.synchronous` is a planned world field (world_spec.md, "Fields still to add"), false unless given.
 #
@@ -17,7 +18,7 @@ where = "plasim/src/radmod.f90, solang"
 form = "latent defect"
 assumes = "a rotation of exactly one day (rotspd = 1)"
 when = [{ field = "rotation.synchronous", eq = false }, { q = "rotation_period_days", ne = 1.0 }]
-effect = "the Sun skips back 1/(N-1) of a turn each model day: 2 deg at a 2-day rotation, 10 deg at 10 days, 16 deg at 12-20 days, 33 deg slower than 20"
+effect = "the Sun skips back 1/(N-1) of a turn each model day: 2 deg at a 2-day rotation, 10 deg at 10 and 12 days, 16 deg from just above 12 days to 20, 33 deg above 20"
 state = "repaired"
 repair = { patch = "04-sun-clock", switch = "NSUNCLOCK", value = 2, default = 0 }
 action = "require-switch"
@@ -42,7 +43,7 @@ model = "cm1"
 where = "constants.F, module_ra_etc.F, getcape.F, morrison.F (g = 9.81)"
 form = "constant"
 assumes = "g = 9.81 m/s2"
-when = [{ q = "gravity_m_s2", ne = 9.81, tolerance = 1e-6 }]
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 1e-6 }]
 effect = "dynamics, RRTMG's layer masses, CAPE and fall speeds at Earth's gravity"
 state = "repaired"
 repair = { patches = ["core/01-04"], build_constant = "TERLUNA_G" }
@@ -55,7 +56,7 @@ model = "cm1"
 where = "module_sf_mynn.F, module_gfs_physcons.F, module_sf_gfdl.F, module_sf_exchcoef.F, module_mp_p3.F, mp_wsm6.F, module_mp_jensen_ishmael.F, lfoice.F, radtrns3d.F"
 form = "constant"
 assumes = "Earth's gravity in schemes the lunar cases do not select"
-when = [{ q = "gravity_m_s2", ne = 9.81, tolerance = 1e-6 },
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 0.005 },   # proposed; the Earth control's 9.80665 passes
         { config = "cm1.physics", any_in = ["mynn", "gfs-edmf", "gfdl", "hurricane-exchange", "p3", "wsm6", "jensen-ishmael", "lfo", "goddard"] }]
 effect = "the scheme brings Earth's gravity back"
 state = "open"
@@ -68,7 +69,7 @@ model = "exoplasim"
 where = "plasim/src/rainmod.f90, mkclouds (zrfac = solar_day * 1000)"
 form = "unit of time"
 assumes = "a one-day solar day"
-when = [{ q = "model_day_days", ne = 1.0, tolerance = 1e-3 }]
+when = [{ q = "model_day_days", ne = 1.0, rel_tolerance = 1e-3 }]
 effect = "Slingo's cover gains 0.125 ln(day / 1 d), capped at 0.8"
 state = "repaired"
 repair = { patch = "03-convective-day", switch = "CONVDAY", value = 86400.0, default = 0.0 }
@@ -81,7 +82,7 @@ model = "exoplasim"
 where = "plasim/src/rainmod.f90, mkclouds (CCM3 cloud water in geometric height)"
 form = "fit beyond its range"
 assumes = "Earth's gravity, so that metres stand for pressure"
-when = [{ q = "gravity_m_s2", ne = 9.80665, tolerance = 1e-3 }]
+when = [{ q = "gravity_m_s2", ne = 9.80665, rel_tolerance = 1e-3 }]
 effect = "too dry aloft under weaker gravity, too wet under stronger"
 state = "repaired"
 repair = { patch = "02-cloud-water-gravity", switch = "CWGREF, CWSCALE", choices = ["earth_path", "full_column"] }
@@ -98,7 +99,7 @@ assumes = "Earth's horizon air mass, sqrt(pi R / 2H) = 35"
 when = [{ q = "chapman_horizon", outside = [31.5, 38.5] }]    # proposed: 10% either side of 35
 effect = "the low Sun's water path is wrong, most for the tallest air"
 state = "repaired"
-repair = { patch = "07-curved-air", switch = "ZMLUNAR, ZMAIRLUNAR", from = "ledger:curved-air" }
+repair = { patches = ["07-curved-air", "08-gas-bands"], switch = "ZMLUNAR (07), ZMAIRLUNAR (08)", from = "ledger:curved-air" }
 action = "require-refit"                     # a ledger of the world's own column
 evidence = ["notes/defect_log.md B13", "notes/reference_radiation.md, section 2"]
 
@@ -145,7 +146,7 @@ model = "cm1"
 where = "morrison.F (slope bounds; brkup_db)"
 form = "fit beyond its range"
 assumes = "Earth's largest raindrops and breakup, (sigma / (delta-rho g))^(1/2)"
-when = [{ q = "gravity_m_s2", ne = 9.81, tolerance = 1e-6 }, { config = "cm1.physics.microphysics", eq = "morrison" }]
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 0.005 }, { config = "cm1.physics.microphysics", eq = "morrison" }]
 effect = "rain's mean diameter capped at 2.8 mm, breakup from 0.3 mm; at lunar gravity the stable drop is about 2.5 times larger"
 state = "open"
 action = "warn"

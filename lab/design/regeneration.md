@@ -62,6 +62,7 @@ flowchart LR
   CMB --> CASE
   PL --> CASE
   CC[CRM settings: defaults, variants and study] --> CASE
+  CC --> PL
   CASE --> CRM[CM1 run]
   CRM -. day-night forcing .-> CASE
   GCM --> AN[analyses]
@@ -129,15 +130,15 @@ The product groups that head the columns:
 | Surface heights (world) | — | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | Water share, seas, lakes | — | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | Land albedo | — | — | — | — | c | — | ○ | ○ | — | — | ● | ● | ● |
-| Shield (filter) | — | — | ● | ● | ● | ● | ●○ | ○ | — | c | ● | ● | ● |
-| Sunlight scale | — | — | ● | ● | c | c | ○ | ○ | — | — | ● | ● | ● |
+| Shield (filter) | ● | — | ● | ● | ● | ● | ●○ | ○ | — | c | ● | ● | ● |
+| Sunlight scale | ● | — | ● | ● | c | c | ○ | ○ | — | — | ● | ● | ● |
 | Infrared from space | — | — | — | — | — | — | ○ | ○ | — | c | ● | ● | ● |
 | GCM resolution | — | ● | — | — | — | — | ○ | ○ | ● | — | ● | ● | ● |
 | GCM levels | — | — | — | — | ● | — | ●○ | ●○ | ● | — | ● | ● | ● |
 | GCM time step | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | A patch switch | — | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | A refitted calibration | — | — | — | — | — | — | — | — | — | — | ● | ● | ● |
-| CM1 grid, physics, variants, case geometry | — | — | — | — | — | — | — | — | — | ● where a variant adds patches | — | ● | ● |
+| CM1 grid, physics, variants, case geometry | ● | — | — | — | — | — | — | — | — | ● where a variant adds patches | — | ● | ● |
 
 ## Cross-dependencies
 

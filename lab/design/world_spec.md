@@ -10,7 +10,7 @@ that stage 1 of plan.md writes to read the seeds takes those derivations over.
 |---|---|---|---|
 | World | The body: its size and mass, rotation, orbit, star, host planet and surface geometry. Its `kind` is `found` for an observed body and `illustrative` for a supposed one | `moon` | `lab/worlds/<world>/world.toml` |
 | Scenario | The state of the world's air, water and land, the sunlight's filter and scale, and outside forcings, as observed, made or supposed. Its `kind` is `found`, `crafted` or `illustrative` | `moon/open-moon` | `lab/worlds/<world>/scenarios/<name>.toml` |
-| Model defaults | One model's settings for any world: upstream pin, patches and switches, grid, physics, output, the calibration stages it reads, and the named variants a case may declare | `cm1/defaults` | `lab/configs/<model>/defaults.toml` |
+| Model defaults | One model's settings for any world: upstream pin, patches and switches, grid, physics, output and the calibration stages it reads. CM1's also define named variants and give lengths and the time step at a reference gravity | `cm1/defaults` | `lab/configs/<model>/defaults.toml` |
 | Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults, with the study's compatibility settings | `open-moon` | `lab/studies/<study>.toml` |
 
 World and scenario kinds combine freely. The Open Moon and its 1.0 atm variant (`moon/open-moon-1.0atm`)
@@ -19,8 +19,9 @@ scenario.
 
 ## Rules
 
-1. **Units.** Units are SI except d, °, AU and ppm, and each key's suffix names its unit (`radius_m`,
-   `gm_m3_s2`, `co2_ppm`, `sidereal_period_days`), as Terluna names them.
+1. **Units.** Each key's suffix names its unit, as Terluna names them (`radius_m`, `gm_m3_s2`, `co2_ppm`,
+   `sidereal_period_days`, `timestep_min`, `taper_km`), and the adapters convert to each model's own units.
+   `_days` counts days of 86,400 s; `_solar_days` counts the world's solar days.
 2. **Stated or derived.** Each derived quantity has one derivation.
    - A specification may state such a quantity together with its basis. The lab then compares the stated
      value with the derivation, within the derivation's tolerance, and records both.
@@ -36,8 +37,12 @@ scenario.
 5. **`"unchosen"` and `"model-default"`.** The lab refuses any stage that reads a field marked
    `"unchosen"`. A field marked `"model-default"` takes the model's own value, which the adapter records.
 6. **Extended items.** `extends` names the parent, `[set]` lists the changed fields by dotted path, and
-   `variants` names variants that the model's defaults define. The resolved form is hashed, and the delta,
-   its set fields and variants together, is recorded with it.
+   `variants` names variants that the model's defaults define.
+   - **The delta.** Every changed input enters through `[set]` or `variants`; descriptive fields such as
+     `purpose` and `recorded_key` may be restated outside them.
+   - **Replacement.** A set value replaces the parent's whole, an inline table included.
+   - **Record.** The resolved form is hashed, and the delta, its set fields and variants together, is
+     recorded with it.
 7. **Model conventions belong to the adapters.** Examples:
    - **The radius.** ExoPlaSim reads it in units of 6,371,220 m (`shared/constants.json`, `model_closures`).
      Terluna's runner divided by 6,371,000 m, which lengthens PlaSim's radius by 60 m
@@ -47,14 +52,27 @@ scenario.
      against 44.0095 in Terluna's runner.
    - **CM1's Earth gravity** is 9.81 m/s².
 8. **Compatibility settings.** For byte-for-byte reproduction of a Terluna run, the study holds each of
-   Terluna's quirks as a named compatibility setting: the radius divisor, the calibration values copied by
-   hand and rounded, the CM1 run length typed as 59.06 days. Correcting a quirk afterwards is a declared delta
+   Terluna's quirks as a named compatibility setting:
+   - the radius divisor;
+   - the eccentricity Terluna typed;
+   - the calibration values copied by hand and rounded;
+   - the CM1 run length typed as 59.06 days;
+   - the products Terluna's runs read, named by their recorded hashes.
+
+   The products carry Terluna's other states with them, such as the reference tools' Ar/N2 of 0.0093/0.7808
+   and a design column at the sunlight scale of 0.95 and 294.9 K. The lab uses them as recorded in place of
+   its own stages, and stage 5 reproduces each separately. Correcting a quirk afterwards is a declared delta
    with a new key, and Terluna's record of the earlier run remains valid. The Moon's solar day is a stated
    value with its basis (rule 2), which CM1's `var19` takes as Terluna's runner does.
-9. **Scaling with gravity.** A model's defaults give their lengths and the time step at a stated reference
-   gravity, the one at which they were tested, and the adapter multiplies them by g_ref/g. Times tied to the
-   day are given in the world's solar days, and the rest in seconds, the same on every world. A study, which
-   belongs to one scenario, states its own values in that world's units.
+9. **Scaling with gravity.** Where a model's grid follows the scale height, as CM1's does, its defaults
+   give their lengths and time step at a stated reference gravity, the one at which they were tested.
+   - **Scaled:** the adapter multiplies those values by g_ref/g, and rates such as the Rayleigh damping by
+     g/g_ref.
+   - **Unscaled:** times tied to the day are given in the world's solar days, and the rest in seconds, the
+     same on every world.
+   - **ExoPlaSim:** its spectral grid spans the globe, so its defaults hold no scaled lengths.
+   - **Studies:** a study, which belongs to one scenario, states its own values as they apply there,
+     unscaled.
 
 ## World fields
 
@@ -66,10 +84,11 @@ scenario.
 | `rotation.sidereal_period_days` | d | Rotation against the stars |
 | `rotation.obliquity_deg` | ° | The equator's tilt to the orbit |
 | `rotation.solar_day_days` | d | Optional, stated with its basis; otherwise 1/(1/P_rot − 1/P_year) |
-| `orbit.star`, `semi_major_axis_au`, `sidereal_year_days`, `eccentricity` | –, AU, d, – | The orbit about the star; for a moon, its host planet's orbit |
+| `orbit.star`, `semi_major_axis_au`, `sidereal_year_days`, `eccentricity` | –, AU, d, – | The orbit about the star |
+| `orbit.from_host` | – | For a moon, the host planet whose orbit it follows, in place of the four fields above |
 | `star.id`, `star.spectrum`, `star.constant_w_m2` | –, pinned name, W m⁻² | The spectrum, and its total at 1 AU |
 | `host.id`, `host.neglected` | – | A moon's planet, and the forcings from it left out, with their size |
-| `surface.geometry` | pinned name | Heights over the geoid from a pinned source, or `unchosen` |
+| `surface.geometry` | pinned name | Heights over the geoid from a pinned source, `model-default` or `unchosen` |
 
 ## Scenario fields
 
@@ -83,7 +102,7 @@ scenario.
 | `water.seas_share`, `water.seas`, `water.lakes` | –, pinned names | The standing water and its geometry |
 | `water.ocean` | – | `kind` (`slab`), `mixed_layer_m`, `sea_ice` |
 | `land.albedo` | – | One value marked as a placeholder until a surface map exists |
-| `sunlight.filter`, `sunlight.scale` | pinned name, – | A transmission spectrum, and a multiplier the same at every wavelength |
+| `sunlight.filter`, `sunlight.scale` | pinned name, – | A transmission spectrum or `none`, and a multiplier the same at every wavelength |
 | `forcing.top_infrared_w_m2` | W m⁻² | Infrared from space at the top of the air, by day and by night (patch 06) |
 
 ## The first derived quantities
@@ -101,7 +120,7 @@ scenario.
 | PlaSim's model day | P_rot · N/(N − 1) (`plasim.f90:1296-1300`) | 29.8054 d | The calendar every output follows |
 | Steps per model day | nint(model day) ÷ nint(time step), as an integer division (`plasim.f90:1348`) | 1,430 at 30 min | `NSTPW` 143 for 10 means a day; `N_RUN_STEPS` 17,160 for 12 whole days; 120 means a year |
 | Sunlight at the top | ∫ S_λ T_λ dλ over the measured spectrum, plus the rest of the total at the longest measured wavelength's transmission (`exoplasim_run.py:976-984`); times (1 AU/a)² and the scale | 1,235.25 W/m² through the shield; 1,198.19 W/m² at 0.970 | ExoPlaSim `flux` (`GSOL0`); CM1 `var17` |
-| Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at a stated reference temperature | At 295 K: 52.4 km, 0.0302, 74,861 kg/m², 7.2 (`paper/data/worlds.json`) | The reach report; deciding whether a column needs a ledger of its own |
+| Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at a stated reference temperature | At 295 K: 52.4 km, 0.03015, 74,861 kg/m², 7.2 (`paper/data/worlds.json`) | The reach report; deciding whether a column needs a ledger of its own |
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
 | CM1 lengths and time step | The defaults' values × g_ref/g (rule 9) | A factor of 1, with the reference at lunar gravity: 6 km columns, a 150 km top, nudging from 8 to 16 km, a 40 s step | CM1's grid, top, nudging heights and `dtl` (`cm1_run.py:1979-2035`) |
 
@@ -115,7 +134,7 @@ models:
 | `body.radius_m`, `body.gm_m3_s2` | `shared/constants.json`, through `boundary.planet()` (`boundary.py:162-172`) into `climate/gcm/products/moon_gcm_configuration.json` | ExoPlaSim's radius and gravity (`exoplasim_run.py:814, 840`); CM1's build gravity (`cm1_run.py:969-971`), ring lengths (`:2051-2056`) and box columns (`:1828`); about 15 analysis scripts through `cm1_run.planet()` |
 | `rotation.sidereal_period_days`, `obliquity_deg` | The same chain | ExoPlaSim's `rotationperiod` and `obliquity` (`exoplasim_run.py:841-842`); CM1's Coriolis parameter (`cm1_run.py:2040`) |
 | `rotation.solar_day_days` | The same chain, as `solar_day_days` | CM1's `var19` (`cm1_run.py:2065-2066`); the CRM analyses through `solar_day_s()` |
-| `orbit.sidereal_year_days`, `eccentricity` | Typed into `exoplasim_run.py:841-842` | ExoPlaSim's `year` and `eccentricity`, with `fixedorbit` |
+| `orbit.from_host`, which takes Earth's year (365.25636 d) and eccentricity (0.0167) | Typed into `exoplasim_run.py:841-842` as 365.25636 d and 0.016715, the second now a compatibility setting of the study | ExoPlaSim's `year` and `eccentricity`, with `fixedorbit` |
 | `star.spectrum`, `constant_w_m2` | The `atmosphere/radiative_convective` inputs (TSIS-1); 1361 typed into `exoplasim_run.py:983` | `sun_<shield>.dat` and `_hr.dat`, copied into the model folder as `sun.dat` and `sun_hr.dat`, and the total flux (`exoplasim_run.py:954-996, 1028-1029`) |
 | `air.*` | `EXPERIMENTS['A28']` with `O2_PA`, `AR_PER_N2` and `CO2_PPM` (`exoplasim_run.py:78-92`) | ExoPlaSim's gases; CM1's build macros, read back from the GCM run's `progress.json` (`cm1_run.py:860-869`) |
 | `water.*` | `EXPERIMENTS['A28']`; `boundary.py`, from the geography products | The T21 land mask and topography (`exoplasim_run.py:934-951`); CM1's surfaces along rings and in boxes, through `boundary.lakes_product` (`cm1_run.py:1607-1632, 1767-1821`) |

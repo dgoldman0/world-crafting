@@ -2,9 +2,10 @@
 # case_settings at :1979-2035), stated for any world. A study's CM1 case extends them and names its variants.
 # Draft schema 0 (lab/design/world_spec.md, rule 9).
 #
-# Lengths and the time step follow gravity: the adapter multiplies them by g_ref/g. They are given at the
-# reference gravity, the Moon's, where Terluna's rings ran them, so on the Moon they stand as written; on Earth
-# they come to columns of 993 m, a top at 24.8 km, nudging from 1.3 to 2.6 km and a 6.6 s time step.
+# Lengths and the time step follow gravity: the adapter multiplies them by g_ref/g, and the damping rate by g/g_ref.
+# They are given at the reference gravity, the Moon's, where Terluna's rings ran them, so on the Moon they stand as
+# written. At CM1's Earth gravity of 9.81 m/s2 they come to columns of 993 m, a top at 24.8 km, nudging from 1.3
+# to 2.6 km, a 6.6 s time step, a 75 m boundary-layer length and a damping rate of 1/300 per second.
 
 schema = "worldlab.defaults.cm1/0"
 id = "cm1/defaults"
@@ -13,7 +14,8 @@ patches = ["series-core"]                      # every build; a variant adds its
 parallel = "omp"
 optimization = "-O3 -march=native"             # Terluna's OpenMP default since 2026-09-30
 threads = 6
-ranks_multiple = 8                             # column counts a multiple of 8
+ranks_multiple = 8                             # a ring's column count is rounded to a multiple of 8
+                                               # (cm1_run.py:2051-2056); a box states its own
 reference_gravity_m_s2 = 1.6242188765608128    # the Moon's GM/R^2
 
 [scaled]                                       # times g_ref/g
@@ -25,6 +27,10 @@ ztop_m = 150000.0
 nudge_start_m = 8000.0                         # nudging toward the GCM from here, fully from nudge_full_m
 nudge_full_m = 16000.0
 time_step_s = 40.0
+pbl_length_m = 452.98697768979696              # l_inf, 75 m x 9.81/g at the reference; cm1_run.py:2005 rounds it to 453.0
+
+[scaled_inverse]                               # times g/g_ref
+rayleigh_rate_per_s = 0.0005518922448388763    # rdalpha, (g/9.81)/300 at the reference; cm1_run.py:2004 rounds it to 0.00055189
 
 [unscaled]
 z_stretch = 1.08                               # the grid's growth per level, a ratio
@@ -43,14 +49,12 @@ droplets_cm3 = 100.0
 radiation = "rrtmg"                            # radopt 2
 surface_layer = "mm5"                          # sfcmodel 2, oceanmodel 1
 pbl = "cm1-simple"                             # ipbl 2
-rayleigh_rate = "(g/9.81)/300 s-1"             # cm1_run.py:2004, scaled by its own formula
-pbl_length = "75 m x 9.81/g"                   # cm1_run.py:2005, the same
 
-# Variants: the named changes a case may declare. Each adds its patch series and the settings it needs, and the
-# lab's pair check accepts a pair that differs by its declared variants alone.
+# Variants: the named changes a case may declare. Each adds its patch series and sets what it needs, by dotted
+# path as a study's [set] does, and the lab's pair check accepts a pair that differs by its declared variants alone.
 [variants.twilight]                            # the curved air's twilight added to RRTMG: var20 = 1, terluna_twilight.txt
 patches = ["series-twilight"]
-twilight = "full"
+set = { "twilight" = "full" }
 
 [variants.terrain]                             # the ground at its heights, each column nudged and forced at its own height
 patches = ["series-terrain"]
@@ -61,4 +65,4 @@ requires = ["terrain"]
 
 [variants.electrified]                         # WRF-ELEC's NSSL microphysics with charging, lightning and leakage
 patches = ["series-elec"]
-microphysics = "nssl-2mom-elec"
+set = { "physics.microphysics" = "nssl-2mom-elec" }
