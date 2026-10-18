@@ -1,11 +1,11 @@
 # Editorial round 15: dispositions
 
 The flow findings of round 15 (`editorial_round15_flow_opening.md`, `editorial_round15_flow_middle.md`,
-`editorial_round15_flow_closing.md`) are acted on section by section, at the author's direction. Repairs went first,
-as the worst; the author then asked for the rest, and the Conclusion's three findings, in the section the author
-accepted, go to the author. Kept by Claude Opus 5.5, the drafting assistant, from 18 October 2026. A
-finding marked applied took the reviewer's sample rewrite or one-line repair; where the text differs from the
-proposal, the reason is given.
+`editorial_round15_flow_closing.md`) are acted on section by section, at the author's direction. Repairs went
+first, as the worst; the author then asked for the rest, and the Conclusion's three findings, in the section the
+author accepted, went to the author and were applied on the author's word. Kept by Claude Opus 5.5, the drafting
+assistant, from 18 October 2026. A finding marked applied took the reviewer's sample rewrite or one-line repair;
+where the text differs from the proposal, the reason is given.
 
 ## Abstract (opening record, F01–F03)
 
@@ -154,9 +154,9 @@ Verification opening page 14.
 
 ## Conclusion (closing record, F19–F21)
 
-For the author, who accepted the section: "The GCM can then be used …" (F19), "and varying its pressure then changes
-the column mass …" (F20), and "In the simulated storms, for instance, the electrification graft computes …" (F21).
-The section is unchanged until the author decides.
+Brought to the author, who accepted the section, and applied on the author's word: "The GCM can then be used …"
+(F19), "and varying its pressure then changes the column mass …" (F20), and "In the simulated storms, for
+instance, the electrification graft computes …" (F21).
 
 ## Appendix and Availability (closing record, F22–F28)
 
@@ -173,3 +173,8 @@ The section is unchanged until the author decides.
 
 Checks for the sections after Repairs: a script found every section's numbers, inline mathematics, citations,
 cross-references and claim markers identical before and after.
+
+The Conclusion's three insertions pushed the appendix's first paragraph across a page, and the simple spacing rule
+before Table 5 then broke the page early, leaving page 27 nearly empty with a stray continuation header above
+Table 5. `\Needspace`, which measures the space left before breaking, replaces it; the paper is back to 35 pages,
+with Table 5 whole on page 27 and the Conclusion's last two paragraphs together on page 26.
