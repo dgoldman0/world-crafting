@@ -2875,6 +2875,13 @@
       "quote": "typically less than 80° for Mars and 65° for Titan, which has a larger relative scale height",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "repairs and conclusions (Titan haze)",
+      "location": "arXiv v1, abstract; Sect. 3.2 (radius)",
+      "quote": "On Titan, an aerosols scale height of 80 ± 10 km is inferred",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text; the radius is set to 2575 km for Titan, so 80 km is 3.1% of it (Sect. 3.2)"
      }
     ]
    },
@@ -4344,6 +4351,41 @@
       "quote": "the corresponding values are 94.8% and 81.7% in CAM3 and 90.4% and 97.4% in ExoCAM",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "arXiv v1 pp. 3-4, Results ('Clouds')",
+      "quote": "In CAM3 and ExoCAM, clouds are not resolved and cloud coverages are empirically parameterized based on relative humidity, atmospheric stratification, and large-scale updrafts",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "SI Text 3",
+      "quote": "it is defined as 100% when the cloud water content is greater than 0.01 g kg-1, otherwise it is 0%",
+      "read_in": "archived supplementary information (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "arXiv v1 p. 4; p. 7, Discussion",
+      "quote": "Overall, the simulated climates between CPM and GCM are broadly similar; For time- and global-mean, the simulated surface temperature and planetary albedo in the CPM are broadly similar to those found in GCM experiments",
+      "read_in": "archived original (text layer)",
+      "quote_check": "both quotes found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "arXiv v1 p. 10, Methods ('Two steps for each experiment')",
+      "quote": "In the 4 km experiment, the sea surface temperatures (SSTs) are fixed to the time-mean values of the last 30 Earth days of the 40-km experiment",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "SI Table 3, global-mean values",
+      "quote": "Planetary albedo (%) 18.1 29.1 22.1 37.4 47.0 41.0 39.0 (TRAPPIST-1e: SAM, CAM3, ExoCAM; K2-72e: SAM, CAM3, CAM3_TLC, ExoCAM)",
+      "read_in": "archived supplementary information (text layer)",
+      "quote_check": "row read from the table's text layer"
      }
     ]
    },

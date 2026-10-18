@@ -31,18 +31,18 @@ be applied to columns ten times Earth's on Titan, a hundred times on Venus and s
 cover, with its unit repaired, remains a fit made on Earth's convection, and PlaSim's cloud water, written in
 metres, errs at any gravity other than Earth's, too dry aloft under weaker gravity and too wet under
 stronger.\claim{W02} Released CM1 computes with Earth's gravity of 9.81~m\,s$^{-2}$, Earth's 24-hour day and the
-calendar year's carbon dioxide, trace gases and ozone, and SWAN, in the configuration used, loses gravity
+calendar year's carbon dioxide, trace gases and ozone, and released SWAN, in the configuration used, loses gravity
 similarity through its wind-input knee, fixed at 1~Hz. The adapted CM1 reads gravity as a parameter on its Morrison
 and NSSL paths and has run storms at the Moon's gravity and at Earth's; its drop limits and breakup remain Earth's,
 and their effect at other gravities is unmeasured, since the similarity pair failed to convect. Its Sun and soil
-are built for days from a few Earth days to the Moon's, and RRTMG's tables end at 1.05~bar. In the configuration
-used, SWAN and SWASH are built to run water seas at any gravity as the scaled image of an Earth sea, and on the
-code paths the similarity tests ran have been tested at a sixth of Earth's gravity, with Earth's empirical laws;
-SWAN's ST6 drag, exact quadruplets and bottom friction, and SWASH's rotation, all outside that configuration, keep
-Earth's constants. ExoPlaSim holds near the columns its radiation and cloud were fitted on: Earth-air columns near
-Earth's warmth with the released radiation, and the test world's design columns with the calibrations. Of the
-natural worlds in Figure~\ref{fig:regimes}, Earth alone lies near the fits in the adapted models, and the test
-world is the only world those models have simulated away from Earth's values.
+are built for days from a few Earth days to the Moon's, and RRTMG's tables end at 1.05~bar. With SWAN's knee
+patched, SWAN and SWASH, in the configuration used, are built to run water seas at any gravity as the scaled image
+of an Earth sea, and on the code paths the similarity tests ran have been tested at a sixth of Earth's gravity,
+with Earth's empirical laws; SWAN's ST6 drag, exact quadruplets and bottom friction, and SWASH's rotation, all
+outside that configuration, keep Earth's constants. ExoPlaSim holds near the columns its radiation and cloud were
+fitted on: Earth-air columns near Earth's warmth with the released radiation, and the test world's design columns
+with the calibrations. Of the natural worlds in Figure~\ref{fig:regimes}, Earth alone lies near the fits in the
+adapted models, and the test world is the only world those models have simulated away from Earth's values.
 
 \textbf{Worlds near the existing fits.} With the repairs as they stand, the four models are built to simulate the
 breathable Moon under other dimmings while its columns stay near the fitted ones: the split of sunlight, in the
@@ -111,6 +111,6 @@ Air heavier than Earth's & Broadband shortwave and longwave fits; Rayleigh scale
 Composition & RRTMG's calendar CO$_2$, trace gases and ozone; PlaSim's sunlight lacking CO$_2$ and O$_2$ & Nitrogen--oxygen air with O$_2$ and CO$_2$ near the design air's, refitted otherwise; ozone-free in CM1 & CO$_2$- or CH$_4$-dominated air; condensables other than water \\
 Cold cloud & Liquid optics for all cloud; saturation over liquid & Ice optics below $-38$\,\textdegree C & Ice saturation; crystal size with gravity; ice optics below 190~K, where the radius table falls under the fitted 10~\textmu m \\
 Storm electricity & The 180~kV\,m$^{-1}$ cap; the $-7$\,\textdegree C ground rule; the 0.75~s sub-step & Density-scaled breakdown; the condition for ground strikes; a scaled sub-step & Charging in little cloud water; breakdown in other gases \\
-Seas & The wind-input knee; the air's density; breaker parameter read uninitialised & Similarity at any gravity, tested at a sixth of Earth's on the tested paths; air density per build; breaking kept on & Earth's drag, growth and breaking laws; ST6, exact quadruplets, bottom friction and SWASH's rotation at Earth's constants; air density as a field \\
+Seas & The wind-input knee; the air's density; breaker parameter read uninitialised & Similarity at any gravity, tested at a sixth of Earth's on the similarity tests' code paths; air density per build; breaking kept on & Earth's drag, growth and breaking laws; ST6, exact quadruplets, bottom friction and SWASH's rotation at Earth's constants; air density as a field \\
 \end{xltabular}
 }
