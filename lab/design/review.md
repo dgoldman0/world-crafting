@@ -27,6 +27,7 @@ draft 2, and the author's answers to the open questions led to draft 3.
 | 8 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 2 prose; 3 seed; 2 between the documents | 1 | — |
 | 9 | 2026-10-18 | A: README, architecture, plan, with AGENTS.md and the seeds (the single round on draft 4) | 6 prose | — | 10, and 4 typed values |
 | 9 | 2026-10-18 | B: world_spec, regeneration, every seed and the registry (the same) | 1 prose; 8 seed; 6 between the documents; 3 typed values | 2 | — |
+| 10 | 2026-10-18 | The final review before coding | pending | — | — |
 
 ## Round 1 dispositions
 
@@ -432,3 +433,11 @@ design wind would add a choice of its own.
 
 Round 9 was the single round on draft 4, and its findings are revised with no confirmation round after them.
 Before stage 1, the author's confirmations of the engine and the proposed thresholds remain.
+
+## The engine and the workflow
+
+On 2026-10-18, with a user interface in view, the author chose a custom runner: a small local service that
+keeps its job queue in the store, with the command line as its first client. Snakemake left the design. The
+author also set the workflow for what follows. AGENTS.md now confines drafts and review rounds to the paper
+(commit 6d3997c on main, merged into `lab`), and the lab's code follows a conventional software workflow.
+Round 10 is the design's final review; after it, the design documents change with the code they describe.

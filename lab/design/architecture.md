@@ -25,9 +25,9 @@ column mass and scale height far from Earth's. The adapted models exclude scenar
 CO2 or CH4, whose surface pressure reaches several bar, or whose condensables are other than water, and the
 registry refuses them until a model that handles them is adapted.
 
-The lab runs from the command line on one shared machine. Its stages are plain Python functions; under the
-engine proposed in Decisions, Snakemake rules call them in the order the stage graph sets, and the same
-rules can later run on a cluster.
+The lab runs from the command line on one shared machine. Its stages are plain Python functions, which the
+lab's runner, a small local service, calls in the order the stage graph sets; the command line is the
+runner's first client, and a user interface can be a second.
 
 ## Principles
 
@@ -125,9 +125,10 @@ flowchart TB
   D --> R[registry and reach report]
   D --> G[stage graph: keys, read sets, staleness, plan]
   R --> G
-  G --> P[producers: surface, sunlight, air, reference columns, ledger, fits]
-  G --> B[builds: ExoPlaSim, CM1]
-  G --> J[jobs: GCM experiments, CM1 cases]
+  G --> RN[runner: the job queue, within the machine budget]
+  RN --> P[producers: surface, sunlight, air, reference columns, ledger, fits]
+  RN --> B[builds: ExoPlaSim, CM1]
+  RN --> J[jobs: GCM experiments, CM1 cases]
   P --> ST[(store: products, builds, runs)]
   B --> ST
   J --> ST
@@ -141,11 +142,12 @@ flowchart TB
 | Specifications | `lab/worlds/`, `lab/configs/`, `lab/studies/` | Worlds, scenarios, model defaults and studies in TOML; `extends`, `set` and `variants` express a derived item and its delta | `EXPERIMENTS`, `MODEL`, `CASES` |
 | Derive | `worldlab.derive` | Pure functions from a specification to the quantities the models need: g; Ω; the solar day; the scale height, H/R, the column mass and the Chapman horizon factor; ExoPlaSim's calendar (rotations per year, model day, steps per day, whole-day run steps); the gas mass fractions and gas constant; CM1's domain lengths and Coriolis parameters | `paper/tools/regime_calc.py`, `boundary.planet()`, arithmetic spread through the runners |
 | Registry and reach | `worldlab.registry`, `lab/registry/` | Earth-assumption entries and calibration envelopes, evaluated for a world, a scenario and a run's settings into a reach report | `notes/defect_log.md`, classes (a) and (b); the paper's table of reach |
-| Stage graph and store | `worldlab.stages`, `worldlab.store` | Stage definitions, product keys and headers, read-set tracking, staleness, priced plans, and the Snakemake rules that run the stages | Terluna's run key, `case.json`'s input hashes, `shared/provenance.py` |
+| Stage graph and store | `worldlab.stages`, `worldlab.store` | Stage definitions, product keys and headers, read-set tracking, staleness, priced plans | Terluna's run key, `case.json`'s input hashes, `shared/provenance.py` |
 | Model adapters | `worldlab.models.exoplasim`, `worldlab.models.cm1` | Builds, input files, namelists, runs and guards for each model | `exoplasim_run.py`, `cm1_run.py`, `cm1_elec.py` |
 | Coupling | `worldlab.couple` | GCM state to CRM inputs: reference profiles, mean vertical wind, sideways forcing, surfaces along rings and in boxes; a ring's output to a box's day–night forcing | `cm1_run.py:1162-1956`, `ring_crossings.day_night_advection`, `ring_heat_budget.gcm_sideways` |
 | Producers | `worldlab.produce.*`, calling `python/` | The surface grid and sunlight files, reference columns, the curved-air ledger, the gas-band, shortwave, water-continuum and longwave fits, the ice optics; the seas from the heights and the lakes from runoff; the infrared of a glow in space. Each runs on the scenario's own values, where Terluna's tools default to Earth's air and a ground albedo of 0.1 | `boundary.py`, `exoplasim_run.sunlight`, `python/climate/gcm/*`, `python/atmosphere/*`, `python/illumination/sky/*`; Terluna's `geography/atlas.py`, `geography/drainage.py` and `glow.py` |
-| Jobs | `worldlab.jobs` | Each model job's wrapper: locks, segments, resume, stop files and the machine checks before it starts; chains run as Snakemake targets | Both runners' loops; the shell chains in `session-tools/` |
+| Runner | `worldlab.runner` | A local service that keeps the job queue in the store, orders the stale products by the stage graph, starts each job once its inputs exist and the machine budget allows, and takes start, stop, resume, cancel and reorder from its clients | The shell chains in `session-tools/` |
+| Jobs | `worldlab.jobs` | Each model job's wrapper: locks, segments, resume and stop files, with its progress written to its record | Both runners' loops |
 | Diagnostics | `worldlab.diag` | One implementation of the diagnostics every world needs: global and zonal means, energy budgets, composites by local solar time, profiles by band, GCM–CRM comparisons | `summarise_year`, `climatology.py`, the generic parts of the ring and box analyses |
 
 Analyses particular to Terluna (comfort, named sites, the ecology and resource couplings) remain in Terluna
@@ -196,15 +198,19 @@ input.
 
 **Plan.** `lab plan` computes the keys from the current specifications and compares them with the store.
 It lists the stale products in the order it would rebuild them, each priced from the wall times in its
-records. `lab make` then passes them to Snakemake as targets, which runs them within the machine budget.
+records. `lab make` then hands them to the runner's queue, which runs them within the machine budget.
 
-**Running under Snakemake.** Each product's key names its output path, and a rule's inputs are its
-upstream products' paths. The lab runs Snakemake with its file-time trigger alone: a step runs where its
-output is missing, as a new key's is, or older than an input, and each product is write-protected once
-complete, so its key remains the one test of its staleness. Since Snakemake deletes the declared outputs of
-a failed step, a long run declares its record, written when the run completes, and keeps its folder
-beside it; downstream stages read the folder the record names. The fixpoint loop runs inside one step,
-since Snakemake's graph is acyclic.
+**The runner** is a long-lived local process that keeps its queue and each job's state in the store, so
+that a restart, or another client, finds the work where it stood. It builds only what lacks a complete
+product under its key, so the key remains the one test of staleness.
+
+- **Progress.** A job's wrapper writes its progress, by model year or one-day segment, into the job's
+  record, which the command line and a user interface read alike.
+- **Failure.** A failed job keeps its folder and record, from which it resumes.
+- **Loops.** The fixpoint and target stages run as jobs that add their own GCM runs to the queue, each pass
+  recorded.
+- **Clusters,** later, through an adapter that submits a job to a scheduler such as Slurm in place of
+  starting it here.
 
 **The test of the planner.** The dependency map in regeneration.md was worked out by hand from Terluna's
 code. Before `lab make` acts on its plans, the planner's computed staleness must match the map in its
@@ -424,11 +430,11 @@ and the comparisons with Terluna, and the lab's own studies take their parents f
 Both runners already lock, run in segments, resume and stop on request, and the lab keeps each of these.
 It adds:
 
-- **A machine budget,** set per machine: total threads (half the cores here), passed to Snakemake as its
-  cores and resources; nice 10; and a minimum of free disk and a load-average ceiling, which each job's
-  wrapper checks before the job starts.
+- **A machine budget,** set per machine: total threads (half the cores here), memory and disk, which the
+  runner allots among its jobs; nice 10; and a minimum of free disk and a load-average ceiling, which the
+  runner checks before it starts each job.
 - **Thread variables set explicitly:** `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `NUMBA_NUM_THREADS`.
-- **Chains as Snakemake targets,** replacing the shell scripts in `session-tools/`.
+- **Chains as queued targets,** replacing the shell scripts in `session-tools/`.
 - **Disk planning before a case starts.** A 3-D box at Jura's size writes 54 GB over two lunar days.
 
 ## A session with the lab
@@ -442,12 +448,13 @@ lab new study open-moon-0.960 --extends open-moon --scenario moon/open-moon-0.96
 lab plan open-moon-0.960                         # stale products, their order and their cost
 lab make open-moon-0.960                         # fits, builds, GCM runs and CM1 cases, within the budget
 lab diff open-moon:A28_corrected_970 open-moon:A28_corrected_970_lw_ice   # resolved inputs that differ
-lab status
+lab status                                       # the runner's jobs: running, waiting, stopped, with progress
+lab stop open-moon-0.960:A28_corrected_970       # a stop file; the run resumes from its last segment
 ```
 
 ## Decisions
 
-**Taken by the author on 2026-10-17:**
+**Taken by the author on 2026-10-17 and 18:**
 
 | Decision | Choice |
 |---|---|
@@ -461,12 +468,13 @@ lab status
 | Outside an envelope | The lab refuses the run unless explicitly overridden, warns clearly even then, and records the override (Principles) |
 | The Earth control's test | Global means within two standard deviations of the released run's yearly means (Principles) |
 | The longwave correction | Refitted with ice optics on, since it was fitted with them off (regeneration.md, example d) |
+| Engine | A custom runner, a small local service with its job queue in the store; the command line is its first client, and a user interface can be a second ("The stage graph and staleness") |
+| Workflow | The lab's code follows AGENTS.md's software workflow, in small tested changes each reviewed once; drafts and review rounds stay with the paper |
 
 **Proposed, for the author to confirm:**
 
 | Decision | Choice | Reason |
 |---|---|---|
-| Engine | Snakemake schedules and runs the stages; the lab's own code computes product keys, writes headers and records, and applies the registry and envelope checks | Snakemake reruns a step when its inputs, parameters or code change, keeps jobs within thread and memory limits, prints its plan before running and can later submit jobs to a cluster, all of which the lab would otherwise write. Product keys name the output paths, so Snakemake's graph of files follows the lab's keys ("Running under Snakemake"). The author leaned against draft 2's in-house engine |
 | Registry thresholds | The schemes that hard-code Earth's gravity refused beyond 0.5% from 9.81 m/s²; a ledger of the world's own column required beyond 10% from Earth's horizon air mass of 35; the thin-shell warning above H/R = 0.01; the soil-layer warning beyond 10% of the day's depth; the equinox-Sun warning above an obliquity of 5° | 0.5% passes the Earth control's 9.80665 m/s², 0.01 is about 7.5 times Earth's H/R, and 10% admits Terluna's lunar layers (`lab/registry/earth_assumptions.toml`) |
 | Time-step guard | A warning where a run's largest wind passes 80% of the advective limit | Set against Terluna's runs, stable at 30 minutes, in stage 1 |
 | Target stage and seasons | The target stage averages each run's last ten model years and stops within 0.1 K or after six runs; a CM1 case's GCM reference averages ±15° of solar longitude around its season | Ten years, as Terluna's ring references average; Terluna's trials stopped at 295.02 K, within 0.1 K; ±15° spans a twelfth of the year |

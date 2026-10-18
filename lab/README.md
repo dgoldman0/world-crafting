@@ -10,7 +10,7 @@ Every product records its producer, its inputs and the values it read, from whic
 changed parameter makes stale. A fit also records the states it was fitted on, against which the lab checks
 each run that uses it.
 
-**State (2026-10-18): design, draft 4.**
+**State (2026-10-18): design complete; coding begins with plan stage 1.**
 
 ## Reading order
 
