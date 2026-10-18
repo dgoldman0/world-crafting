@@ -13,24 +13,30 @@ above the bottom of every layer, and below 500~nm each band is one channel. Of t
 1,250~nm whose whole-column absorption depth is under 3 take spherical successive orders of scattering, continued
 until the newest order adds less than $2\times10^{-5}$, with a cap of 100.\claim{R05}
 
-\begin{table}[htbp]
-\caption{The models as configured for the lunar runs. The GCM states are those of Table~\ref{tab:states}.}
-\label{tab:config}
-\footnotesize
+\needspace{0.45\textheight}
+{\footnotesize
 \setlength{\tabcolsep}{3.5pt}
 \renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.11\textwidth}LL>{\raggedright\arraybackslash}p{0.1\textwidth}L@{}}
+\begin{xltabular}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.11\textwidth}LL>{\raggedright\arraybackslash}p{0.1\textwidth}L@{}}
+\caption{The models as configured for the lunar runs. The GCM states are those of Table~\ref{tab:states}.}\label{tab:config}\\
 \toprule
 Model & Domain and grid & Levels & Step & Runs, forcing and physics \\
 \midrule
+\endfirsthead
+\multicolumn{5}{@{}l}{\small Table~\ref{tab:config}, continued}\\
+\toprule
+Model & Domain and grid & Levels & Step & Runs, forcing and physics \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
 ExoPlaSim 3.4.2 & Global, T21: 32 by 64 cells, 170~km on the Moon & Ten $\sigma$ levels, the lowest near 885~m, the top level near 130~km & 30~min, 1,430 a lunar model day & 10--40 model years per state on 4 MPI ranks; 50~m slab sea with sea ice; land albedo 0.2; no ozone \\
 CM1 r22, rings & Equatorial ring 10,916~km round in 1,816 columns 6.0~km wide; 45\textdegree\ rings 7,719~km round; two-dimensional & 111 levels to 150~km, 100~m apart near the ground and 2~km above 27~km; damping above 115~km & 40~s, stretched to at most 80~s & Two lunar days, nudged above 8--16~km to a GCM state; Morrison double-moment microphysics with graupel; RRTMG every 30~min; MM5 surface layer and soil; fixed sea surface; first-order boundary layer \\
 CM1 r22, boxes & 385~km square, 64 by 64 columns 6.0~km apart, doubly periodic & As the rings & Adaptive & As the rings; the electrified box over two lunar days with NSSL microphysics with hail and WRF-ELEC's charging, discharge and leakage \\
 SWAN 41.51 & Spherical at the lunar radius; the nearside sea on 1\textdegree\ nodes, 7,053 of them wet; Smythii--Marginis on a 1\textdegree\ basin grid; nests to 118~m at the shore & 36 directions; 48 frequencies from 0.00497 to 0.497~Hz, Earth's 0.03--3~Hz scaled by $g/g_\mathrm{E}$ & 300~s (nearside), 150~s (Smythii) & 60 days of the Sun-and-tilt run's stress, the first lunar cycle a spin-up; Komen growth and whitecapping, Wu drag, DIA, the AGROW knee; depth breaking with index 0.73 \\
 SWASH 12.01 & One-dimensional profiles on today's slopes, 0.25--1~m apart & --- & --- & SWAN's spectra at the boundary; lunar gravity; breaking thresholds 0.6 and 0.3 \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\end{xltabular}
+}
 
 {\footnotesize
 \setlength{\tabcolsep}{4pt}
