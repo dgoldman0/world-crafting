@@ -1,5 +1,6 @@
 """The folders outside Git that the lab reads: Terluna's repository and research drive, whose records the
-comparison tests read and the `terluna:` and `terluna-drive:` pins name, and the lab's own store.
+comparison tests read and the `terluna:` and `terluna-drive:` pins name; the lab's own store; and the lab's
+Python environment, which holds ExoPlaSim and netCDF4 (lab/requirements.txt).
 
 Each root comes from its environment variable, or from lab/local.toml ([roots], kept out of Git; see
 lab/local.example.toml), a relative path there taken from lab/. A root counts as a folder that holds
@@ -16,7 +17,7 @@ from pathlib import Path
 
 from .spec import LAB
 
-VARIABLES = {'terluna': 'TERLUNA_REPO', 'terluna-drive': 'TERLUNA_DRIVE', 'store': 'WORLDLAB_STORE'}
+VARIABLES = {'terluna': 'TERLUNA_REPO', 'terluna-drive': 'TERLUNA_DRIVE', 'store': 'WORLDLAB_STORE', 'env': 'WORLDLAB_ENV'}
 
 
 def root(name: str, lab: Path = LAB, *, allow_empty: bool = False) -> Path | None:

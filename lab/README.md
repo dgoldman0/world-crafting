@@ -24,6 +24,7 @@ each run that uses it.
 | [worlds/](worlds/) | Seed worlds and scenarios: the Moon with the Open Moon at 1.2 and 1.0 atm, Earth as the control, and Mars with an illustrative 1 bar of Earth-like air |
 | [configs/](configs/) | Each model's shared defaults, stated for any world: ExoPlaSim's, and CM1's with its variants and its lengths, times and rates given at a reference state |
 | [studies/](studies/) | The Open Moon study: the design case's two GCM runs and three CM1 cases forced from the first, each extending its model's defaults; the subjects of plan stages 2 and 3 |
+| [requirements.txt](requirements.txt) | The lab's Python environment, which holds ExoPlaSim and netCDF4, and how to build it; [local.example.toml](local.example.toml) names its folder and the other roots on a machine |
 | [data/manifest.toml](data/manifest.toml) | The data the lab's stages read, each file with its source, size, hash, licence and credit; the lab's copies sit in the store |
 | [registry/](registry/) | A seed of the registry of Earth assumptions: fourteen entries, eleven converted from the defect log and three from the models' patches, with the thresholds awaiting the author's decision marked "proposed" |
 

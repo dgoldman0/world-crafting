@@ -1,8 +1,9 @@
 # Copy to lab/local.toml, which Git ignores, and set the folders this machine holds. An environment variable of
-# the same root (TERLUNA_REPO, TERLUNA_DRIVE, WORLDLAB_STORE) takes precedence, and a relative path is taken
-# from lab/. Tests that need a root this file leaves out report themselves skipped.
+# the same root (TERLUNA_REPO, TERLUNA_DRIVE, WORLDLAB_STORE, WORLDLAB_ENV) takes precedence, and a relative path
+# is taken from lab/. Tests that need a root this file leaves out report themselves skipped.
 
 [roots]
 terluna = "/path/to/terluna"                      # Terluna's repository, read by the comparison tests
 terluna-drive = "/path/to/terluna-research"       # its research drive: gcm-runs, crm-runs, cm1/build
 store = "/path/to/worldlab-store"                 # the lab's own store
+env = "/path/to/worldlab-venv"                    # the lab's Python environment (lab/requirements.txt)

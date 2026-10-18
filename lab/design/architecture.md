@@ -425,7 +425,9 @@ gives it, as `<study>:<name>`, becomes an alias of that key.
   that Terluna's ledger hard-codes (`notes/reference_radiation.md`, section 3). Terluna's pins resolve
   through `$TERLUNA_REPO` and `$TERLUNA_DRIVE`, or `lab/local.toml` where those are unset, which the
   comparison tests read and skip without (`lab/worldlab/roots.py`); the lab's own pins resolve through the
-  manifest at `lab/data/manifest.toml`.
+  manifest at `lab/data/manifest.toml`. `$WORLDLAB_ENV`, or `lab/local.toml`, names the lab's Python
+  environment, beside the system Python that runs `make check`: ExoPlaSim from its pinned archive, with netCDF4
+  and the other packages of `lab/requirements.txt`.
 
 **Comparisons with Terluna.** A comparison reads Terluna's records and output in place, under the Terluna
 roots, and reports where the lab's values differ from them and why. It files nothing in the store, and the
