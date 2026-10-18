@@ -80,6 +80,44 @@ Acted on in commit 9d555e6, together with the abstract's new opening.
 | 15 | Applied, with "The bound sits between them". |
 | 16 | Applied with one change: the proposal filled stock CM1's absences "from the same fields", yet the Sun and the Coriolis parameter come from CM1's own set-up; they are "filled in turn". "While on the 45° N ring" marks the second absence that showed, and the seas open "Beyond the storms, the seas take their forcing from the GCM as well". |
 
+
+## Verification (middle record, findings 17–30)
+
+| Finding | Disposition |
+|---|---|
+| 17 | Applied: "Six kinds of check were made on the repaired codes, …". |
+| 18 | Applied: "In the first step", "In the second", "In the third". |
+| 19 | Applied: "although". |
+| 20 | Applied: "by contrast". |
+| 21 | Applied: "while". |
+| 22 | Applied as proposed. |
+| 23 | Applied: "so a wave model's gravity is checked numerically, by a similarity test". |
+| 24 | Applied: "SWASH, the model of the shore, was tested against theory and by the same scaling". |
+| 25 | Applied: "while". |
+| 26 | Applied: "The arithmetic checks, the other half of this step, compared …"; CM1's untested microphysics also takes "by contrast". |
+| 27 | Applied, with "That accuracy has been checked in part." as a sentence of its own, so that one sentence carries a single colon. |
+| 28 | Applied, with the leakage's benchmark opening "The leakage added for the lunar runs has an Earth benchmark of its own", so "lunar runs" appears once in the sentence. |
+| 29 | Applied as proposed. |
+| 30 | Applied as proposed. |
+
+## Results (middle record, findings 31–42)
+
+| Finding | Disposition |
+|---|---|
+| 31 | Applied: "Run with these repairs, the codes gave results of two kinds on the test world". |
+| 32 | Applied: "which holds both cloud repairs", as Table 3 records. |
+| 33 | Applied: "since". |
+| 34 | Applied, with the comparison of Yang et al. opening as a sentence of its own, so that one sentence carries a single colon. |
+| 35 | Applied: "A third term, …, remains unquantified." |
+| 36 | Applied: "however". |
+| 37 | Applied with "with" in place of the proposal's "for": the runs record the evaporation beside the box's low rain, so the text links the two and leaves the cause open. "Each model, moreover, computes …" and "CM1's rain depends on the slice as well" mark the further points. |
+| 38 | Applied: the paragraph's last sentence opens on its relation, "Exoplanet estimates of lightning use laws fitted to Earth's storms, whose tops stand far below the lunar runs' 55–80 km". |
+| 39 | Applied: "Even so". |
+| 40 | Applied: "The second result depends on the scheme". |
+| 41 | Applied: "Light as these winds are", and "whereas" for Charnock's roughness. |
+| 42 | Applied: "At the shore, …" in a sentence of its own. |
+| 43 | Taken up at Reach's opening. |
+
 Checks: a script found the numbers, inline mathematics, citations, cross-references and claim markers of
 `repairs.tex` identical before and after; `make -C paper check` passed with its existing warnings; the PDF built at
 35 pages with zero overfull boxes, and pages 9–14 were read. Page 13 now ends about six lines short, with
