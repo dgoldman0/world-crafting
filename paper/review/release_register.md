@@ -36,6 +36,10 @@ With the Conclusion's three approved insertions and the appendix's spacing fix, 
 `50c3e35376d8b9bab4319dcbad9cbc8841fd845d` builds a PDF of 35 pages with SHA256
 `42b871bab8042d0b21b9316d1e81fc517b4ff6b968cab8ced5b8c4404e048003`; pages 25–30, where the layout moved, were
 inspected, and the gates stand as before.
+At the author's direction, the Introduction now gives the reason for CM1's slices (`slice_reason_2026-10-18.md`).
+The source at `ab465cd2d981ebba061b1b0e2373b076fd23783a` builds a PDF of 35 pages with SHA256
+`d6197caa7bd7e4334d426eba146732f0cc12b5b4f2089e554006a55e34a1a97b`; every page was inspected for layout, and the gates
+stand as before.
 
 ## The artifact
 

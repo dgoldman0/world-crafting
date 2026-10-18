@@ -90,6 +90,10 @@ its passage's claims, numbers, citations and claim markers. The records are `edi
 to be acted on section by section, and `editorial_round15_dispositions.md` records what was done with each, the
 Conclusion's three left for the author.
 
+After the related-work scan noted that the paper gave no reason for running CM1 in slices, the author gave the
+reason, the hardware's limits and a best guess at the features of interest, and directed that the paper state it;
+one sentence in the Introduction now does, with its record in `slice_reason_2026-10-18.md`.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
@@ -116,6 +120,7 @@ author, or by a journal, remains pending; the records identify the reviewer and 
 | `editorial_round<n>_*.md` | Each editorial round's records by reviewer, and the round's dispositions |
 | `drafts/` | The exact conclusion drafts read in rounds 11–13 |
 | `conclusion_*_2026-10-18.md`, `terracompatible_*_2026-10-18.md`, `terracompatible_visual_pages*.md` | The records of 18 October 2026: Codex's drafting and revisions, the check of them, their builds and page inspections |
+| `slice_reason_2026-10-18.md` | The author's reason for CM1's slices, the sentence that gives it, its claim, checks and build |
 | `g7_visual_review.md` | The exact-build page review: renderers, the PDF hash and page-by-page observations |
 | `release_register.md` | PASS / BLOCKED / DEFERRED by gate, with the exact PDF and source hashes |
 

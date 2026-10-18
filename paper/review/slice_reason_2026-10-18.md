@@ -25,3 +25,20 @@ Claim S16 registers its sources: Terluna's CM1 notes, which name the laptop and 
 rented compute (`climate/crm/README.md`, lines 688–690 at 186b294); its GCM notes, which give the eight cores
 (`climate/gcm/README.md`, line 93); the machine's own report on 18 October 2026 (Intel Core i9-11980HK, 8 cores and
 16 threads, 31 GiB of memory, a Gigabyte AERO 17 YD); and this record, for the author's account.
+
+## Checks and build
+
+`paper/tools/check.py` passed with its existing warnings (107 claims cited of 109 registered; S01 and V14 uncited;
+the web source of H23 and N02 unchecked offline); the lint flagged nothing in the new sentence; `git diff --check`
+was clean. The sentence lengthens the Introduction by about two lines, so the text from page 3 onward moved, and
+every page was inspected for layout on contact sheets, with page 3 read at 110 pixels per inch. No page is left
+near-empty, and Table 5 still stands whole on page 27. Next steps now opens page 23, where its heading had stood at
+the foot of page 22 with two lines beneath it; page 22 now ends below Table 4 about six lines short. A screen of
+every page's first and last lines, checked in the render, found two stranded lines: page 14 ends on the first line
+of "Similarity and arithmetic", and page 21 opens on the last line of "The defects in other configurations".
+Before the change, page 20 ended on the first line of "How the Earth values err". The paper sets no widow or club
+penalty, so such lines move with every edit; they are left for the final layout.
+
+Two clean builds from `ab465cd2d981ebba061b1b0e2373b076fd23783a` (`SOURCE_DATE_EPOCH=1792348808`,
+`FORCE_SOURCE_DATE=1`) gave the same PDF: 35 pages, SHA256
+`d6197caa7bd7e4334d426eba146732f0cc12b5b4f2089e554006a55e34a1a97b`, zero overfull boxes and every font embedded.
