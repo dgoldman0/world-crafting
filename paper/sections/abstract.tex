@@ -3,24 +3,25 @@
 planets, and on a world whose air and water resemble Earth's while its gravity, size, day or starlight differ, a
 run that keeps a value set for Earth can complete with a plausible result. A constructed world can depart further:
 by one design's own models, a shield in space that removes the ultraviolet heating the upper air would keep
-Earth-like air under a gravity too weak to hold it naturally. Four Earth-built codes, ExoPlaSim~3.4.2, CM1
-release~22 with WRF-ELEC's electrification, SWAN~41.51 and SWASH~12.01, were adapted to such a world, a breathable
-Moon, which departs from Earth at once in gravity, column mass, day and scale height over radius. Their Earth
-values take four forms: constants, units of time, geometry, and fits and simplifications used beyond their range;
-the released codes also hold five defects, and by the code's own arithmetic three of them, with little or no error
-at Earth's values, bias ExoPlaSim's runs that meet their conditions, slowly rotating and tidally locked
-planets among them.\claim{H23}\claim{W06} Where a value was repaired, constants and units of time mostly took general
-repairs built to hold on other worlds within the limits of their laws, the radiative geometry took a method whose
-table is computed from the world's own column, and the radiation's gas and scattering fits took calibrations to an
-in-house line-by-line model and its correlated-$k$ emulation, each holding near the columns it was fitted on. Identity, reproduction, arithmetic,
-gravity-similarity and Earth-benchmark checks test the code: patched, SWAN reproduces a sixfold gravity scaling of
-an Earth sea to 0.3\% in wave height, where the released code misses it by up to 5.4\%.\claim{V04} The test world,
-whose climate is unobserved, is the only world the repaired codes have run on away from Earth's values. There the
-two general repairs measured singly moved the global-mean surface temperature by 1.6--2.5~K, while the first
-calibration of the radiation's Earth fits moved it by at least 20~K and the cloud's Earth-tuned settings, varied in
-tests, by up to about 6~K.\claim{G01}\claim{G14}\claim{G05} A radiation scheme built from the reference's
-line-by-line spectroscopy would replace the largest of these fits for nitrogen--oxygen air with water and modest
-carbon dioxide over the pressures and temperatures where an independent code has checked that spectroscopy, while
-cloud would be a calibration for each world, fitted to cloud-resolving runs, a fit still to be made on the test
-world.
+Earth-like air under a gravity too weak to hold it naturally. ExoPlaSim~3.4.2, an Earth model extended to other
+worlds, and three codes built for Earth, CM1 release~22 with WRF-ELEC's electrification, SWAN~41.51 and
+SWASH~12.01, were adapted to such a world, a breathable Moon, which departs from Earth at once in gravity, column
+mass, day and scale height over radius. Their Earth values take four forms: constants, units of time, geometry,
+and fits and simplifications used beyond their range; the released codes also hold five defects, and by
+ExoPlaSim's own arithmetic three of them, with little or no error at Earth's values, bias its runs that meet their
+conditions, slowly rotating and tidally locked planets among them.\claim{H23}\claim{W06} Where a value was
+repaired, constants and units of time mostly took general repairs built to hold on other worlds within the limits
+of their laws, the radiative geometry took a method whose table is computed from the world's own column, and the
+radiation's gas and scattering fits took calibrations to an in-house line-by-line model and its correlated-$k$
+emulation, each holding near the columns it was fitted on. Identity, reproduction, arithmetic, gravity-similarity
+and Earth-benchmark checks test the code: patched, SWAN reproduces a sixfold gravity scaling of an Earth sea to
+0.3\% in wave height, where the released code misses it by up to 5.4\%.\claim{V04} The test world, whose climate
+is unobserved, is the only world the repaired codes have run on away from Earth's values. There the two general
+repairs measured singly moved the global-mean surface temperature by 1.6--2.5~K, while the first calibration of
+the radiation's Earth fits moved it by at least 20~K and the cloud's Earth-tuned settings, varied in tests, by up
+to about 6~K.\claim{G01}\claim{G14}\claim{G05} A radiation scheme built from the in-house model's line-by-line
+spectroscopy would replace the largest of these fits for nitrogen--oxygen air with water and modest carbon
+dioxide, under the starlight it is built for and over the pressures and temperatures where that spectroscopy
+agrees with an independent code, a comparison planned on one column of the test world. Cloud would be a
+calibration for each world, fitted to cloud-resolving runs, a fit still to be made on the test world.
 \end{abstract}

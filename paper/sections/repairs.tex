@@ -84,28 +84,28 @@ through a delta-scaled two-stream, with an effective radius from Kristjánsson a
 10~\textmu m and larger, sizes the table gives only above 190~K, so in the coldest lunar cloud the optics are
 extrapolated in size.\claim{R12}
 
-\textbf{Curved air.} Both models read the curved geometry from a table of curved-air terms computed for one
-clear design column, 1.2~atm of air with 205~kg\,m$^{-2}$ of water over a 294.9~K surface: the radiation of the
-same air traced once, offline, through 100 spherical shells and through the same layers taken flat, at solar
-elevations from $-90$ to 90\textdegree, with the differences tabulated. Sunlight from 360~nm to 5~\textmu m was
-traced in 10,697 spectral channels, the 282 thin enough to scatter by spherical successive orders of scattering
-from an in-house sky solver, and the rest by a direct beam through the shells with the diffuse light of a
-pseudo-spherical two-stream, so that their twilight lacks scattered light; the infrared escape was traced
-through the same shells by impact parameter, and the appendix gives the channels' construction. The
-differences are summed in two terms: the widening of the shells above each square metre of ground,
-$-6.5$~W\,m$^{-2}$ net, and the curved light and escape, the twilight and the low Sun's side light,
-$+0.7$~W\,m$^{-2}$.\claim{R05} Tabulated at 167 solar elevations from $-40$ to 90\textdegree, the terms are
-applied in the patched codes to every column and hour, below the horizon as well as above: each PlaSim layer
-and each CM1 level gains its tabulated sunlight, the ground gains its share scaled by the column's clear-sky
-fraction, and each layer loses to space its extra infrared escape, scaled with temperature to the fourth
-power. PlaSim's slant factor becomes the Moon's, $(\mu+a)/(\mu^2+b\mu+c)$ fitted to straight rays through the
-shells, within 0.30\% for water vapour and 0.08\% for well-mixed air (Figure~\ref{fig:slant}).\claim{R06} With
-the Sun overhead, where curvature leaves the beam's path unchanged, the spherical solver's ground still
-receives 1.3\% less sunlight than the two-stream's, so by day the terms also move PlaSim from the two-stream
-reference it was calibrated against toward the successive-orders solver.\claim{R07} For another world the table
-is recomputed from that world's own column. How close to the horizon a flat treatment holds depends on the
-height of the scattering layer against the radius: to solar zenith angles of about 80\textdegree\ on Mars, and
-about 65\textdegree\ on Titan, whose haze has a scale height of about 80~km, 3\% of its radius
+\textbf{Curved air.} Both models read the curved geometry from a table of curved-air terms computed for one clear
+design column, 1.2~atm of air with 205~kg\,m$^{-2}$ of water over a 294.9~K surface: the radiation of the same air
+traced once, offline, through 100 spherical shells and through the same layers taken flat, at solar elevations from
+$-90$ to 90\textdegree, with the differences tabulated. Sunlight from 360~nm to 5~\textmu m was traced in 10,697
+spectral channels, the 282 thin enough to scatter by spherical successive orders of scattering from an in-house sky
+solver, and the rest by a direct beam through the shells with the diffuse light of a pseudo-spherical two-stream,
+so that their twilight lacks scattered light; the infrared escape was traced through the same shells by impact
+parameter, and the appendix gives the channels' construction. The differences are summed in two terms: the widening
+of the shells above each square metre of ground, $-6.5$~W\,m$^{-2}$ net, and the curved light and escape, the
+twilight and the low Sun's side light, $+0.7$~W\,m$^{-2}$.\claim{R05} Tabulated at 167 solar elevations from $-40$
+to 90\textdegree, the terms are applied in the patched codes to every column and hour, below the horizon as well as
+above: each PlaSim layer and each CM1 level gains its tabulated sunlight, the ground gains its share scaled by the
+column's clear-sky fraction, and each layer loses to space its extra infrared escape, scaled with temperature to
+the fourth power. PlaSim's slant factor becomes the Moon's, $(\mu+a)/(\mu^2+b\mu+c)$ fitted to straight rays
+through the shells, within 0.30\% for water vapour and 0.08\% for well-mixed air
+(Figure~\ref{fig:slant}).\claim{R06} With the Sun overhead, where curvature leaves the beam's path unchanged, the
+spherical solver's ground still receives 1.3\% less sunlight than the two-stream's, so by day the terms also move
+PlaSim from the two-stream reference it was calibrated against toward the successive-orders solver.\claim{R07} For
+another world the table is recomputed from that world's own column. How close to the horizon a flat treatment holds
+depends on the height of the scattering layer against the radius: the plane-parallel codes that separate surface
+and aerosol in remote sensing hold typically to about 80\textdegree\ from the zenith on Mars, and to about
+65\textdegree\ on Titan, whose haze has a scale height of about 80~km, 3\% of its radius
 \autocite{vincendon2010spherical}.
 
 \begin{figure}[tbp]

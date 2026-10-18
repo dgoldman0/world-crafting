@@ -41,22 +41,23 @@ global-mean surface temperature are plotted beside the sensitivity tests in Figu
 runs averaged over the years of Table~\ref{tab:states}, several of them still drifting. On the first calibrated
 run, still in Earth's seasons, counting cloud water by pressure warmed the test world by 2.3~K over the years
 averaged and about 2.5~K as the run settled, and counting convective rain per Earth day warmed it by a further
-1.8~K, about 1.6~K settled.\claim{G01} From the Earth-orbit state, the synodic clock, a year of whole model days,
-the Moon's own tilt and the recalibrated split of sunlight, a general repair, two avoidances, one of them output
-bookkeeping, and a calibration made in one step, warmed the test world by 0.6~K and cut its rain from 2.91 to
-2.24~mm per day, and the land receiving under 0.5~mm per day grew from 9 to 42\%, 36\% within two years of the Sun
-and tilt alone: with Earth's 23.7\textdegree\ tilt, summer rain had reached 60\textdegree.\claim{G02} The Sun and
-tilt changed the global means through the clouds: in a two-year test of the two alone, with the Earth-orbit state's
-split of sunlight, the clouds' effect in sunlight weakened from $-15.7$ to $-13.3$~W\,m$^{-2}$ and the planetary
-albedo fell from 0.293 to 0.285, so that the test world ran 0.9~K warmer over the two years while still gaining
-1.9~W\,m$^{-2}$ at the top of its air.\claim{G17} From the Sun-and-tilt state, the curved air, on the table's first
-channels, cooled it by 0.65~K, its clouds offsetting in the first year 3.5 of the clear sky's 5.4~W\,m$^{-2}$ loss
-under those terms. On the same channels the carbon dioxide and oxygen bands cooled it by a further 2.2~K over years
-10--19, still cooling 0.3~K a decade, mostly through PlaSim's high cloud: computed cloud-free, the column's ground
-moves 0.57~K with the bands, while the high deck fell from 16 to 12\% of the sky and the top layer's cirrus from
-2.0 to 0.05\% as that layer warmed by 7~K.\claim{G03} The corrected terms have run only together with the bands and
-the eased dimming, in the design case: holding the design temperature on them took easing the dimming from 5.0 to
-3.0\%, and at that dimming the design case settles at 295.0~K, with 2.31~mm of rain a day.\claim{G04}
+1.8~K, about 1.6~K settled.\claim{G01} From the Earth-orbit state, four changes were made in one step: the synodic
+clock, a general repair; a year of whole model days, an avoidance in the output's bookkeeping; the Moon's own tilt,
+an avoidance by configuration; and the recalibrated split of sunlight, a calibration. Together they warmed the test
+world by 0.6~K and cut its rain from 2.91 to 2.24~mm per day, and the land receiving under 0.5~mm per day grew from
+9 to 42\%, 36\% within two years of the Sun and tilt alone: with Earth's 23.7\textdegree\ tilt, summer rain had
+reached 60\textdegree.\claim{G02} The Sun and tilt changed the global means through the clouds: in a two-year test
+of the two alone, with the Earth-orbit state's split of sunlight, the clouds' effect in sunlight weakened from
+$-15.7$ to $-13.3$~W\,m$^{-2}$ and the planetary albedo fell from 0.293 to 0.285, so that the test world ran 0.9~K
+warmer over the two years while still gaining 1.9~W\,m$^{-2}$ at the top of its air.\claim{G17} From the
+Sun-and-tilt state, the curved air, on the table's first channels, cooled it by 0.65~K, its clouds offsetting in
+the first year 3.5 of the clear sky's 5.4~W\,m$^{-2}$ loss under those terms. On the same channels the carbon
+dioxide and oxygen bands cooled it by a further 2.2~K over years 10--19, still cooling 0.3~K a decade, mostly
+through PlaSim's high cloud: computed cloud-free, the column's ground moves 0.57~K with the bands, while the high
+deck fell from 16 to 12\% of the sky and the top layer's cirrus from 2.0 to 0.05\% as that layer warmed by
+7~K.\claim{G03} The corrected terms have run only together with the bands and the eased dimming, in the design
+case: holding the design temperature on them took easing the dimming from 5.0 to 3.0\%, and at that dimming the
+design case settles at 295.0~K, with 2.31~mm of rain a day.\claim{G04}
 
 \begin{figure}[tbp]
 \centering
@@ -88,8 +89,8 @@ fits, used beyond the range they were fitted over, moved the global mean by at l
 Earth-tuned settings, pushed to the ends of these tests, by up to about 6~K, while the two general repairs of units
 and constants measured singly moved it by 1.6--2.5~K and the geometry's curved-air terms, on the table's first
 channels, by 0.65~K. In the comparison of \textcite{yang2023cloud}, two GCMs that parameterize their cover, as
-PlaSim does, covered far more of the sky than a quasi-global cloud-permitting model on two tidally locked planets:
-on TRAPPIST-1e and K2-72e, CAM3 covered 94.8 and 81.7\% and ExoCAM 90.4 and 97.4\%, their cover following relative
+PlaSim does, covered far more of the sky than a quasi-global cloud-permitting model on two tidally locked planets,
+TRAPPIST-1e and K2-72e: CAM3 covered 94.8 and 81.7\% and ExoCAM 90.4 and 97.4\%, their cover following relative
 humidity, stability and large-scale ascent, against 26.9 and 41.1\% in the cloud-permitting model, which counts
 cloud by a condensate threshold and ran over sea surfaces fixed from a coarser run of the same model. The planetary
 albedos lay closer, 22.1--29.1 and 39.0--47.0\% in the GCMs against 18.1 and 37.4\%, and the authors judged the
@@ -150,20 +151,21 @@ in-cloud flashes neutralised a median 108~C, and the ground strikes, all negativ
 flashes under the condition for ground strikes, lowered a median 149~C. Part of the difference from Earth may come
 from the grid, since the box's 6~km columns correspond to about 1~km at Earth's scale and on the Earth benchmark a
 coarser grid gave fewer, larger flashes.\claim{G10} The flash-rate laws with which \textcite{braam2022lightning}
-estimated lightning on tidally locked planets with Earth-like air, and \textcite{sergeev2025lightning} on one with
-oxygen-free nitrogen air at 0.25--10~bar, set the rate from the cloud-top height or, in Sergeev et al.'s
+estimated lightning on Proxima Centauri~b with Earth-like air, and \textcite{sergeev2025lightning} on TRAPPIST-1e
+with oxygen-free nitrogen air at 0.25--10~bar, set the rate from the cloud-top height or, in Sergeev et al.'s
 storm-resolving runs, from the upward flux of graupel at $-15$\,\textdegree C and the column's ice water path, and
 were fitted to Earth's storms, whose tops stand far below the lunar runs' 55--80~km.
 
 Two of the storm results depend on choices that a measurement or a theory could settle. In two windows of an
 earlier electrified run, days 10.5--12 and 40.5--42, made before the ventilation repair and with leakage off, the
-storms under Takahashi's charging law \autocite{takahashi1978riming} separate as much charge as under Saunders
-and Peck's \autocite{saunders1998laboratory}, within the spread of the Saunders and Peck runs of the same days,
-with their polarity inverted; the sign of the lightning therefore depends on laboratory laws that disagree on the
-sign rimed ice takes in the little cloud water of the lunar storms. With the NSSL microphysics in place of
-Morrison's, the main electrified run over its second lunar day is 1.0~\textdegree C warmer at 2~m than Morrison's
-box at the same site and forcing, one realisation against another, and its night fog at the ground covers 29\% of
-the box in place of 56\%, so the lunar night fog depends on the microphysics by about a factor of two.\claim{G11}
+storms under Takahashi's charging law \autocite{takahashi1978riming} separate as much charge as under Saunders and
+Peck's \autocite{saunders1998laboratory}, within the spread of the Saunders and Peck runs of the same days, with
+the arrangement of their charge inverted, the main negative charge above the positive; which arrangement the storms
+take therefore depends on laboratory laws that disagree on the sign rimed ice takes in the little cloud water of
+the lunar storms. With the NSSL microphysics in place of Morrison's, the main electrified run over its second lunar
+day is 1.0~\textdegree C warmer at 2~m than Morrison's box at the same site and forcing, one realisation against
+another, and its night fog at the ground covers 29\% of the box in place of 56\%, so the lunar night fog depends on
+the microphysics by about a factor of two.\claim{G11}
 
 \textbf{Seas.} The GCM's surface stress over the seas corresponds to light winds, 2.6~m\,s$^{-1}$ at 10~m at the
 median over the equatorial seas. Under Earth's laws for wind input, whitecapping and breaking, scaled to lunar

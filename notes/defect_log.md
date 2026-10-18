@@ -553,7 +553,7 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 ### B24. SWAN: the AGROW knee at 1 Hz (R)
 
 - **Defect.** `SWIND0` reduces AGROW's linear wind source above 1 Hz by a factor in f³ (`swancom3.ftn:1800–1807`).
-  The source comments call the knee "largely arbitrary" (`1714–1723`). A fixed knee breaks gravity similarity when
+  The source comments call the knee "mostly arbitrary" (`1714–1723`). A fixed knee breaks gravity similarity when
   frequency bands are rescaled (`climate/waves/audit.md:45-60`).
 - **Fix** (8785f7e, 2026-10-02). The frequency entering the reduction becomes f · g_ref/g, so the knee sits at
   g/g_ref Hz (`climate/waves/build.py:68-90`). At the reference gravity the stock behaviour is reproduced.

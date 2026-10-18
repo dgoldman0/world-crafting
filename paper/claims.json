@@ -169,7 +169,7 @@
   },
   {
    "id": "H04",
-   "text": "SWAN's AGROW knee fixed at 1 Hz, called largely arbitrary in its comments; stock SWAN misses the sixfold similarity test by 5.44% in Hs",
+   "text": "SWAN's AGROW knee fixed at 1 Hz, called mostly arbitrary in its comments; stock SWAN misses the sixfold similarity test by 5.44% in Hs",
    "source": [
     "repo:notes/defect_log.md#B24",
     "terluna:climate/waves/audit.md#L45-60",
@@ -353,7 +353,7 @@
   },
   {
    "id": "H22",
-   "text": "Retained Earth calibrations: Wu drag, Komen, the AGROW coefficient, breaker index 0.73 (Battjes and Stive 1985), SWASH breaking 0.6/0.3, the charging laws (Takahashi's inverts the lunar storms' polarity)",
+   "text": "Retained Earth calibrations: Wu drag, Komen, the AGROW coefficient, breaker index 0.73 (Battjes and Stive 1985), SWASH breaking 0.6/0.3, the charging laws (Takahashi's inverts the lunar storms' arrangement of charge)",
    "source": [
     "repo:notes/defect_log.md#B27",
     "repo:notes/defect_log.md#B7",
@@ -896,7 +896,7 @@
   },
   {
    "id": "G11",
-   "text": "In two windows of an earlier electrified run (days 10.5-12 and 40.5-42, before the ventilation repair, leakage off) Takahashi's law separates as much charge as Saunders and Peck's, within the spread of the Saunders and Peck runs, with the polarity inverted; NSSL's main run against Morrison's box: 1.0 C warmer at 2 m, night ground fog 29% against 56% of the box, one realisation against another",
+   "text": "In two windows of an earlier electrified run (days 10.5-12 and 40.5-42, before the ventilation repair, leakage off) Takahashi's law separates as much charge as Saunders and Peck's, within the spread of the Saunders and Peck runs, with the storms' arrangement of charge inverted (main negative charge above the positive); the windows' ground strikes, all negative under both laws, carried charge left over from the run without leakage; NSSL's main run against Morrison's box: 1.0 C warmer at 2 m, night ground fog 29% against 56% of the box, one realisation against another",
    "source": [
     "terluna:climate/crm/README.md#L2097-2120",
     "terluna:climate/crm/README.md#L2409-2418",

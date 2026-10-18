@@ -2867,7 +2867,7 @@
    "additional_files": null,
    "reading": {
     "depth": "claim-locators",
-    "reader": "delegated search agent (agentC); quotes machine-checked against archived text where available",
+    "reader": "delegated search agent (agentC); quotes machine-checked against archived text where available; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
     "locators": [
      {
       "claim_id": "Td",
@@ -3337,7 +3337,7 @@
    "additional_files": null,
    "reading": {
     "depth": "claim-locators",
-    "reader": "this agent",
+    "reader": "this agent; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
     "locators": [
      {
       "claim_id": "L12",
@@ -3359,6 +3359,27 @@
       "quote": "produces a shield of high, optically thick clouds that limit warming there",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "next steps and conclusions (test of the reach)",
+      "location": "arXiv v2, Sect. 2",
+      "quote": "Planetary obliquity and eccentricity are zero.",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "next steps and conclusions (test of the reach)",
+      "location": "arXiv v2, Sect. 2",
+      "quote": "O3 is set to zero",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "next steps and conclusions (test of the reach)",
+      "location": "arXiv v2, Table 2 and its notes",
+      "quote": "Present day Earth solar insolation (S0X=1.0) is set to 1360.67 W m−2; Rotation: values are in multiples of Earth length sidereal days (d)",
+      "read_in": "archived original (text layer)",
+      "quote_check": "both notes found in text; X016 and X064 run at S0X = 1.0"
      }
     ]
    },
@@ -4336,7 +4357,7 @@
    ],
    "reading": {
     "depth": "claim-locators",
-    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available",
+    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
     "locators": [
      {
       "claim_id": "Tb",
@@ -5016,8 +5037,37 @@
    "additional_files": null,
    "reading": {
     "depth": "claim-locators",
-    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available",
-    "locators": []
+    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
+    "locators": [
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v2, Sect. 2.2.1, Eqs. (1)-(3)",
+      "quote": "F1 is a linear function of the upward flux of graupel mass at the −15 ◦C isotherm; The F2 factor is a linear function of the total ice water path (TIWP)",
+      "read_in": "archived original (text layer)",
+      "quote_check": "both phrases found in text"
+     },
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v2, Sect. 2.2.1",
+      "quote": "This parameterisation was originally derived from observations of severe thunderstorms over the United States",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v2, Sect. 2.3",
+      "quote": "We set our model with N2 as the dominant background gas and 400 ppm of CO2 (i.e., fixed mass mixing ratio), and H2 O as the condensible species. Oxygen and ozone are not included in our simulations.",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text; the planet is TRAPPIST-1e"
+     },
+     {
+      "claim_id": "conclusions (resolved storms as a route)",
+      "location": "arXiv v2, Sect. 4.2",
+      "quote": "A possible route towards a more quantitative result is to use an explicit electric charging scheme coupled with a cloud-resolving model (e.g., Fierro et al. 2013). In the absence of in-situ observations, this may be the best way of tuning convection- or microphysics-based parameterisations in climate models for different planetary atmospheres.",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     }
+    ]
    },
    "admission": "DEFERRED",
    "admission_reason": null,
@@ -5049,8 +5099,23 @@
    "additional_files": null,
    "reading": {
     "depth": "claim-locators",
-    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available",
-    "locators": []
+    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
+    "locators": [
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v1, abstract",
+      "quote": "simulate the atmosphere of Proxima Centauri b orbiting in the Habitable Zone of its M-dwarf star",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v1, Sect. 4.3",
+      "quote": "the coefficients used in Equation 1 have been tuned to match observed",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text; the sentence continues with lightning flash rates on Earth"
+     }
+    ]
    },
    "admission": "DEFERRED",
    "admission_reason": null,
@@ -5117,7 +5182,7 @@
    ],
    "reading": {
     "depth": "claim-locators",
-    "reader": "this agent",
+    "reader": "this agent; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
     "locators": [
      {
       "claim_id": "L8",
@@ -5158,6 +5223,13 @@
       "claim_id": "conclusions (drop-size scaling)",
       "location": "p. 22 of 28, App. C1",
       "quote": "Such experiments consistently agree (within about 20%) with the predictions of Equation 21",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "conclusions (collisions bound raindrops on Earth)",
+      "location": "p. 9 of 28, Sect. 3.4",
+      "quote": "the practical upper bound on raindrop size is not set from individual raindrop breakup but rather from hydrometeor collisions",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
      }
