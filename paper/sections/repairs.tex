@@ -4,109 +4,116 @@ Most repairs follow one rule: an Earth value or a defect becomes a parameter who
 reproduce the released code, so that a repair can be switched on for the world that needs it and its effect
 measured against the original code. The changes that depart from the rule act in every build that includes
 them or reproduce the released code only under a stated condition, and Table~\ref{tab:repairs} gives each
-one's condition. The source changes are recorded as patch series against pinned upstream archives, each with
-its switch or condition, its default and the checks made on it, and the settings of the released codes on
-which the runs depend are listed with them.
+one's condition.
 
-The three classes of repair differ in what was fitted to the test world. A general repair contains no
-coefficient fitted to the test world or chosen for it: its values follow from a unit, a scaling law, a
-parameterization fitted over a stated range or the code's own intent, and its limits are those of its laws
-(Table~\ref{tab:reach}). A general method computes a quantity of the world's own column offline and enters it
-as computed, as the curved-air terms enter as differences between spherical and flat solutions of a design
-column. In a calibration, PlaSim's own coefficients are adjusted until its output matches the reference model
-on chosen columns of the test world. The gas-band change has a part of each of the last two kinds: its
-coefficients were fitted to the reference beam's loss above every level of the design column, a quantity
-computed for that column, and the Rayleigh and water multipliers were then refitted with them until PlaSim's
-layers matched the reference, so the tables class it as a calibration. The code change that turns an Earth
-value into a parameter is counted as the repair and the lunar value entered in it as a setting, so CM1's
-gravity, Sun, carbon dioxide and oxygen are general repairs with lunar settings, while CM1's zeroed trace
-gases and ozone and SWAN's air density, entered as fixed values in the code, are settings alone. The remaining
-kinds are a capability, a process the released codes lack; a coupling, the use of one model's fields to force
-another; an avoidance, a configuration of a released code chosen to keep the runs clear of a defect or an
-Earth default; a bound, a value chosen between two rules that bracket an unsettled process; and a mitigation,
-a cap on what one scheme passes to another.
+\textbf{Switches and builds.} The lunar runs were made with runners, scripts that configure, compile and run
+each model and insert each change into the installed source at a marked anchor. The patch series in the code
+repository, generated from the runners' edit lists, record each change against a pinned upstream archive with
+its switch or condition, its default and the checks made on it, and list beside the changes the settings of the
+released codes on which the runs depend. In PlaSim, ten patches change the radiation, cloud and Sun code, each
+adding a namelist switch written to reproduce the released code at its default; runs confirm that identity for
+five of them (Table~\ref{tab:verification}), while the near-infrared water scaling reproduces the released code
+at its default only for spectra like the design case's. CM1 takes its switches in two other forms: gravity and
+the air's carbon dioxide and oxygen become preprocessor constants that default to 9.81~m\,s$^{-2}$, 400~ppm and
+Earth's oxygen, and CM1's twenty spare namelist reals hold the lunar Sun, the forcing and the electrification's
+settings.\claim{R01}
+
+Whatever their switches, most repairs fall into three classes, which differ in what was fitted to the test
+world. A general repair contains no coefficient fitted to the test world or chosen for it, since its values
+follow from a unit, a scaling law, a parameterization fitted over a stated range or the code's own intent, and
+its limits are therefore those of its laws (Table~\ref{tab:reach}). One step nearer the world, a general method
+computes a quantity of the world's own column offline and enters it as computed, as the curved-air terms enter
+as differences between spherical and flat solutions of a design column. In a calibration, by contrast, PlaSim's
+own coefficients are adjusted until its output matches the reference model on chosen columns of the test world.
+The gas-band change has a part of each of these last two kinds: its coefficients were fitted to the reference
+beam's loss above every level of the design column, a quantity computed for that column, and the Rayleigh and
+water multipliers were then refitted with them until PlaSim's layers matched the reference, so the tables class
+it as a calibration. A second convention separates a repair from its setting: the code change that turns an
+Earth value into a parameter is counted as the repair and the lunar value entered in it as a setting, so CM1's
+gravity, Sun, carbon dioxide and oxygen are general repairs with lunar settings, while CM1's zeroed trace gases
+and ozone and SWAN's air density, entered as fixed values in the code, are settings alone. Beyond the three
+classes and the settings, the remaining kinds of change are a capability, a process the released codes lack; a
+coupling, the use of one model's fields to force another; an avoidance, a configuration of a released code
+chosen to keep the runs clear of a defect or an Earth default; a bound, a value chosen between two rules that
+bracket an unsettled process; and a mitigation, a cap on what one scheme passes to another.
 
 \textbf{Defects and Earth defaults removed or avoided.} Two of ExoPlaSim's defects are removed in the code: the
 patched PlaSim turns the Sun at the synodic rate continuously from the first step, a mode that assumes a
 steady, non-synchronous rotation, and converts convective rain per 86,400~s. The third is avoided with
 ExoPlaSim's own \code{fixedorbit} switch, whose documentation describes only the freezing of Milankovitch
-variations; set, it makes PlaSim use the configured orbit. With a year of 17,160 half-hour steps, twelve whole
-model days, the ten output means of each model day fall at the same places in every year; the synodic Sun
-shifts 3.2\textdegree\ a model day against those means, so analyses sort the output by the Sun's position.
-SWAN's uninitialised read of its breaker parameter is avoided by keeping depth-induced breaking on in every
-run, and its default initial state, whose 2~s peak period has Earth's dimensions, by starting from rest or from
-hotstart files. The thread race and PlaSim's cold lowest level stay open: CM1 runs that must repeat use one
-thread, and analyses of the lowest level screen the cold windows. The three ExoPlaSim repairs are built for
-other configurations of the released code as well, the synodic clock for any steady, non-synchronous rotation,
-the unit for any model day, a synchronous one included, and the switch for any configured orbit; the Sun clock
-has been reported to ExoPlaSim's developers \autocite{goldman2026solang}.
+variations; set, it makes PlaSim use the configured orbit. These three ExoPlaSim repairs are built for other
+configurations of the released code as well, the synodic clock for any steady, non-synchronous rotation, the
+unit for any model day, a synchronous one included, and the switch for any configured orbit, and the Sun clock
+has been reported to ExoPlaSim's developers \autocite{goldman2026solang}. The calendar's slip is avoided by
+configuration in the same way: with a year of 17,160 half-hour steps, twelve whole model days, the ten output
+means of each model day fall at the same places in every year, although the synodic Sun still shifts
+3.2\textdegree\ a model day against those means, so analyses sort the output by the Sun's position. SWAN's
+defect and its Earth default are likewise avoided by configuration, the uninitialised read of its breaker
+parameter by keeping depth-induced breaking on in every run, and its default initial state, whose 2~s peak
+period has Earth's dimensions, by starting from rest or from hotstart files. Two faults, however, stay open, the
+thread race and PlaSim's cold lowest level, so CM1 runs that must repeat use one thread, and analyses of the
+lowest level screen the cold windows.
 
-\textbf{Switches and builds.} The lunar runs were made with runners, scripts that configure, compile and run
-each model and insert each change into the installed source at a marked anchor. Ten patches change PlaSim's
-radiation, cloud and Sun code, each adding a namelist switch written to reproduce the released code at its
-default; runs confirm that identity for five of them (Table~\ref{tab:verification}), and the near-infrared
-water scaling reproduces the released code at its default only for spectra like the design case's. In CM1,
-gravity and the air's carbon dioxide and oxygen become preprocessor constants that default to
-9.81~m\,s$^{-2}$, 400~ppm and Earth's oxygen, and CM1's twenty spare namelist reals hold the lunar Sun, the
-forcing and the electrification's settings. The patch series in the code repository were generated from the
-runners' edit lists.\claim{R01}
-
-\textbf{Scaling laws.} In the fall-speed laws gravity enters through the balance of weight and drag, and the
+\textbf{Scaling laws.} Because gravity enters the fall-speed laws through the balance of weight and drag, their
 repair follows from a similarity argument. A particle falling in the regime $V = aD^b$ has a Reynolds number
 that grows as the Best number to the power $(b+1)/3$ \autocite{mitchell1996use}, and the Best number of a
 particle of fixed size is proportional to $g$, so $V \propto g^{(b+1)/3}$: at lunar gravity cloud droplets
 fall 6.04 times slower, raindrops 2.94 times and graupel 2.27 times.\claim{R02} The scaling is exact for
 particles whose mass grows as $D^3$ and area as $D^2$, as for drops, graupel and hail, within their fitted
-regimes; snow and ice crystals, whose mass and area follow other powers, take a larger gravity exponent than
-the patch gives them. The Morrison and NSSL schemes pass the scaled speeds through their fall-speed laws and
-caps into collection and ventilation, and in NSSL the ventilation needed its own scaling at eleven sites. With
-the sixfold stretch of the dry dynamics, CM1's Rayleigh damping rate and its boundary-layer length are scaled
-by $g/g_\mathrm{E}$ and $g_\mathrm{E}/g$, and WRF-ELEC's sub-step lengthens from 0.75 to 6.8~s, so that
-graupel settles through about 1\% of a layer per sub-step in the 2~km layers of the lunar charging zone, at
-0.44 of Earth's fall speed; the boxes, rounding to whole sub-steps, run one 8~s sub-step per model
-step.\claim{R03} In SWAN the reduction above the knee takes $f\,g_\mathrm{E}/g$ in place of $f$, which moves the
-knee to $g/g_\mathrm{E}$~Hz, reproduces stock SWAN at standard gravity and restores the model's gravity
+regimes, whereas snow and ice crystals, whose mass and area follow other powers, take a larger gravity
+exponent than the patch gives them. The Morrison and NSSL schemes pass the scaled speeds through their
+fall-speed laws and caps into collection and ventilation, although in NSSL the ventilation needed its own
+scaling at eleven sites. Beyond the microphysics, CM1's Rayleigh damping rate and its boundary-layer length
+are scaled with the sixfold stretch of the dry dynamics, by $g/g_\mathrm{E}$ and $g_\mathrm{E}/g$, and
+WRF-ELEC's sub-step lengthens from 0.75 to 6.8~s, so that graupel settles through about 1\% of a layer per
+sub-step in the 2~km layers of the lunar charging zone, at 0.44 of Earth's fall speed, though the boxes,
+rounding to whole sub-steps, run one 8~s sub-step per model step.\claim{R03} SWAN's repair is a similarity
+scaling as well: the reduction above the knee takes $f\,g_\mathrm{E}/g$ in place of $f$, which moves the knee
+to $g/g_\mathrm{E}$~Hz, reproduces stock SWAN at standard gravity and restores the model's gravity
 similarity.\claim{R04}
 
 Other general repairs remove an Earth value directly. CM1's gravity becomes one build constant for its
 dynamics, its radiation, its CAPE diagnostic and both microphysics schemes, and its Sun follows a solar day, a
-flux and a starting hour angle read from spare namelist reals, with each column of a ring at its own
-longitude. Lifting WRF-ELEC's 180~kV\,m$^{-1}$ cap lets the breakdown field's scaling with the air's density act
-wherever flashes start, however dense the air there. The patched CCM3 formula counts heights and precipitable
-water at Earth's gravity and scales the mixing ratio by $g/g_\mathrm{E}$, which gives each cloud the water path
-it would hold at the same pressures on Earth. CM1's five soil layers are thickened to 5--80~cm, 1.55~m in all,
-so that they reach below the thermal wave of any solar day from a few Earth days to the Moon's. In the patched
+flux and a starting hour angle read from spare namelist reals, with each column of a ring at its own longitude;
+to match that Sun, CM1's five soil layers are thickened to 5--80~cm, 1.55~m in all, so that they reach below
+the thermal wave of any solar day from a few Earth days to the Moon's. In the electrification grafted into CM1,
+two limits set at Earth's values are removed: lifting WRF-ELEC's 180~kV\,m$^{-1}$ cap lets the breakdown field's
+scaling with the air's density act wherever flashes start, however dense the air there, and in the patched
 graft the flash log records each channel's reach from the charge the flash hands to the ions, where the
-released code recorded it only above a charge threshold set for Earth's storms.\claim{R16} Cloud colder than
-$-38$\,\textdegree C is given Ebert and Curry's parameterized ice optics \autocite{ebert1992parameterization}
-through a delta-scaled two-stream, with an effective radius from Kristjánsson and Mitchell's table
-\autocite{kristjansson2000impact}, in place of liquid water's; the parameterization was fitted to crystals of
-10~\textmu m and larger, sizes the table gives only above 190~K, so in the coldest lunar cloud the optics are
-extrapolated in size.\claim{R12}
+released code recorded it only above a charge threshold set for Earth's storms. Two more concern PlaSim's cloud.
+The patched CCM3 formula counts heights and precipitable water at Earth's gravity and scales the mixing ratio by
+$g/g_\mathrm{E}$, which gives each cloud the water path it would hold at the same pressures on
+Earth,\claim{R16} while cloud colder than $-38$\,\textdegree C is given Ebert and Curry's parameterized ice
+optics \autocite{ebert1992parameterization} through a delta-scaled two-stream, with an effective radius from
+Kristjánsson and Mitchell's table \autocite{kristjansson2000impact}, in place of liquid water's. The
+parameterization was, however, fitted to crystals of 10~\textmu m and larger, sizes the table gives only above
+190~K, so in the coldest lunar cloud the optics are extrapolated in size.\claim{R12}
 
-\textbf{Curved air.} Both models read the curved geometry from a table of curved-air terms computed for one clear
-design column, 1.2~atm of air with 205~kg\,m$^{-2}$ of water over a 294.9~K surface: the radiation of the same air
-traced once, offline, through 100 spherical shells and through the same layers taken flat, at solar elevations from
-$-90$ to 90\textdegree, with the differences tabulated. Sunlight from 360~nm to 5~\textmu m was traced in 10,697
-spectral channels, the 282 thin enough to scatter by spherical successive orders of scattering from an in-house sky
-solver, and the rest by a direct beam through the shells with the diffuse light of a pseudo-spherical two-stream,
-so that their twilight lacks scattered light; the infrared escape was traced through the same shells by impact
-parameter, and the appendix gives the channels' construction. The differences are summed in two terms: the widening
-of the shells above each square metre of ground, $-6.5$~W\,m$^{-2}$ net, and the curved light and escape, the
-twilight and the low Sun's side light, $+0.7$~W\,m$^{-2}$.\claim{R05} Tabulated at 167 solar elevations from $-40$
-to 90\textdegree, the terms are applied in the patched codes to every column and hour, below the horizon as well as
-above: each PlaSim layer and each CM1 level gains its tabulated sunlight, the ground gains its share scaled by the
-column's clear-sky fraction, and each layer loses to space its extra infrared escape, scaled with temperature to
-the fourth power. PlaSim's slant factor becomes the Moon's, $(\mu+a)/(\mu^2+b\mu+c)$ fitted to straight rays
-through the shells, within 0.30\% for water vapour and 0.08\% for well-mixed air
-(Figure~\ref{fig:slant}).\claim{R06} With the Sun overhead, where curvature leaves the beam's path unchanged, the
-spherical solver's ground still receives 1.3\% less sunlight than the two-stream's, so by day the terms also move
-PlaSim from the two-stream reference it was calibrated against toward the successive-orders solver.\claim{R07} For
-another world the table is recomputed from that world's own column. How close to the horizon a flat treatment holds
-depends on the height of the scattering layer against the radius: the plane-parallel codes that separate surface
-and aerosol in remote sensing hold typically to about 80\textdegree\ from the zenith on Mars, and to about
-65\textdegree\ on Titan, whose haze has a scale height of about 80~km, 3\% of its radius
-\autocite{vincendon2010spherical}.
+\textbf{Curved air.} Both atmospheric models, PlaSim and CM1, take the curved geometry from the general method,
+a table of curved-air terms computed for one clear design column, 1.2~atm of air with 205~kg\,m$^{-2}$ of water
+over a 294.9~K surface: the radiation of the same air was traced once, offline, through 100 spherical shells
+and through the same layers taken flat, at solar elevations from $-90$ to 90\textdegree, with the differences
+tabulated. Sunlight from 360~nm to 5~\textmu m was traced in 10,697 spectral channels, whose construction the
+appendix gives, the 282 thin enough to scatter by spherical successive orders of scattering from an in-house
+sky solver and the rest by a direct beam through the shells with the diffuse light of a pseudo-spherical
+two-stream, so that their twilight lacks scattered light. The infrared escape, for its part, was traced through
+the same shells by impact parameter. The differences are summed in two terms: the widening of the shells above
+each square metre of ground, $-6.5$~W\,m$^{-2}$ net, and the curved light and escape, the twilight and the low
+Sun's side light, $+0.7$~W\,m$^{-2}$.\claim{R05} Tabulated at 167 solar elevations from $-40$ to 90\textdegree,
+the terms are applied in the patched codes to every column and hour, below the horizon as well as above: each
+PlaSim layer and each CM1 level gains its tabulated sunlight, the ground gains its share scaled by the column's
+clear-sky fraction, and each layer loses to space its extra infrared escape, scaled with temperature to the
+fourth power. Fitted to straight rays through the same shells, PlaSim's slant factor becomes the Moon's,
+$(\mu+a)/(\mu^2+b\mu+c)$, within 0.30\% for water vapour and 0.08\% for well-mixed air
+(Figure~\ref{fig:slant}).\claim{R06} The daytime terms, however, include a difference of solvers as well as of
+geometry: with the Sun overhead, where curvature leaves the beam's path unchanged, the spherical solver's ground
+still receives 1.3\% less sunlight than the two-stream's, so by day the terms also move PlaSim from the
+two-stream reference it was calibrated against toward the successive-orders solver.\claim{R07} Since the table
+is computed for one column, for another world it is recomputed from that world's own column, and how close to
+the horizon a flat treatment holds there depends on the height of the scattering layer against the radius: the
+plane-parallel codes that separate surface and aerosol in remote sensing hold typically to about
+80\textdegree\ from the zenith on Mars, and to about 65\textdegree\ on Titan, whose haze has a scale height of
+about 80~km, 3\% of its radius \autocite{vincendon2010spherical}.
 
 \begin{figure}[tbp]
 \centering
@@ -130,14 +137,14 @@ Sun-clock and orbit defects, refitted the Rayleigh multiplier with a multiplier 
 absorptivity on eleven columns and brought the share of arriving sunlight absorbed in the air from 7.7--8.2
 percentage points short to within 0.3 points rms.\claim{R09} By layer the fit still placed sunlight low: on the
 design column of the curved-air table, PlaSim put almost nothing above 85~km, where the reference absorbs
-4.2~W\,m$^{-2}$. Three carbon dioxide and oxygen bands, each fitted to the reference beam's loss above every
-level within 0.13\% of its energy, and a refit of both multipliers brought the layers within
-0.97~W\,m$^{-2}$ rms of the reference, from 1.71 (Figure~\ref{fig:layers}).\claim{R10} In the longwave, the first
-calibration had fitted PlaSim's water continuum to the outgoing flux, which a scheme can match while
-misplacing its cooling by 10~W\,m$^{-2}$ in a layer. An extra escape to space for each layer and for the
-ground, fitted over land and over sea on about 2,100 cloud-free three-day means of the design state and scaled
-with temperature to the fourth power, removes each layer's mean error on that state and leaves
-1--5~W\,m$^{-2}$ from column to column; it runs only in the longwave test.\claim{R11}
+4.2~W\,m$^{-2}$. In a third step, three carbon dioxide and oxygen bands, each fitted to the reference beam's loss
+above every level within 0.13\% of its energy, and a refit of both multipliers brought the layers within
+0.97~W\,m$^{-2}$ rms of the reference, from 1.71 (Figure~\ref{fig:layers}).\claim{R10} In the longwave, the
+first calibration had fitted PlaSim's water continuum to the outgoing flux, which a scheme can match while
+misplacing its cooling by 10~W\,m$^{-2}$ in a layer. To place that cooling by layer, an extra escape to space
+for each layer and for the ground, fitted over land and over sea on about 2,100 cloud-free three-day means of
+the design state and scaled with temperature to the fourth power, removes each layer's mean error on that state
+and leaves 1--5~W\,m$^{-2}$ from column to column, although it runs only in the longwave test.\claim{R11}
 
 \begin{figure}[tbp]
 \centering
@@ -157,32 +164,34 @@ transform across the periodic domain and a tridiagonal solve on CM1's stretched 
 discharge \autocite{ziegler1994observed} and its three-dimensional discharge adapted from
 \textcite{macgorman2001lightning}, on a domain that wraps round; and its screening layers, available and off in
 the lunar runs.\claim{R12} For runs that last weeks, the graft was given leakage of charge through a
-conductivity column computed for the lunar air, and a condition for ground strikes: a downward channel that
-reaches the $-7$\,\textdegree C level counts as a strike only if its potential can carry a leader the rest of
-the way down, at an internal field of 1~kV\,m$^{-1}$ at sea-level density, scaled with the air's density. The
-condition places the ground strikes between WRF-ELEC's two Earth rules, its stopping field, under which every
-lunar channel stops 15--25~km up, and its $-7$\,\textdegree C rule alone; point discharge from the ground,
-added as an option, ran in one test window and stays off.\claim{R13} Where the graft's ice outgrows RRTMG's
-optics, CM1's radiation reads sizes capped at 140~\textmu m and logs the excess. PlaSim is given a broadband
-downward infrared flux at the model top, by day and by night, for a source above the air, such as a giant host
-planet's glow on a moon.
+conductivity column computed for the lunar air. Ground strikes needed a bound, because WRF-ELEC's two Earth
+rules bracket them widely on the Moon: under its stopping field every lunar channel stops 15--25~km up, while
+its $-7$\,\textdegree C rule alone counts every channel that reaches that level. The bound sits between them: a
+downward channel that reaches the $-7$\,\textdegree C level counts as a strike only if its potential can carry
+a leader the rest of the way down, at an internal field of 1~kV\,m$^{-1}$ at sea-level density, scaled with the
+air's density. Point discharge from the ground was added to the graft as well, as an option, and after running
+in one test window it stays off.\claim{R13} The graft's ice needed a mitigation: where it outgrows RRTMG's
+optics, CM1's radiation reads sizes capped at 140~\textmu m and logs the excess. PlaSim, too, is given a
+capability, a broadband downward infrared flux at the model top, by day and by night, for a source above the
+air, such as a giant host planet's glow on a moon.
 
 \textbf{Forcing from the GCM.} Running CM1 inside the GCM's climate adds structural limits to the Earth values
 in the code: a ring of columns along a latitude circle lacks the transport across the circle, and a box lacks
 any day--night circulation larger than itself; stock CM1 also lacks a lunar Sun, forcing above its boundary
 layer and nudging that follows terrain. Two of these absences showed in the runs. The first box, forced with
 the advection along the rings alone, rained in the mornings and stayed clear and hot in the afternoons until
-it was stopped at day 47, and at 45\textdegree\,N the missing transport across the circle accounts for about a
-third of CM1's warm offset from the GCM.\claim{H32} CM1 receives what the slice lacks from the GCM's fields,
-and with those fields the Earth values that remain in the GCM. Each ring column has its own Sun, a box one Sun
-for all its columns, and on tilted rings each column has its own Coriolis parameter, acting on departures from
-the base-state wind; CM1 is nudged toward the GCM only above 8--16~km, so that its boundary layer and
-convection develop freely, and the GCM's mean vertical wind enters CM1's own large-scale
-advection.\claim{R14} A heating and moistening by local time and height, taken from the GCM, imposes the
-effect of the day--night circulation a box lacks and, as a single local-time bin, of the transport across the
-circle a ring lacks; over terrain each column is nudged and forced at its own height above sea level. SWAN is
-forced by the GCM's surface stress, converted through Wu's drag law inverted to an equivalent wind, so that
-its friction velocity lies within $-2.5$ to $+1.2$\% of the GCM's, on spherical coordinates at the lunar
-radius and with its frequency band scaled by $g/g_\mathrm{E}$; SWASH runs unmodified, with lunar gravity as an
-input and SWAN's spectra at its boundary.\claim{R15} The methods impose only the GCM's fields and the slice's
-geometry, and are built for a slice of any world's GCM.
+it was stopped at day 47, while on the 45\textdegree\,N ring the missing transport across the circle accounts
+for about a third of CM1's warm offset from the GCM.\claim{H32} CM1 receives what the slice lacks from the
+GCM's fields, and with those fields the Earth values that remain in the GCM. For the two structural absences, a
+heating and moistening by local time and height, taken from the GCM, imposes the effect of the day--night
+circulation a box lacks and, as a single local-time bin, of the transport across the circle a ring lacks. The
+absences of stock CM1 are filled in turn: each ring column has its own Sun, a box one Sun for all its columns,
+and on tilted rings each column has its own Coriolis parameter, acting on departures from the base-state wind;
+CM1 is nudged toward the GCM only above 8--16~km, so that its boundary layer and convection develop freely,
+while the GCM's mean vertical wind enters CM1's own large-scale advection; and over terrain each column is
+nudged and forced at its own height above sea level.\claim{R14} Beyond the storms, the seas take their forcing
+from the GCM as well: SWAN is driven by the GCM's surface stress, converted through Wu's drag law inverted to an
+equivalent wind, so that its friction velocity lies within $-2.5$ to $+1.2$\% of the GCM's, on spherical
+coordinates at the lunar radius and with its frequency band scaled by $g/g_\mathrm{E}$, and SWASH, run
+unmodified, takes lunar gravity as an input and SWAN's spectra at its boundary.\claim{R15} Since the methods
+impose only the GCM's fields and the slice's geometry, they are built for a slice of any world's GCM.
