@@ -48,3 +48,18 @@ Verdict: needs the listed fixes, one MAJOR.
 
 Checked clean by the reader: no excluded words, hedging or promotional wording in the added text; the lint flags
 nothing on the added lines.
+
+## Step 3: the field's measured context (12bb044)
+
+Verdict: needs the listed fixes, chiefly the first, which is MAJOR. The reader checked every number against its
+abstract and the SAMOSA cover claim against W06's arithmetic (a 15-day rotation gives a model day of 15.65 days and
+a cover bias of +0.34), and found them sound.
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1 | `results.tex`:87–88, MAJOR | "Amounts of the same order" had no anchor, the ranking before it running from 20 K down to 0.65 K, and "exoplanet GCMs differ" spoke for the field | Applied: "Intercomparisons have measured spreads among exoplanet models of the order of the fits' effects", the fits being the radiation and cloud fits the ranking names |
+| 2 | `results.tex`:88–90 | THAI's ranges joined nitrogen- and carbon-dioxide-dominated cases | Applied: "by 7 and 6 K in dry air dominated by nitrogen and by carbon dioxide ..., and by 14 and 24 K with water and cloud" |
+| 3 | `results.tex`:90–91 | Only the larger of Yang et al. 2019's results was quoted | Applied: "against 8 K or less on a rapidly rotating one under a G star" |
+| 4 | `results.tex`:91–93 | Yang et al. 2016 compare seven 1-D codes, five band and two line-by-line, with longwave differences growing with surface temperature | Applied as proposed |
+| 5 | `results.tex`:87–93 | One sentence chained four results as a list; "while" left the radiation codes unrelated to the radiation fits; the turn to cloud went unmarked | Applied: two sentences, the radiation codes first, then the GCMs' spread widening as water and cloud enter, ending on the causes Yang et al. 2019 name, which hands on to the sentence on parameterized and resolved cloud |
+| 6 | `next.tex`:55–59 | "The SAMOSA intercomparison offers a second benchmark" gave an abstraction a generic verb and named no run; the source's "blackbody" was dropped | Applied: "Released and repaired ExoPlaSim run on the sixteen cases of the SAMOSA intercomparison, ... around a 3000 K blackbody star, ... would test the convective-cover repair in synchronous rotation, ..." |

@@ -4366,7 +4366,7 @@
     {
      "claim_id": null,
      "section": "results.tex",
-     "statement": "Standard GCMs diverge by 20-30 K in global-mean surface temperature on a tidally locked planet under an M-star spectrum.",
+     "statement": "Standard GCMs diverge by 20-30 K on a tidally locked planet under an M star, within 8 K on a rapidly rotating one under a G star, from cloud, radiative transfer and their interaction with dynamics.",
      "support": "supported (abstract)",
      "note": ""
     }
@@ -6853,7 +6853,7 @@
     {
      "claim_id": null,
      "section": "results.tex",
-     "statement": "Four GCMs on the same dry TRAPPIST-1e cases spread by 7 K (N2) and 6 K (CO2) in global-mean surface temperature.",
+     "statement": "Four GCMs on the same dry TRAPPIST-1e cases spread by 7 K (N2-dominated) and 6 K (CO2-dominated) in global-mean surface temperature.",
      "support": "supported (abstract)",
      "note": ""
     }
@@ -6919,7 +6919,7 @@
     {
      "claim_id": null,
      "section": "results.tex",
-     "statement": "Band codes used in GCMs and two line-by-line codes on moist clear-sky columns differ by 10-20 W/m2 in OLR and up to 60 W/m2 in the shortwave.",
+     "statement": "Five band codes used in GCMs and two line-by-line codes, on moist clear-sky columns of 250-360 K, differ by up to 60 W/m2 in the shortwave and by 10-20 W/m2 in OLR at the warm end.",
      "support": "supported (abstract)",
      "note": ""
     }
@@ -6952,7 +6952,7 @@
     {
      "claim_id": null,
      "section": "next.tex",
-     "statement": "Sixteen cases of a 15-day synchronous rotator around a 3000 K star, sampled across surface pressure and instellation from an ExoPlaSim survey, compared with ExoCAM.",
+     "statement": "Sixteen cases of a 15-day synchronous rotator around a 3000 K blackbody star, sampled from an ExoPlaSim survey and compared with ExoCAM; proposed as a test of the convective-cover repair.",
      "support": "supported (abstract)",
      "note": ""
     }
