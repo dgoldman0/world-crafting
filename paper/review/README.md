@@ -54,6 +54,11 @@ introduction and a local cloud-calibration qualification. The abstract's purpose
 well. The author's direction, revisions, checks and build are recorded in
 `conclusion_ensemble_rewrite_2026-10-18.md`; that record supersedes the earlier draft's pending-author status.
 
+The author then accepted the ensemble-centred Conclusion, selected *terracompatible* for the intended class
+and requested its definition and use throughout, a whole-manuscript framing check and one sentence on the
+ensemble's prospective extension beyond that class. The author's review and the resulting revision are
+recorded in `terracompatible_revision_2026-10-18.md`, with the fresh round 14 records beside it.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
@@ -63,7 +68,7 @@ well. The author's direction, revisions, checks and build are recorded in
 | A Claude subagent, whole-manuscript challenger | Challenged the first draft as a whole against G1–G5 | `whole_manuscript.md`, `whole_manuscript_dispositions.md` |
 | Fresh Claude subagents, editorial reviewers | Read the second draft against the rules, by part and as a whole (round 1), then the rewritten closing section and the passages revised with it, for prose and for evidence (rounds 2–8) | `editorial_round<n>_<part>.md` |
 | Codex, drafting assistant | Wrote a fresh conclusion on 18 October 2026, revised it after rounds 11 and 12, and replaced its lunar framing after the author's review | `conclusion_rewrite_2026-10-18.md`, `conclusion_ensemble_rewrite_2026-10-18.md` |
-| Fresh Codex reviewer agents | Separate prose and evidence readings in rounds 11–13; bounded verification of round 13's dispositions | `editorial_round11_conclusion_*.md`, `editorial_round12_conclusion_*.md`, `editorial_round13_conclusion_*.md` |
+| Fresh Codex reviewer agents | Separate prose and evidence readings in rounds 11–13; bounded verification of round 13's dispositions; whole-manuscript terminology and framing review in round 14 | `editorial_round11_conclusion_*.md`, `editorial_round12_conclusion_*.md`, `editorial_round13_conclusion_*.md`, `editorial_round14_whole_*.md` |
 | Claude subagents, record keepers | Reconstructed the dispositions of rounds 2–5 from the revision commits | `editorial_round<n>_dispositions.md`, n = 2–5 |
 | The author | Readings of the drafts, decisive on framing and prose; resolution of exceptions; the competing-interests declaration | First draft read 2026-10-17 (framing and prose rejected; the author counts this stream-of-thought reading as its cadence review); second draft read during round 1 (still Moon-centred); third draft read 2026-10-17 (the rest stands for now; conclusions rejected); Codex conclusion read 2026-10-18 (lunar framing rejected; model ensemble restated as the purpose) |
 

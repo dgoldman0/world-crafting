@@ -1,10 +1,12 @@
 \section{Next steps}
 
-The longwave correction and PlaSim's cloud, the two Earth fits whose tests moved the test world's climate most,
-come first, the larger first; a check of the reference to which the longwave correction and every calibration
-were fitted comes third; and a test of the general repairs on worlds other studies model, a few hours of
-computing on which Table~\ref{tab:reach} depends, comes fourth. The later steps are unordered, since their
-effects on the climate are unmeasured.
+Developing the ensemble across worlds requires consistent heating and cloud between its global and resolved
+calculations, followed by tests of the general repairs across planetary parameters. The lunar case supplies
+the first experiments: its longwave correction and PlaSim's cloud, the two Earth fits whose tests moved its
+climate most, are the first calibrations to revisit. Their accuracy depends on an independent check of the
+shared radiation reference, after which comparisons on worlds modelled in other studies would test the reach
+proposed in Table~\ref{tab:reach}. The remaining experiments use the lunar departures from Earth to test
+specific approximations in the dynamics, microphysics and wave physics.
 
 \textbf{The longwave at the settled state.} The longwave correction, switched on with the ice optics, warmed the
 design case by 11.5~K, a joint effect in which the ice optics' share is unmeasured; the correction was fitted at
@@ -33,7 +35,8 @@ code on the lunar column. Running the design column through LBLRTM \autocite{clo
 longwave and a solver built on DISORT \autocite{stamnes1988numerically} for the sunlight, with every absorber on
 identical layers, tests the reference itself. Layer heating or a split of sunlight departing from the reference by
 more than the calibration residuals, 0.97~W\,m$^{-2}$ rms by layer or 0.6 points in the split, would require the
-multipliers and the gas bands to be refitted and the dimming reset.
+multipliers and the gas bands to be refitted before the reference is used for further worlds; the lunar
+design's dimming would then be reset against the revised climate.
 
 \textbf{A test of the reach.} Away from Earth's values, the repaired models have run on the test world alone.
 Released and repaired ExoPlaSim would be run on ozone-free planets of 1~bar nitrogen-dominated air with 400~ppm of
@@ -74,7 +77,8 @@ sunlight that the Sun's unfiltered spectrum brings.
 crystals stay Earth's; snow falls with the drops' gravity exponent where its own mass and area laws give a larger
 one; and in the boxes 85\% of the falling water evaporates, in the rings 57--73\%. A gravity-similarity pair
 under prescribed radiative cooling would measure how far the scaled microphysics departs from similarity, and
-limits scaled with the capillary length would show how much of the evaporation the small drops cause.\claim{N03}
+limits scaled with the capillary length would show how much of the evaporation the small drops cause,
+testing whether the drop-size treatment needs a gravity dependence as well as the fall speeds.\claim{N03}
 If larger drops bring CM1's surface rain toward the GCM's, the rain gap closes on the GCM's side and the rain-fed
 lakes of the design keep their source; if CM1's rain stays near a quarter of the forcing GCM's, the lakes' water
 budget has to be drawn from the cloud-resolving rain.

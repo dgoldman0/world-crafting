@@ -1,11 +1,8 @@
 \section{Reach to other worlds}
 
-The reach of a model is here the set of worlds on which its repaired code holds. The largest changes to the
-test world's climate came from parts fitted to one world's columns: the first calibration moved the global mean
-by at least 20~K, PlaSim's Earth-tuned cloud settings by up to about 6~K, and the longwave correction, switched
-on with the ice optics, by 11.5~K, a joint effect in which the ice optics' share is unmeasured. Measured one at a
-time, the general repairs moved it by a few kelvin at most, and the Sun clock and the Moon's tilt, applied with
-the split of sunlight recalibrated, moved where sunlight and rain fall. For another world a modeller applies the
+Extending the ensemble to another world requires distinguishing the range each repair was built for from
+the conditions in which it has been tested. Beyond Earth's values and numerical controls, the breathable Moon
+remains the sole simulated case. For another world a modeller applies the
 general repairs unchanged within the limits of Table~\ref{tab:reach}, recomputes the curved-air table from that
 world's own column, refits the Rayleigh and water multipliers, the water continuum, the longwave correction and
 the gas-band fits against the reference model, and sets the scenario's values; leakage and the slice forcing read
@@ -68,7 +65,7 @@ constructed world with breathable air on a small body, such as Mars held at 1~ba
 radius five times Earth's, 2.6 times Earth's air over each square metre and 0.38 of Earth's gravity; it needs the
 general repairs, a curved-air table of its own column and calibrations refitted to it, and at its 1~bar level it
 stays inside RRTMG's pressure range, while the pressure on ground below that level lies past RRTMG's tables, as
-it does over the lunar seas. Earth-like air on a larger planet needs the same steps, a slant factor from its own
+it does over the lunar seas. Nitrogen--oxygen air on a larger planet needs the same steps, a slant factor from its own
 column among them; there the released cloud water errs toward too much water, the reverse of the test world's
 error, and the same general repair corrects it. A breathable moon of a giant planet needs, besides its column,
 the downward infrared that PlaSim now takes at its top for the host's glow.\claim{W04}
@@ -76,8 +73,9 @@ the downward infrared that PlaSim now takes at its top for the host's glow.\clai
 \textbf{Worlds that need new physics.} Titan's nitrogen--methane air at 94~K, present Mars's thin carbon dioxide
 and Venus's 92~bar lie outside what PlaSim's and RRTMG's radiation and Morrison's water-only microphysics
 represent; the general repairs of units, clocks and gravity would apply to them unchanged, while their
-radiation, condensation and clouds would have to be built.\claim{W05} The adapted models hold within four
-limits: compositions of nitrogen, oxygen, argon, water and modest carbon dioxide; surface pressures within
+radiation, condensation and clouds would have to be built.\claim{W05} Four restrictions on the current
+implementation further limit its use within the terracompatible class: compositions of nitrogen, oxygen, argon,
+water and modest carbon dioxide; surface pressures within
 RRTMG's tables, already exceeded over the lowest 7.5~km at 1.2~atm; scale heights up to a few hundredths of the
 radius, the test world's, where thin-shell, constant-gravity dynamics already omit the 5--15\% fall of gravity
 across the air; and empirical laws of cloud, sea and charge used near the Earth conditions they were fitted on,

@@ -1,10 +1,14 @@
 # World-crafting
 
-Earth-built models carried to other worlds: the patches, new Fortran and in-house tools that let
-ExoPlaSim (a general circulation model), CM1 (a cloud-resolving model, here with WRF-ELEC's storm
-electrification), SWAN (a spectral wave model) and SWASH (a phase-resolving shore model) simulate a
-breathable Moon, the reference models they were calibrated against, and the paper that describes the
-work.
+An ensemble in development for modelling the climate, storms and seas of terracompatible exoplanets and
+constructed worlds. Terracompatible worlds have nitrogen–oxygen air and water as the principal condensable,
+at broadly terrestrial surface pressures and temperatures permitting liquid surface water and an active
+water cycle; their gravity, size, rotation and starlight may differ substantially from Earth's.
+
+The ensemble connects ExoPlaSim (a general circulation model), CM1 (a cloud-resolving model, here with
+WRF-ELEC's storm electrification), SWAN (a spectral wave model) and SWASH (a phase-resolving shore model).
+The repository holds their patches and new Fortran, the in-house reference and calibration tools, and the
+paper describing their development and tests.
 
 The first world is Terluna's Open Moon (github.com/dgoldman0/Terluna): 1.2 atm of nitrogen and oxygen
 at the water level, seas over 28% of the surface with rain-fed lakes above them, sunlight filtered by a

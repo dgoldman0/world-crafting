@@ -25,7 +25,7 @@ def fig_regimes():
                'Mars at 1 bar': (6, -3)}
     names_a = {'Breathable Moon 1.2 atm': 'Breathable Moon\n(1.2 and 1.0 atm)'}
     for r in rows:
-        if r['kind'] == 'illustrative':          # slowly rotating Earth-like planets: the day-and-gravity panel only
+        if r['kind'] == 'illustrative':          # Earth's bulk properties, longer solar days: right panel only
             b.scatter([r['solar_day_days']], [r['g_m_s2']], s=22, color='white', edgecolor=CONTEXT, linewidth=1.1, zorder=3)
             continue
         moon = r['name'].startswith('Breathable Moon')
@@ -59,7 +59,7 @@ def fig_regimes():
     a.set_title('Geometry and column', pad=6)
     b.axvline(1.0, color=AXIS, lw=0.8, zorder=1)
     b.axhline(9.80665, color=AXIS, lw=0.8, zorder=1)
-    label(b, 40.0, 9.80665, 'slowly rotating Earth-like planets', xytext=(0, 7), textcoords='offset points', ha='center',
+    label(b, 40.0, 9.80665, 'Earth parameters, longer days', xytext=(0, 7), textcoords='offset points', ha='center',
           va='bottom', color=INK2)
     label(b, 1.08, 1.0, "PlaSim's per-day\nformulas hold", ha='left', va='bottom', color=MUTED, fontsize=7)
     b.set(xscale='log', yscale='log', xlim=(0.5, 400), ylim=(0.9, 14),
