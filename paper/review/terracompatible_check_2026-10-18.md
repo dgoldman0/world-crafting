@@ -90,3 +90,8 @@ build `fd4bf48b…7992`, pages 1–7, 19–25 and 31–35 changed. Pages 1, 3, 1
 changed text, were read at 1,600 pixels high; pages 2, 4–7, 22, 24 and 32–35, which only moved, were inspected
 for layout at 1,100 pixels. Each is legible, with no collision, overflow or stranded line. Page 25 now ends about
 four lines short, since the Conclusion's last two paragraphs stay together on page 26, as they did before.
+
+The clean build from `17c54b1d1de431fe487b9909d8dff4a30cc76204` (`SOURCE_DATE_EPOCH=1792337154`,
+`FORCE_SOURCE_DATE=1`) is 35 pages with SHA256 `7423314cfb7cb12f302e86005a782d93ea9c5419d33ee1235029b8731a797bcc`:
+zero overfull boxes, every font embedded, 211 link annotations, and all 35 pages render identically to the build
+read before the commit.
