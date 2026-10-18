@@ -193,6 +193,12 @@ for candidate places, and its output is reported as screening only. Each round's
 dispositions go in `paper/review/`. Review records may quote the author where the exact phrasing matters, leaving
 out anything awkward.
 
+When a revision touches more than one section, it follows the order of synthesis. The body is revised first; the
+Introduction follows, since it synthesizes the whole; then the Conclusion, which synthesizes the whole and inspires
+from it; and the abstract comes last, since it encompasses everything. Each stage gets a light reading by one
+fresh reviewer agent before the next begins, and a full editorial review of the whole paper closes the sequence.
+Findings on wording the author has approved go to the author.
+
 ## Software work
 
 Code, patches and tools follow a conventional software workflow, in small tested changes:
