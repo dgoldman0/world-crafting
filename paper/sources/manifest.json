@@ -17,8 +17,8 @@
   "passed": 0,
   "depth": {
    "claim-locators": 70,
-   "abstract-only": 65,
-   "not read": 22,
+   "abstract-only": 66,
+   "not read": 21,
    "full": 1
   },
   "cited_in_paper": 81,
@@ -1913,9 +1913,11 @@
    },
    "additional_files": null,
    "reading": {
-    "depth": "not read",
-    "reader": "this agent",
-    "locators": []
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (subagent reviewer and main session), 2026-10-18",
+    "locators": [
+     "abstract; the text documents MT_CKD versions up to 4.1.1"
+    ]
    },
    "admission": "DEFERRED",
    "admission_reason": "Legal local original archived on 2026-10-17 (found by the legal-copies helper, fetched by the main session); not yet read in full",
@@ -1925,7 +1927,7 @@
      "claim_id": null,
      "section": "repairs.tex",
      "statement": "MT_CKD as included in HITRAN, the continuum the reference re-implements at version 4.3.",
-     "support": "title only",
+     "support": "supported (abstract): MT_CKD as included in HITRAN; the version 4.3 the reference re-implements is the code's own",
      "note": ""
     }
    ],
@@ -2717,7 +2719,7 @@
      "section": "repairs.tex",
      "statement": "The pseudo-spherical method behind the diffuse light of the curved-air channels.",
      "support": "title only",
-     "note": ""
+     "note": "Cited for the method; the twilight without scattered light comes from the in-house code, which runs the two-stream only with the Sun above the horizon (python/climate/gcm/twilight.py:408-410)."
     }
    ],
    "notes": "Elsevier, closed; no abstract retrieved. L10 (pseudo-spherical: spherical direct beam, plane-parallel diffuse) is unverified here. Cited from 2026-10-18 after the related-work scan."
@@ -6639,7 +6641,7 @@
      "section": "repairs.tex",
      "statement": "The pseudo-spherical two-stream used for the diffuse light of the curved-air channels.",
      "support": "title only",
-     "note": ""
+     "note": "Cited for the method; the twilight without scattered light comes from the in-house code, which runs the two-stream only with the Sun above the horizon (python/climate/gcm/twilight.py:408-410)."
     }
    ],
    "notes": "Added from the related-work scan of 2026-10-18."
