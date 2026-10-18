@@ -1,8 +1,9 @@
 # Editorial round 15: dispositions
 
 The flow findings of round 15 (`editorial_round15_flow_opening.md`, `editorial_round15_flow_middle.md`,
-`editorial_round15_flow_closing.md`) are acted on section by section, at the author's direction, and each section
-goes to the author before the next. Kept by Claude Opus 5.5, the drafting assistant, from 18 October 2026. A
+`editorial_round15_flow_closing.md`) are acted on section by section, at the author's direction. Repairs went first,
+as the worst; the author then asked for the rest, and the Conclusion's three findings, in the section the author
+accepted, go to the author. Kept by Claude Opus 5.5, the drafting assistant, from 18 October 2026. A
 finding marked applied took the reviewer's sample rewrite or one-line repair; where the text differs from the
 proposal, the reason is given.
 
@@ -122,3 +123,53 @@ Checks: a script found the numbers, inline mathematics, citations, cross-referen
 `repairs.tex` identical before and after; `make -C paper check` passed with its existing warnings; the PDF built at
 35 pages with zero overfull boxes, and pages 9–14 were read. Page 13 now ends about six lines short, with
 Verification opening page 14.
+
+## Reach (closing record, F1–F9, with the middle record's finding 43)
+
+| Finding | Disposition |
+|---|---|
+| F1, 43 | Applied: the section opens on the recast sentence, which bridges from the lunar results, and "for other worlds" marks the turn to Table 4. |
+| F2 | Applied: "while". |
+| F3 | Applied, with one change: the proposal's "and so it adds …" made the synchronous mode the cause of the cover's term; the text gives the term, then the synchronous mode's model day, "so the cover rises by about +0.23 …". |
+| F4 | Applied as proposed, in one paragraph. |
+| F5 | Applied: "whereas". |
+| F6 | Applied as a sentence of its own, "Their warmer runs, however, …", since the sentence before already turns on "while". |
+| F7 | Applied: "moreover" and "though". |
+| F8 | Applied as proposed, with the Open Moon for the breathable Moon. |
+| F9 | Applied: "so although". |
+
+## Next steps (closing record, F10–F18)
+
+| Finding | Disposition |
+|---|---|
+| F10 | Applied: "yet". |
+| F11 | Applied: "Beyond the refit" and "would go further and replace". |
+| F12 | Applied as proposed. |
+| F13 | Applied: "and before adopting them a first step corrects …, while a test …". |
+| F14 | Applied: "Separately". |
+| F15 | Applied as proposed. |
+| F16 | Applied: "also stays open". |
+| F17 | Applied: "For their number". |
+| F18 | Applied: "Beyond the source terms". |
+
+## Conclusion (closing record, F19–F21)
+
+For the author, who accepted the section: "The GCM can then be used …" (F19), "and varying its pressure then changes
+the column mass …" (F20), and "In the simulated storms, for instance, the electrification graft computes …" (F21).
+The section is unchanged until the author decides.
+
+## Appendix and Availability (closing record, F22–F28)
+
+| Finding | Disposition |
+|---|---|
+| F22 | Applied: "while". |
+| F23 | Applied, in two sentences so that each carries one colon: "The patches apply to upstream sources pinned by checksum: …" and "As patches to those sources, they inherit their licences: …". |
+| F24 | Applied: the claims register's sentence moves to Code and data, after the sentence that names the register. |
+| F25 | Applied: "so". |
+| F26 | Applied: the note on where the records are kept moves to the end of the review history, where it covers every round. |
+| F27 | Applied, with one change: "its replacement develops" left the rewrite's author unnamed, so the text reads "Codex replaced it with one that develops the broader model ensemble". |
+| F28 | Applied: "In every round the agents read for cadence silently", beside the records note. |
+| Also | The review history now records round 15 and its dispositions. |
+
+Checks for the sections after Repairs: a script found every section's numbers, inline mathematics, citations,
+cross-references and claim markers identical before and after.
