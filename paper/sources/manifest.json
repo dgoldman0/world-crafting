@@ -10,18 +10,18 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 165,
+  "total": 167,
   "with_local_original": 87,
-  "blocked": 78,
+  "blocked": 80,
   "deferred": 87,
   "passed": 0,
   "depth": {
    "claim-locators": 70,
-   "abstract-only": 73,
+   "abstract-only": 75,
    "not read": 21,
    "full": 1
   },
-  "cited_in_paper": 93,
+  "cited_in_paper": 96,
   "cited_blocked": [
    "battalio2022interaction",
    "battjes1985calibration",
@@ -39,6 +39,8 @@
    "ebert1992parameterization",
    "fierro2013implementation",
    "haqqmisra2022samosa",
+   "hogan2020evaluating",
+   "hogan2022tool",
    "karman2019update",
    "komen1984existence",
    "kristjansson2000impact",
@@ -50,6 +52,7 @@
    "mckay1991making",
    "mlawer2012development",
    "nicoll2012measurements",
+   "prather2019round",
    "price1992simple",
    "rafkin2022interaction",
    "rodgers1967use",
@@ -2818,9 +2821,17 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "No local original: PNAS, PMC and eScholarship refuse scripted requests. Delegated agent C read the PMC full text: twilight heating missed by flat ray tracing; spherical atmospheres intercept 2.5 W/m2 more sunlight; spherical column mass exceeds flat by 1 + 4H/R. Not re-read here; BLOCKED until a local copy is archived."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "On Earth, a spherical atmosphere intercepts 2.5 W/m2 more sunlight than flat layers and heats the climate by 1.5 W/m2 more.",
+     "support": "supported (abstract, Semantic Scholar)",
+     "note": ""
+    }
+   ],
+   "notes": "No local original: PNAS, PMC and eScholarship refuse scripted requests. Delegated agent C read the PMC full text: twilight heating missed by flat ray tracing; spherical atmospheres intercept 2.5 W/m2 more sunlight; spherical column mass exceeds flat by 1 + 4H/R. Not re-read here; BLOCKED until a local copy is archived. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "vasylyev2021accurate",
@@ -6953,6 +6964,72 @@
      "claim_id": null,
      "section": "next.tex",
      "statement": "Sixteen cases of a 15-day synchronous rotator around a 3000 K blackbody star, sampled from an ExoPlaSim survey and compared with ExoCAM; proposed as a test of the convective-cover repair.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "hogan2022tool",
+   "citation": "Hogan and Matricardi (2022). A tool for generating fast k-distribution gas-optics models for weather and climate applications. J. Adv. Model. Earth Sy., 14(10), e2022MS003033. doi:10.1029/2022MS003033",
+   "entry_type": "article",
+   "doi": "10.1029/2022MS003033",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/2022MS003033 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "ecCKD divides the spectrum into k-terms within a user-set error tolerance, built for Earth's weather and climate.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "hogan2020evaluating",
+   "citation": "Hogan and Matricardi (2020). Evaluating and improving the treatment of gases in radiation schemes: the Correlated K-Distribution Model Intercomparison Project (CKDMIP). Geosci. Model Dev., 13(12), 6501-6521. doi:10.5194/gmd-13-6501-2020",
+   "entry_type": "article",
+   "doi": "10.5194/gmd-13-6501-2020",
+   "verified_via": "Crossref api.crossref.org/works/10.5194/gmd-13-6501-2020 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "CKDMIP evaluates CKD schemes against benchmark line-by-line calculations, on Earth's atmospheric conditions.",
      "support": "supported (abstract)",
      "note": ""
     }
