@@ -39,6 +39,14 @@ which closes the rounds; its findings were acted on in 94d337a, unread by a furt
 is the next review. The PDF built from 94d337a was then inspected page by page by its hash (`g7_visual_review.md`),
 and `release_register.md` records each gate's status for it.
 
+On 18 October 2026, after further conclusion revisions at 0cb4f50 and 04a6c27, the author requested a fresh
+conclusion and supplied the direction quoted in round 12's records: developed discussion across as many
+paragraphs as needed, sustained excitement, and an ending of pure inspiration. Codex drafted the replacement.
+Fresh Codex agents read its prose and evidence in rounds 11 and 12, prompting a structural revision and then
+local revisions. The reviewed drafts are retained under `drafts/`; the findings, dispositions and checks are
+recorded in `conclusion_rewrite_2026-10-18.md`. The author's reading of the revised draft comes next, following
+the priority made explicit in AGENTS.md at 15ad8de. The earlier release register remains tied to its stated PDF.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
@@ -47,11 +55,13 @@ and `release_register.md` records each gate's status for it.
 | Claude subagents, technical referees | Checked every claim and table row of the first draft against its sources | `referee_technical_part1.md`, `referee_technical_part2.md`, `referee_dispositions.md` |
 | A Claude subagent, whole-manuscript challenger | Challenged the first draft as a whole against G1–G5 | `whole_manuscript.md`, `whole_manuscript_dispositions.md` |
 | Fresh Claude subagents, editorial reviewers | Read the second draft against the rules, by part and as a whole (round 1), then the rewritten closing section and the passages revised with it, for prose and for evidence (rounds 2–8) | `editorial_round<n>_<part>.md` |
+| Codex, drafting assistant | Wrote a fresh conclusion on 18 October 2026 and revised it after rounds 11 and 12 | `conclusion_rewrite_2026-10-18.md` |
+| Fresh Codex reviewer agents | Separate prose and evidence readings of the new conclusion in rounds 11 and 12 | `editorial_round11_conclusion_*.md`, `editorial_round12_conclusion_*.md` |
 | Claude subagents, record keepers | Reconstructed the dispositions of rounds 2–5 from the revision commits | `editorial_round<n>_dispositions.md`, n = 2–5 |
 | The author | Readings of the drafts, decisive on framing and prose; resolution of exceptions; the competing-interests declaration | First draft read 2026-10-17 (framing and prose rejected; the author counts this stream-of-thought reading as its cadence review); second draft read during round 1 (still Moon-centred); third draft read 2026-10-17 (the rest stands for now; conclusions rejected) |
 
-Every reviewer above except the author is the same model as the drafting assistant, so none of these records
-is independent review in the sense of a person or a journal; each separate pass is recorded as such.
+The Claude and Codex agent readings are AI-assisted editorial reviews. Review by a person other than the
+author, or by a journal, remains pending; the records identify the reviewer and activity of each pass.
 
 ## Files
 

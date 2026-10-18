@@ -1,0 +1,118 @@
+\section{Conclusion}
+
+The climate of a world with Earth-like air and water depends on how familiar processes interact under unfamiliar
+planetary conditions. Adapting ExoPlaSim, CM1, SWAN and SWASH to a breathable Moon required following those
+interactions from the global circulation into clouds, electrified storms and waves at the shore. In doing so,
+the work connected two uses of planetary models: investigating a world still being designed and examining the
+assumptions used to compute the climates of natural planets.
+
+That connection arose from the combination of conditions in the design. Weak gravity puts a large mass of air
+above each square metre at a familiar surface pressure, and raises the pressure levels through a substantial
+fraction of a small world's radius; a long solar day gives clouds, soil and storms a different duration of
+heating. Several approximations made for Earth were therefore strained together. The same runs also made
+ExoPlaSim's clock, rain-unit and orbit defects conspicuous, because their errors grew with the long day and small
+tilt. By the code's arithmetic those defects also affect natural-planet configurations that meet their
+conditions. A constructed world can therefore serve as an experiment on the tools used to study worlds found
+around other stars.
+
+The Sun-clock and orbit tests illustrate why the consequence extends beyond the accuracy of a mean climate.
+On the test world those defects redistributed sunlight while preserving its global mean at the top of the air.
+Correcting them changed the global-mean surface temperature by less than a kelvin over the two-year test, while
+the fraction of land receiving little rain grew fourfold. A small change in mean warmth accompanied a large
+change in where water reached the land. For a natural planet, that distinction bears on the distribution of
+potentially habitable environments; for a constructed one, it bears on which basins could sustain the lakes
+included in its design. Comparing the released and repaired code on slowly rotating planets would measure how
+far this consequence extends beyond the lunar case.
+
+The larger changes in the test world's mean temperature came from the empirical radiation fits and cloud
+settings. Their sensitivity makes the meaning of Earth-like air especially consequential: a gas mixture can
+resemble Earth's while its absorber paths lie beyond those used to fit a radiation scheme, and water can
+condense under familiar temperatures while the depth and duration of its convection differ. The repairs of
+constants and units make these conditions enter the calculation consistently. Predicting the resulting climate
+also requires a radiation scheme and cloud relations appropriate to those conditions. The measured
+sensitivities identify where that further work could change the climate most in the configurations tested.
+
+Radiation offers a way to extend the calculation through the properties of the gases themselves. The in-house
+line-by-line model has already supplied the reference for the lunar calibrations; a reduced scheme built from
+its spectroscopy would compute absorption and cooling over the columns for which it was checked. An independent
+comparison of that spectroscopy, followed by checks of the reduced scheme by layer, would define its usable
+pressures, temperatures and gases under the chosen starlight. Within that range, a modeller could change a
+world's column and follow where the added gas absorbs and emits, with the vertical heating computed from the
+same molecular data throughout. This would also make comparisons between worlds less dependent on a sequence
+of separate broadband refits.
+
+Cloud requires a different relation between scales. A GCM determines the large-scale circulation in which
+convection develops, while a cloud-resolving run can compute the condensate and precipitation that the GCM
+parameterizes. The forcing methods developed for the lunar rings and boxes make that comparison possible on
+slices of a GCM climate. Their use could be extended to calibrating the GCM's cloud against resolved runs of
+the same world, so that a change in rotation or gravity would be followed through the convection into the cloud
+that heats and cools the global atmosphere. Because the resolved runs retain their own empirical microphysics,
+this comparison also moves the question of accuracy down to the particles from which the cloud and rain form.
+
+Rain at weak gravity makes that dependence tangible. The fall-speed repair slows drops according to the balance
+of weight and drag, but CM1 still bounds their sizes and breakup with Earth's values. In the lunar box most of
+the water leaving the clouds evaporated before reaching the ground, and the surface received about a quarter
+of the forcing GCM's rain. That disagreement joins two possible causes: the GCM's parameterized convection and
+the resolved model's treatment of falling water. Larger drops could survive more of the descent, while the
+capillary scaling of the largest stable drop leaves open the sizes produced by collisions. Testing those size
+limits would determine how much of the rain deficit comes from the retained Earth settings, before the resolved
+rain is used to revise the lakes' water budgets.
+
+The lake question connects a planetary design to physics that can be investigated at the scale of individual
+particles. A similar connection is already explicit in the charging calculations. Two laboratory charging laws
+produced different arrangements of charge in windows of the lunar storm runs because they disagree on the sign
+rimed ice takes in little cloud water. Measurements at the simulated collision speeds, temperatures and water
+contents could discriminate between those laws for the relevant particles. The measurements would constrain
+the storms' electrical structure; their ground strikes would still require a model of the leader's descent
+through the deep air. Even for a world that exists as a design, some of the distinctions between its possible
+weather can therefore be investigated in an Earth laboratory.
+
+Such process tests complement the checks available within the codes. The wave-model similarity runs, for
+example, test whether changing gravity produces the corresponding change of lengths and times along the
+tested paths. They retain the empirical growth and breaking coefficients, whose adequacy under the new
+conditions is a further physical question. Keeping these questions separate makes progress on an unobserved
+world cumulative: arithmetic can be checked against the implemented laws, approximations compared with
+independent calculations, and empirical relations tested where measurements are possible. Agreement at one
+step specifies which uncertainty to investigate at the next.
+
+For a constructed world, those uncertainties concern conditions that the designer can change. The lunar
+shield's dimming was chosen to obtain a target climate, and corrections to radiative geometry and gas
+absorption changed the dimming required to maintain it. A revised cloud calibration or a consistent longwave
+fit could change that choice again. The calculation therefore becomes an iteration between physical
+prediction and design: revised heating changes the proposed illumination, which changes the climate from
+which the storm and sea models take their forcing. A design temperature becomes useful only together with
+the rain, circulation and cloud produced under the illumination that maintains it.
+
+This dependence also gives the disagreement between models a practical use. Once the missing transport across
+the lunar ring was imposed, CM1 and the GCM still computed different temperatures near the ground. Comparing
+their radiative cooling against the reference separated part of that difference from the remaining boundary-layer
+and forcing questions. Following a disagreement through its physical terms can identify which choice in the
+design depends on the disputed process. The next calculation can then test whether a change in radiation
+alters the required shielding, or whether a change in drop size alters the water supplied to a lake. The
+design develops through questions whose outcomes would change it.
+
+The same method of investigation can extend to natural planets, where gravity, rotation and starlight are
+conditions to infer or prescribe. The repaired codes have so far simulated one world away from Earth's
+values, apart from numerical controls, so their wider use begins with further tests. Yet the lunar case has
+already identified concrete connections to examine: rotation changes the distribution of heating and the
+cloud that responds to it; gravity changes both the depth of the atmosphere and the rain falling through it;
+the height of the air relative to the radius changes which layers remain illuminated after the ground enters
+shadow. Varying these properties across worlds would test how the processes combine, including regimes in
+which an Earth calibration succeeds for a different reason or ceases to describe the controlling process.
+
+The prospect is a comparison of worlds at the scales on which their environments take shape. A climate
+calculation would specify the circulation and forcing from which storms develop; resolved storms would test
+the cloud and rain assumed in that climate; winds and wave spectra would connect the atmosphere to a
+particular coast. As these connections are checked, the question of whether a world is temperate can be
+developed into questions about where its water falls, how its storms evolve through a long day, and what its
+seas do under the resulting winds. Worlds with similar mean temperatures could then be compared through the
+different physical environments those temperatures accompany.
+
+For worlds still being designed, that comparison would precede choices about the environments to create.
+Familiar air and water could be considered under a different gravity and Sun, with the consequences followed
+far enough to determine whether rain could replenish a basin or swell would reach a proposed shore. The
+breathable Moon already gives those questions physical form: tall storms above slow-falling rain, long-period
+waves under light winds, and upper air still illuminated deep into the ground's night. Developing and testing
+the models would turn such possibilities into alternatives that can be examined together, so that a world
+chosen for its warmth could also be chosen with knowledge of the weather, water and sky beneath which life
+would have to grow.

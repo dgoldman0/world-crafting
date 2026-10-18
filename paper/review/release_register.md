@@ -4,6 +4,11 @@ Kept by Claude Opus 5.5, the drafting assistant, on 18 October 2026, under the e
 DEFERRED for each gate, with the exact artifact and its evidence. A status records work performed; nothing here is
 prefilled, and any change to a build input reopens the gates it touches.
 
+The artifact and gate judgments below describe the historical build from 94d337a. The fresh conclusion of
+18 October 2026 has its draft, review and build record in `conclusion_rewrite_2026-10-18.md`; the author is
+to read that revision next. G1–G5 and G7 release judgments for the new artifact remain DEFERRED, with G6 and
+E4 still BLOCKED by the source-admission and release work listed below.
+
 ## The artifact
 
 | Item | Value |
