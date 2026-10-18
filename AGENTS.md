@@ -153,13 +153,29 @@ universal claim is checked against what was actually examined.
 | "Exoplanet climate studies compute the temperature, cloud and rain of rocky planets whose air resembles Earth's ..." | A whole field characterised from four studies | Say what the cited studies did: some hold the air near Earth's and vary rotation, gravity or star |
 | "Each constant is right for Earth, and can be made right for the Moon as far as its lunar value is known." | Landing that restates the paragraph | Land on a consequence, or end at the evidence |
 
-## Review
+## Review of the paper
 
-Editorial quality is judged by reading. After a section is drafted, fresh reviewer agents that see only
-the text and these rules read it whole and return located findings; the text is revised and read again
-by fresh reviewers, round after round, until a round finds nothing blocking. The author's readings are
-the decisive review. `paper/tools/lint.py` screens for candidate places, and its output is reported as
-screening only. Each round's reviewers, findings and dispositions go in `paper/review/`.
+The paper alone is written in drafts and review rounds. Its editorial quality is judged by reading: after
+a section is drafted, fresh reviewer agents that see only the text and these rules read it whole and
+return located findings; the text is revised and read again by fresh reviewers, round after round, until a
+round finds nothing blocking. The author's readings are the decisive review. `paper/tools/lint.py` screens
+for candidate places, and its output is reported as screening only. Each round's reviewers, findings and
+dispositions go in `paper/review/`.
+
+## Software work
+
+Code, patches and tools follow a conventional software workflow, in small tested changes:
+
+- **One change, one purpose.** Each change is made on a branch of its own and merged once it passes.
+- **Tests with the code.** A change adds or updates the tests that pin its behaviour, and `make check`
+  passes before it is committed; a bug fix starts from a failing test.
+- **Review of the change.** A change of more than a few lines gets one code review of its diff, by the
+  author or a fresh reviewer agent. Its fixes land in the same change, and the merge's commit message
+  records the review.
+- **Living documents.** Design documents, READMEs and notes change in the same commit as the code they
+  describe.
+- **Evidence.** The file and evidence practice above holds for code: a passing test checks the code, and
+  validation of the physics is recorded separately.
 
 ## Checks
 
