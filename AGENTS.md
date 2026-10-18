@@ -166,11 +166,13 @@ dispositions go in `paper/review/`.
 
 Code, patches and tools follow a conventional software workflow, in small tested changes:
 
-- **One change, one purpose.** Each change is made on a branch of its own and merged once it passes.
+- **One branch for each line of work.** Work stays on its line's branch, the lab's on `lab`; a separate
+  branch serves a separate line of work. Each change is a commit or a short series of them, committed once
+  it passes.
 - **Tests with the code.** A change adds or updates the tests that pin its behaviour, and `make check`
   passes before it is committed; a bug fix starts from a failing test.
 - **Review of the change.** A change of more than a few lines gets one code review of its diff, by the
-  author or a fresh reviewer agent. Its fixes land in the same change, and the merge's commit message
+  author or a fresh reviewer agent. Its fixes land in the same change, and the change's commit message
   records the review.
 - **Living documents.** Design documents, READMEs and notes change in the same commit as the code they
   describe.
