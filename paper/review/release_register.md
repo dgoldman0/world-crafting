@@ -10,6 +10,12 @@ The author read and rejected that draft's lunar framing. Its replacement, centre
 has its record in `conclusion_ensemble_rewrite_2026-10-18.md`. The author accepted that Conclusion and
 requested the terracompatible terminology, one prospective sentence and a whole-manuscript framing check,
 recorded in `terracompatible_revision_2026-10-18.md`.
+The revised source at `119b168d0f4053f92a52a28266807718369c2832` received round 14's whole-manuscript
+terminology and framing readings. All 35 pages of its PDF, SHA256
+`45de8d3b2eaa2a6c1548e2cabcc8c0109cf0189ad81f15c895f981ace74970bd`, were visually inspected, with
+zero blocking findings and one minor widow line recorded. The revision record identifies the exact
+inputs, bounded review decisions and remaining release work; the historical gate table below retains
+its own artifact.
 G1–G5 and G7 release judgments for the new artifact remain DEFERRED, with G6 and E4 still BLOCKED by the
 source-admission and release work listed below.
 

@@ -103,3 +103,52 @@ the requested term and single sentence. The AGENTS.md purpose statement also rep
 
 The checks establish the operations reported. Physical validation, full-document source admission and
 publication release retain the outstanding work recorded in `release_register.md`.
+
+## Committed artifact and exact-build inspection
+
+| Item | Value |
+|---|---|
+| Source commit | `119b168d0f4053f92a52a28266807718369c2832` |
+| PDF | `paper/build/main.pdf`, 35 A4 pages |
+| PDF SHA256 | `45de8d3b2eaa2a6c1548e2cabcc8c0109cf0189ad81f15c895f981ace74970bd` |
+| Build date input | `SOURCE_DATE_EPOCH=1792334837`, `FORCE_SOURCE_DATE=1` |
+| Final build | `latexmk -g -pdf -interaction=nonstopmode -halt-on-error -outdir=build main.tex`, from `paper/`, after the source commit |
+| Tools | pdfTeX 1.40.25, latexmk 4.83, biber 2.19; Poppler 24.02.0 and MuPDF 1.23.10 |
+| Metadata | Title matches the printed title; author Daniel S. Goldman; date 18 October 2026 |
+| Fonts and links | `pdffonts`: all 26 listed font entries embedded; `mutool show ... grep`: 211 link annotations, with the author's ORCID URI present |
+| Build warnings | Zero overfull boxes; one underfull line, badness 2894 |
+
+The final source matches the input hashes in the round 14 reports, including the prose review's bounded
+disposition verification. That verification reversed only the article, layout, disclosure and AGENTS.md
+clarification edits in memory and recovered the reviewed hashes.
+
+The final PDF was rendered with `pdftoppm -scale-to 1600 -png`. The visual records identify the actual
+pages inspected and their observations:
+
+- `terracompatible_visual_pages01-18.md`, by `/root/round14_whole_prose`.
+- `terracompatible_visual_pages19-35.md`, by `/root/round14_whole_scope`.
+
+Together the reviewers inspected all 35 rendered pages and found zero blocking layout issues. The first
+record notes one minor widow line at the top of page 14, completing the preceding Verification paragraph;
+the sentence is complete and readable. This observation is retained for a later production pass.
+
+The drafting assistant also inspected page 4, containing the changed Figure 1, in MuPDF's independent
+120 dpi render. Its label, points, axes and caption remain readable and clear of collisions. Preliminary
+Poppler inspections covered the title and Conclusion; the final render preserves both closing paragraphs
+together on page 26. These visual operations assess the specified artifact; the outstanding release
+work in the register retains its evidence states.
+
+### Other build-input hashes
+
+The round 14 reports identify `main.tex` and every section by hash. The remaining build inputs are:
+
+| File | SHA256 |
+|---|---|
+| `paper/Makefile` | `a79bebc7bc3abc1f5e14e31aceddabfa2bbdffee6bf9587a4b9ebf5e9949ad7d` |
+| `paper/references.bib` | `c0c9662b362141759bce9a27bb566e7ee6a00479ef773273f1dc109d7888747e` |
+| `paper/figures/fig_regimes.pdf` | `5f5e1b1fb96989db519b921eba1d19fe1588f07e0b9a1f706def8677b34eb6cf` |
+| `paper/figures/fig_sun_clock.pdf` | `1a70fb8a8c7b6ee2f4593098c88b8f1337a91fe1f852010b15e33df1ae6affe6` |
+| `paper/figures/fig_slant.pdf` | `5af5b9ead93a4b611b79c58479afeac4a3704f0390cb3b20260739f954811ee4` |
+| `paper/figures/fig_layers.pdf` | `119955426500005e90653008a80bf9a37b4c570875c20ff3576d85dae8bb701a` |
+| `paper/figures/fig_repairs.pdf` | `2fcb37ca7a6538c8187332ede7682c57d0111ecc087c89e454835865d31c59c9` |
+| `paper/figures/fig_gap.pdf` | `943022583a689edf2a10a0cd68503b9131280d9695f51ec0568f30e5373bd422` |
