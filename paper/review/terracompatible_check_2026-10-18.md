@@ -59,12 +59,12 @@ whole entry. The final build from `12678a9` renders identically to that earlier 
 
 ## After the author's reading of this check
 
-The author read this check's report on 18 October and, of the statement it listed as repeated, wrote: "Not only
-is it said over and over again, it's phrased an a very stupid way. "Simulated away from Earth's values" is an
-example of a thing verbing something it doesn't verb." Then: "It's not just a matter of reducing it and rewording
-it. You have to be careful beacuse it was from the start defensive posturing. Make sure when you reword it and use
-it sparingly in the reworded sense that it's simply informing rather than defensive posturing." The author judged
-the abstract's length fine for now; the name of the class stays under the author's consideration.
+The author read this check's report on 18 October and found the statement it listed as repeated said over and over,
+and badly phrased: in "simulated away from Earth's values" the verb does nothing. Then: "It's not just a matter of
+reducing it and rewording it. You have to be careful beacuse it was from the start defensive posturing. Make sure
+when you reword it and use it sparingly in the reworded sense that it's simply informing rather than defensive
+posturing." The author judged the abstract's length fine for now; the name of the class stays under the author's
+consideration.
 
 The statement stood in seven places, and a related clause in an eighth. It now informs once, at the opening of
 Reach, where a modeller reads what the repairs were built for and where they have run:

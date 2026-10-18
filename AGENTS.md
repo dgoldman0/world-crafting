@@ -9,7 +9,9 @@ Terluna at commit 186b294 (2026-10-17), and `PROVENANCE.md` records its provenan
 
 ## Commits
 
-Use informative commit messages. Multiple phrases for a commit message.
+Use informative commit messages. Multiple phrases for a commit message. A commit message describes the author's
+decisions and directions in the committer's own words and quotes the author nowhere; quoting the paper's own text,
+code or file names is fine.
 
 ## System usage limits
 
@@ -188,7 +190,8 @@ readings are the decisive review and come ahead of further rounds: once a draft 
 direction, it goes to the author, and later rounds follow the author's reading. Otherwise the text is
 revised and read again by fresh reviewers until a round finds nothing blocking. `paper/tools/lint.py` screens
 for candidate places, and its output is reported as screening only. Each round's reviewers, findings and
-dispositions go in `paper/review/`.
+dispositions go in `paper/review/`. Review records may quote the author where the exact phrasing matters, leaving
+out anything awkward.
 
 ## Software work
 
