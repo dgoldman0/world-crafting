@@ -10,7 +10,7 @@ Every product records its producer, its inputs and the values it read, from whic
 changed parameter makes stale. A fit also records the states it was fitted on, against which the lab checks
 each run that uses it.
 
-**State (2026-10-18): design complete; coding begins with plan stage 1.**
+**State (2026-10-18): coding plan stage 1. The loader, the derivations and the data manifest pass their checks.**
 
 ## Reading order
 
@@ -24,6 +24,7 @@ each run that uses it.
 | [worlds/](worlds/) | Seed worlds and scenarios: the Moon with the Open Moon at 1.2 and 1.0 atm, Earth as the control, and Mars with an illustrative 1 bar of Earth-like air |
 | [configs/](configs/) | Each model's shared defaults, stated for any world: ExoPlaSim's, and CM1's with its variants and its lengths, times and rates given at a reference state |
 | [studies/](studies/) | The Open Moon study: two of Terluna's GCM runs and three CM1 cases forced from the first of them, each extending its model's defaults; the targets of plan stages 2 and 3 |
+| [data/manifest.toml](data/manifest.toml) | The data the lab's stages read, each file with its source, size, hash, licence and credit; the lab's copies sit in the store |
 | [registry/](registry/) | A seed of the registry of Earth assumptions: fourteen entries, eleven converted from the defect log and three from the models' patches, with the thresholds awaiting the author's decision marked "proposed" |
 
 ## What the lab is built from

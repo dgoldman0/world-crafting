@@ -14,9 +14,10 @@ o2_partial_pressure_pa = 21227.0     # Earth's (exoplasim_run.py:78)
 co2_ppm = 400.0                      # of the total pressure (exoplasim_run.py:80, :820)
 ar_per_n2 = 0.011961477383330772   # Earth's 0.00934/0.78084, the double Terluna's runner computes (exoplasim_run.py:79)
 balance = "N2"
-reference_temperature_k = 295.0      # the design aim near 295 K, which the paper's table of reach takes (Terluna's final
-                                     # target is open: research/decisions.md, 2026-10-17). Terluna's design column holds
-                                     # 294.9 K, A28_dim5_moon's mean (atmosphere/lower_air.py:29), in its recorded products
+reference_temperature_k = 295.0      # the design aim near 295 K, which the paper's table of reach takes. Terluna's target
+                                     # became the resort's 301 K on 2026-10-18 (research/decisions.md on domain/climate);
+                                     # this scenario stays the design case. Terluna's design column holds 294.9 K,
+                                     # A28_dim5_moon's mean (atmosphere/lower_air.py:29), in its recorded products
 cloud_droplets_per_cm3 = 100.0       # cloud droplets the air's aerosol supports: Terluna's rings (cm1_run.py, CASES['ring'])
 ozone = "none"                       # the titania stack's design (moon_gcm_configuration.json, atmosphere.ozone)
 water_vapour = "prognostic"
@@ -25,7 +26,8 @@ water_vapour = "prognostic"
 seas_share = 0.28                    # shared/scenarios/water.json, chosen 2026-09-25
 seas = "from-heights"                # the world's heights flooded to the seas share (Terluna: geography/atlas.py)
 lakes_start = "terluna:geography/products/drainage_28pct_16ppd.npz"   # the runoff chain's first link: Terluna's lakes
-                                     # from run A's runoff, copied in stage 1
+                                     # from run A28_dim5_moon's runoff (lab/data/manifest.toml). The design run's surface
+                                     # holds earlier ones, from run A's (the study's compatibility pin `surface`)
 lakes = "from-runoff"                # rain-fed lakes at their own levels, from a GCM run's runoff (geography/drainage.py);
                                      # with them the GCM's mask holds about 40% water (land share 0.5995 in A28_corrected_970)
 ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }   # exoplasim_run.py:92

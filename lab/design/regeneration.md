@@ -189,7 +189,9 @@ The product groups that head the columns:
      was computed on.
    - Terluna's design column still holds the earlier scale of 0.95 and 294.9 K, while the design case runs
      at 0.970.
-5. **The lakes come from GCM run A's runoff,** and the GCM's surfaces are built from those lakes.
+5. **The design run's lakes come from GCM run A's runoff,** and the GCM's surfaces are built from those lakes.
+   Terluna's drainage of 2026-09-29 replaced that lakes file under its name with lakes from run A28_dim5_moon's
+   runoff, and the surfaces now hold lakes that the file under their recorded name no longer holds.
 6. **A box takes its day–night forcing from a ring's output.** A change upstream of the ring therefore
    arrives at the box twice: through its own GCM extraction, and through the ring.
 7. **Albedos typed apart.**
@@ -235,7 +237,7 @@ The product groups that head the columns:
 |---|---|---|---|
 | Calibrations fitted on the GCM's own columns: the shortwave multipliers and the longwave correction | Running, taking the columns, refitting and running again until both move less than a tolerance | Fitted once. The longwave correction was fitted at 295 K and runs in a test that settles at 307 K | A fixpoint stage with stated tolerances, each pass recorded |
 | The ledger and the shortwave fit | Recomputing the ledger with the refitted multipliers and refitting, until both move less than a tolerance | Open: the ledger holds the multipliers from before the refit | Part of the same fixpoint |
-| The sunlight scale and the design temperature | Adjusting the scale until the global mean surface temperature meets the target | By hand. Trial runs at 0.9655, 0.9685 and 0.970 gave 295.02 K at 0.970. The target is open, and new runs are held until it is set (Terluna `research/decisions.md`, 2026-10-17) | A target stage of secant steps over runs, with the runs kept as its record |
+| The sunlight scale and the design temperature | Adjusting the scale until the global mean surface temperature meets the target | By hand. Trial runs at 0.9655, 0.9685 and 0.970 gave 295.02 K at 0.970. The target, open on 2026-10-17, became the resort's 301 K on 2026-10-18 (Terluna `research/decisions.md` on `domain/climate`) | A target stage of secant steps over runs, with the runs kept as its record |
 | Climate, runoff, lakes, surface | Running the drainage again on the current design run's runoff | Deferred on 2026-10-16 | A chain of keyed links: each GCM run's lakes come from the runoff of a named earlier run (`lakes_from`), and a fixpoint step repeats the chain on request |
 | The glow and the GCM's efficacy | Recomputing the glow's dimming with the efficacy the GCM returns | By hand: 0.71, then about 0.59 on the corrected radiation | A loop of two stages |
 | Other gases as CO2 | Fitting the CO2 that warms as much as the other gases (755 ppm) against the reduced-gas forcing | By hand, from calibration runs | A calibration with its envelope |

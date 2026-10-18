@@ -2,9 +2,10 @@
 tests compare with and the `terluna:` and `terluna-drive:` pins name, and the lab's own store.
 
 Each root comes from its environment variable, or from lab/local.toml ([roots], kept out of Git; see
-lab/local.example.toml), a relative path there taken from lab/. A root counts only as a folder that holds
-something, so that an unmounted drive's empty mount point reads as absent. A test that needs a root it lacks
-reports itself skipped.
+lab/local.example.toml), a relative path there taken from lab/. A root counts as a folder that holds
+something, so that an unmounted drive's empty mount point reads as absent; a writer that fills a root, as a
+fetch fills the store, may accept an existing empty folder. A test that needs a root it lacks reports itself
+skipped.
 """
 from __future__ import annotations
 
@@ -18,13 +19,16 @@ from .spec import LAB
 VARIABLES = {'terluna': 'TERLUNA_REPO', 'terluna-drive': 'TERLUNA_DRIVE', 'store': 'WORLDLAB_STORE'}
 
 
-def root(name: str, lab: Path = LAB) -> Path | None:
-    """The root's folder, or None where neither its variable nor lab/local.toml names one that holds anything."""
+def root(name: str, lab: Path = LAB, *, allow_empty: bool = False) -> Path | None:
+    """The root's folder, or None where neither its variable nor lab/local.toml names one that holds anything.
+    With `allow_empty`, an existing empty folder counts too, as the store does before its first write."""
     value = os.environ.get(VARIABLES[name]) or _local(lab).get(name)
     if not value:
         return None
     path = Path(value) if Path(value).is_absolute() else lab / value
-    return path if path.is_dir() and any(path.iterdir()) else None
+    if not path.is_dir():
+        return None
+    return path if allow_empty or any(path.iterdir()) else None
 
 
 def _local(lab: Path) -> dict:

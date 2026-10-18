@@ -1,0 +1,107 @@
+# The data the lab's own stages read, by pin (lab/design/world_spec.md, rule 4), and copies of Terluna's files that
+# a reproduction needs and Terluna may replace. Each entry lists its files, each with its size, sha256, one source
+# (a URL to download, or a Terluna pin to copy) and the date the lab took its bytes. Each entry also records the
+# terms its licence review found (AGENTS.md, "File and evidence practice"), the credit and the review's date. The
+# lab keeps its copy of each file in the store, as data/<first 16 hex digits of its sha256>/<name>
+# (lab/worldlab/data.py). Retrieval and hash checks are separate from reading the publications the credits name.
+
+schema = "worldlab.manifest/0"
+
+[data.tsis1-hsrs-stride100]
+title = "TSIS-1 Hybrid Solar Reference Spectrum, every 100th sample"
+use = "The Sun's spectral irradiance at 1 AU, 202-2730 nm, for each world whose star is the Sun (star.spectrum): the sunlight at the top of the air and the ice-optics weights"
+licence = "LASP states that TSIS data products are available for public access (lasp.colorado.edu/tsis/data, read 2026-10-18). Neither LISIRD's page for the dataset nor its metadata (tsis1_hsrs.das) states a licence or terms of redistribution, so the lab keeps its copy in the store, outside Git, and cites the authors and LISIRD."
+credit = "Coddington, O. M., et al. (2021), The TSIS-1 Hybrid Solar Reference Spectrum, Geophys. Res. Lett. 48, e2020GL091709; distributed by LASP's Interactive Solar Irradiance Datacenter (LISIRD)"
+reviewed = 2026-10-18
+
+[[data.tsis1-hsrs-stride100.files]]
+name = "TSIS1_HSRS_stride100.csv"
+url = "https://lasp.colorado.edu/lisird/latis/dap/tsis1_hsrs.csv?stride(100)"
+retrieved = 2026-10-18
+bytes = 1248662
+sha256 = "0ae235c6912f26773c0e9b71ea3924aaf8856c74a511dc07e86b60b3c1b88172"
+note = "The bytes Terluna's atmosphere/radiative_convective/inputs.json records from its retrieval of 2026-09-24, which LISIRD served again on 2026-10-18"
+
+[data.lola-ldem16-grail-jggrx0420a]
+title = "LOLA's heights at 16 pixels/degree and GRAIL's gravity field GL0420A"
+use = "The Moon's heights over its geoid (surface.geometry): the seas from the heights, the GCM's surface and the air's pressure at the lowest point"
+licence = "Public domain: 'Data sets archived in the PDS are in the public domain', classified TSPA for export as public open literature (PDS Geosciences Node, pds-geosciences.wustl.edu/faq.html, read 2026-10-18). Cited with the NASA Planetary Data System as publisher (pds-geosciences.wustl.edu/citations.html)."
+credit = "LRO LOLA Gridded Data Record LDEM_16, PDS data set LRO-L-LOLA-4-GDR-V1.0, product version V3.1 (D. E. Smith, LOLA team, NASA Goddard Space Flight Center; Smith et al. 2010, Space Sci. Rev. 150, 209). GRAIL gravity field GL0420A, PDS data set GRAIL-L-LGRS-5-RDR-V1.0 (JPL Level-2 team; Konopliv et al. 2013, J. Geophys. Res. Planets 118, 1415, doi:10.1002/jgre.20097). NASA Planetary Data System, Geosciences Node."
+reviewed = 2026-10-18
+note = "The files and hashes Terluna's geography/inputs.json records from its retrieval of 2026-09-24, which the PDS served again on 2026-10-18. LOLA's heights are in the mean-Earth/polar-axis frame and GL0420A in DE421's principal-axis frame, about 0.02 degrees apart."
+
+[[data.lola-ldem16-grail-jggrx0420a.files]]
+name = "ldem_16.lbl"
+url = "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_16.lbl"
+retrieved = 2026-10-18
+bytes = 5121
+sha256 = "9aef29463ccc6ed3a3fbe0df3ecd830a99c69e16b564f455507dee2697096579"
+
+[[data.lola-ldem16-grail-jggrx0420a.files]]
+name = "ldem_16.img"
+url = "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_16.img"
+retrieved = 2026-10-18
+bytes = 33177600
+sha256 = "a511e40d7a3ea3275945b4da2a1df377133264fab0be94b7434b1cf8907254cb"
+note = "16 pixels/degree global radius grid, int16 half-metres above 1737.4 km"
+
+[[data.lola-ldem16-grail-jggrx0420a.files]]
+name = "jggrx_0420a_sha.lbl"
+url = "https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/grail_1001/shadr/jggrx_0420a_sha.lbl"
+retrieved = 2026-10-18
+bytes = 10409
+sha256 = "320b77ee552d221905bf0af55c1a554799e596e5d9e5dbf3f580c0ce60e07ea7"
+
+[[data.lola-ldem16-grail-jggrx0420a.files]]
+name = "jggrx_0420a_sha.tab"
+url = "https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/grail_1001/shadr/jggrx_0420a_sha.tab"
+retrieved = 2026-10-18
+bytes = 10837504
+sha256 = "962355f81ae40dab0ec39753e3820d731d4505633a262fc543afd6f6c7c0e50d"
+note = "GL0420A's fully normalised coefficients to degree 420, at a reference radius of 1738 km"
+
+[data."terluna:protection/spectra/shield_transmission.json"]
+title = "The spectral transmission of Terluna's shields, the titania stack's among them"
+use = "The Open Moon's filter on the sunlight (moon/open-moon, sunlight.filter, entry titania_stack)"
+licence = "The author's own work, in Terluna, whose repository states no licence. The lab keeps its copy in the store, outside Git."
+credit = "Terluna's protection domain: the titania stack of its September 2026 design, evaluated by protection/spectra/transmission.py"
+reviewed = 2026-10-18
+
+[[data."terluna:protection/spectra/shield_transmission.json".files]]
+name = "shield_transmission.json"
+source = "terluna:protection/spectra/shield_transmission.json"
+commit = "4d9280a50d51644bd55ef06b5130c64b184cff0c"   # the Terluna commit that last wrote the file, 2026-09-24
+retrieved = 2026-10-18
+bytes = 579457
+sha256 = "0d05194e82f3e99f4d1c45e4f8ad549052b19d9c2e06a0cbefafa249d78f4886"
+
+[data."terluna:geography/products/drainage_28pct_16ppd.npz"]
+title = "Terluna's rain-fed lakes and rivers beside the 28% seas, at 16 pixels/degree"
+use = "The first link of the Open Moon's lakes chain (moon/open-moon, water.lakes_start)"
+licence = "The author's own work, in Terluna, whose repository states no licence. The lab keeps its copy in the store, outside Git."
+credit = "Terluna's geography domain: geography/drainage.py's routing of the runoff of run A28_dim5_moon over LOLA's heights"
+reviewed = 2026-10-18
+note = "These lakes replaced, under the same name, the lakes of run A's runoff (060219b12f480619) on 2026-09-29; the surface of the design run A28_corrected_970 was built from those earlier ones. Terluna's plan regenerates its lakes once more at the resort target of 301 K, set on 2026-10-18 (research/plan.md on domain/climate); the store keeps these bytes under their digest."
+
+[[data."terluna:geography/products/drainage_28pct_16ppd.npz".files]]
+name = "drainage_28pct_16ppd.npz"
+source = "terluna:geography/products/drainage_28pct_16ppd.npz"
+made = "By Terluna's geography/drainage.py (a1b8d163c2ee340c), topography.py (228e08f79efca868) and atlas.py (e5ce62df01c94097), from climate/gcm/products/climatology_A28_dim5_moon.npz (3fb185c8087ea9b5) and geography/results/atlas.json (78cfbf2f469eb339), as the file's own metadata records; Terluna's Git ignores its products folder, so no commit holds the file"
+retrieved = 2026-10-18
+bytes = 2697170
+sha256 = "98842fc2a648f8899bd4f5d712445f78c8882c85a1bc30bf631ac9dd14ab1c03"
+
+[data."terluna:climate/gcm/products/moon_28pct_water_lakes_gaussian_T21.nc"]
+title = "Terluna's T21 surface of the 28% seas and run A's lakes"
+use = "The surface the design runs read (the open-moon study's compatibility pin surface), kept against Terluna's rebuilding its surfaces under the same name"
+licence = "The author's own work, in Terluna, whose repository states no licence. The lab keeps its copy in the store, outside Git."
+credit = "Terluna's climate domain: climate/gcm/boundary.py's area-conserving averages of geography's atlas and of the lakes of run A's runoff"
+reviewed = 2026-10-18
+
+[[data."terluna:climate/gcm/products/moon_28pct_water_lakes_gaussian_T21.nc".files]]
+name = "moon_28pct_water_lakes_gaussian_T21.nc"
+source = "terluna:climate/gcm/products/moon_28pct_water_lakes_gaussian_T21.nc"
+made = "On 2026-09-25 by Terluna's climate/gcm/boundary.py, from geography/products/atlas_28pct_4ppd.npz (dc283827f349fdc1) and the drainage file of run A's runoff (060219b12f480619), as the file's attributes record; Terluna's Git ignores the file"
+retrieved = 2026-10-18
+bytes = 42900
+sha256 = "4081b8600b8d33b635047e462e4c086dd8e389670165d8fe96eca6a01f1bd9a6"

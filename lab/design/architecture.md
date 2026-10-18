@@ -413,7 +413,7 @@ Sun-clock entry across ExoPlaSim's rounding.
 | Where | Holds |
 |---|---|
 | Git (this repository) | Specifications, the registry, the design, small products (calibrations, tables and reports of a few MB at most), the records index |
-| The store, at `$WORLDLAB_STORE`: a folder of the lab's own, on the research drive on this machine | `builds/<key>/`, `products/<stage>/<key>/`, `runs/<key>/`, `cases/<key>/`, `caches/`, an index of human names, and the runner's queue, job states and socket |
+| The store, at `$WORLDLAB_STORE`: a folder of the lab's own, on the research drive on this machine | `data/<digest>/` for the manifest's files, `builds/<key>/`, `products/<stage>/<key>/`, `runs/<key>/`, `cases/<key>/`, `caches/`, an index of human names, and the runner's queue, job states and socket |
 
 Each run and case is filed under its product key, as `runs/<key>/` and `cases/<key>/`. Terluna's names,
 such as `A28_corrected_970` and `ring_45n_corrected_twilight`, become aliases of those keys. An imported or

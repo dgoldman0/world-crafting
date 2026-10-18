@@ -176,7 +176,7 @@ Line numbers are Terluna's except where a path starts with `models/`, `python/`,
 
 | Product | Producer | Reads | World parameters | Consumer | Cost |
 |---|---|---|---|---|---|
-| The planet record and the T21 surfaces | `python -m climate.gcm.boundary` | `shared/constants.json`; the geography products, whose lakes come from GCM run A's runoff | R, GM, rotation, solar day, tilt, S0, water share, heights | `exoplasim_run.py:814, 934-951`; `cm1_run.planet()` | Seconds |
+| The planet record and the T21 surfaces | `python -m climate.gcm.boundary` | `shared/constants.json`; the geography products. The surfaces' lakes come from GCM run A's runoff, through a drainage file Terluna replaced on 2026-09-29 with one from run A28_dim5_moon's runoff | R, GM, rotation, solar day, tilt, S0, water share, heights | `exoplasim_run.py:814, 934-951`; `cm1_run.planet()` | Seconds |
 | `shield_transmission.json` | `protection.spectra.transmission` | The thin-film model | Spectral only | The spectrum files, the reference columns, the sky | Seconds |
 | `sun_<shield>.dat`, `_hr.dat` and the flux | `exoplasim_run.sunlight` (`:966-996`) | TSIS-1 HSRS, the shield, ExoPlaSim's wavelength grid | Star, shield, and the scale through `GSOL0` | PlaSim | Seconds |
 | `radiation_check_<run>.json` | `climate.gcm.radiation_check <run>` | A GCM run's output (years 15–24), the topography, line-by-line columns | g, air, shield, the run's climate | The shortwave fits | About 30 min on 8 cores |
@@ -246,8 +246,9 @@ importer records them.
    `A28_dim5_moon`.
 7. **A correction beyond its fit.** The longwave correction, fitted at 295 K, runs in a test that settles at
    307 K.
-8. **A surface downstream of a GCM run.** The lakes come from GCM run A's runoff, and regenerating them was
-   deferred on 2026-10-16.
+8. **A surface downstream of a GCM run.** The design run's lakes come from GCM run A's runoff. Since 2026-09-29
+   Terluna's drainage file, under the same name, has held lakes from run A28_dim5_moon's runoff, and running the
+   drainage again on the design run's runoff was deferred on 2026-10-16.
 9. **CM1's air from a named run.** CM1 reads its CO2 and O2 from `A28_dim5_moon`'s record at build time.
 10. **Earth's physics in CM1.** RRTMG takes the Sun's spectrum unfiltered, and the extraction keeps Earth's R
    and cp.

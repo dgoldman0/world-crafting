@@ -44,7 +44,8 @@ scenario.
    - **The lab's own stages** resolve a pin through the lab's manifest, which holds each one's hash, source,
      licence and credit and points to the lab's own copy.
    - **A study's compatibility settings** name Terluna's files by pin and hash, and the reproduction tests
-     open them in place and check the hash.
+     open them in place and check the hash. Where Terluna has since replaced a file, the store's copy of the
+     same bytes serves, if the manifest holds one.
 5. **`"unchosen"` and `"model-default"`.** The lab refuses any stage that reads a field marked
    `"unchosen"`. A field marked `"model-default"` takes the model's own value, which the adapter records.
 6. **Extended items.** `extends` names the parent, `[set]` lists the changed fields by dotted path, and
@@ -189,8 +190,8 @@ a case's top soil layer against 1 cm × (solar day/1 d)^½.
 
 `lab/worldlab/derive.py` computes the quantities of the table above, and its `planet()` gathers them into
 the planet record under the registry's names, each stated value beside its derivation. Three wait for later
-parts of stage 1: the sunlight at the top and the ice-optics weights for the data manifest, and the pressure
-at the surface's lowest point for the world's heights. Where the module reproduces a record bit for bit, its
+parts of stage 1, which read the manifest's data: the sunlight at the top, the ice-optics weights and the
+pressure at the surface's lowest point. Where the module reproduces a record bit for bit, its
 arithmetic follows the order the record was computed in: the partial pressures and mass fractions as
 Terluna's GCM runner builds them, the mole fractions, molar mass and scale height as
 `paper/tools/regime_calc.py` does, and the calendar as ExoPlaSim's configure and `plasim.f90` count it.
@@ -224,6 +225,24 @@ Terluna's GCM runner builds them, the mole fractions, molar mass and scale heigh
   Python writes them, its descriptive fields left out. It covers an item's own settings; stage 4's product
   keys add the scenario, the upstream keys and the compatibility state.
 - **Unchosen fields** are listed by path, for the stages that read them to refuse.
+
+`lab/worldlab/data.py` codes rule 4, and `lab/data/manifest.toml` holds its records:
+
+- **Pins.** A pin reads `[root:]path[#entry][@digest]`, its root `terluna` or `terluna-drive` and its digest 16
+  lowercase hex digits. A plain name takes lowercase letters, digits, `.`, `_` and `-`; a root's path is
+  relative, without empty, `.` or `..` parts. A world's `star.spectrum` and `surface.geometry`, and a
+  scenario's `sunlight.filter` and `water.lakes_start`, hold a pin or one of `none`, `model-default` and
+  `unchosen`, and Terluna's files enter the seeds elsewhere only through compatibility settings.
+- **The manifest** keys each entry by its pin without `#` or `@`. An entry holds a title, a use, the licence
+  its review found, a credit, the review's date and its files; each file its name, size, sha256 and one
+  source, a URL or a Terluna pin, with the date the lab took its bytes. A pin with a digest names one file of
+  its entry.
+- **The store** keeps each file at `data/<digest>/<name>`, read-only. A fetch copies from Terluna's roots and
+  downloads only when asked, writing through a temporary file and keeping only bytes of the recorded size
+  and hash; each read checks both again.
+- **Compatibility pins** carry their digest, and `compat_path` opens Terluna's file in place. Where Terluna
+  has replaced the file under its name, the store's copy of the pinned bytes serves, if the manifest holds one;
+  the manifest holds such copies of Terluna's files that its Git ignores and may rebuild.
 
 Still to settle, each in the commit that codes it: the field tables of the defaults, studies, runs, cases
 and compatibility keys, with optional fields and their defaults; the pressure at the surface's lowest point

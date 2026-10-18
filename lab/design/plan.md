@@ -9,7 +9,7 @@ review, and the design documents changed with the code they describe.
 | Stage | Product | Acceptance check | State |
 |---|---|---|---|
 | 0. Design | `lab/design/`; seed specifications in `lab/worlds/`, `lab/configs/` and `lab/studies/`; the registry seed | The author has answered the design's open questions and closed it for coding (architecture.md, "Decisions") | Passed on 2026-10-18. The thresholds, the time-step guard, the target stage's tolerances and the season window stay proposed values in the data, which later work may change without code |
-| 1. Specifications, data and derivations | The package in `lab/worldlab/` and its tests in `lab/tests/`, which `pyproject.toml`'s `testpaths` and `pythonpath` gain so that `make check` runs them; `worldlab.spec` (load, `extends` and `set`, resolve, hash), `worldlab.derive` with every quantity of world_spec.md's table (gravity with the spin term, CM1's scale-height, capillary and soil factors, the Sun's declination, the ice-optics weights, ExoPlaSim's output steps and time-step limit), and the data manifest, with the data the seeds pin copied into the store with their provenance | As listed under "Stage 1: checks" | In progress: the loader and the derivations (`lab/worldlab/spec.py`, `derive.py`) pass their checks against world_spec.md, the paper and Terluna's records. Remaining: the data manifest, with the sunlight at the top, the ice-optics weights and the pressure at the surface's lowest point; the check against ExoPlaSim's `configure`; and the time-step guard's check on the winds of Terluna's runs, which needs a reader for their NetCDF-4 output |
+| 1. Specifications, data and derivations | The package in `lab/worldlab/` and its tests in `lab/tests/`, which `pyproject.toml`'s `testpaths` and `pythonpath` gain so that `make check` runs them; `worldlab.spec` (load, `extends` and `set`, resolve, hash), `worldlab.derive` with every quantity of world_spec.md's table (gravity with the spin term, CM1's scale-height, capillary and soil factors, the Sun's declination, the ice-optics weights, ExoPlaSim's output steps and time-step limit), and the data manifest, with the data the seeds pin copied into the store with their provenance | As listed under "Stage 1: checks" | In progress: the loader, the derivations and the data manifest (`lab/worldlab/spec.py`, `derive.py`, `data.py` and `lab/data/manifest.toml`) pass their checks against world_spec.md, the paper and Terluna's records, and the store holds the manifest's files. Remaining: the sunlight at the top, the ice-optics weights and the pressure at the surface's lowest point; the check against ExoPlaSim's `configure`; and the time-step guard's check on the winds of Terluna's runs |
 | 2. ExoPlaSim inputs | The ExoPlaSim adapter's input writer, reading the study's compatibility settings; ExoPlaSim's builds, keyed at their points in the series (01–08 for `A28_corrected_970`, 01–10 for its lw_ice pair); the planned patch 11, which reads the ice-optics weights from the namelist | From the `open-moon` study, with `exoplasim/defaults` and the study's compatibility settings (among them the calibration values Terluna typed in and the restart files its runs started from), the lab writes the files and run key of `A28_corrected_970` byte for byte ("Stage 2: files"), then those of `A28_corrected_970_lw_ice`, which adds `lwcorr.dat` and four namelist entries. At its identity default, patch 10's constants, patch 11 leaves the output byte for byte as the build without it | To start |
 | 3. CM1 builds and cases | Build keys from patch sets and compile constants; the case writers and the GCM-to-CRM extraction; the core patch that reads gravity, CO2 and O2 from the namelist; the planned patches for rain's mean-diameter cap, the soil layers and the Sun's declination, each reading its value from the namelist, appended after core 17 and electrified 9 (architecture.md, "Points in the series") | The builds the study's cases resolve to match deployed Terluna builds source for source: `moon_omp_o3` for `ring_45n_corrected`, `moon_omp_twilight` and `moon_omp_terrain_sea_twilight`, Terluna's label entering as a compatibility setting where the Makefile's comment carries it. The input files of the study's three CM1 cases reproduced byte for byte from `A28_corrected_970` and, for the box, from the twilight ring's output. Over a one-day ring segment each, the namelist builds, core and electrified, match builds compiled with the same values and flags: Terluna's `moon_omp_o3` and `moon_omp_elec` at the Moon's values, and builds of the lab's own at 9.81 m/s². Their output is identical, or differs from the compiled build's by no more than a last-bit nudge of that build does, the test by which Terluna accepted its `-O3` rebuild (`notes/verification_record.md`, "Compiler rebuilds"). At its identity default each planned patch leaves the output byte for byte as the build without it. NSSL's two-moment rain is searched for size limits besides its breakup switch. Timed best of three on a quiet machine, they run within 2% of the compiled builds' wall time. The lab then builds CM1 once per patch set and flags | To start |
 | 4. Stage graph and planner | Keys, headers, declared read sets, staleness, `plan` | Keys computed from a study extending `open-moon`, which runs on the lab's own stages, before and after each of regeneration.md's worked changes differ for exactly the products the example lists; with nothing changed, no key changes | To start |
@@ -51,7 +51,8 @@ review, and the design documents changed with the code they describe.
 - **The data manifest.** Every pin the lab's own stages read resolves within world-crafting and the store,
   with its hash, source, licence and credit recorded. Data from outside Terluna, such as LOLA, GRAIL and
   TSIS-1, pass the review of redistribution rights that AGENTS.md requires before they are copied. The
-  compatibility settings' pins name Terluna's files, which the reproduction tests alone open.
+  compatibility settings' pins name Terluna's files, which the reproduction tests alone open, or the store's copy
+  of the same bytes where Terluna has since replaced a file.
 - **Without Terluna.** With Terluna's paths absent, the stage's tests pass and the checks against Terluna's
   records report themselves skipped.
 
@@ -69,7 +70,7 @@ The run key must match as well.
 ## Order and cost
 
 - **Stages 1, 2, 4 and 6** cost seconds to minutes of one core.
-  - Stage 1 copies about 50 MB of Terluna's data and fetches LOLA's heights and the GRAIL geoid.
+  - Stage 1 copies 3.3 MB of Terluna's data and downloads 45 MB from LASP and the PDS, which took 5 s on 2026-10-18.
   - Stage 6, mostly data entry from the defect log, can proceed beside stages 2–5.
 - **Stage 3 runs CM1 for its checks:** one-day ring segments of about 5 minutes each on 6 threads, three
   for each build timed.
@@ -90,13 +91,15 @@ The run key must match as well.
 
 ## What the lab takes from Terluna
 
-- **Copied once into the store, with their provenance (stage 1):** the data the seeds pin. These are the
-  geography products under `geography/products/` (49 MB, the atlas and the drainage among them),
-  `protection/spectra/shield_transmission.json`, the TSIS-1 spectrum file
-  (`atmosphere/radiative_convective/inputs/TSIS1_HSRS_stride100.csv`); `shared/constants.json` is in the
-  repository already, as `python/shared/constants.json`, byte for byte as at 186b294. LOLA's
-  heights and the GRAIL geoid come from NASA's Planetary Data System by pinned hash, as Terluna's geography
-  fetches them (`geography/fetch_inputs.py`).
+- **Copied once into the store, with their provenance (stage 1):** the two Terluna files the seeds pin for the
+  lab's own stages, the shields' transmission `protection/spectra/shield_transmission.json` (0.6 MB) and the
+  lakes `geography/products/drainage_28pct_16ppd.npz` (2.7 MB); `shared/constants.json` is in the repository
+  already, as `python/shared/constants.json`, byte for byte as at 186b294. The TSIS-1 spectrum comes from LASP,
+  and LOLA's heights and the GRAIL geoid from NASA's Planetary Data System, by the hashes Terluna recorded
+  (`atmosphere/radiative_convective/inputs.json`, `geography/inputs.json`). The store also keeps the T21 surface
+  the design runs read (`climate/gcm/products/moon_28pct_water_lakes_gaussian_T21.nc`, 43 kB), which Terluna's
+  Git ignores and its plan rebuilds. `lab/data/manifest.toml` records each file's source, hash, licence and
+  credit.
 - **Brought into `python/` under their Terluna paths, with provenance (stage 5):** `geography/atlas.py` and
   `geography/drainage.py`, which flood the heights to a seas share and route runoff into lakes, and
   `research/studies/solar_shield_array/glow.py`, which computes the infrared of a glow in space.
@@ -104,6 +107,8 @@ The run key must match as well.
   - `climate/gcm/exoplasim_run.py`, `climate/crm/cm1_run.py` and `climate/crm/cm1_elec.py`, as the
     reference for what the adapters reproduce;
   - `climate/gcm/products/`: the planet record and the T21 surfaces;
+  - `geography/products/`: the atlas and the drainage, which stage 5's geography producer reproduces from
+    their recorded inputs;
   - `climate/results/gcm/`: the ledger, gas-band, shortwave and longwave products;
   - `gcm-runs/<run>/`: `progress.json`, `inputs/`, `model/*_namelist`, the restart files and the yearly
     output `model/MOST.<year>.nc`, for the GCM-to-CRM extraction and the fits;

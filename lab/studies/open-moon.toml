@@ -43,12 +43,15 @@ A28_corrected_970 = "terluna-drive:gcm-runs/A28_corrected_9685/model/MOST_REST.0
 A28_corrected_970_lw_ice = "terluna-drive:gcm-runs/A28_corrected_970/model/MOST_REST.00019@cc83ad0f936e5c02"
 
 [compatibility.products]                        # the products Terluna's runs read, used as recorded in place of the
-                                                # lab's own stages; stage 5 reproduces each separately
+                                                # lab's own stages; stage 5 reproduces the first three separately
 ledger = "terluna:climate/results/gcm/twilight.json@c7cdb8e252f8425e"
 gas_bands = "terluna:climate/results/gcm/shortwave_gases.json@52532952682c6026"
 longwave = "terluna:climate/results/gcm/longwave_A28_corrected_970_heating.json@e58ad11b423ca3aa"
-seas = "terluna:geography/products/atlas_28pct_4ppd.npz@dc283827f349fdc1"
-lakes = "terluna:geography/products/drainage_28pct_16ppd.npz@98842fc2a648f889"
+surface = "terluna:climate/gcm/products/moon_28pct_water_lakes_gaussian_T21.nc@4081b8600b8d33b6"
+                                                # the T21 seas and lakes the runs' masks and heights come from
+                                                # (exoplasim_run.py:936-945), built on 2026-09-25 from the atlas
+                                                # (dc283827f349fdc1) and the lakes of run A's runoff (060219b12f480619),
+                                                # a drainage file Terluna replaced under its name on 2026-09-29
 
 [gcm.A28_corrected_970]
 model = "exoplasim"
