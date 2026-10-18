@@ -47,6 +47,13 @@ local revisions. The reviewed drafts are retained under `drafts/`; the findings,
 recorded in `conclusion_rewrite_2026-10-18.md`. The author's reading of the revised draft comes next, following
 the priority made explicit in AGENTS.md at 15ad8de. The earlier release register remains tied to its stated PDF.
 
+The author then read that draft and rejected its lunar framing, restating the central purpose as an ensemble
+of models for exoplanets and constructed worlds. Codex read the relevant Claude memory notes and rewrote the
+conclusion around that purpose. Round 13's fresh prose and evidence readings prompted alignment of the
+introduction and a local cloud-calibration qualification. The abstract's purpose statement was aligned as
+well. The author's direction, revisions, checks and build are recorded in
+`conclusion_ensemble_rewrite_2026-10-18.md`; that record supersedes the earlier draft's pending-author status.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
@@ -55,10 +62,10 @@ the priority made explicit in AGENTS.md at 15ad8de. The earlier release register
 | Claude subagents, technical referees | Checked every claim and table row of the first draft against its sources | `referee_technical_part1.md`, `referee_technical_part2.md`, `referee_dispositions.md` |
 | A Claude subagent, whole-manuscript challenger | Challenged the first draft as a whole against G1–G5 | `whole_manuscript.md`, `whole_manuscript_dispositions.md` |
 | Fresh Claude subagents, editorial reviewers | Read the second draft against the rules, by part and as a whole (round 1), then the rewritten closing section and the passages revised with it, for prose and for evidence (rounds 2–8) | `editorial_round<n>_<part>.md` |
-| Codex, drafting assistant | Wrote a fresh conclusion on 18 October 2026 and revised it after rounds 11 and 12 | `conclusion_rewrite_2026-10-18.md` |
-| Fresh Codex reviewer agents | Separate prose and evidence readings of the new conclusion in rounds 11 and 12 | `editorial_round11_conclusion_*.md`, `editorial_round12_conclusion_*.md` |
+| Codex, drafting assistant | Wrote a fresh conclusion on 18 October 2026, revised it after rounds 11 and 12, and replaced its lunar framing after the author's review | `conclusion_rewrite_2026-10-18.md`, `conclusion_ensemble_rewrite_2026-10-18.md` |
+| Fresh Codex reviewer agents | Separate prose and evidence readings in rounds 11–13; bounded verification of round 13's dispositions | `editorial_round11_conclusion_*.md`, `editorial_round12_conclusion_*.md`, `editorial_round13_conclusion_*.md` |
 | Claude subagents, record keepers | Reconstructed the dispositions of rounds 2–5 from the revision commits | `editorial_round<n>_dispositions.md`, n = 2–5 |
-| The author | Readings of the drafts, decisive on framing and prose; resolution of exceptions; the competing-interests declaration | First draft read 2026-10-17 (framing and prose rejected; the author counts this stream-of-thought reading as its cadence review); second draft read during round 1 (still Moon-centred); third draft read 2026-10-17 (the rest stands for now; conclusions rejected) |
+| The author | Readings of the drafts, decisive on framing and prose; resolution of exceptions; the competing-interests declaration | First draft read 2026-10-17 (framing and prose rejected; the author counts this stream-of-thought reading as its cadence review); second draft read during round 1 (still Moon-centred); third draft read 2026-10-17 (the rest stands for now; conclusions rejected); Codex conclusion read 2026-10-18 (lunar framing rejected; model ensemble restated as the purpose) |
 
 The Claude and Codex agent readings are AI-assisted editorial reviews. Review by a person other than the
 author, or by a journal, remains pending; the records identify the reviewer and activity of each pass.
