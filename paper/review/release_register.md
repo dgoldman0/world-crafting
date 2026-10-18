@@ -18,6 +18,11 @@ inputs, bounded review decisions and remaining release work; the historical gate
 its own artifact.
 G1–G5 and G7 release judgments for the new artifact remain DEFERRED, with G6 and E4 still BLOCKED by the
 source-admission and release work listed below.
+Claude Opus 5.5 checked that revision on 18 October 2026 (`terracompatible_check_2026-10-18.md`) and corrected
+the review history and three sentences at `12678a9e2367c7435a47c3a4be196f3c36f59ce4`. Its PDF, 35 pages, has
+SHA256 `fd4bf48ba1fcb5a79a2d6042621cc06abebd6dac95bb9cfe58a51d32dc747992`; the pages whose render changed were
+read, and the others render as in the inspected build. G1–G5 and G7 for this artifact remain DEFERRED, and G6
+and E4 BLOCKED, as for the build before it.
 
 ## The artifact
 

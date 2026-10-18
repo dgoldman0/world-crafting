@@ -37,3 +37,22 @@ to `32df62e` were read with their diffs and records.
 - The tested range, the Moon alone away from Earth's values, is stated in the abstract, the Introduction, Reach,
   Next steps and the Conclusion.
 - The name of the class: terracompatible stands in the text while the author weighs it.
+
+## Build after the corrections
+
+| Item | Value |
+|---|---|
+| Source commit | `12678a9e2367c7435a47c3a4be196f3c36f59ce4` |
+| PDF | `paper/build/main.pdf`, 35 A4 pages, from `make -C paper clean` and `make -C paper pdf` |
+| PDF SHA256 | `fd4bf48ba1fcb5a79a2d6042621cc06abebd6dac95bb9cfe58a51d32dc747992` |
+| Build date input | `SOURCE_DATE_EPOCH=1792336037`, the source commit's time, with `FORCE_SOURCE_DATE=1`; printed date 18 October 2026 |
+| Warnings | Zero overfull boxes; the one underfull line, badness 2894 |
+| Fonts and links | `pdffonts`: every font embedded; `mutool show ... grep`: 211 link annotations |
+
+Rendered with Poppler at 50 dpi, the build of the corrected sources made before the commit differed from the
+inspected build `45de8d3b…70bd` on pages 18–20, 23 and 30–35 alone. Pages 18–20, 23, 30, 31 and 35 were rendered
+at 1,600 pixels high and read: the gap between the models and the storms in Results (18), Figure 6, the seas and
+the opening of Reach (19), Reach (20), Next steps from the reference check to the charge (23), Availability with
+the start of the references (30–31) and the last references (35). Each is legible, with no collision, overflow or
+stranded line. Pages 32–34 hold references alone and were checked by their text layer: each begins and ends on a
+whole entry. The final build from `12678a9` renders identically to that earlier build on all 35 pages.
