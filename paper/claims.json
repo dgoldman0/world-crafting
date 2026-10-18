@@ -547,12 +547,13 @@
   },
   {
    "id": "R08",
-   "text": "The reference: line-by-line on HITRAN lines as served 2026-09-24 (HITRAN2020 or later), MT_CKD 4.3, CIA, Rayleigh, g = GM/r^2, pseudo-spherical beam; correlated-k OLR within 0.4 W/m2 at 288-290 K and 1.4 W/m2 for a saturated 330 K lunar column",
+   "text": "The reference: line-by-line on HITRAN lines as served 2026-09-24 (HITRAN2020 or later), MT_CKD 4.3, CIA, Rayleigh, g = GM/r^2, pseudo-spherical beam; correlated-k OLR within 0.4 W/m2 at 288-290 K and 1.4 W/m2 for a saturated 330 K lunar column; its correlated-k tables span 0.1 Pa to 3.2e5 Pa and 100-375 K and clamp at their edges",
    "source": [
     "terluna:atmosphere/radiative_convective/README.md#L129-135",
     "repo:notes/reference_radiation.md#L36-123",
     "repo:notes/verification_record.md#L141-148",
-    "terluna:atmosphere/radiative_convective/inputs.json"
+    "terluna:atmosphere/radiative_convective/inputs.json",
+    "repo:notes/reference_radiation.md#L238-239"
    ],
    "state": "documented"
   },

@@ -3,12 +3,13 @@
 Earth values in four forms and five defects were found in four Earth-built codes adapted to a world that departs
 from Earth at once in gravity, column mass, scale height over radius and day, and where a value was repaired, the
 kind of repair followed largely from its form: units and constants took general repairs with no coefficient fitted
-to the test world, geometry took a method computed from the world's own column, and the radiation's fits took
-calibrations to a line-by-line model. Three of the defects, all in ExoPlaSim, produce little or no error at Earth's
-values and an error that grows as a world's rotation slows or its day, tilt or eccentricity departs from Earth's.
-By the code's own arithmetic, the convective-cover unit would add about 0.23 to the convective cover of a
-synchronous run of TRAPPIST-1e, and the Sun clock sets the Sun back about 33\textdegree\ each model day in a
-non-synchronous run, on the default solar geometry, of any planet rotating more slowly than once in 20 days.
+to the test world, geometry took a method whose table is computed from the world's own column, and the radiation's
+fits took calibrations to a line-by-line model. Three of the defects, all in ExoPlaSim, produce little or no error
+at Earth's values and an error that grows as a world's rotation slows or its day, tilt or eccentricity departs from
+Earth's. By the code's own arithmetic, the convective-cover unit would add about 0.23, up to the cover's cap of
+0.8, to the convective cover of a synchronous run of TRAPPIST-1e, and the Sun clock sets the Sun back about
+33\textdegree\ each model day in a non-synchronous run, on the default solar geometry, of any planet rotating more
+slowly than once in 20 days.
 
 On the test world two of the three kept the global mean of the sunlight arriving at the top of the air and moved
 that sunlight between places. The Sun clock, which errs in the Sun's longitude alone, keeps every zonal mean of the
@@ -18,67 +19,68 @@ summer rain to 60\textdegree, and in a two-year test of the Sun and tilt alone t
 millimetre of rain a day rose from 9 to 36\%. The moved sunlight changed the clouds, and through them the global
 means: in the same test the clouds' effect in sunlight weakened by 2.4~W\,m$^{-2}$, and the test world ran 0.9~K
 warmer while still gaining heat. A modeller finds such an error in maps of sunlight by longitude and of rain by
-season, where a check of the arriving sunlight's global mean passes it, and a comparison by global-mean temperature
-and albedo can pass large differences in cloud: on two tidally locked planets, three models came out broadly alike
-in global-mean surface temperature and albedo by their authors' account, while the quasi-global cloud-permitting
-runs of \textcite{yang2023cloud} covered 27 and 41\% of the sky with cloud and two GCMs whose cover follows
-relative humidity, stability and large-scale ascent covered 82--97\%, the largest differences on the night side and
-at high latitudes of the day side.
+season, and a comparison by global-mean temperature and albedo can pass large differences in cloud: in the
+comparison of \textcite{yang2023cloud} on two tidally locked planets, three models came out broadly alike in
+global-mean surface temperature and albedo, while their cloud cover came to 27 and 41\% in the quasi-global
+cloud-permitting runs, which count cloud by a condensate threshold, and 82--97\% in two GCMs whose cover follows
+relative humidity, stability and large-scale ascent.
 
 Where two of the defects moved sunlight between places, changes to the parts fitted to Earth's atmosphere moved the
 test world's global-mean surface temperature furthest: the first calibration of the radiation's Earth fits, a
 Rayleigh multiplier and a weaker water continuum, moved the first design runs by at least 20~K, the longwave
-correction, switched on with the ice optics, warmed the design case by 11.5~K in its test, and PlaSim's Earth-tuned
-cloud settings, pushed to the ends of their tests, moved the climate by up to about 6~K, against 1.6--2.5~K for the
-two general repairs measured alone. What a modeller of a new world needs for each part depends on how far the
-world's own column determines it. The radiative geometry of tall air is computed from that column, as the
-curved-air table was for the test world, whose air in curved shells loses a net 5.8~W\,m$^{-2}$ against the same
-clear column taken flat with a pseudo-spherical direct beam, while the dynamics keep a thin shell and constant
-gravity. Titan's haze, with a scale height of about 80~km, stands a few hundredths of its radius tall, as the test
-world's air does, and the plane-parallel codes that separate Titan's surface from its haze hold to about
-65\textdegree\ from the zenith \autocite{vincendon2010spherical}, although Titan's nitrogen--methane radiation lies
-outside the adapted models. A scheme built from the reference's line-by-line spectroscopy would replace the
-radiation's gas fits, the largest of the Earth fits, for air of nitrogen and oxygen with water and modest carbon
-dioxide, once that spectroscopy has been checked against an independent code, and the cloud optics would remain
-fits. Cloud amount would stay a calibration for each world, to be fitted to cloud-resolving runs of that world; on
-the test world that fit is a step still to run, and those runs compute with Earth-fitted microphysics of their own.
+correction and the ice optics, switched on together, warmed the design case by 11.5~K in their test, and PlaSim's
+Earth-tuned cloud settings, pushed to the ends of their tests, moved it by up to about 6~K as the runs settled,
+against 1.6--2.5~K for the two general repairs measured alone. What a modeller of a new world needs for each part
+depends on how far the world's own column determines it. The radiative geometry of tall air is computed from that
+column, as the curved-air table was for the test world, whose air in curved shells loses a net 5.8~W\,m$^{-2}$
+against the same clear column taken flat with a pseudo-spherical direct beam, while the dynamics keep a thin shell
+and constant gravity. Titan's haze stands about as tall against its radius as the test world's air, and the
+plane-parallel codes that separate Titan's surface from its haze hold to about 65\textdegree\ from the zenith
+\autocite{vincendon2010spherical}, although Titan's nitrogen--methane radiation lies outside the adapted models. A
+scheme built from the reference's line-by-line spectroscopy would replace the radiation's gas fits, the largest of
+the Earth fits, for air of nitrogen and oxygen with water and modest carbon dioxide at the pressures and
+temperatures its tables cover, up to 3.2~bar and 375~K, once that spectroscopy has been checked against an
+independent code, and the cloud optics would remain fits. Cloud amount would stay a calibration for each world, to
+be fitted to cloud-resolving runs of that world; on the test world that fit is still to be made, and those runs
+compute with Earth-fitted microphysics of their own.
 
-Some of those Earth-fitted laws can be tested independently of the world modelled, in laboratories on Earth or in
-runs at other gravities. Takahashi's charging law and Saunders and Peck's disagree on the sign that rimed ice takes
-in little cloud water, and in two windows of an earlier electrified run, made before the ventilation repair and
-with leakage off, the test world's storms took opposite polarities under the two; a measurement of that sign at
-4--8~m\,s$^{-1}$ in 0.02--0.2~g\,m$^{-3}$ of cloud water between $-5$ and $-16$\,\textdegree C, conditions
+Some Earth-fitted laws of storms can be tested independently of the world modelled, in laboratories on Earth or
+against storms resolved at other gravities. Takahashi's charging law and Saunders and Peck's disagree on the sign
+that rimed ice takes in little cloud water, and in two windows of an earlier electrified run, made before the
+ventilation repair and with leakage off, the test world's storms took opposite polarities under the two; a
+measurement of that sign at the impact speeds, cloud water and temperatures of the lunar storms, conditions
 laboratories reach, would decide which polarity the model's lunar lightning takes. The flash-rate laws with which
 \textcite{braam2022lightning} and \textcite{sergeev2025lightning} estimated lightning on tidally locked planets
 were fitted to Earth's storms and set the flash rate from the cloud-top height or, in Sergeev et al.'s
 storm-resolving runs, from the upward flux of graupel and the ice aloft. At a sixth of Earth's gravity the cloud
-tops of six Morrison runs rose to 55--80~km, far above the storms the cloud-top law was fitted on, and the main
+tops of six Morrison runs rose to 55--80~km, far above the storms the cloud-top law was fitted on, while the main
 electrified run, forced from the Earth-orbit state and computing its flashes from resolved charge, flashed at about
-a hundredth of Earth's average flash density, part of the difference possibly from its grid. Electrified storms
-resolved at other gravities, computed with the same laboratory charging laws, could test those flash-rate laws,
-along the route Sergeev et al. propose of explicit charging in cloud-resolving runs.
+a hundredth of Earth's average flash density, part of the difference possibly from its grid. Resolving electrified
+storms at other gravities, with the same laboratory charging laws, could test those flash-rate laws, along the
+route Sergeev et al. propose: explicit charging in cloud-resolving runs.
 
 Gravity stays fixed in a wave tank or a cloud laboratory on Earth, so whether gravity enters a model consistently
 is tested by similarity runs. Patched, SWAN reproduces a sixfold gravity scaling of an Earth sea to 0.3\% in wave
-height, where the released code, whose linear wind input bends at a fixed 1~Hz, misses it by up to 5.4\%; the
-patch, built to keep the scaling at any gravity, has been tested at a sixth of Earth's on the code paths those
+height, where the released code, whose linear wind input is reduced above a fixed 1~Hz, misses it by up to 5.4\%;
+the patch, built to keep the scaling at any gravity, has been tested at a sixth of Earth's on the code paths those
 tests ran, and Earth's empirical laws of drag, wind input and breaking keep coefficients fitted at Earth's gravity
 and ratio of air to water density. CM1's gravity-scaled microphysics remains untested this way, since the pair of
 runs designed for it failed to convect, and its drop-size limits stay Earth's while the largest raindrop that
-survives its fall scales with the capillary length, 2.46 times longer at a sixth of Earth's gravity, a dependence
-beyond what a laboratory on Earth or a similarity run can test.
+survives its fall scales with the capillary length, 2.46 times longer at a sixth of Earth's gravity; experiments on
+the largest stable drops of other liquids at Earth's gravity agree with that capillary-length form within about
+20\% \autocite{loftus2021physics}, and runs with Morrison's limits scaled by it are a step still to run.
 
 Part of the test world's design was set with the model, and so with the Earth fits that remain in it: the shield's
 dimming was chosen so that the calibrated GCM settles at the design's 295~K, and holding that temperature on the
-corrected curved-air terms and the gas bands took easing it from 5.0 to 3.0\%. A longwave correction refitted at
-the settled state, or cloud fitted to cloud-resolving runs, could move the dimming again, and a lower pressure or
-another shield would move the columns off those the calibrations were fitted on. On natural planets the three
-defects' biases are known so far from the code's arithmetic, since away from Earth's values every change made for
-the test world has run on it alone; released and repaired ExoPlaSim on Earth-air planets rotating once in 16 and 64
-days, as in two of the ROCKE-3D runs of \textcite{way2018climates}, would measure them on worlds that other studies
-model. For a new world of nitrogen--oxygen air with water and modest carbon dioxide, whose scale height is at most
-three hundredths of its radius, the test world's ratio, the radiative geometry can be computed from the world's own
-column as it was from the test world's, and, once a scheme is built from the reference's spectroscopy and checked
-against an independent code, the gas absorption as well; cloud remains to be calibrated for each such world,
-against cloud-resolving runs whose laws of drops and charge remain Earth fits until laboratories and runs at other
-gravities test them.
+corrected curved-air terms and the gas bands took easing it from 5.0 to 3.0\%. With a longwave correction refitted
+at the settled state, or cloud fitted to cloud-resolving runs, the dimming that holds 295~K could change again, and
+a lower pressure or another shield would give columns other than those the calibrations were fitted on. Away from
+Earth's values the repaired codes have run on the test world alone, so the three defects' biases on other worlds
+are known so far from the code's arithmetic; released and repaired ExoPlaSim on Earth-air planets at zero
+obliquity, rotating once in 16 and 64 days as in two of the ROCKE-3D runs of \textcite{way2018climates}, would
+measure them. A modeller of a new world of nitrogen--oxygen air with water and modest carbon dioxide, at pressures
+and temperatures within the reference's tables and with a scale height at most three hundredths of its radius, the
+test world's ratio, would compute its radiative geometry from its own column, its gas absorption from the
+reference's spectroscopy once a scheme is built and the spectroscopy checked, and fit its cloud scheme to
+cloud-resolving runs whose drop-size limits stay Earth's and whose lightning takes its sign from charging laws that
+Earth's laboratories can test.
