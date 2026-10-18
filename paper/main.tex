@@ -8,16 +8,21 @@
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{booktabs,tabularx,array,makecell}
+\usepackage{xltabular}              % tables long enough to break across pages
+\setlength{\LTcapwidth}{\textwidth}
 \usepackage{siunitx}
 \usepackage{xcolor}
 \usepackage[font=small,labelfont=bf,labelsep=period]{caption}
 \usepackage{enumitem}
 \usepackage{csquotes}
 \usepackage{seqsplit}            % long hashes in the bibliography break anywhere
-\usepackage[style=authoryear,maxcitenames=2,maxbibnames=10,minbibnames=7,uniquelist=false,giveninits=true,
+\usepackage[style=authoryear,maxcitenames=2,maxbibnames=10,minbibnames=7,uniquelist=false,uniquename=false,giveninits=true,
             doi=true,url=false,isbn=false,backend=biber]{biblatex}
 \usepackage[hidelinks,breaklinks]{hyperref}
 \usepackage{orcidlink}
+\hypersetup{pdftitle={Modelling Earth-like worlds beyond Earth's range: ExoPlaSim, CM1, SWAN and SWASH adapted and
+  tested on a breathable Moon}, pdfauthor={Daniel S. Goldman}}
+\pdftrailerid{}                    % with the Makefile's fixed build date, the same sources give the same PDF
 \addbibresource{references.bib}
 \setcounter{secnumdepth}{0}          % unnumbered headings throughout
 \sisetup{group-minimum-digits=4,range-phrase=--,per-mode=symbol}
@@ -30,7 +35,7 @@
 % A run's name in a narrow table cell: small type, breakable at the underscores written as \_\allowbreak.
 \newcommand{\run}[1]{{\scriptsize\texttt{#1}}}
 
-\title{\textbf{Modelling Earth-like worlds beyond Earth's range: ExoPlaSim, CM1, SWAN and SWASH adapted and tested on a breathable Moon}}
+\title{\textbf{Modelling Earth-like worlds beyond Earth's range:\\ ExoPlaSim, CM1, SWAN and SWASH\\ adapted and tested on a breathable Moon}}
 \author{Daniel S. Goldman\,\orcidlink{0000-0003-2835-3521}}
 \date{17 October 2026}
 

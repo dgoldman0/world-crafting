@@ -35,27 +35,27 @@ calendar year's carbon dioxide, trace gases and ozone, and SWAN, in the configur
 similarity through its wind-input knee, fixed at 1~Hz. The adapted CM1 reads gravity as a parameter on its Morrison
 and NSSL paths and has run storms at the Moon's gravity and at Earth's; its drop limits and breakup remain Earth's,
 and their effect at other gravities is unmeasured, since the similarity pair failed to convect. Its Sun and soil
-are built for days from a few Earth days to the Moon's, and RRTMG's tables end at 1.05~bar. SWAN and SWASH run
-water seas at any gravity as the scaled image of an Earth sea, tested at a sixth of Earth's gravity, with Earth's
-empirical laws. ExoPlaSim holds near the columns its radiation and cloud were fitted on: Earth-air columns near
-Earth's warmth with the released radiation, and the test world's design columns with the calibrations. Of the
-natural worlds in Figure~\ref{fig:regimes}, Earth alone lies near the fits in the adapted models, and every run of
-those models away from Earth's values is of the test world.
+are built for days from a few Earth days to the Moon's, and RRTMG's tables end at 1.05~bar. SWAN and SWASH are
+built to run water seas at any gravity as the scaled image of an Earth sea, and have been tested at a sixth of
+Earth's gravity, with Earth's empirical laws. ExoPlaSim holds near the columns its radiation and cloud were fitted
+on: Earth-air columns near Earth's warmth with the released radiation, and the test world's design columns with the
+calibrations. Of the natural worlds in Figure~\ref{fig:regimes}, Earth alone lies near the fits in the adapted
+models, and the test world is the only world those models have simulated away from Earth's values.
 
 \textbf{Worlds near the existing fits.} With the repairs as they stand, the four models are built to simulate the
 breathable Moon under other dimmings while its columns stay near the fitted ones: the split of sunlight, in the
 version fitted before the gas bands, fell 0.7 points short on a 303~K column with 338~kg\,m$^{-2}$ of vapour; the
 refit with the gas bands is known through its fit residuals, and the longwave correction's accuracy near 307~K is
 unchecked. For slowly rotating planets with Earth's gravity and air around a Sun-like star near Earth's insolation,
-such as the cooler runs that \textcite{yang2014strong} and \textcite{way2018climates} made with CAM3 and ROCKE-3D,
-ExoPlaSim needs its general repairs, its fixed-orbit setting and its released radiation, which was fitted on
-columns and a spectrum like theirs, while its cloud keeps Slingo's fit to Earth's convection and PlaSim's
-Earth-tuned thresholds, and cloud is among the processes through which those studies found the climate to change
-with rotation; their warmer runs, at up to 2.9 times Earth's insolation, lie beyond the radiation's fits, and the
-runs have yet to be made. At rotations slower than 20 days, ExoPlaSim's model day departs from the solar day unless
-the year holds about twelve rotations, 69.8 against 77.6 days for a 64-day rotation and 265 against 726 days for a
-243-day one, so output kept in whole model days drifts against the Sun, and analyses that sort output by the Sun's
-position avoid the drift.\claim{W03}
+such as those of the cooler runs that \textcite{yang2014strong} and \textcite{way2018climates} made with CAM3 and
+ROCKE-3D, ExoPlaSim needs its general repairs, its fixed-orbit setting and its released radiation, which was fitted
+on columns and a spectrum like theirs, while its cloud keeps Slingo's fit to Earth's convection and PlaSim's
+Earth-tuned thresholds, Earth fits of a process through which those studies found the climate to change with
+rotation; their warmer runs, at up to 2.9 times Earth's insolation, lie beyond the radiation's fits, and
+ExoPlaSim's runs of these planets have yet to be made. At rotations slower than 20 days, ExoPlaSim's model day
+departs from the solar day unless the year holds about twelve rotations, 69.8 against 77.6 days for a 64-day
+rotation and 265 against 726 days for a 243-day one, so output kept in whole model days drifts against the Sun, and
+analyses that sort output by the Sun's position avoid the drift.\claim{W03}
 
 \textbf{Worlds that need refitted calibrations.} Synchronous planets of M dwarfs, such as TRAPPIST-1e and
 Proxima Centauri~b, add a spectrum outside the near-infrared water fit, and their shortwave needs refitting
@@ -81,18 +81,25 @@ radius, the test world's, where thin-shell, constant-gravity dynamics already om
 across the air; and empirical laws of cloud, sea and charge used near the Earth conditions they were fitted on,
 with narrower limits in Table~\ref{tab:reach}.
 
-\begin{table}[tbp]
-\caption{Reach by world property: where the released ExoPlaSim, CM1, SWAN and SWASH err, what the adapted
-models represent, and what lies beyond them. The middle column gives the reach each repair was built for;
-apart from the Earth benchmarks, every run so far is of the test world.}
-\label{tab:reach}
-\footnotesize
+{\footnotesize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.15\textwidth}LLL@{}}
+\begin{xltabular}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.15\textwidth}LLL@{}}
+\caption{Reach by world property: where the released ExoPlaSim, CM1, SWAN and SWASH err, what the adapted
+models represent, and what lies beyond them. The middle column gives the reach each repair was built for;
+apart from the Earth benchmarks and numerical controls, the test world is the only world the adapted
+models have simulated.}\label{tab:reach}\\
 \toprule
 Property & Errs in the released models & Represented by the adapted models & Beyond them \\
 \midrule
+\endfirsthead
+\multicolumn{4}{@{}l}{\small Table~\ref{tab:reach}, continued}\\
+\toprule
+Property & Errs in the released models & Represented by the adapted models & Beyond them \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
 Gravity other than Earth's & CM1 throughout; PlaSim's cloud water in metres; SWAN's wind-input knee & Gravity read as a parameter on CM1's Morrison and NSSL paths, run at 1.62 and 9.81; cloud water by pressure; SWAN and SWASH by similarity & CM1's other schemes at 9.81; drop limits and breakup \\
 Solar day other than Earth's & ExoPlaSim's Sun clock off a one-day rotation; its convective-cover unit; the output calendar; CM1's 24-hour Sun and diurnal soil; WRF-ELEC lacking clear-air conduction & Synodic clock; cover per Earth day; whole model days; CM1's Sun for any day; soil 1.55~m deep for days from a few Earth days to the Moon's; leakage & CM1's seasons; soil for days far longer than the Moon's; ExoPlaSim's model day for slow rotators; Slingo's fit itself \\
 Tilt and orbit & ExoPlaSim's default puts in Earth's orbit & The configured orbit, held fixed & CM1's equinox Sun \\
@@ -103,6 +110,5 @@ Composition & RRTMG's calendar CO$_2$, trace gases and ozone; PlaSim's sunlight 
 Cold cloud & Liquid optics for all cloud; saturation over liquid & Ice optics below $-38$\,\textdegree C & Ice saturation; crystal size with gravity; ice optics below 190~K, where the radius table falls under the fitted 10~\textmu m \\
 Storm electricity & The 180~kV\,m$^{-1}$ cap; the $-7$\,\textdegree C ground rule; the 0.75~s sub-step & Density-scaled breakdown; the condition for ground strikes; a scaled sub-step & Charging in little cloud water; breakdown in other gases \\
 Seas & The wind-input knee; the air's density; breaker parameter read uninitialised & Similarity at any gravity; air density per build; breaking kept on & Earth's drag, growth and breaking laws \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\end{xltabular}
+}

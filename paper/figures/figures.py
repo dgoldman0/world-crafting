@@ -42,6 +42,10 @@ def fig_regimes():
                   textcoords='offset points', ha='left', va='center' if moon else 'baseline', color=INK if moon else INK2)
         names_b = {'Breathable Moon 1.2 atm': 'Breathable Moon', 'Mars': 'Mars, present and at 1 bar'}
         if r['name'] in names_b or r['name'] in ('Earth', 'Titan', 'Venus'):
+            if r['name'] == 'Venus':                 # below its point, clear of the 243-day planet's marker
+                label(b, r['solar_day_days'], r['g_m_s2'], 'Venus', xytext=(0, -7), textcoords='offset points',
+                      ha='center', va='top', color=INK2)
+                continue
             label(b, r['solar_day_days'], r['g_m_s2'], names_b.get(r['name'], r['name']), xytext=(6, -3) if not moon else (-6, 5),
                   textcoords='offset points', ha='left' if not moon else 'right', color=INK if moon else INK2)
     earth = next(r for r in rows if r['name'] == 'Earth')
@@ -55,7 +59,7 @@ def fig_regimes():
     a.set_title('Geometry and column', pad=6)
     b.axvline(1.0, color=AXIS, lw=0.8, zorder=1)
     b.axhline(9.80665, color=AXIS, lw=0.8, zorder=1)
-    label(b, 64.0, 9.80665, 'slowly rotating\nEarth-like planets', xytext=(0, -24), textcoords='offset points', ha='center',
+    label(b, 40.0, 9.80665, 'slowly rotating Earth-like planets', xytext=(0, 7), textcoords='offset points', ha='center',
           va='bottom', color=INK2)
     label(b, 1.08, 1.0, "PlaSim's per-day\nformulas hold", ha='left', va='bottom', color=MUTED, fontsize=7)
     b.set(xscale='log', yscale='log', xlim=(0.5, 400), ylim=(0.9, 14),
@@ -79,7 +83,7 @@ def fig_sun_clock():
     i = int(np.argmax(old['relative']))
     label(ax, old['lon_deg'][i], old['relative'][i], "PlaSim's clock", xytext=(-6, 2), textcoords='offset points', ha='right')
     label(ax, 300, 1.012, 'synodic clock', ha='center', va='bottom')
-    label(ax, 356, 0.952, "circles: PlaSim's\narithmetic alone", ha='right', va='center', color=MUTED, fontsize=7)
+    label(ax, 4, 1.115, "circles: PlaSim's\narithmetic alone", ha='left', va='center', color=MUTED, fontsize=7)
     ax.set(xlim=(0, 360), xticks=range(0, 361, 90), xlabel='Longitude (° E)', ylabel='Sunlight over its row mean')
     ax.set_title('Sunlight along the equator', pad=6)
     save(fig, 'fig_sun_clock')

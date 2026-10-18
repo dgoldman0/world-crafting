@@ -138,22 +138,28 @@ lunar days in a model year.}
 \label{fig:sunclock}
 \end{figure}
 
-\begin{table}[p]
+{\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.06}
+\begin{xltabular}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.13\textwidth}LL>{\raggedright\arraybackslash}p{0.083\textwidth}>{\centering\arraybackslash}p{0.04\textwidth}>{\raggedright\arraybackslash}p{0.12\textwidth}@{}}
 \caption{Earth values and defects in the codes the lunar runs use, on their paths, with the options they leave
 unselected gathered in one row. Form: a constant, a unit of time, geometry, or a fit or simplification used
 beyond its range (Fit); --- for none. Kind: a limitation (L), a defect (D), or of uncertain cause (?). Repair:
 general; a general method with a lunar table; a calibration to the lunar design case; a setting of the
 scenario; a capability added; a bound; a mitigation; avoided by configuration; bypassed, on a path the lunar
 runs leave unused; or open. Opt-in repairs are off in the design case. The switches and lunar settings are in
-Table~\ref{tab:repairs}.}
-\label{tab:inventory}
-\footnotesize
-\setlength{\tabcolsep}{3.5pt}
-\renewcommand{\arraystretch}{1.06}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.13\textwidth}LL>{\raggedright\arraybackslash}p{0.083\textwidth}>{\centering\arraybackslash}p{0.04\textwidth}>{\raggedright\arraybackslash}p{0.12\textwidth}@{}}
+Table~\ref{tab:repairs}.}\label{tab:inventory}\\
 \toprule
 Part & Earth in the code & On the Moon & Form & Kind & Repair \\
 \midrule
+\endfirsthead
+\multicolumn{6}{@{}l}{\small Table~\ref{tab:inventory}, continued}\\
+\toprule
+Part & Earth in the code & On the Moon & Form & Kind & Repair \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
 \multicolumn{6}{@{}l}{\textit{ExoPlaSim 3.4.2 (PlaSim)}} \\
 Sun clock & Restarts each model day & Skips back 32.5\textdegree\ a day & Time & D & General \\
 Convective cover, unit & Rain converted per model day & Cover $+0.42$ & Time & D & General \\
@@ -204,6 +210,5 @@ Air density & 1.28~kg\,m$^{-3}$ & About 1.40~kg\,m$^{-3}$ & Constant & L & Setti
 Breaker parameter & Read uninitialised with breaking off & Repeats differ by 2.5\% & --- & D & Avoided \\
 Unselected options & 2~s initial period; $g$ in ST6 and exact transfer; SWASH's rotation & Unused in the lunar runs & Constant & L & Avoided \\
 Empirical laws & Wu, Komen, AGROW, breaker 0.73, breaking 0.6 and 0.3 & Uncalibrated & Fit & L & Open \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\end{xltabular}
+}

@@ -32,22 +32,28 @@ SWASH 12.01 & One-dimensional profiles on today's slopes, 0.25--1~m apart & --- 
 \end{tabularx}
 \end{table}
 
-\begin{table}[htbp]
+{\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{xltabular}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}L>{\raggedright\arraybackslash}p{0.13\textwidth}@{}}
 \caption{The changes, their switches and the settings of the lunar runs. A default in parentheses reproduces
 the released code unless the row says otherwise; changes marked unconditional act in every build that has them.
 Class: general; a general method with a lunar table; a calibration to the lunar design case, or a calibration of
 general structure whose coefficients are lunar fits; a setting of the scenario; a capability the released code
 lacks; a coupling, one model's fields used to force another; an avoidance by configuration; a bound; a
 mitigation. Where a general repair takes a lunar value, the value is its setting. In the ExoPlaSim rows the lunar
-setting is the design case's; the longwave correction and ice optics are on in its longwave test.}
-\label{tab:repairs}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}L>{\raggedright\arraybackslash}p{0.13\textwidth}@{}}
+setting is the design case's; the longwave correction and ice optics are on in its longwave test.}\label{tab:repairs}\\
 \toprule
 Change & Switch (default) & Lunar setting & Class \\
 \midrule
+\endfirsthead
+\multicolumn{4}{@{}l}{\small Table~\ref{tab:repairs}, continued}\\
+\toprule
+Change & Switch (default) & Lunar setting & Class \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
 \multicolumn{4}{@{}l}{\textit{ExoPlaSim 3.4.2}} \\
 Sun clock (patch 04) & \code{NSUNCLOCK} (0) & 2: synodic, continuous & General \\
 Orbit & \code{fixedorbit} (False) & True: tilt 1.5424\textdegree, eccentricity 0.016715 & Avoidance \\
@@ -95,9 +101,8 @@ Wind-input knee & Gravity (identity at 9.80665 set by input) & $g/g_\mathrm{E}$~
 Air density & Unconditional & 1.40390~kg\,m$^{-3}$ & Setting \\
 Breaking, initial state & Input & Breaking on; \code{INIT ZERO} & Avoidance \\
 Forcing & Input & GCM stress as a Wu-equivalent wind & Coupling \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\end{xltabular}
+}
 
 \begin{table}[htbp]
 \caption{The verification record by kind of check, with what each leaves open.}
