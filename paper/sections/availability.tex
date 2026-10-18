@@ -3,14 +3,16 @@
 \textbf{Code and data.} The patch series for ExoPlaSim, CM1 with WRF-ELEC and SWAN, the Fortran written for
 CM1's electrified build, the in-house reference and calibration tools with their tests, the notes on each
 component's correctness and limits, the defect log, the verification record, and this manuscript's figure
-scripts, data extracts and claims register are held in the world-crafting repository, to be published with
-the paper's release commit. Each claim marker in the source names a register entry that traces the claim to a
+scripts, data extracts and claims register are held in the public world-crafting repository,
+\url{https://github.com/dgoldman0/world-crafting}, which will also hold the paper's release commit. Each claim marker in the source names a register entry that traces the claim to a
 file in one of the two repositories, a run on the research drive, a web record or a stated calculation, and the
 paper's check script confirms that every marker resolves and every listed source exists; numbers repeated in the
 conclusion and the next steps refer to the same entries without markers. The case comes from the Terluna project
 \autocite{goldman2026terluna}, whose repository at commit 186b294 holds the scenario, the runners, the case set-up
 and the analyses; the model runs themselves are held on the project's research drive, and the products derived
-from them are committed to Terluna with the hashes of their inputs. The patches apply to upstream sources pinned
+from them are committed to Terluna with the hashes of their inputs. Work on the ensemble itself, by contrast, will
+continue in the world-crafting repository as a standalone project, if resources allow. The patches apply to
+upstream sources pinned
 by checksum: ExoPlaSim 3.4.2 from its source distribution, CM1 release 22.0, SWAN 41.51, SWASH 12.01 and WRF-ELEC
 at commit \code{e43041b}. As patches to those sources, they inherit their licences: the GNU GPL version 3 for
 ExoPlaSim and version 3 or later for SWAN, CM1's MIT-style licence, and the WRF public-domain notice for WRF-ELEC.
@@ -71,7 +73,9 @@ its build, its records and the body of the paper, and corrected three sentences 
 The author then judged the statement of where the repaired codes had run, repeated through the paper, to be
 defensive, and it was recast as one statement of fact in the section on reach. At the author's direction, three
 fresh agents then read the whole paper for its flow alone in a fifteenth round, and its findings were acted on
-section by section. In every round the agents read for cadence silently, and each round's findings and
+section by section. The author then read the abstract and judged everything after its opening a summary of the
+paper, whereas an abstract should draw the reader in; Claude Opus~5.5 rewrote that part, and the author approved
+the rewrite with one clarification. In every round the agents read for cadence silently, and each round's findings and
 dispositions, with the referees' reports and the challenge, are recorded in the repository's review folder, with
 the page-by-page inspection of the built PDF, identified by its hash. Review by people other than the author, or
 by a journal, is still to come.

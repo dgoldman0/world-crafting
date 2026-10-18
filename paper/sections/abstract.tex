@@ -5,28 +5,23 @@ Earth in gravity, size, day or starlight. Even though these \emph{Gaean} worlds 
 Earth-tuned models and their descendants can still produce errors that go unnoticed until a world departs far
 enough from Earth for them to grow large. Moreover, the models joined in an ensemble for a world's climate,
 storms and seas were built separately and tuned differently from one another, so they have to be adapted to one
-another before they describe one world. Constructed worlds can depart from Earth further than natural ones: by
-one design's own models, a shield in space that removes the ultraviolet heating the upper air would keep
-nitrogen--oxygen air under a gravity too weak to hold it naturally. As a start toward that ensemble,
-ExoPlaSim~3.4.2, an Earth model extended to other worlds, and three codes built for Earth, CM1 release~22 with
-WRF-ELEC's electrification, SWAN~41.51 and SWASH~12.01, were adapted to that design, the Open Moon, which departs
-from Earth at once in gravity, column mass, day and scale height over radius. Their Earth values take four forms:
-constants, units of time, geometry, and fits and simplifications used beyond their range; on the paths the lunar
-runs take, the released codes also contain five defects, and by ExoPlaSim's own arithmetic three of them, though
-they produce little or no error at Earth's values, bias its runs that meet their conditions, runs of slowly
-rotating and tidally locked planets among them.\claim{H23}\claim{W06} Where a value was repaired, constants and
-units of time mostly took general repairs built to hold on other worlds within the limits of their laws, the
-radiative geometry took a method whose table is computed from the world's own column, and the radiation's gas and
-scattering fits took calibrations to an in-house line-by-line model and its correlated-$k$ emulation, each holding
-near the columns it was fitted on. With the repairs in place, identity, reproduction, arithmetic,
-gravity-similarity and Earth-benchmark checks test the code: patched, SWAN reproduces a sixfold gravity scaling of
-an Earth sea to 0.3\% in wave height, where the released code misses it by up to 5.4\%.\claim{V04} Applied in the
-lunar runs, the two general repairs, measured singly, moved the global-mean surface temperature by 1.6--2.5~K,
-while the first calibration of the radiation's Earth fits moved it by at least 20~K and the cloud's Earth-tuned
-settings, varied in tests, by up to about 6~K.\claim{G01}\claim{G14}\claim{G05} Those two Earth fits are the next
-to revisit. A radiation scheme built from the in-house model's line-by-line spectroscopy would replace the larger
-of them for nitrogen--oxygen air with water and modest carbon dioxide, under the starlight it would be built for
-and over the pressures and temperatures where that spectroscopy agrees with an independent code, a comparison
-planned on one column of the test world. Water cloud, in turn, would be calibrated for each world against
-cloud-resolving runs whose own microphysics is fitted on Earth, a fit still to be made on the test world.
+another before they describe one world. Constructed worlds can depart from Earth further than natural ones: in
+one design, the Open Moon, a shield in space that blocks the ultraviolet heating the upper air would let the Moon
+keep breathable air, according to calculations of atmospheric escape made for that design.\claim{S15} That world
+departs from Earth in gravity, column mass, day and scale height over radius at once, which makes it a test of
+every Earth value that depends on them. As a start toward such an ensemble, ExoPlaSim, an Earth model extended to
+other worlds, was adapted to the Open Moon with CM1 and WRF-ELEC's electrification for its storms and lightning,
+and with SWAN and SWASH for its waves from the open sea to the shore. On the paths the lunar runs take, the
+released codes contain five defects; three of them produce little or no error at Earth's values, yet by
+ExoPlaSim's own arithmetic they bias its runs of slowly rotating and tidally locked planets.\claim{H23}\claim{W06}
+Beyond the defects, the constants, units of time and geometry that the codes set for Earth mostly took repairs
+that hold on other worlds within the limits of their laws, or tables recomputed from each world's own column. The
+codes' empirical fits, by contrast, hold near the columns they were fitted on, and in the lunar runs they moved the
+climate furthest: calibrating the radiation's fits changed the global-mean surface temperature by at least 20~K,
+and varying the cloud's settings changed it by up to about 6~K, against 1.6--2.5~K for each of two general
+repairs measured singly.\claim{G14}\claim{G05}\claim{G01} A radiation scheme computed from line-by-line
+spectroscopy, and cloud calibrated against cloud-resolving runs of each world, would replace those fits. The
+ensemble could then follow the consequences of a world's gravity, day and starlight from its global climate into
+the rain in its basins and the waves on its shores, whether that world was found around another star or designed.
+With radiation and cloud built for other gases and condensables, the same could be done beyond the Gaean class.
 \end{abstract}
