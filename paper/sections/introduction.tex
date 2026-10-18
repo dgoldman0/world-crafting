@@ -17,6 +17,10 @@ from NCAR's Community Atmosphere Model, and ExoPlaSim from the Planet Simulator,
 \autocite{way2017resolving,wolf2022exocam,paradise2022exoplasim}. Convection and wave models built for Earth have
 been run off Earth as well: SAM in cloud-permitting runs on tidally locked planets, CM1 in pure-steam air, and the
 coastal wave model SWAN on the ancient seas of Mars \autocite{yang2023cloud,tan2021convection,banfield2015winds}.
+Some have been joined to GCMs. On Titan, a GCM's unstable profiles started a cloud-resolving model whose runs then
+tuned the GCM's convection \autocite{rafkin2022interaction,battalio2022interaction}, and a GCM's winds drive a wave
+model over the polar lakes \autocite{detelich2026modeling}; the LMD's GCM physics runs on WRF's core, in a
+mesoscale model on Mars and a convection-resolving model over Proxima~b \autocite{spiga2009new,lefevre2021convection}.
 
 Constructed worlds reach further from Earth, for the bodies of the Solar System that keep atmospheres are those
 whose escape velocity is large against the light they receive: the Moon held the volcanic air of its youth, at
@@ -26,8 +30,8 @@ against the same divide extended \autocite{zahnle2017cosmic}. An engineered worl
 nitrogen--oxygen air where a natural one would lose it. \textcite{mckay1991making} asked how Mars could be made
 habitable, and the Open Moon, a breathable Moon designed in the Terluna project \autocite{goldman2026terluna}, is
 a design of that kind for the Moon: it is to keep 1.2~atm of nitrogen and oxygen under a sixth of Earth's gravity
-behind a shield in space that removes the ultraviolet heating its upper air. By the design's own models its
-exobase stays below 200~K and the air loses 0.6--1.4~kg\,s$^{-1}$ over a solar cycle, losses that would take 60
+behind a shield in space that removes the ultraviolet heating its upper air. By the calculations of atmospheric
+escape made for the design, its exobase stays below 200~K and the air loses 0.6--1.4~kg\,s$^{-1}$ over a solar cycle, losses that would take 60
 to 150 billion years to remove it.\claim{S15} Such worlds combine nitrogen--oxygen air with a gravity, a size and
 a day that no known natural world combines with it.
 
@@ -47,7 +51,9 @@ and THOR's developers, who wrote their model for other planets from the start, d
 as often built into adapted codes and hard to find \autocite{deitrick2020thor}. On a Gaean world, then, a run can
 compute the familiar phases of water in nitrogen--oxygen air while retaining a constant set for Earth's gravity,
 or a formula that counts rain per Earth day, and because its output is plausible, the retained value can be hard
-to detect. In an ensemble linking global climate to resolved storms and coastal waves, moreover, models built
+to detect. Across models, such choices add up to measured spreads: four GCMs given the same moist cases of
+TRAPPIST-1e differ by 14 and 24~K in global-mean surface temperature, and their authors point to the models'
+parameterization choices \autocite{sergeev2022thai}. In an ensemble linking global climate to resolved storms and coastal waves, moreover, models built
 separately and tuned to Earth in different ways pass forcing to one another, so those values affect both the
 individual calculations and the fields exchanged between them. Developing such an ensemble for Gaean exoplanets
 and constructed worlds therefore requires identifying which changes follow from general laws and which need
@@ -94,5 +100,5 @@ geometry of a tall atmosphere; and a calibration, fitted to the reference model 
 holds near those columns and must be refitted for another world. Settings, added capabilities, couplings, a
 bound, a mitigation and avoidances by configuration make up the remaining changes. The class of a repair followed
 largely from the form of the Earth value it removed. Of the four forms, moreover, the fits moved the test world's
-climate furthest, and every lunar climate number is therefore a conditional model result, holding given the
+climate furthest, by amounts of the order of the spreads measured among exoplanet GCMs, and every lunar climate number is therefore a conditional model result, holding given the
 scenario and the Earth values that remain.
