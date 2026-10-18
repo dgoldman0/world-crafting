@@ -32,3 +32,19 @@ the Mars example and keeps its number, condition and claim marker; the flash-rat
 (Price and Rind for cloud-top height; McCaul et al. for the upward flux of precipitating ice at −15 °C and the
 column's ice); Lacis and Oinas fits the correlated-$k$ emulation; HITRAN's collision-induced pairs in Karman et al.
 include the four the code reads; the claim markers stand.
+
+## Step 2: the ensemble beside its nearest neighbours (235e729)
+
+Verdict: needs the listed fixes, one MAJOR.
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1 | `next.tex`:4–6, MAJOR | "In the LMD's models of Mars that consistency is built in" claimed more than Spiga and Forget report: their shared physics reaches "a high level of downscaling consistency", yet gustiness matched only with convective adjustment off, and Lefèvre et al. found a resolved Bond albedo of 0.06 against the GCM's 0.32 (`paper/notes/literature.md`:333). What is built in is shared code | Applied: "In the LMD's models the global and resolved calculations share their physics: the Mars GCM's parameterizations run in a mesoscale model on WRF's core, which the GCM drives at its boundaries ..., and the generic model's radiation and cloud have run on the same core over Proxima b, where the resolved cloud feedback came out much weaker than the GCMs'. Codes built separately, as here, are brought toward that consistency by calibration." |
+| 2 | `next.tex`:4 | The approved step named the Generic PCM's route; the sentence named only the Mars models | Applied with item 1: Lefèvre et al. 2021, the generic model's radiation and cloud on WRF's core, is now cited, its abstract read |
+| 3 | `next.tex`:30–34 | The Titan sentence fell between the lunar fit and its consequence, and called the plan a loop the paragraph never named | Applied: the sentence closes the paragraph, "On Titan a GCM's convection has been tuned this way: ..." |
+| 4 | `results.tex`:133–134 | Song et al. call the two models "qualitatively consistent" in the Walker circulation and the substellar clouds | Applied: "far from a GCM in cloud water path and cloud width, though qualitatively consistent with it in the Walker circulation and the substellar clouds" |
+| 5 | `repairs.tex`:199–201 | The GCM forcing over Titan's lakes is Detelich et al.'s, yet carried Schneck et al.'s citation; the opening said the link twice | Applied: "Over Titan's polar lakes, a Titan GCM's winds likewise force a wave model, PlanetWaves \autocite{detelich2026modeling}, adapted from an Earth model ... \autocite{schneck2026modeling}" |
+| 6 | `repairs.tex`:201–202 | The storm-wind clause now closed Repairs without saying what it means for forcing from the GCM | Applied: the clause is dropped, the PlanetWaves sentence moves before the closing sentence, and Repairs again ends on the methods "built for a slice of any world's GCM", now "the ensemble's methods" so the subject stays clear |
+
+Checked clean by the reader: no excluded words, hedging or promotional wording in the added text; the lint flags
+nothing on the added lines.

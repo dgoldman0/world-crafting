@@ -21,7 +21,7 @@
    "not read": 21,
    "full": 1
   },
-  "cited_in_paper": 87,
+  "cited_in_paper": 88,
   "cited_blocked": [
    "battalio2022interaction",
    "battjes1985calibration",
@@ -4483,9 +4483,17 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "arXiv v1 archived. Bond albedo 0.06 (CRM domain) vs 0.32 (GCM) for the substellar box."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "A convection-resolving model coupling WRF's core with the LMD generic model's radiation and cloud, run over Proxima b; its cloud feedback much weaker than the GCMs'.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "arXiv v1 archived. Bond albedo 0.06 (CRM domain) vs 0.32 (GCM) for the substellar box. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "sergeev2020atmospheric",
@@ -6800,7 +6808,7 @@
     {
      "claim_id": null,
      "section": "repairs.tex",
-     "statement": "PlanetWaves driven by a Titan GCM's winds over Titan's polar lakes; daily mean winds almost never pass the threshold, and storm winds raise the waves.",
+     "statement": "PlanetWaves driven by a Titan GCM's winds over Titan's polar lakes.",
      "support": "supported (abstract; the GCM winds from the PlanetWaves repository README, github.com/Cornell-MIT/PlanetWaves, which ships ten years of TAM winds for the two lakes)",
      "note": ""
     }
