@@ -74,3 +74,11 @@ revised section continuously after those local changes.
 
 The changes in this revision concern prose and review records. The software checks from the preceding
 rewrite remain recorded in `conclusion_rewrite_2026-10-18.md`; model code and tests retain that state.
+
+## Layout adjustment
+
+The build after the opening's alignment placed the final sentence of the Conclusion on page 26, separated
+from the rest of its paragraph. A local `enlargethispage` command adds two baselines on page 25. The drafting
+assistant inspected the rendered page after rebuilding: the final paragraph now remains together and
+retains separation from the page number. The reviewed wording is unchanged. The final source hash and
+exact committed build are recorded with the visual inspection below.
