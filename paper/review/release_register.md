@@ -51,6 +51,10 @@ The revision from the related-work scan, round 16's light readings and round 17'
 every page was inspected for layout on contact sheets, with two stranded lines on page 24 left for the final layout.
 Twenty-three sources entered the citations, which moves G6's counts below; the other gates stand as before, and
 five round-17 findings on approved wording await the author.
+The author then had those five findings applied. The source at `51ea569a7703d9b89d0aba25d24d0b60dcae58dc` builds, in two clean
+builds, the same PDF of 38 pages with SHA256 `9a4810d9e7eb72ff18f7d3261b23e33970302b9003237ad4e785a629e7db81fd`, zero overfull
+boxes and every font embedded; pages 1 and 26–28, where the text changed, were inspected, and a third stranded line
+now opens page 3. The gates stand as before.
 
 ## The artifact
 
