@@ -1,84 +1,86 @@
 \section{Reach to other worlds}
 
-Table~\ref{tab:reach} gives, property by property, the range each repair was built for; the Open Moon is
-the first world besides Earth that the repaired codes have simulated. To extend the ensemble to another world, a
-modeller applies the general repairs unchanged within those ranges, recomputes the curved-air table from that
-world's own column, refits the Rayleigh and water multipliers, the water continuum, the longwave correction and
-the gas-band fits against the reference model, and sets the scenario's values; leakage and the slice forcing read
-that world's conductivity column and GCM fields, and the condition for ground strikes stays a bound between two
-of WRF-ELEC's rules. The reference model, the code that computes the curved-air table and offline copies of
-PlaSim's radiation, all in the code repository, compute the new table and the refits.\claim{W01}
+The Open Moon is the first world besides Earth that the repaired codes have simulated; for other worlds,
+Table~\ref{tab:reach} gives, property by property, the range each repair was built for. To extend the ensemble to
+another world, a modeller applies the general repairs unchanged within those ranges, recomputes the curved-air
+table from that world's own column, refits the Rayleigh and water multipliers, the water continuum, the longwave
+correction and the gas-band fits against the reference model, and sets the scenario's values, while leakage and
+the slice forcing read that world's conductivity column and GCM fields, and the condition for ground strikes stays
+a bound between two of WRF-ELEC's rules. The reference model, the code that computes the curved-air table and
+offline copies of PlaSim's radiation, all in the code repository, compute the new table and the refits.\claim{W01}
 
 \textbf{The defects in other configurations.} The three ExoPlaSim defects that the general repairs remove remain in
 the released code, and by the code's arithmetic they bias any run that meets their conditions. The Sun clock skips
 back in any non-synchronous run on the default solar geometry whose rotation differs from one day, by about
-33\textdegree\ a model day for every rotation slower than 20 days. The convective-cover unit adds
-$0.125\ln(\text{day}/1\,\text{d})$ to the cover in any run whose model day differs from one Earth day, synchronous
-runs included, since ExoPlaSim's synchronous mode fixes the Sun in the sky and keeps the model day its rotation
-period sets: about $+0.23$ for TRAPPIST-1e's rotation of 6.1 days \autocite{yang2023cloud} and $+0.31$ for Proxima
-Centauri~b's 11.2 days \autocite{boutle2017exploring}. The orbit default gives Earth's seasons to any run that sets
-an obliquity or an eccentricity without fixing the orbit.\claim{W06}
+33\textdegree\ a model day for every rotation slower than 20 days. The convective-cover unit, by contrast, biases
+synchronous runs as well: it adds $0.125\ln(\text{day}/1\,\text{d})$ to the cover in any run whose model day
+differs from one Earth day, and ExoPlaSim's synchronous mode, even as it fixes the Sun in the sky, keeps the model
+day its rotation period sets, so the cover rises by about $+0.23$ for TRAPPIST-1e's rotation of 6.1 days
+\autocite{yang2023cloud} and $+0.31$ for Proxima Centauri~b's 11.2 days \autocite{boutle2017exploring}. The third
+defect, the orbit default, gives Earth's seasons to any run that sets an obliquity or an eccentricity without
+fixing the orbit.\claim{W06}
 
 \textbf{How the Earth values err.} The Earth values that depend on a ratio of Figure~\ref{fig:regimes} err as a
-world departs from Earth along it. PlaSim's horizon factor of 35 is right only at Earth's scale height over radius;
+world departs from Earth along it. PlaSim's horizon factor of 35 is right only at Earth's scale height over radius:
 an isothermal Chapman factor gives 22 for present Mars, 24.5 for Venus, 14 for Titan and 7.2 for the Moon, so the
-slant path errs for each and most for the tallest air, and PlaSim's broadband fits, made near Earth's column, would
-be applied to columns ten times Earth's on Titan, a hundred times on Venus and seven times on the Moon. Slingo's
-cover, with its unit repaired, remains a fit made on Earth's convection, and PlaSim's cloud water, written in
-metres, errs at any gravity other than Earth's, too dry aloft under weaker gravity and too wet under
-stronger.\claim{W02} Released CM1 computes with Earth's gravity of 9.81~m\,s$^{-2}$, Earth's 24-hour day and the
-calendar year's carbon dioxide, trace gases and ozone, and released SWAN, in the configuration used, loses gravity
-similarity through its wind-input knee, fixed at 1~Hz. The adapted CM1 reads gravity as a parameter on its Morrison
-and NSSL paths and has run storms at the Moon's gravity and at Earth's; its drop limits and breakup remain Earth's,
-and their effect at other gravities is unmeasured, since the similarity pair failed to convect. Its Sun and soil
-are built for days from a few Earth days to the Moon's, and RRTMG's tables end at 1.05~bar. With SWAN's knee
-patched, the two wave models, in the configuration used, are built to run water seas at any gravity as the scaled
-image of an Earth sea, and on the code paths the similarity tests ran have been tested at a sixth of Earth's
-gravity, with Earth's empirical laws; SWAN's ST6 drag, exact quadruplets and bottom friction, and SWASH's rotation,
-all outside that configuration, keep Earth's constants. ExoPlaSim holds near the columns its radiation and cloud
-were fitted on: Earth-air columns near Earth's warmth with the released radiation, and the test world's design
-columns with the calibrations. Of the natural worlds in Figure~\ref{fig:regimes}, Earth alone lies near the fits in
-the adapted models.
+slant path errs for each and most for the tallest air. Along the column, PlaSim's broadband fits, made near Earth's
+column, would be applied to columns ten times Earth's on Titan, a hundred times on Venus and seven times on the
+Moon, and along gravity its cloud water, written in metres, errs at any gravity other than Earth's, too dry aloft
+under weaker gravity and too wet under stronger; beside these ratios, Slingo's cover, even with its unit repaired,
+remains a fit made on Earth's convection.\claim{W02} The other released codes contain Earth values of their own:
+CM1 computes with Earth's gravity of 9.81~m\,s$^{-2}$, Earth's 24-hour day and the calendar year's carbon dioxide,
+trace gases and ozone, and SWAN, in the configuration used, loses gravity similarity through its wind-input knee,
+fixed at 1~Hz. Once adapted, CM1 reads gravity as a parameter on its Morrison and NSSL paths and has run storms at
+the Moon's gravity and at Earth's; its drop limits and breakup, however, remain Earth's, and their effect at other
+gravities is unmeasured, since the similarity pair failed to convect. Along the day, its Sun and soil are built for
+days from a few Earth days to the Moon's, while along the column RRTMG's tables end at 1.05~bar. At sea, with
+SWAN's knee patched, the two wave models, in the configuration used, are built to run water seas at any gravity as
+the scaled image of an Earth sea, and on the code paths the similarity tests ran they have been tested at a sixth
+of Earth's gravity, with Earth's empirical laws, whereas SWAN's ST6 drag, exact quadruplets and bottom friction,
+and SWASH's rotation, all outside that configuration, keep Earth's constants. ExoPlaSim, for its part, holds near
+the columns its radiation and cloud were fitted on: Earth-air columns near Earth's warmth with the released
+radiation, and the test world's design columns with the calibrations. Of the natural worlds in
+Figure~\ref{fig:regimes}, then, Earth alone lies near the fits in the adapted models.
 
 \textbf{Worlds near the existing fits.} With the repairs as they stand, the four models are built to simulate the
-Open Moon under other dimmings while its columns stay near the fitted ones: the split of sunlight, in the
-version fitted before the gas bands, fell 0.7 points short on a 303~K column with 338~kg\,m$^{-2}$ of vapour; the
-refit with the gas bands is known through its fit residuals, and the longwave correction's accuracy near 307~K is
+Open Moon under other dimmings while its columns stay near the fitted ones: the split of sunlight, in the version
+fitted before the gas bands, fell 0.7 points short on a 303~K column with 338~kg\,m$^{-2}$ of vapour, whereas the
+refit with the gas bands is known through its fit residuals and the longwave correction's accuracy near 307~K is
 unchecked. For slowly rotating planets with Earth's gravity and air around a Sun-like star near Earth's insolation,
 such as those of the cooler runs that \textcite{yang2014strong} and \textcite{way2018climates} made with CAM3 and
 ROCKE-3D, ExoPlaSim would need its general repairs, its fixed-orbit setting and its released radiation, which was
 fitted on columns and a spectrum like theirs, while its cloud keeps Slingo's fit to Earth's convection and PlaSim's
 Earth-tuned thresholds, Earth fits of a process through which those studies found the climate to change with
-rotation; their warmer runs, at up to 2.9 times Earth's insolation, lie beyond the radiation's fits.
-At rotations slower than 20 days, ExoPlaSim's model day
-departs from the solar day unless the year holds about twelve rotations, 69.8 against 77.6 days for a 64-day
-rotation and 265 against 726 days for a 243-day one, so output kept in whole model days drifts against the Sun, and
-analyses that sort output by the Sun's position avoid the drift.\claim{W03}
+rotation. Their warmer runs, however, at up to 2.9 times Earth's insolation, lie beyond the radiation's fits. At
+rotations slower than 20 days, moreover, ExoPlaSim's model day departs from the solar day unless the year holds
+about twelve rotations, 69.8 against 77.6 days for a 64-day rotation and 265 against 726 days for a 243-day one, so
+output kept in whole model days drifts against the Sun, though analyses that sort output by the Sun's position
+avoid the drift.\claim{W03}
 
-\textbf{Worlds that need refitted calibrations.} Synchronous planets of M dwarfs, such as TRAPPIST-1e and
-Proxima Centauri~b, add a spectrum outside the near-infrared water fit, and their shortwave needs refitting
-against the reference with the star's spectrum. The Open Moon at 1.0~atm, a case yet to be run, or behind
-another shield that blocks the ultraviolet needs its calibrations refitted and its cloud settings checked; under
-a shield that passes the ultraviolet the air would form ozone, which every patched CM1 build sets to zero. A
-constructed world with breathable air on a small body, such as Mars held at 1~bar, has a scale height over
-radius five times Earth's, 2.6 times Earth's air over each square metre and 0.38 of Earth's gravity; it needs the
-general repairs, a curved-air table of its own column and calibrations refitted to it, and at its 1~bar level it
-stays inside RRTMG's pressure range, while the pressure on ground below that level lies past RRTMG's tables, as
-it does over the lunar seas. Nitrogen--oxygen air on a larger planet needs the same steps, a slant factor from its own
-column among them; there the released cloud water errs toward too much water, the reverse of the test world's
-error, and the same general repair corrects it. A breathable moon of a giant planet needs, besides its column,
-the downward infrared that PlaSim now takes at its top for the host's glow.\claim{W04}
+\textbf{Worlds that need refitted calibrations.} Synchronous planets of M dwarfs, such as TRAPPIST-1e and Proxima
+Centauri~b, add a spectrum outside the near-infrared water fit, so their shortwave needs refitting against the
+reference with the star's spectrum. Even the Open Moon needs its calibrations refitted and its cloud settings
+checked at 1.0~atm, a case yet to be run, or behind another shield that blocks the ultraviolet, while under a shield
+that passes the ultraviolet its air would form ozone, which every patched CM1 build sets to zero. Beyond the Moon, a
+constructed world with breathable air on a small body, such as Mars held at 1~bar, has a scale height over radius
+five times Earth's, 2.6 times Earth's air over each square metre and 0.38 of Earth's gravity, and so needs the
+general repairs, a curved-air table of its own column and calibrations refitted to it. For CM1's radiation, its
+1~bar level stays inside RRTMG's pressure range, while the pressure on ground below that level lies past RRTMG's
+tables, as it does over the lunar seas. On a larger planet, nitrogen--oxygen air needs the same steps, a slant
+factor from its own column among them, though there the released cloud water errs toward too much water, the
+reverse of the test world's error, and the same general repair corrects it. Around a giant planet, a breathable
+moon needs, besides its column, the downward infrared that PlaSim now takes at its top for the host's
+glow.\claim{W04}
 
 \textbf{Worlds that need new physics.} Titan's nitrogen--methane air at 94~K, present Mars's thin carbon dioxide
 and Venus's 92~bar lie outside what PlaSim's and RRTMG's radiation and Morrison's water-only microphysics
-represent; the general repairs of units, clocks and gravity would apply to them unchanged, while their
+represent, so although the general repairs of units, clocks and gravity would apply to them unchanged, their
 radiation, condensation and clouds would have to be built.\claim{W05} Four restrictions on the current
-implementation further limit its use within the Gaean class: compositions of nitrogen, oxygen, argon,
-water and modest carbon dioxide; surface pressures within
-RRTMG's tables, already exceeded over the lowest 7.5~km at 1.2~atm; scale heights up to a few hundredths of the
-radius, the test world's, where thin-shell, constant-gravity dynamics already omit the 5--15\% fall of gravity
-across the air; and empirical laws of cloud, sea and charge used near the Earth conditions they were fitted on,
-with narrower limits in Table~\ref{tab:reach}.
+implementation further limit its use within the Gaean class: compositions of nitrogen, oxygen, argon, water and
+modest carbon dioxide; surface pressures within RRTMG's tables, already exceeded over the lowest 7.5~km at
+1.2~atm; scale heights up to a few hundredths of the radius, the test world's, where thin-shell, constant-gravity
+dynamics already omit the 5--15\% fall of gravity across the air; and empirical laws of cloud, sea and charge used
+near the Earth conditions they were fitted on, with narrower limits in Table~\ref{tab:reach}.
 
 {\footnotesize
 \setlength{\tabcolsep}{4pt}
