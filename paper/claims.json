@@ -1117,6 +1117,17 @@
     "repo:notes/defect_log.md#A8"
    ],
    "state": "documented"
+  },
+  {
+   "id": "G17",
+   "text": "Two-year test of the Sun and tilt alone from A28_dim5 (A28_dim5_sun_test, old split): clouds' effect in sunlight -15.7 -> -13.3 W/m2, planetary albedo 0.293 -> 0.285, global-mean surface 294.31 (years 15-24) -> 295.20 K over the two years (+0.9 K), top of the air still gaining 1.9 W/m2, rain 2.91 -> 2.74 mm/day; the step joined with the refit of the split settled at +0.59 K (A28_dim5_moon, years 20-29)",
+   "source": [
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28_dim5_sun_test/progress.json",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28_dim5/progress.json",
+    "terluna:climate/gcm/README.md#L662-671",
+    "repo:python/climate/results/gcm/sun_check_A28_dim5_sun_test.json"
+   ],
+   "state": "sensitivity"
   }
  ]
 }

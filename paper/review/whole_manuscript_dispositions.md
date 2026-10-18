@@ -47,7 +47,7 @@ made as proposed or in an equivalent form; "in part" says what was left and why.
 | 10 One box against Earth's mean | Accepted: the box's flash density |
 | 11 Rain and the slice's direction | Accepted: claim G15 |
 | 12 Identity by construction | Accepted: the patches without a runtime identity run named |
-| 13 One hedge on reach | Pending: the second draft's abstract states the general repairs serve other worlds unchanged; to be hedged with the round-1 revisions |
+| 13 One hedge on reach | Pending in the second draft; settled in the third (c63df43): the abstract says the general repairs are built to hold on other worlds, and the closing section of bb5d0f0 names no untested world as within reach |
 | 14 The 11.5 K in the abstract | Accepted: stated as a run outside the correction's fitted state |
 | 15 Claims for table numbers | In part: the availability statement restricted to numbers in the prose |
 | 16 The cold lowest level's next step | Accepted: a test against smoothed terrain |
