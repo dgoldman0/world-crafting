@@ -10,6 +10,8 @@ is given.
 
 ## For the author's decision
 
+The author read these five and said to go ahead; each was applied as proposed on 18 October 2026.
+
 | Finding | Wording | The reader's proposal |
 |---|---|---|
 | Evidence 1 (abstract part) | `abstract.tex`:11–12, "which makes it a test of every Earth value that depends on them" | Drop "every": "a test of the Earth values that depend on them", since the lunar runs exercise the values on their own paths, and the Moon departs one way along each ratio. The same change was applied in Worlds, which said the same |
