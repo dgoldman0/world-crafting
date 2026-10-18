@@ -40,6 +40,11 @@ At the author's direction, the Introduction now gives the reason for CM1's slice
 The source at `ab465cd2d981ebba061b1b0e2373b076fd23783a` builds a PDF of 35 pages with SHA256
 `d6197caa7bd7e4334d426eba146732f0cc12b5b4f2089e554006a55e34a1a97b`; every page was inspected for layout, and the gates
 stand as before.
+After the author's reading of the abstract, its text after the opening was rewritten, and Availability names the
+world-crafting repository, public since 18 October 2026 (`abstract_and_repository_2026-10-18.md`). The source at
+`90753d2f371741a0d1a6e19ee50be59012fe3763` builds a PDF of 35 pages with SHA256
+`4a8f9ddcce6da1a7f407cb3657976b348d289f03f311cc1cd12d8658a1b087eb`; every page was inspected for layout, and the gates
+stand as before.
 
 ## The artifact
 
@@ -74,7 +79,7 @@ These establish record completeness and code integrity; they clear no editorial 
 | G6 Full-document source admission | BLOCKED | Of the 73 cited sources, 30 have no legal local original (admission BLOCKED); 43 have an archived original (DEFERRED), 33 of them read at claim locators, 7 at the abstract, 2 unread and 1, the author's own issue report, in full; none is admitted | Originals for the 30, and full readings, with appendices and bibliographies, of every cited source; or a substantive revision of each dependent use |
 | G7 Exact-build visual and production review | PASS | `g7_visual_review.md`: every page of the PDF above read in the poppler render, the six figure pages again in MuPDF's; fonts embedded, metadata set, links present; no blocking finding | The author's own inspection; three notes for the author in that record (the title page's date, one loosely set reference line, Table 4's last row alone on page 22) |
 | Whole-manuscript challenge (E4) | DEFERRED | The first draft was challenged (`whole_manuscript.md`, dispositions in `whole_manuscript_dispositions.md`) | A challenge of the third draft as revised |
-| E4 Release integrity | BLOCKED | This register | G6; the publication of the world-crafting repository with the paper's release commit, which the availability statement promises; the author's confirmation of the AI-assistance disclosure's wording on Codex and ChatGPT; the author's final reading; the deferred gates above |
+| E4 Release integrity | BLOCKED | This register | G6; the paper's release commit in the world-crafting repository, public since 18 October 2026, which the availability statement promises; the author's confirmation of the AI-assistance disclosure's wording on Codex and ChatGPT; the author's final reading; the deferred gates above |
 
 Terluna's ensemble audit belongs to its five-paper ensemble, which this paper stands apart from by the repository's
 `AGENTS.md`, so it has no row here.

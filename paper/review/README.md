@@ -94,6 +94,11 @@ After the related-work scan noted that the paper gave no reason for running CM1 
 reason, the hardware's limits and a best guess at the features of interest, and directed that the paper state it;
 one sentence in the Introduction now does, with its record in `slice_reason_2026-10-18.md`.
 
+The author then read the abstract, accepted its opening and judged the rest a summary of the paper, whereas an
+abstract should draw the reader in. The drafting assistant rewrote the rest, and the author approved it with one
+clarification. The author had also made the world-crafting repository public, and Availability now names it as
+the place where work on the ensemble will continue; `abstract_and_repository_2026-10-18.md` records both.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
@@ -121,6 +126,7 @@ author, or by a journal, remains pending; the records identify the reviewer and 
 | `drafts/` | The exact conclusion drafts read in rounds 11–13 |
 | `conclusion_*_2026-10-18.md`, `terracompatible_*_2026-10-18.md`, `terracompatible_visual_pages*.md` | The records of 18 October 2026: Codex's drafting and revisions, the check of them, their builds and page inspections |
 | `slice_reason_2026-10-18.md` | The author's reason for CM1's slices, the sentence that gives it, its claim, checks and build |
+| `abstract_and_repository_2026-10-18.md` | The author's reading of the abstract, its rewrite, the public repository in Availability, checks and build |
 | `g7_visual_review.md` | The exact-build page review: renderers, the PDF hash and page-by-page observations |
 | `release_register.md` | PASS / BLOCKED / DEFERRED by gate, with the exact PDF and source hashes |
 
