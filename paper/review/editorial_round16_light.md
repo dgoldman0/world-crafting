@@ -93,3 +93,18 @@ split into classes, as the related-work scan advises.
 | 4 | `introduction.tex`:20–21 | "Runs ... tuned the GCM's convection" gave the runs an action; Battalio et al. tuned the convection scheme with runs and observations | Applied: "\textcite{rafkin2022interaction} started a cloud-resolving model from a GCM's unstable profiles and \textcite{battalio2022interaction} tuned the GCM's convection scheme with its runs and observations" |
 | 5 | `introduction.tex`:22–23 | The body's contrast, shared physics against separately built codes, was missing | Applied: "so that the global and resolved calculations share their physics", which the paragraph on separately built codes then answers |
 | 6 | `introduction.tex`:33–34 | "Its exobase" bound to "the design" | Applied: "the Moon's exobase" |
+
+## The Conclusion, after the body and the Introduction (18f4da6)
+
+Four sentences entered existing paragraphs: the LMD's shared physics, the free tools for a reduced radiation scheme,
+the Titan precedent, and the intercomparisons as further cases. Verdict: needs the listed fixes, two MAJOR. The
+reader found the synthesis free of recap, the line of argument intact and the ending, unchanged, still the climax.
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1 | `conclusions.tex`:35–37, MAJOR | "So what remains is to supply them with the spectra of other worlds" made supplying spectra the only step left, ahead of the checks the next sentence requires, and could be read as stellar spectra | Applied: "so the reference model would supply them with absorption spectra computed on other worlds' columns" |
+| 2 | `conclusions.tex`:69–74, MAJOR | The intercomparison sentence split "additional physics" from the sentence that develops it, named nothing to measure, and SAMOSA's ExoCAM–ExoPlaSim differences lie in steam and runaway states outside the Gaean class | Applied: the sentence is removed, and the intercomparisons' planets join the planets of other rotations and spectra, "like those the THAI and SAMOSA intercomparisons define"; the SAMOSA test stays in Next steps |
+| 3 | `conclusions.tex`:46–50 | The Titan sentence fell between the lunar cloud target and its consequence | Applied: it closes the target sentence, "much as \textcite{battalio2022interaction} tuned a Titan GCM's convection with resolved storms \autocite{rafkin2022interaction} and observations" |
+| 4 | `conclusions.tex`:15–20 | The LMD sentence came before the gravity example, and construction shares only the physics package's own parameters, since WRF's core was adapted to Mars | Applied: the sentence follows the gravity and day sentence, "its parameters are shared by construction; in codes built separately, as here, they are made consistent by repair", and leads into "The repairs make ..." |
+| 5 | `conclusions.tex`:69–71 | "Intercomparisons" unqualified generalised from two works, and SAMOSA reports one survey and a preliminary comparison | Applied with item 2: the two are named |
+| 6 | `conclusions.tex`:35, 48, 69 | Three added "already"s joined three earlier ones and the ending's | Applied: "exist", "tuned", "define" |

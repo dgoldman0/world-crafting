@@ -13,12 +13,12 @@ surface conditions change. Such a comparison could follow a change in a planet's
 arriving in a basin and the waves arriving at its coast, through the circulation that determines both.
 
 For those calculations to describe the same world, its physical parameters have to be used consistently
-across the models. Where one physics package serves the global and the resolved calculations, as in the LMD's
-models, the parameters are shared by construction \autocite{spiga2009new}; codes built separately have to share
-them by repair. The gravity in a dynamical core also determines the weight of cloud water, the fall
+across the models. The gravity in a dynamical core also determines the weight of cloud water, the fall
 of rain and the frequency scale of wind-generated waves; as the day lengthens, the conversion from rain
-to convective cover has to retain its intended physical time interval. The repairs make several of these dependencies
-explicit, so a modeller can vary a planetary property through the relevant processes together. Where a
+to convective cover has to retain its intended physical time interval. Where one physics package serves the global
+and the resolved calculations, as in the LMD's models, its parameters are shared by construction
+\autocite{spiga2009new}; in codes built separately, as here, they are made consistent by repair. The repairs make
+several of these dependencies explicit, so a modeller can vary a planetary property through the relevant processes together. Where a
 coefficient instead describes an empirical fit, the work required is different: changing gravity in the
 fall-speed law leaves the drop-size distribution to be determined, just as correcting the units of
 convective cover leaves its relation to rain to be calibrated.
@@ -32,9 +32,9 @@ to force resolved convection. Otherwise the comparison mixes the response of the
 a change in where the air gains and loses heat.
 
 A reduced radiation scheme built from the reference spectroscopy would extend this work beyond successive
-adjustments of the inherited broadband fits. Free tools for the reduction and its check already exist, built
-around Earth's columns \autocite{hogan2022tool,hogan2020evaluating}, so what remains is to supply them with the
-spectra of other worlds. With the spectroscopy checked against an independent code
+adjustments of the inherited broadband fits. Free tools for the reduction and its check exist, built around
+Earth's columns \autocite{hogan2022tool,hogan2020evaluating}, so the reference model would supply them with
+absorption spectra computed on other worlds' columns. With the spectroscopy checked against an independent code
 and its reduction checked by layer, the two atmospheric models could compute heating over the tested
 gases, pressures and temperatures under the starlight for which the scheme was built. A different stellar
 spectrum would then enter through the spectral calculation, with its effects followed into circulation
@@ -44,9 +44,9 @@ reference that can be recomputed for the worlds being explored.
 Cloud requires a further exchange between the models. CM1 already receives the GCM's circulation, with
 custom forcing for the transport that its rings and boxes omit, while its boundary layer and convection
 develop freely. Once their radiative heating is consistent, the resolved cloud could become the target
-for the GCM's cloud amount and water profile at the chosen gravity and day. On Titan, a GCM's convection has
-already been tuned with resolved storms and observations in this way
-\autocite{rafkin2022interaction,battalio2022interaction}. The revised cloud would alter
+for the GCM's cloud amount and water profile at the chosen gravity and day, much as
+\textcite{battalio2022interaction} tuned a Titan GCM's convection with resolved storms
+\autocite{rafkin2022interaction} and observations. The revised cloud would alter
 the global heating and circulation, requiring another resolved calculation in that changed environment.
 Iterating between the two would make the cloud calibration depend on weather simulated for the world
 itself, with CM1's empirical microphysics still limiting the cloud target.
@@ -63,13 +63,11 @@ relative rates change.
 Constructed worlds permit these comparisons over combinations of parameters that atmospheric escape
 would exclude from a natural temperate planet. A massive atmosphere on a small body separates the
 consequences of low gravity from those of thin air, and varying its pressure then changes the column mass while
-leaving gravity fixed. Alongside planets with different rotation rates or stellar spectra, such cases
-would test the ensemble along distinct physical directions. The Open Moon is the first of them,
+leaving gravity fixed. Alongside planets with different rotation rates or stellar spectra, like those the
+THAI and SAMOSA intercomparisons define \autocite{sergeev2022thai,haqqmisra2022samosa}, such cases would test the
+ensemble along distinct physical directions. The Open Moon is the first of them,
 and further cases would measure the general repairs' performance and determine where new calibrations,
-deeper atmospheric dynamics or additional physics become necessary. Intercomparisons already supply some of those
-further cases: their planets have been run in several GCMs, so the repairs can be tested where models are known
-to disagree, and SAMOSA's cases were drawn from a survey made with ExoPlaSim itself
-\autocite{sergeev2022thai,haqqmisra2022samosa}. With radiation and cloud microphysics
+deeper atmospheric dynamics or additional physics become necessary. With radiation and cloud microphysics
 developed for other gases and condensables, the
 couplings and general repairs could also form the basis for extending the ensemble beyond Gaean worlds.
 
