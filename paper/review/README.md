@@ -28,19 +28,22 @@ for now, and rejected its conclusions as a summary that implied reach to unteste
 rewritten as discussion and conclusions (bb5d0f0) and read again in rounds of two fresh reviewers, one for prose
 and the author's direction and one for evidence and scope: round 2 (bb5d0f0), round 3 (e89a394), round 4
 (798f68b), round 5 (11026a8), round 6 (8bfd069), round 7 (654ebdf) and round 8 (44d67d4). The blocking findings by
-round were 6, 3, 1, 3, 2 and 3; most concerned the reach of the closing sentence and of what laboratories and similarity runs can
+round were 6, 3, 1, 3, 2, 3 and 0; most concerned the reach of the closing sentence and of what laboratories and similarity runs can
 test. Each round's records name the snapshot they read, and the revisions between rounds are in the commits that
 follow them. The dispositions of rounds 2 to 5 were reconstructed afterwards from those commits by a subagent, since
 the drafting assistant acted on those rounds without writing a dispositions record; the dispositions of rounds 6
-and 7 were written with their revisions. Round 7's evidence record found a factual error that the earlier
+to 8 were written with their revisions. Round 7's evidence record found a factual error that the earlier
 rounds had passed: Next steps gave one charging law positive ground strikes, where the runs show the storms'
-arrangement of charge inverted and every ground strike in those windows negative.
+arrangement of charge inverted and every ground strike in those windows negative. Round 8 found nothing blocking,
+which closes the rounds; its findings were acted on in 94d337a, unread by a further round, and the author's reading
+is the next review. The PDF built from 94d337a was then inspected page by page by its hash (`g7_visual_review.md`),
+and `release_register.md` records each gate's status for it.
 
 ## Reviewers
 
 | Reviewer | Role | Records |
 |---|---|---|
-| Claude Opus 5.5, the drafting assistant (main session) | Drafted both drafts; silent prose passes on the first draft; dispositions | `passes_<section>.md` (first draft), `*_dispositions.md` |
+| Claude Opus 5.5, the drafting assistant (main session) | Drafted every draft; silent prose passes on the first draft; dispositions of rounds 1, 6, 7 and 8; the exact-build page review; the release register | `passes_<section>.md` (first draft), `*_dispositions.md`, `g7_visual_review.md`, `release_register.md` |
 | Claude subagents, technical referees | Checked every claim and table row of the first draft against its sources | `referee_technical_part1.md`, `referee_technical_part2.md`, `referee_dispositions.md` |
 | A Claude subagent, whole-manuscript challenger | Challenged the first draft as a whole against G1–G5 | `whole_manuscript.md`, `whole_manuscript_dispositions.md` |
 | Fresh Claude subagents, editorial reviewers | Read the second draft against the rules, by part and as a whole (round 1), then the rewritten closing section and the passages revised with it, for prose and for evidence (rounds 2–8) | `editorial_round<n>_<part>.md` |
