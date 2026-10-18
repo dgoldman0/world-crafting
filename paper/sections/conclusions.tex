@@ -1,34 +1,69 @@
-\section{Conclusions}
+\section{Discussion and conclusions}
 
-In the four codes examined, the form of an Earth value set the kind of repair it took. Of the fourteen general
-repairs in Table~\ref{tab:inventory}, twelve correct a constant or a unit of time, and the other two extend fits,
-the fall speeds by a similarity law and the cloud's optics by a parameterization fitted over a wider range; both
-general methods correct geometry, computed again from each world's own column; and all four calibrations
-correct fits and hold near the columns they were fitted on, while seven of the fifteen fits remain open. Three
-of the five defects in the released codes produce little or no error at Earth's values and an error that grows
-as a world departs from Earth in rotation, day length or tilt, and the same arithmetic biases ExoPlaSim's runs
-of natural planets: the Sun clock skips back about 33\textdegree\ a model day in non-synchronous runs on the
-default solar geometry at rotations slower than 20 days, the convective-cover unit raises the cover of
-synchronous runs by about 0.23 at TRAPPIST-1e's rotation of 6.1 days, and the orbit default replaces a
-configured tilt with Earth's unless the orbit is fixed. On a constructed world that departs from Earth along
-several ratios at once, these errors grew large enough to find.
+Brought to a world that departs from Earth along four ratios at once, four Earth-built codes were found to contain
+Earth values in four forms and five defects, and where a value was repaired, the kind of repair followed largely
+from its form: constants and units of time took general repairs with no coefficient fitted to the test world,
+geometry a method computed from the world's own column, and the radiation's fits calibrations that hold near the
+columns they were fitted on. Three of the defects produce little or no error at Earth's values and an error that
+grows as a world departs from Earth's rotation, day or tilt, and by the code's own arithmetic they bias ExoPlaSim's
+runs of slowly rotating and tidally locked planets.
 
-On the test world the parts fitted to one world's columns moved the climate furthest and the general repairs
-least. Single general repairs moved the global-mean surface temperature by 1.6--2.5~K; the first calibration of
-the radiation's Earth fits moved it by more than 20~K, the cloud's Earth-tuned settings, pushed to the ends of
-their tests, by up to about 6~K, and the longwave correction by height, switched on with the ice optics, by
-11.5~K in a state beyond its fit. The two atmospheric models disagree most where each computes with Earth fits of
-its own: with the GCM's transport imposed, CM1's lowest 1.8~km at 45\textdegree\,N stays 3.7~K warmer than the
-GCM's, and a box forced from the GCM brings a quarter of the forcing GCM's rain to the ground, while on tidally
-locked planets cloud-permitting and parameterized models differ by a factor of two or more in cloud cover
-\autocite{yang2023cloud}.
+Several of these errors leave the global means nearly intact and change where sunlight and rain fall. ExoPlaSim's
+Sun clock keeps every zonal and global mean of sunlight exact, since the share of a latitude circle in sunlight
+depends on the Sun's declination alone, and moves the sunlight between longitudes: on the test world it left the
+equator 8.3\% below its mean from 270\textdegree\ to 57\textdegree~E and up to 17\% above it near 164\textdegree~E,
+and in a non-synchronous run on ExoPlaSim's default solar geometry with any rotation slower than 20 days it sets
+the Sun back about 33\textdegree\ each model day. Earth's tilt, put in place of the configured one by the orbit
+default, brought Earth's seasons and summer rain to 60\textdegree; with the Sun and the tilt set right, 36\% of the
+land received under half a millimetre of rain a day within two years, against 9\% before, while the step in which
+both were corrected, with a refit of the split of sunlight, moved the global mean by 0.6~K. A check of the global
+energy balance passes with such errors in place; they show in a map of sunlight by longitude or of rain by season.
 
-The worlds open to the adapted models are ordered by what a modeller supplies: nothing for the breathable Moon
-near its fitted columns; the general repairs alone, by construction and as yet untested, for Earth-air planets of
-a Sun-like star that differ from Earth in rotation; a column of the world's own and refitted calibrations for the
-planets of M dwarfs, a breathable world on a small body or Earth-like air on a larger planet; and new radiation,
-condensation and cloud for Titan, present Mars and Venus. A reduced correlated-$k$ scheme built from the
-reference's spectroscopy in place of Sasamori's and Lacis and Hansen's fits would turn the largest calibrations
-into a general repair, holding on any column whose gases and pressures that spectroscopy covers, while cloud
-fitted to cloud-resolving runs would remain a calibration made for each world. Runs of the repaired ExoPlaSim on
-Earth-air slow rotators would test the general repairs on the natural worlds they were built for.
+By size, changes to the parts fitted to Earth's atmosphere moved the test world furthest. Calibrating the
+radiation's Earth fits, used beyond the range they were fitted over, moved its global-mean surface temperature by
+more than 20~K, and PlaSim's Earth-tuned cloud settings, pushed to the ends of their tests, by up to about 6~K,
+while the two general repairs measured singly, of a unit and of a constant, moved it by 1.6--2.5~K. The two
+atmospheric models disagree where each computes with Earth fits of its own: with the GCM's transport imposed, CM1's
+lowest 1.8~km at 45\textdegree\,N stays 3.7~K warmer than the GCM's, and a box forced from the GCM brings a quarter
+of the GCM's rain to the ground. Models of natural planets differ widely in cloud as well: on two tidally locked
+planets a global cloud-permitting model covered 27 and 41\% of the sky with cloud, where two GCMs whose cover
+follows relative humidity, stability and large-scale ascent covered 82--97\% \autocite{yang2023cloud}. The
+radiation's fits can be replaced outright, since a scheme built from line-by-line spectroscopy would hold on any
+column whose gases and pressures that spectroscopy covers, on a natural world as on a constructed one. Cloud is
+harder to replace: the cloud-resolving runs that could calibrate a GCM's cloud for a new world compute with
+Earth-fitted microphysics in turn.
+
+Some of the Earth laws in the cloud-resolving model can be tested in laboratories on Earth. In two windows of the
+test world's electrified run, the storms separated as much charge under Takahashi's charging law as under Saunders
+and Peck's, with the opposite sign, since the two laws disagree on the sign that rimed ice takes in the little
+cloud water of those storms; a measurement of that sign at 4--8~m\,s$^{-1}$ in 0.02--0.2~g\,m$^{-3}$ of cloud water
+between $-5$ and $-16$\,\textdegree C, conditions laboratories reach, would decide the polarity of the lightning.
+The largest raindrop that survives its own fall scales with the capillary length, 2.46 times longer at a sixth of
+Earth's gravity, while Morrison's scheme keeps Earth's limits on drop size and breakup; with 85\% of the water
+falling from the clouds of a box forced from the GCM evaporating before it reached the ground, those limits help
+set how much rain a low-gravity world receives. Flash rates on tidally locked planets have been estimated with laws
+fitted to Earth's storms, from the cloud-top height or from the graupel and ice aloft
+\autocite{braam2022lightning,sergeev2025lightning}. In the one electrified box, cloud tops reached 55--80~km, with
+the freezing levels five to six times their heights in Earth's tropics, and the flashes came at about a hundredth
+of Earth's average density, so a law fitted at Earth's gravity would be applied there far from the storms it was
+fitted on, and resolved storms at other gravities can test it.
+
+Once a model scales correctly with gravity, its Earth-fitted laws are what remains uncertain. Patched, SWAN scales
+an Earth sea sixfold in gravity within 0.3\% in wave height, where the released code missed by 5.4\%, so for a sea
+under another gravity, the ancient seas of Mars among them, the open questions are Earth's empirical laws for drag,
+wind input and breaking at that sea's ratio of air to water density. The geometry of tall air can be computed from
+the world's own column: against flat columns, the test world's curved air loses a net 5.8~W\,m$^{-2}$, and on
+Titan, whose air is a quarter as tall in proportion, a flat treatment already fails beyond about 65\textdegree\
+from the zenith \autocite{vincendon2010spherical}.
+
+Constructed worlds join Earth-like air to gravities, sizes and days that no known natural world combines with it.
+Behind engineered protection, Earth-like air can persist on a body whose escape velocity would let a natural
+atmosphere go, so that gravity, column, day and the air's height against the radius depart from Earth's together,
+and the Earth values that depend on them err together. Modelling such a world also tests the tools used for natural
+ones: the defects found here bias runs of slowly rotating and tidally locked planets, and each change made for the
+test world is recorded with its switch or condition and its class, so that a modeller of another world can see
+which changes were built to apply unchanged and which must be refitted there. The general repairs were built to
+hold off the test world and have run on it alone. Released and repaired ExoPlaSim on Earth-air planets rotating
+once in 16 and 64 days, the periods at which ROCKE-3D has simulated such planets \autocite{way2018climates}, would
+measure how far the three defects move the simulated climate of worlds that other studies model, and would test the
+general repairs on a world beyond the one they were made on.
