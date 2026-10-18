@@ -31,8 +31,10 @@ Snakemake rules could call if the lab moves to a cluster.
 
 - **One description, with every derived value computed.** Surface gravity comes from GM and R, the solar
   day from the rotation and the year, PlaSim's model day from ExoPlaSim's own rounding rule, and CM1's
-  domain length from the radius and the latitude. A study's compatibility settings may override a derived
-  value to reproduce a Terluna run, and the override is recorded with every product it reaches.
+  domain length from the radius and the latitude. A world may state such a value with its basis, as Earth's
+  seed states the standard gravity of 9.80665 m/s², and the lab records it beside its derivation
+  (world_spec.md, rule 2). A study's compatibility settings may override a derived value to reproduce a
+  Terluna run, and the override is recorded with every product it reaches.
 - **One register for the world and its scenario.** The Open Moon charter requires one versioned register of
   pressure and composition, water, gravity, rotation and the filtered spectrum (Terluna
   `ensemble/planning/Open_Moon_Editorial_Charter_control-01.md`, E3). In Terluna these values are typed into
@@ -71,9 +73,10 @@ Snakemake rules could call if the lab moves to a cluster.
     - The lab's model defaults switch several repairs on for every world, the synodic Sun clock among them,
       so the pipeline's Earth run follows other code paths than the released model's. Byte identity is
       therefore required of each patch alone.
-    - The pipeline's Earth run is compared with the released model's Earth run: its global means of surface
-      temperature, top-of-atmosphere net flux, precipitation and cloud cover must fall within two standard
-      deviations of the released run's yearly means. This criterion is proposed, for the author to confirm.
+    - The pipeline's Earth run is compared with a released run configured through ExoPlaSim's own
+      interface with the same air and sunlight: its global means of surface temperature, top-of-atmosphere
+      net flux, precipitation and cloud cover must fall within two standard deviations of the released run's
+      yearly means. This criterion is proposed, for the author to confirm.
 - **A shared machine.** Every job states its threads, memory and disk. The lab checks the load and the
   free disk before it starts one, and runs it at reduced priority.
 
@@ -207,7 +210,7 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   - `N_DAYS_PER_YEAR` is 12 · max(1, ⌊360/(12·P_rot) + 0.5⌋);
   - the model day is P_rot · N/(N − 1).
 
-  The steps per model day, the whole-day run length, the means per model day and the expected output count
+  The steps per model day, the whole-day run length, the steps per mean and the expected output count
   follow from it, replacing the values Terluna typed in for the Moon: 1,430 steps, 12 days a year and 120
   means (`exoplasim_run.py:98`).
 - **Namelists and guards.** The namelist edits of `build_model` (`exoplasim_run.py:1010-1085`) become a
@@ -237,10 +240,11 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   - The column width, the vertical grid, the model top, the nudging heights and the time step follow it in
     the lunar cases only through the values chosen for them. The defaults state these at the Moon's
     gravity, where Terluna's rings ran them, and the adapter multiplies them by g_ref/g: by 1 on the Moon,
-    which reproduces Terluna's values exactly, and on Earth to columns of 993 m and a 24.8 km top.
-  - **Unscaled:** the run length counts the world's solar days, and the output, restart and nudging
-    intervals stay in seconds. Terluna's gravity pair scaled those too (`time_scale`, `cm1_run.py:1974-2029`),
-    since the pair ran without a Sun; with the world's Sun in a case, those intervals follow the day.
+    which reproduces Terluna's values exactly, and at CM1's Earth gravity of 9.81 m/s² to columns of 993 m
+    and a 24.8 km top.
+  - **Unscaled:** with the world's Sun in a case, the run length counts its solar days, and the output,
+    restart and nudging intervals stay in seconds. Terluna's gravity pair, which ran without a Sun, scaled
+    those too (`time_scale`, `cm1_run.py:1974-2029`).
 - **Refused schemes.** At a gravity more than 0.5% from 9.81 m/s², the registry refuses the schemes that
   hard-code Earth's gravity (`notes/cm1.md`): MYNN, the GFS EDMF and GFDL layers, P3, WSM6, Jensen–Ishmael,
   LFO and Goddard radiation. The tolerance is proposed; it passes the Earth control's 9.80665 m/s².
@@ -290,7 +294,7 @@ An entry records:
 - **Assumption:** for example g = 9.81, a solar day of 86,400 s, H/R = 0.0013, or a surface pressure below
   1,053.63 hPa.
 - **Condition:** a list of tests, all of which must hold, on derived quantities, specification fields and
-  the run's settings. Examples: gravity other than 9.81 m/s² with the MYNN surface layer, or the lowest
+  the run's settings. Examples: gravity more than 0.5% from 9.81 m/s² with the MYNN surface layer, or the lowest
   level's pressure above 1,053.63 hPa. The seed in `lab/registry/earth_assumptions.toml` encodes these as
   structured tests that the lab can check and print.
 - **State:** repaired, with its patch, switch and identity default; calibrated, with its stage; bounded;
@@ -356,7 +360,7 @@ Intended commands, to be built in plan stages 1–8:
 ```sh
 lab reach moon/open-moon                         # what is repaired, what needs a refit, what is refused
 lab new scenario moon/open-moon-0.960 --extends moon/open-moon --set sunlight.scale=0.960
-lab new study open-moon-0.960 --extends open-moon --scenario moon/open-moon-0.960
+lab new study open-moon-0.960 --extends open-moon --scenario moon/open-moon-0.960   # runs and cases, own keys
 lab plan open-moon-0.960                         # stale products, their order and their cost
 lab make open-moon-0.960                         # fits, builds, GCM runs and CM1 cases, within the budget
 lab diff open-moon:A28_corrected_970 open-moon:A28_corrected_970_lw_ice   # resolved inputs that differ

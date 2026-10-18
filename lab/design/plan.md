@@ -14,7 +14,7 @@ through the reproduction of what Terluna already has, to new work.
 | 5. Producers and calibrations | Stages for the ledger, the gas bands, the shortwave and longwave fits, the water continuum and the ice optics, with their envelopes | Each reproduces its Terluna product from the same inputs within the tolerance it states. The water-continuum stage, which replaces Terluna's hand trials, arrives at `TH2OC` = 0.004 from the same cloud-free columns at 280 and 310 K. The envelope check marks `A28_corrected_970_lw_ice` as used beyond its fit | To start |
 | 6. Registry and reach | `lab/registry/`, completed from the defect log's classes (a) and (b); the reach report | The report reproduces the paper's table of reach for the worlds of `paper/data/worlds.json`, ten on 2026-10-17 | Eleven-entry seed drafted |
 | 7. Jobs and the Terluna import | The job runner with its machine budget and queue; the read-only importer | Terluna's runs, cases and builds registered with their recorded hashes, each GCM run's key, recomputed from its imported record, matching the recorded one. The inputs of the 32 runs that `models/exoplasim/runs.json` matches rewritten byte for byte from their imported specifications, and the other deployed builds reproduced source for source. The imported 45° N twilight pair flagged for its mixed builds (defect log C8). In a test, the runner holds back a job while the load exceeds its ceiling or free disk falls below its minimum | To start |
-| 8. The fixpoint and the first new run | The fixpoint stage; the first experiment the lab runs itself (architecture.md, open question 3) | The fixpoint's first pass reproduces the existing longwave correction from the same columns. Each further pass is recorded, and the stage stops within its tolerances or at its pass limit, recording which. The new experiment passes its registry and envelope checks before it runs, and its post-run envelope check is recorded with it | To start |
+| 8. The fixpoint and the first new scenario | The fixpoint stage, whose GCM runs on the 1.2 atm Open Moon are the first the lab makes itself; then the study of the first new scenario (architecture.md, open question 3) | The fixpoint's first pass reproduces the existing longwave correction from the same columns. Each further pass is recorded, and the stage stops within its tolerances or at its pass limit, recording which. The new scenario's runs pass their registry and envelope checks before they start, and each run's post-run envelope check is recorded with it | To start |
 
 ## Stage 1: checks
 
@@ -22,8 +22,9 @@ through the reproduction of what Terluna already has, to new work.
   - gravity, the partial pressures and the flux in `progress.json` of `A28_corrected_970`;
   - the build macros in `build.json`;
   - `var16`, `var19` and `nx` in each ring case's `case.json`;
-  - the CM1 lengths and time step scaled from `cm1/defaults` at the Moon's gravity, which must equal Terluna's
-    ring settings exactly.
+  - the CM1 lengths, time step, boundary-layer length and damping rate scaled from `cm1/defaults` at the
+    Moon's gravity. Written with the rounding of Terluna's namelist writer (`cm1_run.py:1979-2035`), they must
+    equal Terluna's ring settings exactly.
 - **Against ExoPlaSim.** The calendar from `worldlab.derive` must equal what ExoPlaSim's own `configure`
   writes:
   - for the Moon;
@@ -56,7 +57,7 @@ The run key must match as well.
 - **Stage 8 runs the models.**
   - A GCM year took 218 s on 4 ranks in `A28_corrected_970`, and 278 s in `A28_corrected_970_lw_ice` with
     its heating diagnostics, so 20 years take about 73–93 minutes.
-  - Each one-day segment of the 45° N twilight ring took about 270 s on 6 threads, so its 59 days took 4.5
+  - Each one-day segment of the 45° N twilight ring took about 275 s on 6 threads, so its 59 days took 4.5
     hours. That ring wrote 8.5 GB, and the Jura box 54 GB over the same two lunar days.
 
 ## What the stages read from Terluna

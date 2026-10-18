@@ -13,7 +13,7 @@ that stage 1 of plan.md writes to read the seeds takes those derivations over.
 | Model defaults | One model's settings for any world: upstream pin, patches and switches, grid, physics, output and the calibration stages it reads. CM1's also define named variants and give lengths and the time step at a reference gravity | `cm1/defaults` | `lab/configs/<model>/defaults.toml` |
 | Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults, with the study's compatibility settings | `open-moon` | `lab/studies/<study>.toml` |
 
-World and scenario kinds combine freely. The Open Moon and its 1.0 atm variant (`moon/open-moon-1.0atm`)
+World and scenario kinds combine freely. The Open Moon and its 1.0 atm extension (`moon/open-moon-1.0atm`)
 are crafted scenarios of a found world, and an exoplanet study pairs a found world with an illustrative
 scenario.
 
@@ -25,8 +25,8 @@ scenario.
 2. **Stated or derived.** Each derived quantity has one derivation.
    - A specification may state such a quantity together with its basis. The lab then compares the stated
      value with the derivation, within the derivation's tolerance, and records both.
-   - The Moon's seed states its solar day as the synodic month, 29.53059 d, against 29.5305882 d from
-     1/(1/P_rot − 1/P_year).
+   - The Moon's seed states its solar day as the synodic month, 29.53059 d, the value CM1's `var19` takes in
+     Terluna's runner, against 29.5305882 d from 1/(1/P_rot − 1/P_year).
    - Earth's seed states the standard gravity of 9.80665 m/s². GM/R² comes to 9.8203 m/s², 0.14% higher
      through rotation and shape, which sets the tolerance a stated gravity needs.
 3. **Sources.** Every value of a found world or scenario names its source, and every crafted or illustrative
@@ -47,23 +47,33 @@ scenario.
    - **The radius.** ExoPlaSim reads it in units of 6,371,220 m (`shared/constants.json`, `model_closures`).
      Terluna's runner divided by 6,371,000 m, which lengthens PlaSim's radius by 60 m
      (`notes/exoplasim.md`).
-   - **The solar day.** ExoPlaSim keeps a 24-hour solar day only when `rotationperiod` is exactly 1.
+   - **The solar day.** ExoPlaSim keeps a 24-hour solar day only when `rotationperiod` is exactly 1. The
+     adapter passes 1 for a world whose stated solar day is exactly one day, as Earth's is, and the sidereal
+     period otherwise.
+   - **CM1's namelist.** Its writer rounds the boundary-layer length to 0.1 m and the damping rate to
+     10⁻⁸ s⁻¹, as Terluna's does (`cm1_run.py:2004-2005`).
    - **Molar masses.** ExoPlaSim computes the gas constant from its own molar masses: CO2 at 44.01 g/mol,
      against 44.0095 in Terluna's runner.
    - **CM1's Earth gravity** is 9.81 m/s².
-8. **Compatibility settings.** For byte-for-byte reproduction of a Terluna run, the study holds each of
-   Terluna's quirks as a named compatibility setting:
+8. **Compatibility settings.** For byte-for-byte reproduction of a Terluna run's inputs and its builds'
+   sources, the study holds each of Terluna's quirks as a named compatibility setting:
    - the radius divisor;
    - the eccentricity Terluna typed;
    - the calibration values copied by hand and rounded;
    - the CM1 run length typed as 59.06 days;
+   - the build labels that Terluna's Makefile patch writes into a comment;
    - the products Terluna's runs read, named by their recorded hashes.
 
    The products carry Terluna's other states with them, such as the reference tools' Ar/N2 of 0.0093/0.7808
    and a design column at the sunlight scale of 0.95 and 294.9 K. The lab uses them as recorded in place of
-   its own stages, and stage 5 reproduces each separately. Correcting a quirk afterwards is a declared delta
-   with a new key, and Terluna's record of the earlier run remains valid. The Moon's solar day is a stated
-   value with its basis (rule 2), which CM1's `var19` takes as Terluna's runner does.
+   its own stages, and stage 5 reproduces each separately.
+   - **Builds.** The lab compiles at its defaults' flags. A run that Terluna made on a stale build, such as
+     the -O2 control of the 45° N twilight pair (defect log C8), is therefore reproduced in its inputs alone.
+   - **Correction.** Correcting a quirk afterwards is a declared delta with a new key, and Terluna's record of
+     the earlier run remains valid.
+   - **Inheritance.** Compatibility settings and recorded keys stay with the study that holds them. A study
+     extending it inherits its runs and cases, which then use the lab's own stages and earn keys of their
+     own.
 9. **Scaling with gravity.** Where a model's grid follows the scale height, as CM1's does, its defaults
    give their lengths and time step at a stated reference gravity, the one at which they were tested.
    - **Scaled:** the adapter multiplies those values by g_ref/g, and rates such as the Rayleigh damping by
@@ -116,13 +126,18 @@ scenario.
 | Mole fractions | p_i/p | CO2 4.0 × 10⁻⁴, O2 0.17457850 | CM1 `TERLUNA_CO2`, `TERLUNA_O2` (written as 0.174579) |
 | Mass fractions | x_i M_i / Σ x_j M_j | CO2 6.1057 × 10⁻⁴, O2 0.19375 | PlaSim `ZGASW` (patch 08) |
 | Molar mass and gas constant | Σ x_i M_i; 8314.46/M | 28.8319 g/mol; 288.38 J kg⁻¹ K⁻¹ | ExoPlaSim `GASCON`, computed inside ExoPlaSim |
-| ExoPlaSim's days per year | N = 12 · max(1, ⌊360/(12 P_rot) + 0.5⌋) (`exoplasim/__init__.py:2617-2618`) | 12 | `N_DAYS_PER_YEAR` |
+| ExoPlaSim's rotation period | 1 for a stated one-day solar day, otherwise P_rot (rule 7) | 27.321661 d | `rotationperiod` |
+| ExoPlaSim's days per year | N = 12 · max(1, ⌊360/(12 P_rot) + 0.5⌋) (`exoplasim/__init__.py:2618-2619`) | 12 | `N_DAYS_PER_YEAR` |
 | PlaSim's model day | P_rot · N/(N − 1) (`plasim.f90:1296-1300`) | 29.8054 d | The calendar every output follows |
 | Steps per model day | nint(model day) ÷ nint(time step), as an integer division (`plasim.f90:1348`) | 1,430 at 30 min | `NSTPW` 143 for 10 means a day; `N_RUN_STEPS` 17,160 for 12 whole days; 120 means a year |
 | Sunlight at the top | ∫ S_λ T_λ dλ over the measured spectrum, plus the rest of the total at the longest measured wavelength's transmission (`exoplasim_run.py:976-984`); times (1 AU/a)² and the scale | 1,235.25 W/m² through the shield; 1,198.19 W/m² at 0.970 | ExoPlaSim `flux` (`GSOL0`); CM1 `var17` |
 | Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at a stated reference temperature | At 295 K: 52.4 km, 0.03015, 74,861 kg/m², 7.2 (`paper/data/worlds.json`) | The reach report; deciding whether a column needs a ledger of its own |
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
 | CM1 lengths and time step | The defaults' values × g_ref/g (rule 9) | A factor of 1, with the reference at lunar gravity: 6 km columns, a 150 km top, nudging from 8 to 16 km, a 40 s step | CM1's grid, top, nudging heights and `dtl` (`cm1_run.py:1979-2035`) |
+
+The registry's tests (`q`) name these quantities in snake case with their units: `gravity_m_s2`,
+`exoplasim_rotationperiod_days`, `model_day_days`, `scale_height_over_radius`, `chapman_horizon`, and
+`lowest_level_pressure_hpa`, the air's pressure at the lowest point of the surface.
 
 ## The Moon worked through
 

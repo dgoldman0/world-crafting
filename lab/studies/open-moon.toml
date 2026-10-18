@@ -16,6 +16,11 @@ exoplasim_sw_water_absorption = 1.292
 exoplasim_h2o_continuum = 0.004                 # Terluna's hand trials
 cm1_run_days = 59.06                            # two lunar days as Terluna typed them; 2 solar days come to 59.0612
 
+[compatibility.cm1_build_labels]                # the deployed build whose sources each case's build reproduces, by the
+ring_45n_corrected = "moon_omp_o3"              # label Terluna's Makefile patch writes into the OPTS comment
+ring_45n_corrected_twilight = "moon_omp_twilight"
+box_jura = "moon_omp_terrain_sea_twilight"
+
 [compatibility.products]                        # the products Terluna's runs read, used as recorded in place of the
                                                 # lab's own stages; stage 5 reproduces each separately
 ledger = "terluna:climate/results/gcm/twilight.json@c7cdb8e252f8425e"

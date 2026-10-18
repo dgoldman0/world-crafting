@@ -17,7 +17,7 @@ model = "exoplasim"
 where = "plasim/src/radmod.f90, solang"
 form = "latent defect"
 assumes = "a rotation of exactly one day (rotspd = 1)"
-when = [{ field = "rotation.synchronous", eq = false }, { q = "rotation_period_days", ne = 1.0 }]
+when = [{ field = "rotation.synchronous", eq = false }, { q = "exoplasim_rotationperiod_days", ne = 1.0 }]
 effect = "the Sun skips back 1/(N-1) of a turn each model day: 2 deg at a 2-day rotation, 10 deg at 10 and 12 days, 16 deg from just above 12 days to 20, 33 deg above 20"
 state = "repaired"
 repair = { patch = "04-sun-clock", switch = "NSUNCLOCK", value = 2, default = 0 }

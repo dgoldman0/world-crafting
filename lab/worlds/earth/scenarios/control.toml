@@ -1,6 +1,8 @@
 # Earth's air at sea level, built with the recipe of the lunar design air at 1 atm, so that the control runs the
-# same derivation of the gases as every other scenario; the ozone, seas, land and sunlight are ExoPlaSim's own Earth
-# settings, as the released model runs them. Draft schema 0.
+# same derivation of the gases as every other scenario. The ozone, seas and land are ExoPlaSim's own Earth settings.
+# The sunlight is the world's TSIS-1 spectrum at 1361 W/m2, where released ExoPlaSim runs Earth at 1367 W/m2 by
+# default (exoplasim/__init__.py:2003), so the released run of the comparison takes the same sunlight and air
+# through ExoPlaSim's own interface. Draft schema 0.
 
 schema = "worldlab.scenario/0"
 id = "earth/control"

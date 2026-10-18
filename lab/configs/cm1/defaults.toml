@@ -49,12 +49,13 @@ droplets_cm3 = 100.0
 radiation = "rrtmg"                            # radopt 2
 surface_layer = "mm5"                          # sfcmodel 2, oceanmodel 1
 pbl = "cm1-simple"                             # ipbl 2
+twilight = "none"                              # the curved air's twilight in RRTMG, var20; the twilight variant sets it
 
 # Variants: the named changes a case may declare. Each adds its patch series and sets what it needs, by dotted
 # path as a study's [set] does, and the lab's pair check accepts a pair that differs by its declared variants alone.
 [variants.twilight]                            # the curved air's twilight added to RRTMG: var20 = 1, terluna_twilight.txt
 patches = ["series-twilight"]
-set = { "twilight" = "full" }
+set = { "physics.twilight" = "full" }
 
 [variants.terrain]                             # the ground at its heights, each column nudged and forced at its own height
 patches = ["series-terrain"]

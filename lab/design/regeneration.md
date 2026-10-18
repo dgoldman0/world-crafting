@@ -122,7 +122,7 @@ The product groups that head the columns:
 | Rotation period | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | Solar day, where stated | c | — | — | — | — | — | — | — | — | — | c | ● | ● |
 | Tilt, year, eccentricity | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
-| Star spectrum (shape) | — | — | ● | ● | ● | ● | ●○ | ○ | ● with ice optics on | c | ● | ● | ● |
+| Star spectrum (shape) | ● | — | ● | ● | ● | ● | ●○ | ○ | ● with ice optics on | c | ● | ● | ● |
 | Star total, or distance | ● | — | ● | ● | c | c | ○ | ○ | — | — | ● | ● | ● |
 | Surface pressure | ● | — | — | ● | ● | ● | ●○ | ●○ | — | ● | ● | ● | ● |
 | O2 or CO2 | ● | — | — | ● | ● | ● | ●○ | ●○ | — | ● | ● | ● | ● |
@@ -238,7 +238,8 @@ The product groups that head the columns:
 **(c) A new body: Mars held at 1 bar** (`mars/breathable-1bar`).
 
 - **Produced again:** everything.
-- **The registry entries the reach report must raise:**
+- **The registry entries the reach report must raise,** some of them beyond the eleven-entry seed (A3, the
+  equinox Sun, the column-mass envelope), which stage 6 adds:
   - a gravity of 3.73 m/s² against CM1's 9.81: the core patches are required, and the schemes that hard-code
     Earth's gravity are refused;
   - a solar day of 1.0275 d, 0.15% longer than the rotation: PlaSim's own clock would skip back about 1° a

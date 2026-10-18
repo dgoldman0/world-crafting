@@ -4,7 +4,8 @@ Reviews of the design documents against the author's prose rules (Terluna
 `ensemble/planning/source_controls/STYLE_NOTES.md`, `Jewish_Papers_Updated_Style_Notes.md`,
 `Agent_Working_State_Editorial_Gates.md` and the Open Moon charter's G1–G4). Each reviewer was a fresh,
 read-only agent briefed with the rules and the four sources. None had seen an earlier round's findings.
-Lexical scans served as screening only. The author has read none of these documents yet.
+Lexical scans served as screening only. The author's one question so far, on draft 1's model
+configurations, led to draft 2.
 
 | Round | Date | Reviewer and files | Blocking | Minor | Technical |
 |---|---|---|---|---|---|
@@ -18,7 +19,8 @@ Lexical scans served as screening only. The author has read none of these docume
 | 4 | 2026-10-17 | B: inventory, regeneration, world_spec (confirmation round) | 0 | — | 2 |
 | 5 | 2026-10-17 | A: README, architecture, plan, with the new seeds for consistency | 4 | — | 10 groups |
 | 5 | 2026-10-17 | B: world_spec, regeneration and every seed, schema against seeds | 0 prose; 10 schema and seed | 3 | — |
-| 6 | 2026-10-17 | Confirmation round on draft 2 as revised | pending | — | pending |
+| 6 | 2026-10-17 | A: README, architecture, plan, with the seeds (confirmation round on draft 2 as revised) | 0 | — | 9 |
+| 6 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 1 prose; 4 schema and seed; 1 between the documents | 4 | — |
 
 ## Round 1 dispositions
 
@@ -199,3 +201,53 @@ conditions changed with them, and those sections reopen for review in round 5.
 **Corrected: three numbers.** Earth's CM1 lengths are given at CM1's 9.81 m/s², H/R is 0.03015, and the Sun
 clock's step lies just above 12 days.
 
+## Round 6 dispositions
+
+Reviewer A found no blocking prose in the README, the architecture or the plan.
+
+**Revised: reviewer B's prose item.** Rule 8's sentence on the Moon's solar day joined rule 2's Moon bullet.
+
+**Adopted: every schema and seed item.**
+
+- **The twilight variant** sets `physics.twilight`, which the CM1 defaults now define as `none`.
+- **Byte-for-byte reproduction** covers a run's inputs and its builds' sources (rule 8).
+  - The study holds the labels of the deployed builds whose sources its cases' builds reproduce.
+  - The lab compiles at its defaults' flags, so the -O2 control of the 45° N pair (C8) is reproduced in its
+    inputs alone.
+  - CM1's namelist writer rounds the boundary-layer length and the damping rate as Terluna's does, on every
+    world (rule 7).
+- **The Earth control's sunlight** is the world's TSIS-1 spectrum at 1361 W/m², and the released run of the
+  comparison takes the same sunlight and air through ExoPlaSim's own interface. Released ExoPlaSim's default
+  is 1367 W/m².
+- **Registry entry A1** tests `exoplasim_rotationperiod_days`, a quantity the specification now names. The
+  adapter passes `rotationperiod` = 1 for a world whose stated solar day is exactly one day (rule 7), so A1
+  stays silent on Earth.
+- **The regeneration matrix** marks the planet record for a change in the star spectrum's shape.
+
+**Adopted: reviewer A's technical items.** These were:
+
+- CM1's run length counting the world's solar days, with its intervals in seconds;
+- stage 1's comparison of the CM1 lengths after the rounding of Terluna's namelist writer;
+- the build labels, as above;
+- the MYNN refusal at more than 0.5% from 9.81 m/s²;
+- a world's stated gravity, with its basis, in the principles;
+- the calendar's consequences: the steps per model day, the run length, the steps per mean and the output
+  count;
+- stage 8's first runs of the lab's own, the fixpoint's GCM runs on the 1.2 atm Open Moon;
+- the twilight ring's segments at 275 s;
+- the session example, whose extended study inherits the runs and cases and earns keys of its own.
+
+**Minor items.** Adopted: Earth's semi-major axis names its source, the 1.0 atm scenario is called an
+extension, and worked example (c) notes the registry entries beyond the seed that stage 6 adds. The citation of
+ExoPlaSim's calendar moved to lines 2618–2619. One item stands: `droplets_cm3` keeps Terluna's name, which
+rule 1 allows.
+
+**Checked while revising.** Terluna's deployed builds carry their labels in the Makefile's OPTS comment
+(`cm1/build/<label>/src/Makefile:81`), and `cm1_run.py:2004-2005` rounds `rdalpha` to eight decimals and
+`l_inf` to one.
+
+## State after round 6
+
+- **README, architecture, plan:** no blocking finding in round 6. Its nine technical items are revised.
+- **Specification, regeneration map, seeds and registry:** round 6's blocking items are revised. Round 7
+  confirms them.

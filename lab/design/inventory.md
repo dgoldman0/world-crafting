@@ -145,7 +145,7 @@ Line numbers are Terluna's except where a path starts with `models/`, `python/`,
   - rings took 1.8–12.3 wall hours, in proportion to their length, from the 80° rings to the tilted and
     equatorial ones;
   - boxes took 2.3–27.2 hours, from the quarter-size land tests to the electrified box;
-  - the 45° N twilight ring ran as 59 one-day segments of about 270 s each on 6 threads, 4.5 hours in all.
+  - the 45° N twilight ring ran as 59 one-day segments of about 275 s each on 6 threads, 4.5 hours in all.
 - **Size.** That ring wrote 8.5 GB, and the Jura box 54 GB: 37 GB of output and 17 GB of restarts.
 
 ### The Moon's values in the runner
