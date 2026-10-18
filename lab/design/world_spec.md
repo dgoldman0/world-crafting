@@ -185,17 +185,41 @@ a case's top soil layer against 1 cm × (solar day/1 d)^½.
 
 ## Settled by the loader
 
-Stage 1's loader fixes the rest of the schema, and this document records each rule in the commit that
-codes it:
+`lab/worldlab/spec.py` codes these rules:
 
-- the fields of the model defaults, the studies, their GCM runs and CM1 cases, and the compatibility keys;
-- the root of each kind of dotted path, and one namespace for each level's ids;
-- the order in which a parent, its variants, `[set]` and the compatibility settings apply, with a conflict
-  between them an error;
-- the canonical form the hash takes, and which descriptive fields it leaves out;
-- the pressure at the surface's lowest point, and the `water` and `sea` reference levels it starts from;
-- the tolerance of each stated value against its derivation, and what a breach does;
-- which fields are optional, with their defaults, and whether sources stay as comments.
+- **Ids.** A world takes its folder's name, a scenario `<world>/<name>`, a model's defaults `<model>/defaults`
+  and a study its file's name. Inside a study, `extends` names model defaults where it holds a `/` and a
+  sibling in the same table otherwise.
+- **References.** `forced_by` and `initial.from` name another GCM run, and `site.ring` and
+  `day_night.from_case` another CM1 case of kind `ring`. A run's start lies within its source's
+  `model_years`, a case's `reference_model_years` within its forcing run's, and no chain of starts closes
+  on itself. The compatibility tables keyed by name name items of the study.
+- **Order.** A derived item takes its parent, then its own fields, then its added variants, then its
+  `[set]`. A study's `[compatibility.set]` comes last, when the study reproduces Terluna's runs: its paths
+  that start with a model's name apply to that model's runs or cases, and the rest to the scenario. It
+  applies only where the item's chain left the value of the defaults or of the root scenario, so that a
+  quirk never undoes a declared change, and each of its paths is checked on every resolution.
+- **Variants** add to the parent's and apply in the order the model's defaults define them, which is the
+  order Terluna's builds apply their series in. An item's series are rebuilt from the defaults' and its
+  variants', so that they never depend on the chain that reached them. `requires` checks; two variants that
+  set one path differently are an error, as is a variant that changes a value its parent's chain set.
+- **Changes.** Only an item that extends model defaults adds fields of its own; any other changes through
+  `[set]` and variants, and restates a field only with its parent's value, compared as the hash sees it.
+  Descriptive fields (`title`, `purpose`, `recorded_key`) are restated freely and never inherited. A
+  `[set]` path names an existing field and leaves structural ones alone (`schema`, `id`, `extends`, `set`,
+  `variants`, `model`, `world`, `kind`, `patches`). A table that replaces a table keeps all its keys, which
+  refuses the unquoted dotted keys TOML reads as nested tables.
+- **Studies** may extend a study, taking its runs and cases without its compatibility settings or recorded
+  keys; a parent's item is never redefined, only derived from.
+- **The hash** is the sha256 of the resolved settings as JSON with sorted keys, no spaces and floats as
+  Python writes them, its descriptive fields left out. It covers an item's own settings; stage 4's product
+  keys add the scenario, the upstream keys and the compatibility state.
+- **Unchosen fields** are listed by path, for the stages that read them to refuse.
+
+Still to settle, each in the commit that codes it: the field tables of the defaults, studies, runs, cases
+and compatibility keys, with optional fields and their defaults; the pressure at the surface's lowest point
+and the `water` and `sea` reference levels; the tolerance of each stated value against its derivation, and
+what a breach does; and whether sources stay as comments.
 
 ## The Moon worked through
 

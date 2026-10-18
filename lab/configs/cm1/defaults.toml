@@ -85,16 +85,17 @@ sun_declination = "from-season"                # from the world's obliquity and 
 
 # Variants: the named changes a case may declare. Each adds its patch series and sets what it needs, by dotted
 # path as a study's [set] does, and the lab's pair check accepts a pair that differs by its declared variants alone.
-[variants.twilight]                            # the curved air's twilight added to RRTMG: var20 = 1, terluna_twilight.txt
-patches = ["series-twilight"]
-set = { "physics.twilight" = "full" }
-
+# They apply in the order defined here, which is the order Terluna's builds apply their series in (builds.json).
 [variants.terrain]                             # the ground at its heights, each column nudged and forced at its own height
 patches = ["series-terrain"]
 
 [variants.sea]                                 # the water columns of a two-dimensional surface run as sea
 patches = ["series-sea"]
 requires = ["terrain"]
+
+[variants.twilight]                            # the curved air's twilight added to RRTMG: var20 = 1, terluna_twilight.txt
+patches = ["series-twilight"]
+set = { "physics.twilight" = "full" }
 
 [variants.electrified]                         # WRF-ELEC's NSSL microphysics with charging, lightning and leakage
 patches = ["series-elec"]
