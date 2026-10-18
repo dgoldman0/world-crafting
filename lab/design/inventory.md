@@ -80,7 +80,7 @@ Line numbers are Terluna's except where a path starts with `models/`, `python/`,
 | O2 at 21,227 Pa, Ar/N2 of 0.00934/0.78084, CO2 at 400 ppm | `:78-80` | Scenario fields, in one recipe for every tool |
 | Rayleigh 2.237 and near-infrared water 1.292, copied by hand from the fit product and rounded; the water continuum 0.004, from hand trials | `MODEL`, `:106`, `:112` | Calibration products with envelopes |
 | Year 365.25636 d, eccentricity 0.016715 | `:841-842` | World fields |
-| The radius divisor of 6,371,000 m, against ExoPlaSim's own 6,371,220 | `:77` | The adapter's convention, with a compatibility setting |
+| The radius divisor of 6,371,000 m, against ExoPlaSim's own 6,371,220 | `:77` | The adapter's convention: ExoPlaSim's own 6,371,220 m |
 | The 1,361 W/m² total and the 5,772 K tail | `:958-959`, `:983` | Star fields |
 | The yearly summary's equatorial and polar bands, \|latitude\| < 12° and > 70° | `:1222-1223` | Diagnostic settings |
 | The product paths and the patched copy's folder | `:747-750` | Store keys |
@@ -221,8 +221,8 @@ keys, and write in the design air, Earth's R and cp, and heights in km.
 **Consumers outside `climate/`.** Biosphere, geography, resources, visualization and about fifteen research
 studies read products of `A28_dim5_moon`, the design run before 2026-10-14 (its climatology, winds,
 convection and radiation check, and the ring summaries), and `atmosphere/lower_air.py`, `reduced_gases.py`
-and two provisioning files hold GCM numbers copied in by hand. The lab can mark both kinds stale once its
-importer records them.
+and two provisioning files hold GCM numbers copied in by hand. Both kinds stay in Terluna, beyond the lab's
+stage graph.
 
 ## Hand steps and open dependencies in Terluna
 

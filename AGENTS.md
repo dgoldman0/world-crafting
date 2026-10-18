@@ -25,12 +25,16 @@ offline tools and tests.
 | An in-house reference or calibration tool | `python/`, under the package path it had in Terluna so its imports and history stay traceable |
 | Notes on correctness, limitations and room for improvement | `notes/`, one file per component |
 | The paper | `paper/`: notes, sections, figures, data extracts, source records, review records |
+| Fortran for an in-house tool: a kernel whose speed or numerics needs compiled code | Beside its Python tool in `python/`, built by `make` and called from Python, which keeps the orchestration. A model's own routines compile from its patched source in `models/<model>/`, with their bindings beside the tools that call them. Scaffolding stays in Python (`lab/design/architecture.md`, "Native code") |
 | The integrated lab: its design, specifications and registry of Earth assumptions and, as it is built, its code, case set-up, run bookkeeping and analyses | `lab/` (see `lab/README.md`; on the `lab` branch since 2026-10-17) |
 
 World-crafting is a standalone project (the author's decision of 2026-10-17). What the lab uses for its
 own work, case set-up, run bookkeeping, analyses and data included, lives in `lab/` and the lab's store,
 and Terluna's files serve its tests alone; Terluna's own case set-up, bookkeeping and analysis scripts stay
-in Terluna. Upstream source code is never committed whole: patches are applied to the pinned upstream
+in Terluna. The lab is an ensemble of its own, for exoplanets and constructed worlds (the author's direction
+of 2026-10-18): its design, numerics and code are chosen for that work, Terluna's records enter only as
+comparisons within stated tolerances, and the lab reproduces none of Terluna's runs, inputs or keys byte for
+byte. Upstream source code is never committed whole: patches are applied to the pinned upstream
 archives named in each model's README.
 
 ## File and evidence practice

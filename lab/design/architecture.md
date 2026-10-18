@@ -31,18 +31,21 @@ runner's first client, and a user interface can be a second.
 
 ## Principles
 
+- **An ensemble of its own.** The lab models found and crafted worlds for their own sake, and its design,
+  numerics and code are chosen for that work alone (the author's direction of 2026-10-18). The Open Moon's
+  case and some of its data come from Terluna, and the lab compares its values with Terluna's records
+  within stated tolerances; it reproduces none of Terluna's runs, inputs, keys or quirks byte for byte.
 - **Self-contained.** What the lab uses for its own work lives in world-crafting and the lab's store: its
   specifications, adapters and case writers, run bookkeeping, analyses, builds and runs, and the data it
-  reads, copied with their provenance. Terluna's files serve the tests that reproduce Terluna's runs, and
-  those tests skip where Terluna is absent (the author's decision of 2026-10-17).
+  reads, copied with their provenance. Terluna's files serve the comparison tests alone, which skip where
+  Terluna is absent (the author's decision of 2026-10-17).
 - **One description, with every derived value computed.** Surface gravity comes from GM, R and the spin,
   the solar day from the rotation and the year, PlaSim's model day from ExoPlaSim's own rounding rule, and
   CM1's domain length from the radius and the latitude. CM1's grid follows the scale height, its raindrop
   limits the capillary length, its soil layers the solar day and its Sun the season. A scenario's sunlight
   scale may follow its reference temperature, which the target stage meets over GCM runs. A world may state
   such a value with its basis, as Earth's seed states the standard gravity of 9.80665 m/s², and the lab
-  records it beside its derivation (world_spec.md, rule 2). A study's compatibility settings may override a
-  derived value to reproduce a Terluna run, and the override is recorded with every product it reaches.
+  records it beside its derivation (world_spec.md, rule 2).
 - **One register for the world and its scenario.** The Open Moon charter requires one versioned register of
   pressure and composition, water, gravity, rotation and the filtered spectrum (Terluna
   `ensemble/planning/Open_Moon_Editorial_Charter_control-01.md`, E3). In Terluna these values are typed into
@@ -73,12 +76,9 @@ runner's first client, and a user interface can be a second.
   on its products. The other three causes stop the stage until the input, the hash or the pair is corrected.
 - **Declared pairs.** A run or case derived from another names its change, as set fields or as a variant
   that its model's defaults define. The lab compares the two fully resolved input sets, build flags
-  included, and refuses the pair when they differ elsewhere. Build labels stay outside the comparison: a
-  label names the deployed Terluna build whose sources a case's build reproduces, in a Makefile comment
-  that leaves the executable unchanged. A series point that the declared switches need counts within the
-  delta, as patches 09 and 10 do for the longwave correction and ice optics. Applied by the importer to
-  Terluna's records of the 45° N twilight pair, which `lab/studies/open-moon.toml` defines as a ring and its
-  twilight variant, the check flags the pair's mixed builds (defect log C8).
+  included, and refuses the pair when they differ elsewhere. A series point that the declared switches
+  need counts within the delta. The check refuses, for instance, a twilight case whose control was compiled
+  with other optimisation flags, the fault defect log C8 records in Terluna's 45° N pair.
 - **Earth in two checks.**
   - **Identity, per patch.** With its switch at its identity default, the patched model reproduces the
     released model's own Earth configuration byte for byte.
@@ -101,7 +101,7 @@ runner's first client, and a user interface can be a second.
 | World | A body: its size and mass, rotation, orbit, star and any host planet | Name and content hash | `shared/constants.json`, through `climate/gcm/boundary.py`, into `moon_gcm_configuration.json`; the year and eccentricity typed into `exoplasim_run.py:841-842` |
 | Scenario | A designed or supposed state of a world: air, water, shield and sunlight scale, surface properties, outside forcings | Name and content hash | `EXPERIMENTS` (`exoplasim_run.py:85-94`), parts of `MODEL`, command-line flags |
 | Model defaults | One model's settings for any world: upstream pin, patch-series state and switches, grid, physics options, output. CM1's also name variants and give lengths, times and rates at a reference state | Name and content hash | `MODEL` (`exoplasim_run.py:98-145`), `BUILDS`, `case_settings` (`cm1_run.py:1979-2035`) |
-| Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults, with the compatibility settings that reproduce Terluna's quirks | Name and content hash | `EXPERIMENTS` and `CASES` together |
+| Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults | Name and content hash | `EXPERIMENTS` and `CASES` together |
 | Calibration | A fitted product, with the states it was fitted on and its residuals | Content hash | Scalars typed into `MODEL`; JSON products in `climate/results/gcm/` |
 | Experiment | A GCM run in a study: its settings, calibrations, initial state and length | Its product key ("The stage graph and staleness"), which names its folder in the store | GCM run folders and their run key (`exoplasim_run.py:905-911`) |
 | Case | A cloud-resolving slice in a study, forced from one of its experiments and, for a box, from a ring's day–night circulation: geometry, years, variants, CM1 settings | Its product key, as for an experiment | `CASES` (`cm1_run.py:1093-1526`), `case.json` |
@@ -168,8 +168,7 @@ The lab keeps three kinds of specification:
 - **World and scenario files** hold the physical values once, for every model.
 - **Each model's defaults** hold the settings only that model has, stated for any world.
 - **A study** sets up one scenario's chain: its GCM runs, then the CM1 cases forced from them, each extending
-  its model's defaults with the changes particular to the study. Its compatibility settings hold the quirks
-  that reproducing Terluna's runs requires.
+  its model's defaults with the changes particular to the study.
 
 Terluna builds families of cases, such as rings at six latitudes, in loops over Python dicts
 (`cm1_run.py:1124-1159`). The lab generates each family into explicit entries of a study, which can then be
@@ -247,7 +246,7 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   means a model day are the divisor of its steps whose mean lies nearest the interval, 10 means of 143
   steps for the Moon's 3 days; from a model day up, the interval takes whole model days.
 - **Namelists and guards.** The namelist edits of `build_model` (`exoplasim_run.py:1010-1085`) become a
-  function of the resolved inputs. The guards remain: the band split, Terluna's run key against resuming a
+  function of the resolved inputs. The guards remain: the band split, the run's key against resuming a
   changed run, free disk and the output count. A new guard checks the time step, a stated model choice,
   against the advective limit at the world's radius and the truncation with the run's largest wind, each
   model year.
@@ -271,11 +270,10 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   stage 3), the adapter compiles the values in, and a build's key covers them with its patch set, flags and
   compiler.
 - **Points in the series.** A build names how far it applies each patch series, as ExoPlaSim's builds
-  name their point in theirs. The reproduction tests build at the point before the namelist patches, which
-  the `open-moon` study names among its compatibility settings. Each planned patch is appended after that
-  point, core 18 onward and electrified 10, and at its identity default reproduces the build without it:
-  Earth's gravity and air for the namelist patches, Morrison's 2.8 mm cap, patch 08's 5–80 cm soil and
-  patch 05's equinox Sun.
+  name their point in theirs. Each planned patch is appended after core 17 and electrified 9, as core 18
+  onward and electrified 10, and at its identity default gives the output of the build without it: Earth's
+  gravity and air for the namelist patches, Morrison's 2.8 mm cap, patch 08's 5–80 cm soil and patch 05's
+  equinox Sun.
 - **Case kinds,** as Terluna has them:
   - a ring on a circle of latitude, or on a tilted great circle;
   - a box: flat, over terrain, or over terrain with sea;
@@ -292,10 +290,10 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
     the lunar cases only through the values chosen for them. The defaults state these at the Open Moon's
     state, where Terluna's rings ran them. The adapter multiplies lengths by H/H_ref, with H = RT/(Mg) at
     the scenario's reference temperature, times by (H/c)/(H/c)_ref, with c = (RT/M)^½, and rates by the
-    inverse. In the reproduction study, whose reference state the lab derives from `moon/open-moon` under
-    Terluna's gravity, the factors are exactly 1 and reproduce Terluna's values; the spin term moves the
-    lab's own lunar runs by 5 parts per million. At Earth's 288 K and air, with CM1's 9.81 m/s², lengths
-    take 0.161, giving columns of 965 m and a 24.1 km top.
+    inverse. The defaults' reference state is the one Terluna's rings ran at, the Open Moon's air at 295 K
+    under Terluna's gravity, GM/R² (`cm1/defaults`, `[reference]`); the spin term moves the lab's own lunar
+    cases 5 parts per million from it. At Earth's 288 K and air, with CM1's 9.81 m/s², lengths take 0.161,
+    giving columns of 965 m and a 24.1 km top.
   - **Unscaled:** with the world's Sun in a case, the run length is set in the world's solar days, and the
     output, restart and nudging intervals stay in seconds. Terluna's gravity pair, which ran without a Sun,
     scaled those too (`time_scale`, `cm1_run.py:1974-2029`).
@@ -334,20 +332,23 @@ The lab checks the envelope twice:
   precipitable water included. Outside it, the run's products are marked "used beyond its fit", and every
   report built on them carries the warning.
 
-The longwave and ice test (`A28_corrected_970_lw_ice`), which settles near 307 K, fails the second check.
-Its longwave correction was fitted at 295 K, and Terluna's plan records that the corrected layers stray by
-5–7 W/m² already at 302 K. The lab would mark the run "used beyond its fit" and keep it as a sensitivity
-until the correction is refitted with ice optics on, as the author chose on 2026-10-17 (plan.md, stage 8).
+Terluna's longwave and ice test (`A28_corrected_970_lw_ice`), which settled near 307 K, shows what the second
+check catches: its longwave correction was fitted at 295 K, and Terluna's plan records that the corrected
+layers stray by 5–7 W/m² already at 302 K. The lab's own run of that pair, on such a correction, is marked
+"used beyond its fit" wherever it settles outside the fit's range, and kept as a sensitivity until the
+correction is refitted with ice optics on, as the author chose on 2026-10-17 (plan.md, stage 8).
 
-Three calibrations are fitted on the GCM's own columns:
+Three calibrations are fitted on the GCM's own columns, as Terluna fitted its own:
 
-- the shortwave multipliers, on 11 columns of `A28_dim5`;
+- the shortwave multipliers, on 11 columns (Terluna's from `A28_dim5`);
 - the water continuum (`TH2OC`), on cloud-free columns at 280 and 310 K, where Terluna chose 0.004 by hand
   trials (inventory.md);
-- the longwave correction, on about 2,100 cloud-free columns of `A28_corrected_970_heating`.
+- the longwave correction, on about 2,100 cloud-free columns (Terluna's from `A28_corrected_970_heating`).
 
 Each refit changes the climate that supplies the next columns, so a **fixpoint stage** runs the loop that
-`notes/exoplasim.md` puts first among its improvements: run, take the columns, refit, run again.
+`notes/exoplasim.md` puts first among its improvements: run, take the columns, refit, run again. A world's
+first run takes each calibration at its identity default, the released model's own value, and the fixpoint
+starts from it.
 
 - **Stopping.** The stage stops once the parameters and the climate each move less than stated tolerances,
   or at a stated pass limit.
@@ -415,23 +416,48 @@ Sun-clock entry across ExoPlaSim's rounding.
 | Git (this repository) | Specifications, the registry, the design, small products (calibrations, tables and reports of a few MB at most), the records index |
 | The store, at `$WORLDLAB_STORE`: a folder of the lab's own, on the research drive on this machine | `data/<digest>/` for the manifest's files, `builds/<key>/`, `products/<stage>/<key>/`, `runs/<key>/`, `cases/<key>/`, `caches/`, an index of human names, and the runner's queue, job states and socket |
 
-Each run and case is filed under its product key, as `runs/<key>/` and `cases/<key>/`. Terluna's names,
-such as `A28_corrected_970` and `ring_45n_corrected_twilight`, become aliases of those keys. An imported or
-reproduced GCM run also keeps Terluna's own run key (`exoplasim_run.py:905-911`), a hash of its configuration
-and input files, which stage 2 must reproduce.
+Each run and case is filed under its product key, as `runs/<key>/` and `cases/<key>/`, and the name its study
+gives it, as `<study>:<name>`, becomes an alias of that key.
 
-- **Links between records.** A case names its experiment by key. The importer therefore resolves Terluna's
-  case records, which name a GCM run by its name and years, to keys.
+- **Links between records.** A case names its experiment by key.
 - **Paths.** Paths enter keys relative to configurable roots, so the ledger takes from a root the run folder
   that Terluna's ledger hard-codes (`notes/reference_radiation.md`, section 3). Terluna's pins resolve
   through `$TERLUNA_REPO` and `$TERLUNA_DRIVE`, or `lab/local.toml` where those are unset, which the
-  reproduction tests read and skip without (`lab/worldlab/roots.py`); the lab's own pins resolve through the
+  comparison tests read and skip without (`lab/worldlab/roots.py`); the lab's own pins resolve through the
   manifest at `lab/data/manifest.toml`.
 
-**Importing Terluna.** A read-only importer registers Terluna's GCM runs, CM1 cases and builds as records.
-It takes the keys, configurations and hashes they recorded, and the patch-series state matched in
-`models/exoplasim/runs.json` and `models/cm1/builds.json`. The imported records serve the reproduction tests
-and the comparisons with Terluna, and the lab's own studies take their parents from runs the lab made.
+**Comparisons with Terluna.** A comparison reads Terluna's records and output in place, under the Terluna
+roots, and reports where the lab's values differ from them and why. It files nothing in the store, and the
+lab's studies take their parents from runs the lab made.
+
+## Native code
+
+Work that needs the speed or the numerics of compiled code is written in Fortran, as the models are, and
+scaffolding, data handling and orchestration stay in Python (the author's direction of 2026-10-18). That day
+the tools were timed on one thread at nice 19, with the machine's load average at 2–7, on synthetic optics
+except for the geoid and the line absorption, which read their real inputs; their logs were read beside.
+Four kernels were picked out, each called from Python:
+
+| Kernel | Today | In Fortran |
+|---|---|---|
+| The two-stream solver (`python/atmosphere/radiative_convective/shortwave.py`), inside every reference column | NumPy on one thread: 0.77 s for a slab of 47 layers and 40,000 points | 0.12 s, within 10⁻¹¹ of NumPy |
+| The sky's scattering solver (`python/illumination/sky/solver.py`): 37 minutes of each ledger on 6 threads | numba | 1.3–1.5 times faster, equal to the last bit with `-ffp-contract=off` |
+| The ledger's beam step (`python/climate/gcm/twilight.py`, `illumination/sky/solved_transport.py`): 412 of the step's 523 s | numba | 3–4 times faster with its loops reordered |
+| PlaSim's radiation, as the shortwave and longwave fits call it (`python/climate/gcm/plasim_shortwave.py`, `plasim_longwave.py`) | Python copies of `radmod.f90` | PlaSim's own patched routines, compiled from `models/exoplasim/`'s series, so that the fits run the model's own code |
+
+The row loop of the correlated-k overlap (`python/atmosphere/radiative_convective/ck.py`) becomes NumPy
+array operations. The line absorption, already batched with FFTs, and the longwave, whose exponentials ran
+only 1.3–1.6 times faster in Fortran, stay in Python, as do the GRAIL geoid (1 s), the seas and lakes (about 20 s) and
+the lab's own code.
+
+- **Where.** Each kernel's Fortran sits beside its Python tool, built by `make` with its flags in the build's
+  key and called through C bindings. PlaSim's routines compile from the patched upstream source in
+  `models/exoplasim/`, with their Python bindings beside the fits in `python/climate/gcm/`.
+- **Acceptance.** A kernel replaces its Python once it agrees with it within its stated numerical tolerance,
+  with the same spectral channels and scattering orders where those are chosen as it runs (plan.md, stage
+  5). Its tests run under `make check` wherever gfortran is, the sky solver's among them, which pytest leaves
+  uncollected where numba is missing.
+- **Threads** follow the models' `OMP_NUM_THREADS`, within the machine budget.
 
 ## Jobs and the machine
 
@@ -468,10 +494,11 @@ lab stop open-moon-0.960:A28_corrected_970       # the runner writes the job's s
 | Decision | Choice |
 |---|---|
 | Home | The `lab/` directory of world-crafting, beside the verified patches, tools and notes: the package in `lab/worldlab/` and its tests in `lab/tests/` |
-| Self-contained | What the lab uses for its own work lives in world-crafting and its store; Terluna's files serve the reproduction tests alone (Principles) |
-| Patches | Builds apply the `models/` series alone, whose patched sources match Terluna's byte for byte today (`models/check_patches.sh`, run on this branch on 2026-10-17); whether Terluna's runners then drop their string edits is Terluna's decision |
+| Self-contained | What the lab uses for its own work lives in world-crafting and its store; Terluna's files serve the comparison tests alone (Principles) |
+| An ensemble of its own | The lab's design, numerics and code are chosen for its own work; it compares with Terluna's records within tolerances and reproduces none of Terluna's runs byte for byte, as the author directed on 2026-10-18 (Principles) |
+| Patches | Builds apply the `models/` series alone, which `models/check_patches.sh` applies to the pinned upstream sources |
 | Format | TOML specifications, with sources as comments beside values; JSON products and records, in the form of Terluna's products |
-| Runs | Terluna's runs stay in its folders, where the reproduction tests and the importer read them. The lab's own runs begin once stages 2–3 have shown its inputs match Terluna's and stage 7's runner holds them to the machine budget, and they are filed in its store |
+| Runs | The lab's own runs begin once stages 2–3 have checked its inputs and builds and stage 7's runner holds them to the machine budget, and they are filed in its store; Terluna's runs stay in Terluna's folders, where the comparisons read them |
 | CM1 compiled once | Planned patches read gravity, CO2 and O2 from the namelist; once they pass plan stage 3, one build of each patch set serves every world (Model adapters) |
 | After the 1.2 atm Open Moon | The Moon at 1.0 atm, the same body with every calibration refitted; then Mars at 1 bar, a new column and ledger inside RRTMG's range; then a slowly rotating Earth-like planet, which needs the general repairs alone |
 | Outside an envelope | The lab refuses the run unless explicitly overridden, warns clearly even then, and records the override (Principles) |
@@ -479,6 +506,7 @@ lab stop open-moon-0.960:A28_corrected_970       # the runner writes the job's s
 | The longwave correction | Refitted with ice optics on, since it was fitted with them off (regeneration.md, example d) |
 | Engine | A custom runner, a small local service with its job queue in the store; the command line is its first client, and a user interface can be a second ("The stage graph and staleness") |
 | Workflow | The lab's code follows AGENTS.md's software workflow, in small tested changes each reviewed once; drafts and review rounds stay with the paper |
+| Native code | Work that needs compiled speed or the models' own numerics is written in Fortran, and scaffolding stays in Python, as the author directed on 2026-10-18 ("Native code") |
 
 **Proposed values,** kept as data that later work may change without code:
 
