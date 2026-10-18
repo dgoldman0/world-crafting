@@ -16,6 +16,49 @@ Acted on in commit 9d555e6, together with the abstract's new opening.
 | F02 | Applied: "though they produce little or no error at Earth's values". |
 | F03 | Applied in part. "With the repairs in place" opens the checks and "Applied in the lunar runs" opens their effects on the climate; a hinge sentence names the two Earth fits revisited next; "Water cloud, in turn" marks the second plan. The proposal kept "whose climate is unobserved", which the author had judged defensive; "Applied in the lunar runs" replaces it. |
 
+## Introduction (opening record, F04–F13)
+
+| Finding | Disposition |
+|---|---|
+| F04 | Applied: "For such work, by the account of THOR's developers, …". |
+| F05 | Applied: "for". |
+| F06 | Applied: the Moon and Titan follow the Solar System's clause, the exoplanets close in a sentence of their own, and "An engineered world, by contrast" marks the turn. |
+| F07 | Applied, folding in the proposal's "one such world": the Open Moon "is a design of that kind for the Moon". |
+| F08 | Applied: "Modelling such worlds means adapting codes like those named above, and the developers who ported …". |
+| F09 | Applied with "but", "then", "because", "moreover" and "therefore", and one addition from the abstract: the ensemble's models were built separately and tuned to Earth in different ways, so the Introduction and the abstract set out the same two problems. |
+| F10 | Applied: "Toward such an ensemble". |
+| F11 | Applied: "whereas". |
+| F12 | Applied: "Alongside these couplings". |
+| F13 | Applied, with "therefore" in place of the proposal's "Even after these repairs", which read as a caveat; the last two sentences are joined so that the conditional state follows from the fits' weight. |
+
+## Worlds (opening record, F14–F20)
+
+| Finding | Disposition |
+|---|---|
+| F14 | Applied: "Along these four ratios". |
+| F15 | Applied as proposed. |
+| F16 | Applied: "As modelled, …". |
+| F17 | Applied as "In this scenario's air, every absorber path is longer …", since the proposal's "With this scenario's …" would open two sentences in a row on "With". |
+| F18 | Applied, with "The curvature matters because the air is tall" in place of "The curvature comes from the air's height". |
+| F19 | Applied as proposed. |
+| F20 | Applied with a different bridge, "The solar day sets the scale of time as gravity sets that of height", which takes up the pairing of the section's opening; "The rotation is nearly as slow" and "The tilt, by contrast, is small" follow. |
+
+## Assumptions (opening record, F21–F30)
+
+| Finding | Disposition |
+|---|---|
+| F21 | Applied as proposed. |
+| F22 | Applied as proposed; the other constants now form a paragraph of their own, and `\claim{H05}` precedes `\claim{H03}`, each beside its claims. |
+| F23 | Applied: "CM1 keeps Earth's day as well". |
+| F24 | Applied, with the bridge as a short sentence of its own: "The test world's air is far taller." |
+| F25 | Applied: "Beyond the gases". |
+| F26 | Applied as a separate Earth value: "Moreover, the relative-humidity threshold above which it forms cloud in each layer was set for Earth". |
+| F27 | Applied: "but". |
+| F28 | Applied: "The first is the Sun clock" and "The second lies in Slingo's convective cover". |
+| F29 | Applied: "whereas". |
+| F30 | Applied: "although". |
+| Also | In the same paragraphs, three semicolons that hid a consequence or an addition now read "so that", "so" and "PlaSim's longwave errs by height as well", and CM1's thread race opens "CM1's defect is a race between threads". |
+
 ## Repairs (middle record, findings 1–16)
 
 | Finding | Disposition |
