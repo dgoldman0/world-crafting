@@ -10,18 +10,18 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 161,
+  "total": 165,
   "with_local_original": 87,
-  "blocked": 74,
+  "blocked": 78,
   "deferred": 87,
   "passed": 0,
   "depth": {
    "claim-locators": 70,
-   "abstract-only": 69,
+   "abstract-only": 73,
    "not read": 21,
    "full": 1
   },
-  "cited_in_paper": 88,
+  "cited_in_paper": 93,
   "cited_blocked": [
    "battalio2022interaction",
    "battjes1985calibration",
@@ -38,6 +38,7 @@
    "dwyer2003fundamental",
    "ebert1992parameterization",
    "fierro2013implementation",
+   "haqqmisra2022samosa",
    "karman2019update",
    "komen1984existence",
    "kristjansson2000impact",
@@ -55,15 +56,18 @@
    "salinas2021modeling",
    "saunders1998laboratory",
    "schneck2026modeling",
+   "sergeev2022thai",
    "slingo1991response",
    "song2022idealized",
    "stamnes1988numerically",
    "sun2023aerosol",
    "takahashi1978riming",
    "trenberth2005trends",
+   "turbet2022thai",
    "verlinde1993fitting",
    "weisman1982dependence",
    "wu1982wind",
+   "yang2016differences",
    "ziegler1994observed"
   ]
  },
@@ -4357,9 +4361,17 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "HAL copy archived. Table 2: Earth-rotation G-star aquaplanet total cloud cover CAM3 77, CAM4 70, CAM4_Wolf 70, AM2 86, LMDG max-overlap 43, LMDG random 86 (%), per agent B; '43-86%' therefore spans six configurations of five GCMs and its low end is an overlap choice."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "Standard GCMs diverge by 20-30 K in global-mean surface temperature on a tidally locked planet under an M-star spectrum.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "HAL copy archived. Table 2: Earth-rotation G-star aquaplanet total cloud cover CAM3 77, CAM4 70, CAM4_Wolf 70, AM2 86, LMDG max-overlap 43, LMDG random 86 (%), per agent B; '43-86%' therefore spans six configurations of five GCMs and its low end is an overlap choice. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "yang2023cloud",
@@ -6810,6 +6822,138 @@
      "section": "repairs.tex",
      "statement": "PlanetWaves driven by a Titan GCM's winds over Titan's polar lakes.",
      "support": "supported (abstract; the GCM winds from the PlanetWaves repository README, github.com/Cornell-MIT/PlanetWaves, which ships ten years of TAM winds for the two lakes)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "turbet2022thai",
+   "citation": "Turbet et al. (2022). The TRAPPIST-1 Habitable Atmosphere Intercomparison (THAI). I. Dry cases. Planet. Sci. J., 3(9), 211. doi:10.3847/PSJ/ac6cf0",
+   "entry_type": "article",
+   "doi": "10.3847/PSJ/ac6cf0",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/PSJ/ac6cf0 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "Four GCMs on the same dry TRAPPIST-1e cases spread by 7 K (N2) and 6 K (CO2) in global-mean surface temperature.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "sergeev2022thai",
+   "citation": "Sergeev et al. (2022). The TRAPPIST-1 Habitable Atmosphere Intercomparison (THAI). II. Moist cases. Planet. Sci. J., 3(9), 212. doi:10.3847/PSJ/ac6cf2",
+   "entry_type": "article",
+   "doi": "10.3847/PSJ/ac6cf2",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/PSJ/ac6cf2 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "Four GCMs on the same moist TRAPPIST-1e aquaplanet cases spread by 14 K (N2) and 24 K (CO2).",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "yang2016differences",
+   "citation": "Yang et al. (2016). Differences in water vapor radiative transfer among 1D models can significantly affect the inner edge of the habitable zone. Astrophys. J., 826(2), 222. doi:10.3847/0004-637X/826/2/222",
+   "entry_type": "article",
+   "doi": "10.3847/0004-637X/826/2/222",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/0004-637X/826/2/222 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "Band codes used in GCMs and two line-by-line codes on moist clear-sky columns differ by 10-20 W/m2 in OLR and up to 60 W/m2 in the shortwave.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "haqqmisra2022samosa",
+   "citation": "Haqq-Misra, Wolf, Fauchez, Shields and Kopparapu (2022). The Sparse Atmospheric Model Sampling Analysis (SAMOSA) intercomparison: motivations and protocol version 1.0. Planet. Sci. J., 3(11), 260. doi:10.3847/PSJ/ac9479",
+   "entry_type": "article",
+   "doi": "10.3847/PSJ/ac9479",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/PSJ/ac9479 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "Sixteen cases of a 15-day synchronous rotator around a 3000 K star, sampled across surface pressure and instellation from an ExoPlaSim survey, compared with ExoCAM.",
+     "support": "supported (abstract)",
      "note": ""
     }
    ],
