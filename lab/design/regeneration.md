@@ -17,6 +17,7 @@ flowchart LR
   W --> GEO[surface geometry: heights, seas, lakes]
   S --> GEO
   GEO -- lowest point --> PL
+  GEO -- water fraction --> LED
   GEO --> SRF[T21 mask and geopotential]
   PL --> SRF
   CG --> SRF
@@ -41,7 +42,6 @@ flowchart LR
   S --> H2O
   SWF -. multipliers .-> LED
   CG --> EXB[ExoPlaSim build]
-  SUN -- ice-optics weights --> EXB
   EXB --> GCM[GCM experiment]
   PL --> GCM
   S --> GCM
@@ -106,7 +106,7 @@ flowchart LR
 | Seas and lakes | Terluna's `geography/atlas.py`, from the heights and the seas share, and `geography/drainage.py`, from a GCM run's runoff | Untimed in Terluna |
 | Infrared from space | Terluna's `research/studies/solar_shield_array/glow.py`, copied into a study's runner | Untimed in Terluna |
 | CM1 builds | `python -m climate.crm.cm1_run build LABEL…` | Minutes each |
-| GCM experiment | `python -m climate.gcm.exoplasim_run A28 --folder NAME --years 20 --ncpus 4 [--set …] [--start-from …]` | 2.5–4.7 min a model year |
+| GCM experiment | `python -m climate.gcm.exoplasim_run A28 --folder NAME --years 20 --ncpus 4 [--set …] [--start-from …]` | 2.5–4.7 min a model year, on 4 to 8 ranks |
 | CM1 case | `python -m climate.crm.cm1_run setup CASE`, then `run CASE --hours H --threads T` | 1.8–12.3 h a ring and 2.3–27.2 h a box, for two lunar days |
 | Analyses | `python -m climate.gcm.climatology RUN:Y`, `python -m climate.crm.ring_analysis CASE`, and the others in the inventory | Minutes each |
 
@@ -149,17 +149,17 @@ The product groups that head the columns:
 | Rotation period | ● | ● | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | Solar day, where stated | ● | — | — | — | — | — | — | — | — | — | ● where the stated day becomes or ceases to be exactly one day, otherwise c | ● | ● |
 | Tilt, year, eccentricity | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
-| Star spectrum (shape) | ● | — | ● | ● | ● | ● | ●○ | ○ | ● with ice optics on | c | ● | ● | ● |
+| Star spectrum (shape) | ● | — | ● | ● | ● | ● | ●○ | ○ | — | c | ● | ● | ● |
 | Star total, or distance | ● | — | ● | ● | c | c | ○ | ○ | — | — | ● | ● | ● |
 | Surface pressure | ● | — | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | O2 or CO2 | ● | — | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | Ar/N2 alone | ● | — | — | ● | ● | ● | ●○ | ●○ | — | — | ● | ● | ● |
 | Reference temperature | ● | — | ● where the scale follows it | ● | ● | ● | ●○ | ○ | — | — | ● | ● | ● |
 | Cloud droplets | — | — | — | — | — | — | — | — | — | — | — | ● | ● |
-| Surface heights (world) | ● | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
+| Surface heights (world) | ● | ● | — | — | ● | — | ●○ | ○ | — | — | ● | ● | ● |
 | Water share, seas, lakes | ● | ● | — | — | ● | — | ●○ | ○ | — | — | ● | ● | ● |
 | Land albedo | — | — | — | — | ● | — | ●○ | ○ | — | — | ● | ● | ● |
-| Shield (filter) | ● | — | ● | ● | ● | ● | ●○ | ○ | ● with ice optics on | c | ● | ● | ● |
+| Shield (filter) | ● | — | ● | ● | ● | ● | ●○ | ○ | — | c | ● | ● | ● |
 | Sunlight scale | ● | — | ● | ● | c | c | ○ | ○ | — | — | ● | ● | ● |
 | Infrared from space | — | — | — | — | — | — | ○ | ○ | — | c | ● | ● | ● |
 | GCM resolution | — | ● | — | — | — | — | ○ | ○ | ● | — | ● | ● | ● |
@@ -218,8 +218,9 @@ The product groups that head the columns:
     0.0742 (`models/exoplasim/patches/10-ice-optics.patch:70`). Terluna computed them from the unshielded
     TSIS-1 spectrum, where the clouds see the light after the shield; the lab computes them from the
     spectrum at the top of the air.
-    - With ice optics on, another star or shield needs new weights. The planned patch 11 reads them from
-      the namelist; until it passes, they need a new patch 10 and a new build.
+    - With ice optics on, another star or shield needs new weights, which the planned patch 11 reads from
+      the namelist as GCM inputs. Until it passes, runs take patch 10's weights from the unfiltered Sun,
+      and registry entry `exoplasim-ice-weights` warns.
 
 14. **Gravity carries the spin term.** The lab takes g as GM/R² less (2/3)Ω²R, so a change of rotation
     reaches every consumer of g, by 5 parts per million on the Moon and 0.3% on Mars; a stated gravity,
@@ -283,7 +284,7 @@ The product groups that head the columns:
 **(c) A new body: Mars held at 1 bar** (`mars/breathable-1bar`).
 
 - **Produced again:** everything.
-- **The registry entries the reach report must raise,** two of them beyond the thirteen-entry seed (A3 and
+- **The registry entries the reach report must raise,** two of them beyond the fourteen-entry seed (A3 and
   the column-mass envelope), which stage 6 adds:
   - a gravity of 3.72 m/s² against CM1's 9.81: the core patches are required, the schemes that hard-code
     Earth's gravity are refused, and rain's limits scale 1.62 times by the capillary length;
@@ -302,4 +303,5 @@ The product groups that head the columns:
 **(d) Ice optics switched on.**
 
 - **Produced again:** the GCM experiment and what is forced from it, and the longwave correction, which was
-  fitted with ice optics off. The fixpoint refits it with them on, as the author chose on 2026-10-17.
+  fitted with ice optics off. The fixpoint refits it with them on, as the author chose on 2026-10-17, and
+  the GCM takes the ice-optics weights of its own sunlight through patch 11.

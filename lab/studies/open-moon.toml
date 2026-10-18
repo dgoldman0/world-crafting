@@ -22,6 +22,11 @@ gravity = "gm-over-r2"                          # Terluna's g, without the spin 
 exoplasim_ice_weights = [0.6164, 0.2283, 0.0811, 0.0742]   # patch 10's, from the unfiltered TSIS-1 spectrum
 cm1_day_night_from_days = 29.5                  # the twilight ring's output Terluna averaged; one solar day is 29.53 d
 
+[compatibility.exoplasim_run_key]               # the other inputs of Terluna's run key (exoplasim_run.py:905-911), as each
+                                                # run's progress.json records them, with the point of the ExoPlaSim series
+A28_corrected_970 = { experiment = "A28", purpose = "design case with the atlas seas and rain-fed lakes", initial_state_path = "climate/gcm/runs/A28_corrected_9685/model/MOST_REST.00019", series_through = 8 }
+A28_corrected_970_lw_ice = { experiment = "A28", purpose = "design case with the atlas seas and rain-fed lakes", initial_state_path = "climate/gcm/runs/A28_corrected_970/model/MOST_REST.00019", series_through = 10 }
+
 [compatibility.set]                             # resolved fields Terluna held at other values, by dotted path as in [set]
 "sunlight.scale" = 0.970                        # Terluna's trials: 0.9655, 0.9685, then 0.970 at 295.02 K
 "cm1.physics.rain_size_limits" = "earth"        # Morrison's own, as Terluna's runner left them
@@ -67,7 +72,7 @@ recorded_key = "14070719b35c52d7"
 model = "cm1"
 extends = "cm1/defaults"
 forced_by = "A28_corrected_970"
-model_years = [10, 19]                          # the GCM's model years averaged into the reference
+reference_model_years = [10, 19]                # the GCM's model years averaged into the reference, 10 to 19 inclusive
 kind = "ring"                                   # a circle of latitude
 latitude_deg = 45.0
 band_deg = 3.0                                  # the GCM row nearest the latitude
@@ -90,7 +95,7 @@ purpose = "the 45 N ring with the curved air's twilight and side light"
 model = "cm1"
 extends = "cm1/defaults"
 forced_by = "A28_corrected_970"
-model_years = [10, 19]
+reference_model_years = [10, 19]
 kind = "box"
 solar_longitude_deg = 0.0
 variants = ["terrain", "sea", "twilight"]

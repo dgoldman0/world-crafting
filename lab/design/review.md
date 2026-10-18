@@ -27,7 +27,8 @@ draft 2, and the author's answers to the open questions led to draft 3.
 | 8 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 2 prose; 3 seed; 2 between the documents | 1 | — |
 | 9 | 2026-10-18 | A: README, architecture, plan, with AGENTS.md and the seeds (the single round on draft 4) | 6 prose | — | 10, and 4 typed values |
 | 9 | 2026-10-18 | B: world_spec, regeneration, every seed and the registry (the same) | 1 prose; 8 seed; 6 between the documents; 3 typed values | 2 | — |
-| 10 | 2026-10-18 | The final review before coding | pending | — | — |
+| 10 | 2026-10-18 | A: README, architecture, plan and AGENTS.md, with the seeds (the final review before coding) | 3 prose; 9 technical | — | 6 minor |
+| 10 | 2026-10-18 | B: world_spec, regeneration, every seed and the registry (the same) | 4 in the design; 8 for the loader | 1 | — |
 
 ## Round 1 dispositions
 
@@ -441,3 +442,63 @@ keeps its job queue in the store, with the command line as its first client. Sna
 author also set the workflow for what follows. AGENTS.md now confines drafts and review rounds to the paper
 (commit 6d3997c on main, merged into `lab`), and the lab's code follows a conventional software workflow.
 Round 10 is the design's final review; after it, the design documents change with the code they describe.
+
+## Round 10 dispositions
+
+**Revised: the prose items in the lab's documents.** "The specifications divide" now reads "The lab keeps
+three kinds of specification", and "a scenario that asks for it" names its `to-reference-temperature`.
+**Left for the author:** AGENTS.md's "That purpose, and the work toward it, frame the paper", in the
+paper's section of the author's own instructions.
+
+**Adopted: reviewer A's technical items.**
+
+- **Stage 0** passed, with the proposed values kept as data, and the architecture's header closes the design.
+- **Keys.** A key covers its upstream keys, and the header records their content hashes, so `lab plan` keys
+  a whole chain before any of it runs.
+- **Stage 2's run key.** The study holds each GCM run's experiment, purpose, recorded start path and point
+  in the ExoPlaSim series (01–08 and 01–10). A series point that the declared switches need counts within
+  the pair's delta.
+- **`make check`** covers the lab, with the package in `lab/worldlab/` and its tests in `lab/tests/`.
+- **Stage 1's checks.**
+  - ExoPlaSim: `N_DAYS_PER_YEAR` and `ROTSPD` against the pinned install's `configure`, and the model day
+    and steps against `plasim.f90`.
+  - The paper: its entries named, each derived from its row's basis.
+  - The rings: `namelist.input` and `case.json`.
+  - The ice-optics derivation: patch 10's constants from the unfiltered Sun.
+- **Stages 4 and 5.** Stage 4 runs on a study extending `open-moon`, and stage 5 tests the target stage by
+  replaying Terluna's trials.
+- **The runner.** Terluna's scripts are its "run scripts", and the runner holds the machine budget. The
+  store holds the runner's queue, job states and socket, through which clients reach it.
+- **Roots.** Terluna's pins resolve through `$TERLUNA_REPO` and `$TERLUNA_DRIVE`, and the manifest sits at
+  `lab/data/manifest.toml`.
+
+**Adopted: reviewer B's design items.**
+
+- **CM1's reference state** is stated by its inputs, the gravity, temperature and air at which Terluna's
+  rings ran. A later change to the Open Moon leaves it fixed, and the lab derives it as it does a
+  scenario's, so that the reproduction scales by exactly 1.
+- **Planned settings** name their resolved values, `breakup-only` among them. The claim that their entries
+  warn holds where their conditions hold; on the Moon the soil and equinox entries stay silent.
+- **The regeneration map.**
+  - Surface heights reach the ledger through the water fraction.
+  - The ice-optics weights enter the GCM's inputs through patch 11, and a fourteenth registry entry,
+    `exoplasim-ice-weights`, warns until it lands.
+  - The GCM's cost names its ranks.
+- **CM1's averaged years** are `reference_model_years`, an inclusive pair.
+
+**Settled by the loader.** Reviewer B's eight loader items go to stage 1, whose code fixes each and records
+it in world_spec.md, "Settled by the loader". The items are:
+
+- the field tables of the defaults and studies;
+- the roots of dotted paths and the namespaces of ids;
+- the order of a parent, its variants, `[set]` and the compatibility settings;
+- the hash's canonical form;
+- the lowest point's pressure and the reference levels;
+- the tolerances of stated values;
+- optional fields;
+- sources.
+
+## The design closed
+
+Round 10 was the design's final review. From here the lab is built under AGENTS.md's software workflow, and
+its documents change with the code they describe; this record ends with the design.

@@ -1,4 +1,4 @@
-# The registry of Earth assumptions: a seed of thirteen entries in draft schema 0 (lab/design/architecture.md,
+# The registry of Earth assumptions: a seed of fourteen entries in draft schema 0 (lab/design/architecture.md,
 # "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
 # it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
 # specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
@@ -181,3 +181,16 @@ state = "open"
 action = "warn"
 planned = { patch = "core, after 17: the declination from the namelist, identity default the equinox", setting = "cm1.physics.sun_declination" }
 evidence = ["models/cm1/patches/core/05-a-solar-day-of-var19-s.patch:43", "lab/design/regeneration.md, example (c)"]
+
+[[entry]]
+id = "exoplasim-ice-weights"
+model = "exoplasim"
+where = "patch 10, zew(4): the near-infrared weights within PlaSim's band 2 (10-ice-optics.patch:70)"
+form = "constant"
+assumes = "the unfiltered Sun's spectrum, from which Terluna computed the weights"
+when = [{ config = "exoplasim.switches.ice_optics", eq = true }, { config = "exoplasim.switches.ice_weights", ne = "from-spectrum" }]
+effect = "the ice clouds weight the near infrared by a spectrum other than the one at the top of the air"
+state = "open"
+action = "warn"
+planned = { patch = "11: the weights from the namelist, identity default patch 10's constants", setting = "exoplasim.switches.ice_weights" }
+evidence = ["lab/design/regeneration.md, cross-dependency 13"]

@@ -24,7 +24,7 @@ each run that uses it.
 | [worlds/](worlds/) | Seed worlds and scenarios: the Moon with the Open Moon at 1.2 and 1.0 atm, Earth as the control, and Mars with an illustrative 1 bar of Earth-like air |
 | [configs/](configs/) | Each model's shared defaults, stated for any world: ExoPlaSim's, and CM1's with its variants and its lengths, times and rates given at a reference state |
 | [studies/](studies/) | The Open Moon study: two of Terluna's GCM runs and three CM1 cases forced from the first of them, each extending its model's defaults; the targets of plan stages 2 and 3 |
-| [registry/](registry/) | A seed of the registry of Earth assumptions: thirteen entries, eleven converted from the defect log and two from CM1's patches, with the thresholds awaiting the author's decision marked "proposed" |
+| [registry/](registry/) | A seed of the registry of Earth assumptions: fourteen entries, eleven converted from the defect log and three from the models' patches, with the thresholds awaiting the author's decision marked "proposed" |
 
 ## What the lab is built from
 
@@ -38,6 +38,6 @@ each run that uses it.
 | `paper/tools/regime_calc.py`, `paper/data/worlds.json`, the paper's table of reach | The derived quantities and the reach report, with the paper's numbers as their first test |
 
 The lab is self-contained: what it uses for its own work lives in this repository and the lab's store, the
-Terluna data it needs among them, copied with their provenance. Terluna's runners, case definitions and
+Terluna data it needs among them, copied with their provenance. Terluna's run scripts, case definitions and
 records stay where they are, and the lab's reproduction tests read them there (design/architecture.md,
 Principles).

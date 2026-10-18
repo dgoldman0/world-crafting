@@ -22,10 +22,13 @@ ranks_multiple = 8                             # a ring's column count is rounde
 world_constants = "build"                      # gravity, CO2 and O2 compiled in, as Terluna's builds have them;
                                                # "namelist" once the namelist patches pass plan stage 3
 
-[reference]                                    # the state at which the scaled values hold, derived from the scenario:
-scenario = "moon/open-moon"                    # its gravity, reference temperature and air's molar mass, with
-gravity = "gm-over-r2"                         # Terluna's GM/R^2, where its rings ran: 1.6242188765608128 m/s2, 295 K
-                                               # and 28.83195 g/mol
+[reference]                                    # the state at which Terluna's rings ran, stated by its inputs, from which
+                                               # the lab derives H_ref and c_ref as it does a scenario's, so that a case at
+                                               # this state scales by exactly 1
+gravity_m_s2 = 1.6242188765608128              # the Moon's GM/R^2
+temperature_k = 295.0                          # the Open Moon's design aim
+air = { surface_pressure_pa = 121590.0, o2_partial_pressure_pa = 21227.0, co2_ppm = 400.0, ar_per_n2 = 0.011961477, balance = "N2" }
+                                               # the design air at 1.2 atm, whose molar mass comes to 28.83195 g/mol
 
 [scaled_length]                                # times H/H_ref
 column_target_m = 6000.0

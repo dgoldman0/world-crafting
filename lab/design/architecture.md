@@ -1,7 +1,7 @@
 # The lab: architecture
 
-Design draft 4 of 2026-10-18 on the `lab` branch, revised with the author's answers of 2026-10-17 and 18.
-Every part of the lab described here is a proposal;
+The lab's design on the `lab` branch, closed for coding on 2026-10-18 with the author's answers of
+2026-10-17 and 18. Each part described here stays a proposal until the code that builds it lands;
 [inventory.md](inventory.md) describes what exists today, [regeneration.md](regeneration.md) what depends on
 what.
 
@@ -59,7 +59,7 @@ runner's first client, and a user interface can be a second.
   The header extends Terluna's data-product convention (`shared/README.md`, "Data products") and the
   recording of constants by name and value in `shared/provenance.py`.
 - **Computed staleness.** A product is current while its key is unchanged; the key covers its producer, its
-  upstream hashes, its external pins, its read set and its environment class.
+  upstream keys, its external pins, its read set and its environment class.
 - **Refusal with a reason.** In any of five cases the lab stops the stage and names the cause:
   - an input is missing;
   - a hash differs;
@@ -75,9 +75,10 @@ runner's first client, and a user interface can be a second.
   that its model's defaults define. The lab compares the two fully resolved input sets, build flags
   included, and refuses the pair when they differ elsewhere. Build labels stay outside the comparison: a
   label names the deployed Terluna build whose sources a case's build reproduces, in a Makefile comment
-  that leaves the executable unchanged. Applied by the importer to Terluna's records of the 45° N twilight
-  pair, which `lab/studies/open-moon.toml` defines as a ring and its twilight variant, the check flags the
-  pair's mixed builds (defect log C8).
+  that leaves the executable unchanged. A series point that the declared switches need counts within the
+  delta, as patches 09 and 10 do for the longwave correction and ice optics. Applied by the importer to
+  Terluna's records of the 45° N twilight pair, which `lab/studies/open-moon.toml` defines as a ring and its
+  twilight variant, the check flags the pair's mixed builds (defect log C8).
 - **Earth in two checks.**
   - **Identity, per patch.** With its switch at its identity default, the patched model reproduces the
     released model's own Earth configuration byte for byte.
@@ -147,7 +148,7 @@ flowchart TB
 | Coupling | `worldlab.couple` | GCM state to CRM inputs: reference profiles, mean vertical wind, sideways forcing, surfaces along rings and in boxes; a ring's output to a box's day–night forcing | `cm1_run.py:1162-1956`, `ring_crossings.day_night_advection`, `ring_heat_budget.gcm_sideways` |
 | Producers | `worldlab.produce.*`, calling `python/` | The surface grid and sunlight files, reference columns, the curved-air ledger, the gas-band, shortwave, water-continuum and longwave fits, the ice optics; the seas from the heights and the lakes from runoff; the infrared of a glow in space. Each runs on the scenario's own values, where Terluna's tools default to Earth's air and a ground albedo of 0.1 | `boundary.py`, `exoplasim_run.sunlight`, `python/climate/gcm/*`, `python/atmosphere/*`, `python/illumination/sky/*`; Terluna's `geography/atlas.py`, `geography/drainage.py` and `glow.py` |
 | Runner | `worldlab.runner` | A local service that keeps the job queue in the store, orders the stale products by the stage graph, starts each job once its inputs exist and the machine budget allows, and takes start, stop, resume, cancel and reorder from its clients | The shell chains in `session-tools/` |
-| Jobs | `worldlab.jobs` | Each model job's wrapper: locks, segments, resume and stop files, with its progress written to its record | Both runners' loops |
+| Jobs | `worldlab.jobs` | Each model job's wrapper: locks, segments, resume and stop files, with its progress written to its record | The loops of Terluna's two run scripts |
 | Diagnostics | `worldlab.diag` | One implementation of the diagnostics every world needs: global and zonal means, energy budgets, composites by local solar time, profiles by band, GCM–CRM comparisons | `summarise_year`, `climatology.py`, the generic parts of the ring and box analyses |
 
 Analyses particular to Terluna (comfort, named sites, the ecology and resource couplings) remain in Terluna
@@ -162,7 +163,7 @@ computed after its `extends` chain and variants are applied and its derived valu
 formatting and comments out of the identity. [world_spec.md](world_spec.md) sets out the draft schema with
 the Open Moon worked through.
 
-The specifications divide by what they describe:
+The lab keeps three kinds of specification:
 
 - **World and scenario files** hold the physical values once, for every model.
 - **Each model's defaults** hold the settings only that model has, stated for any world.
@@ -181,7 +182,7 @@ product's key is a hash of five things:
 
 - the producer's identity: the hashes of its module and of the in-house modules it imports, with models
   identified by build hash and external tools by version;
-- the upstream products' hashes;
+- the upstream products' keys, whose content hashes the header records;
 - the pins of the external data it reads, such as HITRAN lines, TSIS-1, MT_CKD and the RRTMG tables;
 - the values in its read set;
 - the environment's class: Python and the major and minor versions of numpy, scipy and numba; for builds,
@@ -202,7 +203,8 @@ records. `lab make` then hands them to the runner's queue, which runs them withi
 
 **The runner** is a long-lived local process that keeps its queue and each job's state in the store, so
 that a restart, or another client, finds the work where it stood. It builds only what lacks a complete
-product under its key, so the key remains the one test of staleness.
+product under its key, so the key remains the one test of staleness. Clients reach it through a local
+socket in the store; `lab serve` starts it, as does the first client that finds it down.
 
 - **Progress.** A job's wrapper writes its progress, by model year or one-day segment, into the job's
   record, which the command line and a user interface read alike.
@@ -253,7 +255,8 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   PlaSim as Fortran constants (regeneration.md, cross-dependency 13). A planned patch 11 reads them from
   the namelist, with patch 10's constants as its identity default, and the adapter computes them from the
   spectrum at the top of the air, the filter included. Until patch 11 passes its identity test (plan.md,
-  stage 2), runs with ice optics on take patch 10's weights, from the unfiltered Sun.
+  stage 2), runs with ice optics on take patch 10's weights, from the unfiltered Sun, and registry entry
+  `exoplasim-ice-weights` warns of them.
 
 **CM1.**
 
@@ -353,7 +356,8 @@ Each refit changes the climate that supplies the next columns, so a **fixpoint s
 - **First use.** The first such loop is the paper's first item of next work, the longwave at the settled
   state.
 
-A **target stage** finds the sunlight scale of a scenario that asks for it: secant steps over GCM runs move
+A **target stage** finds the sunlight scale of a scenario whose `sunlight.scale` is
+`to-reference-temperature`: secant steps over GCM runs move
 the scale until the global-mean surface temperature meets the scenario's reference temperature, and each
 run is kept as the stage's record. Terluna took the same steps by hand (regeneration.md, "Loops").
 
@@ -361,7 +365,8 @@ run is kept as the stage's record. Terluna took the same steps by hand (regenera
   runs, recording which.
 - **Nesting.** Within the fixpoint it runs first in each pass, so that the calibrations are refitted on the
   climate at the target.
-- **Order.** Stage 5 builds it, and its runs wait for stage 7's job wrappers like any others.
+- **Order.** Stage 5 builds it and tests it by replaying Terluna's trial runs, and its own runs wait for
+  stage 7's runner like any others.
 
 **Lakes from runoff.** A run's surface takes the lakes routed from the runoff of a named earlier run of its
 study (`lakes_from`), and the first run of a chain takes pinned lakes, so that each link is keyed and the
@@ -408,7 +413,7 @@ Sun-clock entry across ExoPlaSim's rounding.
 | Where | Holds |
 |---|---|
 | Git (this repository) | Specifications, the registry, the design, small products (calibrations, tables and reports of a few MB at most), the records index |
-| The store, at `$WORLDLAB_STORE`: a folder of the lab's own, on the research drive on this machine | `builds/<key>/`, `products/<stage>/<key>/`, `runs/<key>/`, `cases/<key>/`, `caches/` and an index of human names |
+| The store, at `$WORLDLAB_STORE`: a folder of the lab's own, on the research drive on this machine | `builds/<key>/`, `products/<stage>/<key>/`, `runs/<key>/`, `cases/<key>/`, `caches/`, an index of human names, and the runner's queue, job states and socket |
 
 Each run and case is filed under its product key, as `runs/<key>/` and `cases/<key>/`. Terluna's names,
 such as `A28_corrected_970` and `ring_45n_corrected_twilight`, become aliases of those keys. An imported or
@@ -418,7 +423,9 @@ and input files, which stage 2 must reproduce.
 - **Links between records.** A case names its experiment by key. The importer therefore resolves Terluna's
   case records, which name a GCM run by its name and years, to keys.
 - **Paths.** Paths enter keys relative to configurable roots, so the ledger takes from a root the run folder
-  that Terluna's ledger hard-codes (`notes/reference_radiation.md`, section 3).
+  that Terluna's ledger hard-codes (`notes/reference_radiation.md`, section 3). Terluna's pins resolve
+  through `$TERLUNA_REPO` and `$TERLUNA_DRIVE`, which the reproduction tests read and skip without, and the
+  lab's own pins through the manifest at `lab/data/manifest.toml`.
 
 **Importing Terluna.** A read-only importer registers Terluna's GCM runs, CM1 cases and builds as records.
 It takes the keys, configurations and hashes they recorded, and the patch-series state matched in
@@ -427,7 +434,8 @@ and the comparisons with Terluna, and the lab's own studies take their parents f
 
 ## Jobs and the machine
 
-Both runners already lock, run in segments, resume and stop on request, and the lab keeps each of these.
+Terluna's two run scripts already lock, run in segments, resume and stop on request, and the lab keeps each
+of these.
 It adds:
 
 - **A machine budget,** set per machine: total threads (half the cores here), memory and disk, which the
@@ -449,7 +457,7 @@ lab plan open-moon-0.960                         # stale products, their order a
 lab make open-moon-0.960                         # fits, builds, GCM runs and CM1 cases, within the budget
 lab diff open-moon:A28_corrected_970 open-moon:A28_corrected_970_lw_ice   # resolved inputs that differ
 lab status                                       # the runner's jobs: running, waiting, stopped, with progress
-lab stop open-moon-0.960:A28_corrected_970       # a stop file; the run resumes from its last segment
+lab stop open-moon-0.960:A28_corrected_970       # the runner writes the job's stop file; it resumes later
 ```
 
 ## Decisions
@@ -458,11 +466,11 @@ lab stop open-moon-0.960:A28_corrected_970       # a stop file; the run resumes 
 
 | Decision | Choice |
 |---|---|
-| Home | The `lab/` directory of world-crafting, beside the verified patches, tools and notes, with the package `worldlab` |
+| Home | The `lab/` directory of world-crafting, beside the verified patches, tools and notes: the package in `lab/worldlab/` and its tests in `lab/tests/` |
 | Self-contained | What the lab uses for its own work lives in world-crafting and its store; Terluna's files serve the reproduction tests alone (Principles) |
 | Patches | Builds apply the `models/` series alone, whose patched sources match Terluna's byte for byte today (`models/check_patches.sh`, run on this branch on 2026-10-17); whether Terluna's runners then drop their string edits is Terluna's decision |
 | Format | TOML specifications, with sources as comments beside values; JSON products and records, in the form of Terluna's products |
-| Runs | Terluna's runs stay in its folders, where the reproduction tests and the importer read them. The lab's own runs begin once stages 2–3 have shown its inputs match Terluna's and stage 7's job wrappers hold them to the machine budget, and they are filed in its store |
+| Runs | Terluna's runs stay in its folders, where the reproduction tests and the importer read them. The lab's own runs begin once stages 2–3 have shown its inputs match Terluna's and stage 7's runner holds them to the machine budget, and they are filed in its store |
 | CM1 compiled once | Planned patches read gravity, CO2 and O2 from the namelist; once they pass plan stage 3, one build of each patch set serves every world (Model adapters) |
 | After the 1.2 atm Open Moon | The Moon at 1.0 atm, the same body with every calibration refitted; then Mars at 1 bar, a new column and ledger inside RRTMG's range; then a slowly rotating Earth-like planet, which needs the general repairs alone |
 | Outside an envelope | The lab refuses the run unless explicitly overridden, warns clearly even then, and records the override (Principles) |
@@ -471,7 +479,7 @@ lab stop open-moon-0.960:A28_corrected_970       # a stop file; the run resumes 
 | Engine | A custom runner, a small local service with its job queue in the store; the command line is its first client, and a user interface can be a second ("The stage graph and staleness") |
 | Workflow | The lab's code follows AGENTS.md's software workflow, in small tested changes each reviewed once; drafts and review rounds stay with the paper |
 
-**Proposed, for the author to confirm:**
+**Proposed values,** kept as data that later work may change without code:
 
 | Decision | Choice | Reason |
 |---|---|---|

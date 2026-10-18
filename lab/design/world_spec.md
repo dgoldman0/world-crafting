@@ -67,9 +67,11 @@ scenario.
      against 44.0095 in Terluna's runner.
    - **CM1's Earth gravity** is 9.81 m/s².
    - **Planned settings.** A setting whose planned patch the build lacks resolves to what the build does:
-     `capillary` to the scaled `brkup_db` under Morrison's own 2.8 mm cap, `from-season` to the equinox,
-     and the day's soil depth to patch 08's 5 cm top layer. The registry tests the resolved settings, so
-     their entries warn until the patches land.
+     `capillary` to `breakup-only`, the scaled `brkup_db` under Morrison's own 2.8 mm cap; `from-season` to
+     the equinox; the day's soil depth to patch 08's 5 cm top layer; and `from-spectrum` to patch 10's
+     weights. The registry tests the resolved settings, so their entries warn wherever their conditions hold
+     until the patches land. On the Moon the soil and equinox entries stay silent, since patch 08's 5 cm lies
+     within 10% of the day's 5.4 cm and the obliquity is 1.54°.
 8. **Compatibility settings.** For byte-for-byte reproduction of a Terluna run's inputs and its builds'
    sources, which the lab's tests check, the study holds each of Terluna's quirks as a compatibility
    setting. A quirk with a field of its own is set by dotted path in `[compatibility.set]`, as in `[set]`, so
@@ -85,6 +87,8 @@ scenario.
      compiled in;
    - Terluna's gravity, GM/R² without the spin term;
    - patch 10's ice-optics weights, from the unfiltered Sun;
+   - each GCM run's other run-key inputs, its experiment, purpose and recorded start path, with its point in
+     the ExoPlaSim series;
    - the 29.5 days of the twilight ring's output that the box's day–night forcing averages;
    - the restart files Terluna's runs started from, and the products they read, its seas and lakes among
      them, named by their recorded hashes.
@@ -101,7 +105,8 @@ scenario.
      own.
 9. **Scaling with the scale height.** Where a model's grid follows the scale height, as CM1's does, its
    defaults give their lengths, times and rates at a stated reference state, the gravity, temperature and
-   molar mass at which they were tested.
+   air at which they were tested, from which the lab derives the reference scale height and speed as it
+   does a scenario's.
    - **Scaled:** lengths follow H = RT/(Mg) at the scenario's reference temperature, so the adapter
      multiplies them by H/H_ref; times follow H/c, with c = (RT/M)^½ setting the speeds; rates such as the
      Rayleigh damping follow c/H. With the reference's air and temperature, all three reduce to the ratio
@@ -169,7 +174,7 @@ scenario.
 | CM1's raindrop limits | Morrison's 0.3 mm breakup and 2.8 mm cap on rain's mean diameter × (9.81/g)^½ | × 2.4576: 0.737 mm and 6.88 mm | `brkup_db`; the cap through a planned patch (registry B28) |
 | CM1's soil layers | CM1's 1 cm top layer × (solar day/1 d)^½, the four below doubling | × 5.4342: a 5.4 cm top layer, 5.4 to 86.9 cm | `slab_dzs`, through a planned patch after core 17 (registry `cm1-soil-day`) |
 | CM1's Sun | Declination asin(sin ε · sin L_s), from the obliquity ε and the case's solar longitude L_s | 0 at the equinox the study's cases take | A planned patch after core 17 (registry `cm1-equinox-sun`); the case's sunrise, −acos(−tan φ tan δ) |
-| Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | From the filtered spectrum; Terluna's 0.6164, 0.2283, 0.0811 and 0.0742 came from the unfiltered TSIS-1 | The planned ExoPlaSim patch 11; patch 10's constants until it passes |
+| Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | From the filtered spectrum; Terluna's 0.6164, 0.2283, 0.0811 and 0.0742 came from the unfiltered TSIS-1 | The planned ExoPlaSim patch 11; patch 10's constants until it passes, when registry entry `exoplasim-ice-weights` warns |
 | ExoPlaSim's output steps | `mean_interval_days`: below a model day, the divisor of the steps per model day whose mean lies nearest it; from a model day up, whole model days | 10 means of 143 steps, 2.98 d | `NSTPW` |
 | ExoPlaSim's time-step limit | The advective limit set by the radius a, the truncation N and the run's largest wind u: u·Δt·N/a below 1 | Checked in stage 1 against the largest winds of Terluna's runs, which ran stable at 30 minutes | The guard on `timestep_min` |
 
@@ -177,6 +182,20 @@ The registry's tests (`q`) name these quantities in snake case with their units:
 `exoplasim_rotationperiod_days`, `model_day_days`, `scale_height_over_radius`, `chapman_horizon`,
 `lowest_level_pressure_hpa`, the air's pressure at the lowest point of the surface, and `soil_layer_ratio`,
 a case's top soil layer against 1 cm × (solar day/1 d)^½.
+
+## Settled by the loader
+
+Stage 1's loader fixes the rest of the schema, and this document records each rule in the commit that
+codes it:
+
+- the fields of the model defaults, the studies, their GCM runs and CM1 cases, and the compatibility keys;
+- the root of each kind of dotted path, and one namespace for each level's ids;
+- the order in which a parent, its variants, `[set]` and the compatibility settings apply, with a conflict
+  between them an error;
+- the canonical form the hash takes, and which descriptive fields it leaves out;
+- the pressure at the surface's lowest point, and the `water` and `sea` reference levels it starts from;
+- the tolerance of each stated value against its derivation, and what a breach does;
+- which fields are optional, with their defaults, and whether sources stay as comments.
 
 ## The Moon worked through
 
