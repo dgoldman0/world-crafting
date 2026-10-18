@@ -5812,7 +5812,7 @@
    ],
    "reading": {
     "depth": "claim-locators",
-    "reader": "this agent",
+    "reader": "this agent; a further locator added 2026-10-18 by the drafting assistant from the round-8 evidence review, its quote checked against the archived text",
     "locators": [
      {
       "claim_id": "L15",
@@ -5876,6 +5876,13 @@
       "quote": "= 12 : Brooks et al. RARcrit for T > -15 using saund6 (otherwise same as isaund=9) (DEFAULT)",
       "read_in": "archived README",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results (the default form of Saunders and Peck's law); G11",
+      "location": "doc/README.electricity line 127 (isaund options)",
+      "quote": "= 12 : Brooks et al. RARcrit for T > -15 using saund6 (otherwise same as isaund=9) (DEFAULT)",
+      "read_in": "archived README",
+      "quote_check": "quote found in text; isaund = 9 is the Saunders and Peck scheme (line 124), and the lunar runs' case.json files set isaund 12"
      }
     ]
    },

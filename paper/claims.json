@@ -353,7 +353,7 @@
   },
   {
    "id": "H22",
-   "text": "Retained Earth calibrations: Wu drag, Komen, the AGROW coefficient, breaker index 0.73 (Battjes and Stive 1985), SWASH breaking 0.6/0.3, the charging laws (Takahashi's inverts the lunar storms' arrangement of charge)",
+   "text": "Retained Earth calibrations: Wu drag, Komen, the AGROW coefficient, breaker index 0.73 (Battjes and Stive 1985), SWASH breaking 0.6/0.3, the charging laws (Takahashi's inverted the lunar storms' arrangement of charge in two windows of an earlier run; G11)",
    "source": [
     "repo:notes/defect_log.md#B27",
     "repo:notes/defect_log.md#B7",
@@ -896,14 +896,17 @@
   },
   {
    "id": "G11",
-   "text": "In two windows of an earlier electrified run (days 10.5-12 and 40.5-42, before the ventilation repair, leakage off) Takahashi's law separates as much charge as Saunders and Peck's, within the spread of the Saunders and Peck runs, with the storms' arrangement of charge inverted (main negative charge above the positive); the windows' ground strikes, all negative under both laws, carried charge left over from the run without leakage; NSSL's main run against Morrison's box: 1.0 C warmer at 2 m, night ground fog 29% against 56% of the box, one realisation against another",
+   "text": "In two windows of an earlier electrified run (days 10.5-12 and 40.5-42, before the ventilation repair, leakage off) Takahashi's law separates about as much charge as Saunders and Peck's in WRF-ELEC's default form (isaund 12, Brooks et al.'s critical rate above -15 C): 30 against 16-26 kC in the first window and 140 against 138-145 kC in the second, differing from the paired run by less than the Saunders and Peck runs differ among themselves, with the storms' arrangement of charge inverted (main negative charge above the positive), the normal arrangement under Saunders and Peck's holding in most of the second window's outputs and about half of the first's; the first window's 5-km rule let no channel reach the ground, and the second window's ground strikes, 21 under Saunders and Peck's law and 10 under Takahashi's, all negative, carried charge left over from the run without leakage; NSSL's main run against Morrison's box: 1.0 C warmer at 2 m, night ground fog 29% against 56% of the box, one realisation against another",
    "source": [
     "terluna:climate/crm/README.md#L2097-2120",
     "terluna:climate/crm/README.md#L2409-2418",
     "terluna:climate/crm/README.md#L2142-2170",
     "terluna:climate/crm/README.md#L2072-2080",
     "terluna:climate/crm/README.md#L2242",
-    "repo:notes/defect_log.md#C12"
+    "repo:notes/defect_log.md#C12",
+    "terluna:climate/crm/README.md#L2080-2091",
+    "terluna:climate/crm/README.md#L1628-1635",
+    "repo:paper/sources/manifest.json#mansell2026wrfelec"
    ],
    "state": "sensitivity"
   },
@@ -971,12 +974,13 @@
   },
   {
    "id": "N01",
-   "text": "In the NSSL runs hail does 82-88% of the charging and strikes ice and snow at 4.4-7.6 m/s; the deciding measurement is the sign rimed ice takes at 4-8 m/s in 0.02-0.2 g/m3 of cloud water at -5 to -16 C",
+   "text": "In the NSSL runs under Saunders and Peck's law hail does 82-88% of the non-inductive charging and strikes ice and snow at 4.4-7.6 m/s; under Takahashi's law hail does 37-43% and graupel, striking at 0.95-3.6 m/s, most of the rest; the sign rimed ice takes at 4-8 m/s in 0.02-0.2 g/m3 of cloud water at -5 to -16 C decides between the laws for hail, and graupel's sign at its own speeds is needed as well",
    "source": [
     "repo:notes/electrification.md#L91-94",
     "repo:notes/defect_log.md#B7",
     "terluna:climate/crm/README.md#L2142-2170",
-    "terluna:climate/crm/README.md#L2389"
+    "terluna:climate/crm/README.md#L2389",
+    "terluna:climate/crm/README.md#L2080-2091"
    ],
    "state": "conditional model"
   },
