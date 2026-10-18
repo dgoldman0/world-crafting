@@ -74,7 +74,9 @@ recorded in `terracompatible_revision_2026-10-18.md`, with the fresh round 14 re
 
 Claude Opus 5.5 then checked Codex's revision at the author's request. The check corrected the review history in
 Availability and three sentences of Results, Reach and Next steps; `terracompatible_check_2026-10-18.md` records
-the checks, the corrections and the rebuilt PDF.
+the checks, the corrections and the rebuilt PDF. The author then judged the statement of where the repaired codes had
+run, repeated through the paper, to be defensive and badly phrased; it was recast to inform once, in Reach, as
+the same record sets out.
 
 ## Reviewers
 

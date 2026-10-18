@@ -56,3 +56,37 @@ the opening of Reach (19), Reach (20), Next steps from the reference check to th
 the start of the references (30–31) and the last references (35). Each is legible, with no collision, overflow or
 stranded line. Pages 32–34 hold references alone and were checked by their text layer: each begins and ends on a
 whole entry. The final build from `12678a9` renders identically to that earlier build on all 35 pages.
+
+## After the author's reading of this check
+
+The author read this check's report on 18 October and, of the statement it listed as repeated, wrote: "Not only
+is it said over and over again, it's phrased an a very stupid way. "Simulated away from Earth's values" is an
+example of a thing verbing something it doesn't verb." Then: "It's not just a matter of reducing it and rewording
+it. You have to be careful beacuse it was from the start defensive posturing. Make sure when you reword it and use
+it sparingly in the reworded sense that it's simply informing rather than defensive posturing." The author judged
+the abstract's length fine for now; the name of the class stays under the author's consideration.
+
+The statement stood in seven places, and a related clause in an eighth. It now informs once, at the opening of
+Reach, where a modeller reads what the repairs were built for and where they have run:
+
+> Table~\ref{tab:reach} gives, property by property, the range each repair was built for; the breathable Moon is
+> the first world besides Earth that the repaired codes have simulated.
+
+| Location | Before | After |
+|---|---|---|
+| Abstract | "The test world, whose climate is unobserved, is the only world the repaired codes have simulated away from Earth's values, numerical controls apart. There the two general repairs measured singly moved ..." | "On the test world, whose climate is unobserved, the two general repairs measured singly moved ..." |
+| Introduction, last sentence | "...; away from Earth's values, numerical controls apart, the repaired codes have so far run on the Moon alone." | The clause removed |
+| Reach, opening | "Extending the ensemble to another world requires distinguishing the range each repair was built for from the conditions in which it has been tested. Away from Earth's values, numerical controls apart, the breathable Moon remains the sole simulated case." | The sentence quoted above, followed by "To extend the ensemble to another world, a modeller applies the general repairs unchanged within those ranges, ..." |
+| Reach, how the Earth values err | "..., and the test world is the only world those models have simulated away from Earth's values." | The clause removed |
+| Reach, worlds near the existing fits | "..., and ExoPlaSim's runs of these planets have yet to be made." | The clause removed; the paragraph's "would need" already marks those runs as prospective |
+| Table 4, caption | "...; apart from the Earth benchmarks and numerical controls, the test world is the only world the adapted models have simulated." | The clause removed |
+| Next steps, a test of the reach | "Away from Earth's values, the repaired models have run on the test world alone." | The sentence removed |
+| Conclusion | "The breathable Moon remains the sole case run away from Earth's values, numerical controls apart. Further cases would measure ..." | "The breathable Moon is the first of them, and further cases would measure ..." |
+| Availability, review history | | One sentence recording the author's judgement and the recast |
+
+Checks: `make -C paper check` passed with its existing warnings; the lint's screening of the changed sections
+found no excluded word; `git diff --check` passed; the PDF built at 35 pages with zero overfull boxes. Against the
+build `fd4bf48b…7992`, pages 1–7, 19–25 and 31–35 changed. Pages 1, 3, 19–21, 23, 25 and 31, which hold the
+changed text, were read at 1,600 pixels high; pages 2, 4–7, 22, 24 and 32–35, which only moved, were inspected
+for layout at 1,100 pixels. Each is legible, with no collision, overflow or stranded line. Page 25 now ends about
+four lines short, since the Conclusion's last two paragraphs stay together on page 26, as they did before.
