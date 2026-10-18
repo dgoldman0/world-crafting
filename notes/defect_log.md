@@ -101,10 +101,12 @@ corrected there. The companion note `verification_record.md` describes the check
 
 ## (a) Upstream defects exposed by the adaptation
 
-The paper classes three of these items differently: A3 (the 360-day calendar) and A7 (WRF-ELEC's missing clear-air
-conduction) as limitations in units of time, since the code does what it was written to do, and A8 (the flash log's
-reach threshold) as a constant on the lunar path. Of the remaining five, it counts A1, A2 and A5 as hidden by Earth's
-parameters or usual configurations, and A4 and A6 as defects whose tie to Earth's values is unknown.
+The paper (third draft, 2026-10-17) classes these items as follows. A3 (the 360-day calendar) is a limitation in
+units of time, avoided by configuration; A7 (WRF-ELEC's missing clear-air conduction) a simplification that holds for
+runs of hours; A8 (the flash log's reach threshold) a constant on the lunar path. Its five defects in the released
+codes are A1, A2 and B11 (ExoPlaSim's convective-cover unit, classed here under (b)), which produce little or no error
+at Earth's values; A5, hidden by SWAN's usual configuration; and A6, CM1's thread race, independent of the world. A4,
+PlaSim's cold lowest level, is a fault of uncertain cause.
 
 ### A1. ExoPlaSim: `solang`'s Sun clock (R)
 
@@ -393,6 +395,11 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   (`climate/gcm/README.md:467-490`).
 - **Remains.** Slingo's fit itself remains Earth's. A test with the cover near its floor (`convective_day_s` 2400)
   warmed the Moon by 1.7 K and was not adopted (20ff260).
+- **Class (V, 2026-10-17).** The paper's second draft classes B11 with the upstream defects of (a): ExoPlaSim's
+  description says it replaced the solar day with 86,400 s in its unit conversions, and this one was left in
+  place. Synchronous runs carry it too, since the rotation period still sets the model day there: +0.23 to the
+  cover for TRAPPIST-1e's 6.1-day rotation, +0.31 for Proxima Centauri b's 11.2 days
+  (`paper/tools/regime_calc.py`). Not yet reported upstream.
 
 ### B12. PlaSim: CCM3 cloud water with geometric height (R)
 
@@ -546,7 +553,7 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 ### B24. SWAN: the AGROW knee at 1 Hz (R)
 
 - **Defect.** `SWIND0` reduces AGROW's linear wind source above 1 Hz by a factor in f³ (`swancom3.ftn:1800–1807`).
-  The source comments call the knee "largely arbitrary" (`1714–1723`). A fixed knee breaks gravity similarity when
+  The source comments call the knee "mostly arbitrary" (`1714–1723`). A fixed knee breaks gravity similarity when
   frequency bands are rescaled (`climate/waves/audit.md:45-60`).
 - **Fix** (8785f7e, 2026-10-02). The frequency entering the reduction becomes f · g_ref/g, so the knee sits at
   g/g_ref Hz (`climate/waves/build.py:68-90`). At the reference gravity the stock behaviour is reproduced.

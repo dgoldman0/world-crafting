@@ -18,34 +18,40 @@ def label(ax, x, y, text, **kw):
 
 
 def fig_regimes():
-    """Where found and crafted worlds sit against the ratios the models' Earth assumptions depend on."""
+    """Where found and constructed worlds sit against the ratios the models' Earth values depend on."""
     rows = load('worlds')['rows']
     fig, (a, b) = plt.subplots(1, 2, figsize=(FULL, 2.9), gridspec_kw=dict(wspace=0.32))
-    offsets = {'Earth': (6, -9), 'Mars': (6, 2), 'Titan': (6, -3), 'Venus': (6, -3), 'Open Moon 1.2 atm': (7, -3),
+    offsets = {'Earth': (6, -9), 'Mars': (6, 2), 'Titan': (6, -3), 'Venus': (6, -3), 'Breathable Moon 1.2 atm': (7, -3),
                'Mars at 1 bar': (6, -3)}
-    names_a = {'Open Moon 1.2 atm': 'Open Moon\n(1.2 and 1.0 atm)'}
+    names_a = {'Breathable Moon 1.2 atm': 'Breathable Moon\n(1.2 and 1.0 atm)'}
     for r in rows:
         if r['kind'] == 'illustrative':          # slowly rotating Earth-like planets: the day-and-gravity panel only
             b.scatter([r['solar_day_days']], [r['g_m_s2']], s=22, color='white', edgecolor=CONTEXT, linewidth=1.1, zorder=3)
             continue
-        moon = r['name'].startswith('Open Moon')
+        moon = r['name'].startswith('Breathable Moon')
         colour = BLUE if moon else CONTEXT
         size = 34 if moon else 26
         face = colour if (r['kind'] == 'found' or moon) else 'white'
         for ax, x, y in ((a, r['h_over_r'], r['column_mass_over_earth']), (b, r['solar_day_days'], r['g_m_s2'])):
+            if ax is b and r['name'] == 'Mars at 1 bar':     # same day and gravity as present Mars, drawn filled there
+                continue
             ax.scatter([x], [y], s=size, color=face, edgecolor=colour, linewidth=1.2, zorder=3)
         if r['name'] in offsets:
             dx, dy = offsets[r['name']]
             label(a, r['h_over_r'], r['column_mass_over_earth'], names_a.get(r['name'], r['name']), xytext=(dx, dy),
                   textcoords='offset points', ha='left', va='center' if moon else 'baseline', color=INK if moon else INK2)
-        names_b = {'Open Moon 1.2 atm': 'Open Moon', 'Mars': 'Mars, present and at 1 bar'}
+        names_b = {'Breathable Moon 1.2 atm': 'Breathable Moon', 'Mars': 'Mars, present and at 1 bar'}
         if r['name'] in names_b or r['name'] in ('Earth', 'Titan', 'Venus'):
+            if r['name'] == 'Venus':                 # below its point, clear of the 243-day planet's marker
+                label(b, r['solar_day_days'], r['g_m_s2'], 'Venus', xytext=(0, -7), textcoords='offset points',
+                      ha='center', va='top', color=INK2)
+                continue
             label(b, r['solar_day_days'], r['g_m_s2'], names_b.get(r['name'], r['name']), xytext=(6, -3) if not moon else (-6, 5),
                   textcoords='offset points', ha='left' if not moon else 'right', color=INK if moon else INK2)
     earth = next(r for r in rows if r['name'] == 'Earth')
     a.axvline(earth['h_over_r'], color=AXIS, lw=0.8, zorder=1)
     a.axhline(1.0, color=AXIS, lw=0.8, zorder=1)
-    label(a, earth['h_over_r'] * 1.08, 330, "PlaSim's horizon air mass, 35: exact here", ha='left', va='top', color=MUTED,
+    label(a, earth['h_over_r'] * 1.08, 330, "PlaSim's horizon air mass of 35 holds here", ha='left', va='top', color=MUTED,
           fontsize=7)
     label(a, 0.19, 0.85, "Earth's column:\nthe broadband fits' range", ha='right', va='top', color=MUTED, fontsize=7)
     a.set(xscale='log', yscale='log', xlim=(8e-4, 0.25), ylim=(5e-3, 400),
@@ -53,9 +59,9 @@ def fig_regimes():
     a.set_title('Geometry and column', pad=6)
     b.axvline(1.0, color=AXIS, lw=0.8, zorder=1)
     b.axhline(9.80665, color=AXIS, lw=0.8, zorder=1)
-    label(b, 64.0, 9.80665, 'slowly rotating\nEarth-like planets', xytext=(0, -24), textcoords='offset points', ha='center',
+    label(b, 40.0, 9.80665, 'slowly rotating Earth-like planets', xytext=(0, 7), textcoords='offset points', ha='center',
           va='bottom', color=INK2)
-    label(b, 1.08, 1.0, "PlaSim's per-day\nformulas exact", ha='left', va='bottom', color=MUTED, fontsize=7)
+    label(b, 1.08, 1.0, "PlaSim's per-day\nformulas hold", ha='left', va='bottom', color=MUTED, fontsize=7)
     b.set(xscale='log', yscale='log', xlim=(0.5, 400), ylim=(0.9, 14),
           xlabel='Solar day (Earth days)', ylabel='Surface gravity (m s$^{-2}$)')
     b.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f'{v:g}'))
@@ -77,7 +83,7 @@ def fig_sun_clock():
     i = int(np.argmax(old['relative']))
     label(ax, old['lon_deg'][i], old['relative'][i], "PlaSim's clock", xytext=(-6, 2), textcoords='offset points', ha='right')
     label(ax, 300, 1.012, 'synodic clock', ha='center', va='bottom')
-    label(ax, 356, 0.952, "circles: PlaSim's\narithmetic alone", ha='right', va='center', color=MUTED, fontsize=7)
+    label(ax, 4, 1.115, "circles: PlaSim's\narithmetic alone", ha='left', va='center', color=MUTED, fontsize=7)
     ax.set(xlim=(0, 360), xticks=range(0, 361, 90), xlabel='Longitude (° E)', ylabel='Sunlight over its row mean')
     ax.set_title('Sunlight along the equator', pad=6)
     save(fig, 'fig_sun_clock')
@@ -126,29 +132,44 @@ def fig_layers():
 
 
 def fig_repairs():
+    """Each repair's change to the global-mean surface temperature, coloured by its class, beside the sensitivity tests."""
+    from matplotlib.patches import Patch
     rows = load('repairs')['rows']
-    order = [r for r in rows if r['kind'] == 'repair'] + [r for r in rows if r['kind'] != 'repair']
+    repairs = [r for r in rows if not r['kind'].startswith('test')]
+    tests = [r for r in rows if r['kind'].startswith('test')]
+    order = repairs + tests
     y = np.arange(len(order))[::-1].astype(float)
-    y[len([r for r in rows if r['kind'] == 'repair']):] -= 0.6          # a gap before the sensitivity tests
-    fig, ax = plt.subplots(figsize=(FULL, 2.7))
+    y[len(repairs):] -= 0.6                                          # a gap before the sensitivity tests
+    face = {'general': BLUE, 'method': AQUA, 'calibration': ORANGE, 'general with a calibration': BLUE,
+            'test: calibration with a general repair': ORANGE, 'test: setting': CONTEXT}
+    hatch = {'general with a calibration': ORANGE, 'test: calibration with a general repair': BLUE}
+    lo, hi = -7.5, 13.5
+    fig, ax = plt.subplots(figsize=(FULL, 3.0))
+    plt.rcParams['hatch.linewidth'] = 1.6
     for yi, r in zip(y, order):
         v = r['change_k']
-        repair = r['kind'] == 'repair'
-        colour = (RED if v > 0 else BLUE) if repair else CONTEXT
-        ax.barh(yi, v, height=0.56, color=colour, zorder=3)
-        text = f'{v:+.2f} K'.replace('-', '−')
-        ax.annotate(text, (v, yi), xytext=(4 if v >= 0 else -4, 0), textcoords='offset points', ha='left' if v >= 0 else 'right',
-                    va='center', color=INK2, fontsize=7)
+        shown = max(v, lo)                                           # the first calibration runs off the scale
+        ax.barh(yi, shown, height=0.56, color=face[r['kind']], zorder=3,
+                hatch='////' if r['kind'] in hatch else None, edgecolor=hatch.get(r['kind'], 'none'), linewidth=0)
+        if shown != v:                                               # labelled inside the bar, which runs to the axis edge
+            ax.annotate(f'{v:+.1f} K or more, off the scale'.replace('-', '−'), (lo, yi), xytext=(4, 0),
+                        textcoords='offset points', ha='left', va='center', color=INK, fontsize=7)
+            continue
+        ax.annotate(f'{v:+.2f} K'.replace('-', '−'), (v, yi), xytext=(4 if v >= 0 else -4, 0), textcoords='offset points',
+                    ha='left' if v >= 0 else 'right', va='center', color=INK2, fontsize=7)
     ax.axvline(0, color=INK2, lw=0.8, zorder=4)
     names = [r['label'].replace('CO2 and O2', 'CO₂ and O₂') for r in order]
     ax.set_yticks(y, names)
     ax.tick_params(axis='y', length=0)
     ax.grid(axis='y', visible=False)
-    nrep = len([r for r in rows if r['kind'] == 'repair'])
-    ax.text(-7.5, y[0] + 0.62, 'Repairs', color=INK, fontsize=7.5, fontweight='bold', va='bottom')
-    ax.text(-7.5, y[nrep] + 0.62, "Sensitivity tests: the longwave by height, the cloud-water bound and two cloud settings",
-            color=INK, fontsize=7.5, fontweight='bold', va='bottom')
-    ax.set(xlim=(-7.5, 13.5), ylim=(y[-1] - 0.6, y[0] + 1.3), xlabel='Change in the global-mean surface temperature (K)')
+    ax.text(lo, y[0] + 0.62, 'Repairs, in the order made', color=INK, fontsize=7.5, fontweight='bold', va='bottom')
+    ax.text(lo, y[len(repairs)] + 0.62, 'Sensitivity tests', color=INK, fontsize=7.5, fontweight='bold', va='bottom')
+    handles = [Patch(facecolor=BLUE, label='General repair'), Patch(facecolor=AQUA, label='Method, lunar table'),
+               Patch(facecolor=ORANGE, label='Calibration'),
+               Patch(facecolor=BLUE, edgecolor=ORANGE, hatch='////', linewidth=0, label='Two classes in one step'),
+               Patch(facecolor=CONTEXT, label='Earth-tuned setting varied')]
+    ax.legend(handles=handles, loc='upper right', fontsize=7, handlelength=1.4, borderaxespad=0.2)
+    ax.set(xlim=(lo, hi), ylim=(y[-1] - 0.6, y[0] + 1.3), xlabel='Change in the global-mean surface temperature (K)')
     save(fig, 'fig_repairs')
 
 
@@ -164,7 +185,7 @@ def fig_gap():
     ax.scatter([c['ring_c'] for c in ctl], y, s=28, color=ORANGE, edgecolor='white', linewidth=1.0, zorder=3,
                label='CM1 ring')
     ax.scatter([s['ring_c'] for s in side], y, s=28, color=BLUE, edgecolor='white', linewidth=1.0, zorder=4,
-               label="CM1 ring with the GCM's\nsideways transport")
+               label="CM1 ring with the GCM's\ntransport across the circle")
     ax.set_yticks(y, names)
     ax.tick_params(axis='y', length=0)
     ax.grid(axis='y', visible=False)

@@ -1,5 +1,5 @@
 {
- "about": "Global-mean surface temperature of each test run against its baseline over the README's stated years, from the runs' yearly summaries (progress.json); repairs in the design case, and sensitivity tests: the longwave correction with ice optics, the cloud-water bracket's upper bound, and two of PlaSim's Earth-tuned cloud settings",
+ "about": "Global-mean surface temperature of each test run against its baseline over the README's stated years, from the runs' yearly summaries (progress.json); each repair with its class, the first calibration against the uncalibrated run's year 12, and sensitivity tests: the longwave correction with ice optics, the cloud-water bracket's upper bound, and two of PlaSim's Earth-tuned cloud settings",
  "sources": [
   {
    "path": "/media/projectspace/terluna-research/gcm-runs/A/progress.json",
@@ -48,12 +48,40 @@
   {
    "path": "/media/projectspace/terluna-research/gcm-runs/A_full_column_clouds/progress.json",
    "sha256": "aa1a093b52da1f0bb959f2b5b5065133d076cddf97fcbecbb9bc93f08067cb8c"
+  },
+  {
+   "path": "/media/projectspace/terluna-research/gcm-runs/A_uncalibrated/progress.json",
+   "sha256": "dcf6ab67fa0b01fe9e8b566c9277de9e108e11b9bd500a002dd18c5b73521b2f"
   }
  ],
  "rows": [
   {
+   "label": "First calibration of the radiation",
+   "kind": "calibration",
+   "baseline": {
+    "run": "A_uncalibrated",
+    "years": [
+     12,
+     12
+    ],
+    "surface_k": 315.51,
+    "n": 1
+   },
+   "test": {
+    "run": "A",
+    "years": [
+     30,
+     39
+    ],
+    "surface_k": 295.511,
+    "n": 10
+   },
+   "change_k": -19.999,
+   "note": "the uncalibrated run still warming in year 12, so the change is at least this large"
+  },
+  {
    "label": "Cloud water counted in pressure terms",
-   "kind": "repair",
+   "kind": "general",
    "baseline": {
     "run": "A",
     "years": [
@@ -77,7 +105,7 @@
   },
   {
    "label": "Convective cover per Earth day",
-   "kind": "repair",
+   "kind": "general",
    "baseline": {
     "run": "A_earth_path_clouds",
     "years": [
@@ -100,8 +128,8 @@
    "note": "settles near 299.6 K"
   },
   {
-   "label": "The Sun's clock, the Moon's tilt and the sunlight split",
-   "kind": "repair",
+   "label": "Sun clock and tilt, with the split refitted",
+   "kind": "general with a calibration",
    "baseline": {
     "run": "A28_dim5",
     "years": [
@@ -121,11 +149,11 @@
     "n": 10
    },
    "change_k": 0.586,
-   "note": ""
+   "note": "one step joining two general repairs and a calibration"
   },
   {
-   "label": "Curved air: twilight, cone and slant path",
-   "kind": "repair",
+   "label": "Curved air, first channels",
+   "kind": "method",
    "baseline": {
     "run": "A28_dim5_moon",
     "years": [
@@ -145,11 +173,11 @@
     "n": 10
    },
    "change_k": -0.654,
-   "note": ""
+   "note": "on the curved-air table's first channels"
   },
   {
-   "label": "CO2 and O2 in the sunlight",
-   "kind": "repair",
+   "label": "CO2 and O2 bands, first channels",
+   "kind": "calibration",
    "baseline": {
     "run": "A28_dim5_moon_geometry",
     "years": [
@@ -169,11 +197,11 @@
     "n": 10
    },
    "change_k": -2.228,
-   "note": "still cooling 0.3 K a decade"
+   "note": "still cooling 0.3 K a decade; on the first channels"
   },
   {
    "label": "Longwave by height with ice optics",
-   "kind": "test",
+   "kind": "test: calibration with a general repair",
    "baseline": {
     "run": "A28_corrected_970",
     "years": [
@@ -197,7 +225,7 @@
   },
   {
    "label": "Cloud water at the full-column bound",
-   "kind": "bracket",
+   "kind": "test: setting",
    "baseline": {
     "run": "A",
     "years": [
@@ -221,7 +249,7 @@
   },
   {
    "label": "Thinner convective cloud",
-   "kind": "cloud setting",
+   "kind": "test: setting",
    "baseline": {
     "run": "A28_dim5_moon",
     "years": [
@@ -245,7 +273,7 @@
   },
   {
    "label": "More low cloud",
-   "kind": "cloud setting",
+   "kind": "test: setting",
    "baseline": {
     "run": "A28_dim5_moon",
     "years": [

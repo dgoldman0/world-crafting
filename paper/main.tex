@@ -1,5 +1,5 @@
-% Earth inside the models: ExoPlaSim 3.4.2, CM1 r22 with WRF-ELEC, SWAN 41.51 and SWASH 12.01 adapted to a breathable Moon
-% Paper ID e8b42cb5-48da (UUIDv4 e8b42cb5-48da-402c-b261-4de808e9062a). Built with `make` in this folder.
+% Modelling Earth-like worlds beyond Earth's range: ExoPlaSim, CM1, SWAN and SWASH adapted and tested on a breathable Moon
+% Built with `make` in this folder.
 \documentclass[11pt]{article}
 \usepackage[a4paper,margin=25mm]{geometry}
 \usepackage[T1]{fontenc}
@@ -8,16 +8,22 @@
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{booktabs,tabularx,array,makecell}
+\usepackage{xltabular}              % tables long enough to break across pages
+\usepackage{needspace}              % keeps a short table whole by starting it on a new page
+\setlength{\LTcapwidth}{\textwidth}
 \usepackage{siunitx}
 \usepackage{xcolor}
 \usepackage[font=small,labelfont=bf,labelsep=period]{caption}
 \usepackage{enumitem}
 \usepackage{csquotes}
 \usepackage{seqsplit}            % long hashes in the bibliography break anywhere
-\usepackage[style=authoryear,maxcitenames=2,maxbibnames=10,minbibnames=7,uniquelist=false,giveninits=true,
+\usepackage[style=authoryear,maxcitenames=2,maxbibnames=10,minbibnames=7,uniquelist=false,uniquename=false,giveninits=true,
             doi=true,url=false,isbn=false,backend=biber]{biblatex}
 \usepackage[hidelinks,breaklinks]{hyperref}
 \usepackage{orcidlink}
+\hypersetup{pdftitle={Modelling Earth-like worlds beyond Earth's range: ExoPlaSim, CM1, SWAN and SWASH adapted and
+  tested on a breathable Moon}, pdfauthor={Daniel S. Goldman}}
+\pdftrailerid{}                    % with the Makefile's fixed build date, the same sources give the same PDF
 \addbibresource{references.bib}
 \setcounter{secnumdepth}{0}          % unnumbered headings throughout
 \sisetup{group-minimum-digits=4,range-phrase=--,per-mode=symbol}
@@ -27,23 +33,29 @@
 % A claim marker: renders nothing, lets the checker trace each number to paper/claims.json.
 \newcommand{\claim}[1]{}
 \newcommand{\code}[1]{\texttt{\small #1}}
+% A run's name in a narrow table cell: small type, breakable at the underscores written as \_\allowbreak.
+\newcommand{\run}[1]{{\scriptsize\texttt{#1}}}
 
-\title{\textbf{Earth inside the models: ExoPlaSim 3.4.2, CM1 r22 with WRF-ELEC, SWAN 41.51 and SWASH 12.01 adapted to a breathable Moon}}
+\title{\textbf{Modelling Earth-like worlds beyond Earth's range:\\ ExoPlaSim, CM1, SWAN and SWASH\\ adapted and tested on a breathable Moon}}
 \author{Daniel S. Goldman\,\orcidlink{0000-0003-2835-3521}}
-\date{Draft, \today. Paper ID e8b42cb5-48da}
+% The date of the last commit that changed the paper's sources: the build sets TeX's clock from it
+% (SOURCE_DATE_EPOCH with FORCE_SOURCE_DATE=1 in the Makefile), so the same sources print the same date.
+\date{\number\day\space\ifcase\month\or January\or February\or March\or April\or May\or June\or July\or
+  August\or September\or October\or November\or December\fi\space\number\year}
 
 \begin{document}
 \maketitle
 \input{sections/abstract}
 \input{sections/introduction}
-\input{sections/regime}
-\input{sections/hidden_earth}
+\input{sections/worlds}
+\input{sections/assumptions}
 \input{sections/repairs}
 \input{sections/verification}
 \input{sections/results}
 \input{sections/reach}
 \input{sections/next}
 \input{sections/conclusions}
+\input{sections/appendix}
 \input{sections/availability}
 \setlength{\emergencystretch}{3em}
 \printbibliography[heading=bibintoc]

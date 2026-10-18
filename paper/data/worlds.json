@@ -1,5 +1,5 @@
 {
- "about": "Governing ratios of found and crafted worlds, calculated from the stated basis: scale height RT/(Mg) at the surface temperature, H/R, column mass p/g, the Chapman horizon air mass sqrt(pi R / 2H) for an isothermal atmosphere, and the bias PlaSim's convective cover formula takes when it counts rain per solar day, 0.125 ln(day / 1 d)",
+ "about": "Governing ratios of found and constructed worlds, calculated from the stated basis: scale height RT/(Mg) at the surface temperature, H/R, column mass p/g, the Chapman horizon air mass sqrt(pi R / 2H) for an isothermal atmosphere, and the bias PlaSim's convective cover formula takes when it counts rain per solar day, 0.125 ln(day / 1 d)",
  "sources": [],
  "rows": [
   {
@@ -71,15 +71,15 @@
    "convective_cover_bias": 0.595
   },
   {
-   "name": "Open Moon 1.2 atm",
-   "kind": "crafted",
+   "name": "Breathable Moon 1.2 atm",
+   "kind": "constructed",
    "g_m_s2": 1.6242,
    "radius_km": 1737.4,
    "surface_pressure_bar": 1.2159,
    "temperature_k": 295.0,
    "molar_mass_g_mol": 28.83,
    "solar_day_days": 29.53,
-   "basis": "Terluna's design case at the water level",
+   "basis": "the design case at the water level (Terluna)",
    "scale_height_km": 52.38,
    "h_over_r": 0.03015,
    "column_mass_t_m2": 74.861,
@@ -88,15 +88,15 @@
    "convective_cover_bias": 0.423
   },
   {
-   "name": "Open Moon 1.0 atm",
-   "kind": "crafted",
+   "name": "Breathable Moon 1.0 atm",
+   "kind": "constructed",
    "g_m_s2": 1.6242,
    "radius_km": 1737.4,
    "surface_pressure_bar": 1.01325,
    "temperature_k": 295.0,
    "molar_mass_g_mol": 28.83,
    "solar_day_days": 29.53,
-   "basis": "Terluna's pressure variant",
+   "basis": "the pressure variant (Terluna)",
    "scale_height_km": 52.38,
    "h_over_r": 0.03015,
    "column_mass_t_m2": 62.385,
@@ -106,7 +106,7 @@
   },
   {
    "name": "Mars at 1 bar",
-   "kind": "crafted",
+   "kind": "constructed",
    "g_m_s2": 3.721,
    "radius_km": 3389.5,
    "surface_pressure_bar": 1.0,

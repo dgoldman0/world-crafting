@@ -40,20 +40,20 @@ then applies `series-elec` after `series-core`. Without the macros the build def
 
 **Core** (`series-core`, every build)
 
-| # | File | Switch | Change | Kind |
+| # | File | Switch | Change | Kind (the paper's classes) |
 |---|---|---|---|---|
 | 01 | constants.F | `TERLUNA_G` | Gravity of the dynamics | General repair |
 | 02 | module_ra_etc.F | `TERLUNA_G` | Gravity in `module_model_constants`, from which RRTMG's own `grav` (absorber mass per layer, heating rates) and MYNN take theirs | General repair |
 | 03 | getcape.F | `TERLUNA_G` | Gravity of the CAPE diagnostic | General repair |
 | 04 | morrison.F | `TERLUNA_G` | Fall-speed coefficients and caps scaled by (g/9.81)^((b+1)/3); Stokes droplets with the host g | General repair (scaling law) |
-| 05 | radiation_driver.F | `var19` > 1 | A solar day of `var19` s at `var17` W/m², hour angle from `var18`; on a domain `var16` m long the hour angle grows eastward along x; on a great circle tilted `var12`° each column takes its latitude and longitude | Capability |
-| 06, 07 | module_ra_rrtmg_lw.F, _sw.F | `TERLUNA_CO2`, `TERLUNA_O2` | RRTMG's CO2 and O2 from the build; CH4, N2O, CFCs and O3 set to zero (unconditional) | Setting |
-| 08 | init_surface.F | `initsfc = 9` | Land and water segments along x from `terluna_surface.txt`; the slab soil's five layers 5–80 cm thick in place of 1–16 cm (unconditional) | Capability; repair for long days |
-| 09 | solve1.F | `var14`, `var15` | Large-scale nudging weighted from zero at `var14` m to full at `var15` m | Capability |
-| 10–14 | param.F, base.F, input.F, adv_routines.F, adv.F | `var13` = 1, 2 | A large-scale vertical wind against height (1) or by column along x (2) through CM1's own large-scale vertical advection | Capability |
-| 15 | param.F | `var12` > 0 | On a tilted great-circle ring, the Coriolis parameter 2Ω sin(latitude) column by column, the beta plane kept on in two dimensions | Capability |
-| 16 | solve2.F | (beta plane on) | The beta plane's Coriolis acts on departures from the base-state wind, whose balancing pressure gradient is implied (unconditional for beta-plane runs) | Capability |
-| 17 | solve1.F | `var11` = 1 | Large-scale heating and moistening by local time and height from `terluna_lsadv.txt` (the day–night circulation a box lacks; the sideways transport a ring lacks) | Capability |
+| 05 | radiation_driver.F | `var19` > 1 | A solar day of `var19` s at `var17` W/m², hour angle from `var18`; on a domain `var16` m long the hour angle grows eastward along x; on a great circle tilted `var12`° each column takes its latitude and longitude | General repair; the lunar day, flux and hour angle are its settings |
+| 06, 07 | module_ra_rrtmg_lw.F, _sw.F | `TERLUNA_CO2`, `TERLUNA_O2` | RRTMG's CO2 and O2 from the build; CH4, N2O, CFCs and O3 set to zero (unconditional) | General repair (CO2 and O2 as build parameters, set to the design air); setting (the other gases zeroed) |
+| 08 | init_surface.F | `initsfc = 9` | Land and water segments along x from `terluna_surface.txt`; the slab soil's five layers 5–80 cm thick in place of 1–16 cm (unconditional) | Coupling (land and water from the GCM's surface); general repair (the soil, for long days) |
+| 09 | solve1.F | `var14`, `var15` | Large-scale nudging weighted from zero at `var14` m to full at `var15` m | Coupling |
+| 10–14 | param.F, base.F, input.F, adv_routines.F, adv.F | `var13` = 1, 2 | A large-scale vertical wind against height (1) or by column along x (2) through CM1's own large-scale vertical advection | Coupling |
+| 15 | param.F | `var12` > 0 | On a tilted great-circle ring, the Coriolis parameter 2Ω sin(latitude) column by column, the beta plane kept on in two dimensions | Coupling |
+| 16 | solve2.F | (beta plane on) | The beta plane's Coriolis acts on departures from the base-state wind, whose balancing pressure gradient is implied (unconditional for beta-plane runs) | Coupling (active on the tilted rings, where the beta plane stays on) |
+| 17 | solve1.F | `var11` = 1 | Large-scale heating and moistening by local time and height from `terluna_lsadv.txt` (the day–night circulation a box lacks; the sideways transport a ring lacks) | Coupling |
 
 **Terrain** (`series-terrain`): nudging over terrain, each column held toward the reference at its own
 height; the Rayleigh layer damping toward the initial state over terrain; every column's ground from

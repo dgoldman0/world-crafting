@@ -10,18 +10,18 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 142,
-  "with_local_original": 85,
-  "blocked": 57,
-  "deferred": 85,
+  "total": 152,
+  "with_local_original": 87,
+  "blocked": 65,
+  "deferred": 87,
   "passed": 0,
   "depth": {
-   "full": 0,
-   "claim-locators": 69,
+   "claim-locators": 70,
    "abstract-only": 60,
-   "not read": 13
+   "not read": 21,
+   "full": 1
   },
-  "cited_in_paper": 53,
+  "cited_in_paper": 73,
   "cited_blocked": [
    "battjes1985calibration",
    "berger1978long",
@@ -29,21 +29,28 @@
    "bryan2002benchmark",
    "cavaleri1981wind",
    "charnock1955wind",
+   "christian2003global",
+   "clough2005atmospheric",
    "dwyer2003fundamental",
    "ebert1992parameterization",
    "fierro2013implementation",
    "komen1984existence",
    "kristjansson2000impact",
+   "kuhlman2006numerically",
    "macgorman2001lightning",
+   "mckay1991making",
    "mlawer2012development",
+   "nicoll2012measurements",
    "rodgers1967use",
+   "salinas2021modeling",
    "saunders1998laboratory",
    "slingo1991response",
+   "stamnes1988numerically",
+   "sun2023aerosol",
    "takahashi1978riming",
    "trenberth2005trends",
    "verlinde1993fitting",
    "weisman1982dependence",
-   "wolf2015evolution",
    "wu1982wind",
    "ziegler1994observed"
   ]
@@ -1946,7 +1953,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": "Legal local original archived on 2026-10-17 (found by the legal-copies helper, fetched by the main session); not yet read in full",
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "PNAS/PMC block scripted access; abstract (significance statement) read. L23 rests on the PyRADS README, a primary technical record: a line-by-line longwave code using HITRAN 2016 and MT_CKD (shortwave in the separate PyRADS-shortwave repository). Correction: PNAS 116, 15308 (2019). Archived 2026-10-17: publisher version of record with an MIT Open Access cover page, via the Wayback copy of DSpace@MIT; title found on the first pages."
   },
@@ -2860,7 +2867,7 @@
    "additional_files": null,
    "reading": {
     "depth": "claim-locators",
-    "reader": "delegated search agent (agentC); quotes machine-checked against archived text where available",
+    "reader": "delegated search agent (agentC); quotes machine-checked against archived text where available; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
     "locators": [
      {
       "claim_id": "Td",
@@ -2868,12 +2875,19 @@
       "quote": "typically less than 80° for Mars and 65° for Titan, which has a larger relative scale height",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "repairs and conclusions (Titan haze)",
+      "location": "arXiv v1, abstract; Sect. 3.2 (radius)",
+      "quote": "On Titan, an aerosols scale height of 80 ± 10 km is inferred",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text; the radius is set to 2575 km for Titan, so 80 km is 3.1% of it (Sect. 3.2)"
      }
     ]
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "arXiv copy archived."
   },
@@ -3134,7 +3148,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "arXiv v1 (submitted) archived; the published QJRMS version is CC BY."
   },
@@ -3323,7 +3337,7 @@
    "additional_files": null,
    "reading": {
     "depth": "claim-locators",
-    "reader": "this agent",
+    "reader": "this agent; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
     "locators": [
      {
       "claim_id": "L12",
@@ -3345,6 +3359,27 @@
       "quote": "produces a shield of high, optically thick clouds that limit warming there",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "next steps and conclusions (test of the reach)",
+      "location": "arXiv v2, Sect. 2",
+      "quote": "Planetary obliquity and eccentricity are zero.",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "next steps and conclusions (test of the reach)",
+      "location": "arXiv v2, Sect. 2",
+      "quote": "O3 is set to zero",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "next steps and conclusions (test of the reach)",
+      "location": "arXiv v2, Table 2 and its notes",
+      "quote": "Present day Earth solar insolation (S0X=1.0) is set to 1360.67 W m−2; Rotation: values are in multiples of Earth length sidereal days (d)",
+      "read_in": "archived original (text layer)",
+      "quote_check": "both notes found in text; X016 and X064 run at S0X = 1.0"
      }
     ]
    },
@@ -3399,7 +3434,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "GMD (CC BY) archived. Agent A also reports pp. 5835-5836 (three Earth-specific settings removed, -1.27 W/m2) and p. 5851 (Earth-centric tunings matter less than planet differences)."
   },
@@ -3682,7 +3717,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": "Legal local original archived on 2026-10-17 (found by the legal-copies helper, fetched by the main session); not yet read in full",
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "CC BY-NC-ND at ScienceDirect but scripted access refused; the USRA repository handle returned HTTP 500. Archived 2026-10-17: publisher version of record (CC BY-NC-ND), via the Wayback copy of the USRA repository; title found on the first pages."
   },
@@ -3956,7 +3991,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "arXiv v2 archived; agent A: GA7.0 'with minimal changes can be adapted for any Earth-like atmosphere'; deep, non-hydrostatic equations."
   },
@@ -3989,7 +4024,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": true,
+   "cited_in_paper": false,
    "paper_use": [
     {
      "claim_id": null,
@@ -4038,7 +4073,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": null
   },
@@ -4079,7 +4114,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": true,
+   "cited_in_paper": false,
    "paper_use": [
     {
      "claim_id": null,
@@ -4202,7 +4237,7 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": true,
+   "cited_in_paper": false,
    "paper_use": [
     {
      "claim_id": null,
@@ -4322,7 +4357,7 @@
    ],
    "reading": {
     "depth": "claim-locators",
-    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available",
+    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
     "locators": [
      {
       "claim_id": "Tb",
@@ -4337,12 +4372,47 @@
       "quote": "the corresponding values are 94.8% and 81.7% in CAM3 and 90.4% and 97.4% in ExoCAM",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "arXiv v1 pp. 3-4, Results ('Clouds')",
+      "quote": "In CAM3 and ExoCAM, clouds are not resolved and cloud coverages are empirically parameterized based on relative humidity, atmospheric stratification, and large-scale updrafts",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "SI Text 3",
+      "quote": "it is defined as 100% when the cloud water content is greater than 0.01 g kg-1, otherwise it is 0%",
+      "read_in": "archived supplementary information (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "arXiv v1 p. 4; p. 7, Discussion",
+      "quote": "Overall, the simulated climates between CPM and GCM are broadly similar; For time- and global-mean, the simulated surface temperature and planetary albedo in the CPM are broadly similar to those found in GCM experiments",
+      "read_in": "archived original (text layer)",
+      "quote_check": "both quotes found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "arXiv v1 p. 10, Methods ('Two steps for each experiment')",
+      "quote": "In the 4 km experiment, the sea surface temperatures (SSTs) are fixed to the time-mean values of the last 30 Earth days of the 40-km experiment",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (Yang et al. comparison)",
+      "location": "SI Table 3, global-mean values",
+      "quote": "Planetary albedo (%) 18.1 29.1 22.1 37.4 47.0 41.0 39.0 (TRAPPIST-1e: SAM, CAM3, ExoCAM; K2-72e: SAM, CAM3, CAM3_TLC, ExoCAM)",
+      "read_in": "archived supplementary information (text layer)",
+      "quote_check": "row read from the table's text layer"
      }
     ]
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "The project's 'Yang et al. 2023'. Nature Astronomy main text paywalled; arXiv v1 and the free Supplementary Information archived. The paper calls SAM a cloud-permitting model; cloud fraction is defined by a condensate threshold unlike the GCMs; the largest gap is on the nightside and at dayside high latitudes."
   },
@@ -4589,7 +4659,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": null
   },
@@ -4967,12 +5037,41 @@
    "additional_files": null,
    "reading": {
     "depth": "claim-locators",
-    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available",
-    "locators": []
+    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
+    "locators": [
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v2, Sect. 2.2.1, Eqs. (1)-(3)",
+      "quote": "F1 is a linear function of the upward flux of graupel mass at the −15 ◦C isotherm; The F2 factor is a linear function of the total ice water path (TIWP)",
+      "read_in": "archived original (text layer)",
+      "quote_check": "both phrases found in text"
+     },
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v2, Sect. 2.2.1",
+      "quote": "This parameterisation was originally derived from observations of severe thunderstorms over the United States",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v2, Sect. 2.3",
+      "quote": "We set our model with N2 as the dominant background gas and 400 ppm of CO2 (i.e., fixed mass mixing ratio), and H2 O as the condensible species. Oxygen and ozone are not included in our simulations.",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text; the planet is TRAPPIST-1e"
+     },
+     {
+      "claim_id": "conclusions (resolved storms as a route)",
+      "location": "arXiv v2, Sect. 4.2",
+      "quote": "A possible route towards a more quantitative result is to use an explicit electric charging scheme coupled with a cloud-resolving model (e.g., Fierro et al. 2013). In the absence of in-situ observations, this may be the best way of tuning convection- or microphysics-based parameterisations in climate models for different planetary atmospheres.",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     }
+    ]
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": null
   },
@@ -5000,12 +5099,27 @@
    "additional_files": null,
    "reading": {
     "depth": "claim-locators",
-    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available",
-    "locators": []
+    "reader": "delegated search agent (agentB); quotes machine-checked against archived text where available; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
+    "locators": [
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v1, abstract",
+      "quote": "simulate the atmosphere of Proxima Centauri b orbiting in the Habitable Zone of its M-dwarf star",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results and conclusions (flash-rate laws)",
+      "location": "arXiv v1, Sect. 4.3",
+      "quote": "the coefficients used in Equation 1 have been tuned to match observed",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text; the sentence continues with lightning flash rates on Earth"
+     }
+    ]
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": null
   },
@@ -5068,7 +5182,7 @@
    ],
    "reading": {
     "depth": "claim-locators",
-    "reader": "this agent",
+    "reader": "this agent; further locators added 2026-10-18 by the drafting assistant from the round-6 and round-7 evidence reviews, each quote checked against the archived text",
     "locators": [
      {
       "claim_id": "L8",
@@ -5104,12 +5218,26 @@
       "quote": "but none are expected to yield quantitatively exact values.",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "conclusions (drop-size scaling)",
+      "location": "p. 22 of 28, App. C1",
+      "quote": "Such experiments consistently agree (within about 20%) with the predictions of Equation 21",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "conclusions (collisions bound raindrops on Earth)",
+      "location": "p. 9 of 28, Sect. 3.4",
+      "quote": "the practical upper bound on raindrop size is not set from individual raindrop breakup but rather from hydrometeor collisions",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
      }
     ]
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "Author-hosted version of record (CC BY 4.0) archived; arXiv v1 also archived as loftus2021physics_arxiv.pdf. Eq. (26): r_max ~ sqrt(sigma/(g (rho_c - rho_air))). Limiting finding: absolute r_max uncertain by a factor of a few; on Earth collisions set the largest drops."
   },
@@ -5288,7 +5416,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "Icarus version of record posted by CNR (licence not stated; adopted). SWAN and UMWM run on Mars by changing physical constants only."
   },
@@ -5684,7 +5812,7 @@
    ],
    "reading": {
     "depth": "claim-locators",
-    "reader": "this agent",
+    "reader": "this agent; a further locator added 2026-10-18 by the drafting assistant from the round-8 evidence review, its quote checked against the archived text",
     "locators": [
      {
       "claim_id": "L15",
@@ -5748,6 +5876,13 @@
       "quote": "= 12 : Brooks et al. RARcrit for T > -15 using saund6 (otherwise same as isaund=9) (DEFAULT)",
       "read_in": "archived README",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "results (the default form of Saunders and Peck's law); G11",
+      "location": "doc/README.electricity line 127 (isaund options)",
+      "quote": "= 12 : Brooks et al. RARcrit for T > -15 using saund6 (otherwise same as isaund=9) (DEFAULT)",
+      "read_in": "archived README",
+      "quote_check": "quote found in text; isaund = 9 is the Saunders and Peck scheme (line 124), and the lunar runs' case.json files set isaund 12"
      }
     ]
    },
@@ -6040,6 +6175,286 @@
    "cited_in_paper": true,
    "paper_use": null,
    "notes": "Added on finding the 0.73 attribution in SWAN's documentation. Wiley/AGU copy blocked; not read."
+  },
+  {
+   "key": "mckay1991making",
+   "citation": "McKay, Toon and Kasting (1991). Making Mars habitable. Nature, 352(6335), 489–496. doi:10.1038/352489a0",
+   "entry_type": "article",
+   "doi": "10.1038/352489a0",
+   "verified_via": "Crossref api.crossref.org/works/10.1038/352489a0 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "Closed access (OpenAlex oa_status closed, no repository full text, no stored abstract) on 2026-10-17; no legal local original obtained",
+   "cited_in_paper": true,
+   "paper_use": "Cited in the introduction for the subject its title names, the study of how a planet could be made habitable, as an example of constructed-world research",
+   "notes": "Added 2026-10-17 for the reframed introduction; bibliographic record only."
+  },
+  {
+   "key": "christian2003global",
+   "citation": "Christian et al. (2003). Global frequency and distribution of lightning as observed from space by the Optical Transient Detector. J. Geophys. Res.-Atmos., 108(D1), 4005. doi:10.1029/2002JD002347",
+   "entry_type": "article",
+   "doi": "10.1029/2002JD002347",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/2002JD002347 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-10-17; added for the third draft's comparisons",
+   "cited_in_paper": true,
+   "paper_use": "Earth's global flash rate, 44 flashes a second, behind the comparison of the lunar box's flash density with Earth's average (2.7 per km2 per year)",
+   "notes": "Number as carried in Terluna's CRM record; not read here."
+  },
+  {
+   "key": "kuhlman2006numerically",
+   "citation": "Kuhlman, Ziegler, Mansell, MacGorman and Straka (2006). Numerically simulated electrification and lightning of the 29 June 2000 STEPS supercell storm. Mon. Weather Rev., 134(10), 2734-2757. doi:10.1175/MWR3217.1",
+   "entry_type": "article",
+   "doi": "10.1175/MWR3217.1",
+   "verified_via": "Crossref api.crossref.org/works/10.1175/MWR3217.1 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-10-17; added for the third draft's comparisons",
+   "cited_in_paper": true,
+   "paper_use": "Published first-flash time (27-28 min) among the benchmark comparators",
+   "notes": "Terluna atmospheric_electricity sources.json S16 records partial reading by a literature agent."
+  },
+  {
+   "key": "sun2023aerosol",
+   "citation": "Sun et al. (2023). Aerosol impacts on storm electrification and lightning discharges under different thermodynamic environments. J. Geophys. Res.-Atmos., 128(8), e2022JD037450. doi:10.1029/2022JD037450",
+   "entry_type": "article",
+   "doi": "10.1029/2022JD037450",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/2022JD037450 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-10-17; added for the third draft's comparisons",
+   "cited_in_paper": true,
+   "paper_use": "Published first-flash time (30-40 min) for WRF-ELEC on the Weisman-Klemp sounding, a benchmark comparator",
+   "notes": "Terluna sources.json S26."
+  },
+  {
+   "key": "salinas2021modeling",
+   "citation": "Salinas, Bruning, Mansell and Brothers (2021). Modeling the electrical energy discharged by lightning flashes using capacitors for application with lightning datasets. J. Atmos. Sci., 78(12), 3909-3924. doi:10.1175/JAS-D-21-0073.1",
+   "entry_type": "article",
+   "doi": "10.1175/JAS-D-21-0073.1",
+   "verified_via": "Crossref api.crossref.org/works/10.1175/JAS-D-21-0073.1 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-10-17; added for the third draft's comparisons",
+   "cited_in_paper": true,
+   "paper_use": "The published share of flashes in cloud (99.67%) of a simulated supercell, the comparator for the ground-strike rule's 1.1%",
+   "notes": "Attribution as carried in Terluna's CRM benchmark table; not read here."
+  },
+  {
+   "key": "nicoll2012measurements",
+   "citation": "Nicoll (2012). Measurements of atmospheric electricity aloft. Surv. Geophys., 33(5), 991-1057. doi:10.1007/s10712-012-9188-9",
+   "entry_type": "article",
+   "doi": "10.1007/s10712-012-9188-9",
+   "verified_via": "Crossref api.crossref.org/works/10.1007/s10712-012-9188-9 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-10-17; added for the third draft's comparisons",
+   "cited_in_paper": true,
+   "paper_use": "Earth's measured fair-weather conductivity profile (Gringel 1978 fit), the check of the conductivity column",
+   "notes": "Terluna sources.json S21 records reading of sections 2.1-2.2, 3.2-3.3, 5.2 by a literature agent."
+  },
+  {
+   "key": "clough2005atmospheric",
+   "citation": "Clough et al. (2005). Atmospheric radiative transfer modeling: a summary of the AER codes. J. Quant. Spectrosc. Ra., 91(2), 233-244. doi:10.1016/j.jqsrt.2004.05.058",
+   "entry_type": "article",
+   "doi": "10.1016/j.jqsrt.2004.05.058",
+   "verified_via": "Crossref api.crossref.org/works/10.1016/j.jqsrt.2004.05.058 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-10-17; added for the third draft's comparisons",
+   "cited_in_paper": true,
+   "paper_use": "LBLRTM, named as an independent code for the proposed cross-check of the reference model",
+   "notes": "Cited for the code's identity only."
+  },
+  {
+   "key": "stamnes1988numerically",
+   "citation": "Stamnes, Tsay, Wiscombe and Jayaweera (1988). Numerically stable algorithm for discrete-ordinate-method radiative transfer in multiple scattering and emitting layered media. Appl. Optics, 27(12), 2502-2509. doi:10.1364/AO.27.002502",
+   "entry_type": "article",
+   "doi": "10.1364/AO.27.002502",
+   "verified_via": "Crossref api.crossref.org/works/10.1364/AO.27.002502 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-10-17; added for the third draft's comparisons",
+   "cited_in_paper": true,
+   "paper_use": "DISORT, named as an independent solver for the proposed cross-check of the reference model",
+   "notes": "Cited for the code's identity only."
+  },
+  {
+   "key": "goldman2026solang",
+   "citation": "Goldman (2026). solang: Sun skips back once per model day when rotationperiod != 1, fixing an insolation bias in longitude. ExoPlaSim issue #69, GitHub alphaparrot/ExoPlaSim, opened 29 September 2026",
+   "entry_type": "misc",
+   "doi": null,
+   "verified_via": "GitHub issue page, read 2026-10-17 (claim N02)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": true
+   },
+   "license": null,
+   "original": {
+    "path": "paper/sources/originals/goldman2026solang.json",
+    "url": "https://api.github.com/repos/alphaparrot/ExoPlaSim/issues/69",
+    "retrieved": "2026-10-17",
+    "bytes": 6543,
+    "sha256": "ea058399d58038cfd425237f7e0a2255c5b5d74bb14a91fd414b1c7f5459abd7",
+    "version": "issue state open, 0 comments, as served 2026-10-17"
+   },
+   "additional_files": null,
+   "reading": {
+    "depth": "full",
+    "reader": "drafting assistant",
+    "locators": []
+   },
+   "admission": "DEFERRED",
+   "admission_reason": "Local copy of the issue record archived; the author's own report, read in full",
+   "cited_in_paper": true,
+   "paper_use": "The upstream report of the Sun-clock defect",
+   "notes": "The author's own report; not an independent source."
+  },
+  {
+   "key": "zahnle2017cosmic",
+   "citation": "Zahnle and Catling (2017). The Cosmic Shoreline: The Evidence that Escape Determines which Planets Have Atmospheres, and what this May Mean for Proxima Centauri B. Astrophys. J., 843(2), 122. doi:10.3847/1538-4357/aa7846",
+   "entry_type": "article",
+   "doi": "10.3847/1538-4357/aa7846",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/1538-4357/aa7846 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": true
+   },
+   "license": null,
+   "original": {
+    "path": "paper/sources/originals/zahnle2017cosmic_arxiv.pdf",
+    "url": "https://arxiv.org/pdf/1702.03386v2",
+    "retrieved": "2026-10-17",
+    "bytes": 1273203,
+    "sha256": "590368fe0775a4385288938d484dd14b51b430bcda7ef9d4be280c14eaea1f12",
+    "version": "arXiv:1702.03386v2, the accepted manuscript as published in ApJ 843:122",
+    "pages": 32
+   },
+   "additional_files": null,
+   "reading": {
+    "depth": "claim-locators",
+    "reader": "main session; quote machine-checked against the archived text layer",
+    "locators": [
+     {
+      "claim_id": "introduction (cosmic shoreline)",
+      "location": "arXiv v2, Abstract",
+      "quote": "The planets of the Solar System divide neatly between those with atmospheres and those without",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "introduction (cosmic shoreline)",
+      "location": "arXiv v2, Abstract",
+      "quote": "when arranged by insolation (I) and escape velocity",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "DEFERRED",
+   "admission_reason": "Legal local original (arXiv) archived on 2026-10-17; read at the abstract's locators, not yet in full",
+   "cited_in_paper": true,
+   "paper_use": "Introduction: natural worlds keep atmospheres where escape velocity is large against insolation",
+   "notes": "arXiv copy archived."
   }
  ]
 }
