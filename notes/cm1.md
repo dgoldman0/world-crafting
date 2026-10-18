@@ -118,7 +118,7 @@ gives.
 1.8 km warm from 20.0 to 26.7 °C over two lunar days. The GCM's circulation carries about 15 W/m² of heat
 out of the air below 8 km at that latitude; imposed, it removes about a third of the offset (5.9 → 3.7 K
 in the lowest 1.8 km). The GCM's eddies faster than its 3-day means add 2%. PlaSim's longwave
-over-cooling of its own lowest layers accounts for about 1.5 K of what remains; the rest lies in how the
+over-cooling of its lowest layers, beyond RRTMG's in CM1, accounts for about 1.5 K of what remains; the rest lies in how the
 two models carry the ground's heat upward (CM1 mixes 14–19 km deep by day where the GCM stays stable).
 Neither two dimensions (a 3-D box ran warmer), nor the land surface (at most 0.3 °C), nor the slow fall of
 rain explains the gap.
