@@ -1133,6 +1133,17 @@
     "repo:python/climate/results/gcm/sun_check_A28_dim5_sun_test.json"
    ],
    "state": "sensitivity"
+  },
+  {
+   "id": "S16",
+   "text": "The hardware at hand is one laptop with eight processor cores (Intel Core i9-11980HK, 8 cores and 16 threads, 31 GiB of memory), with no budget for rented compute; CM1's rings and boxes were sized to fit it and chosen on a best guess at which features would be of interest (the author's account, 18 October 2026)",
+   "source": [
+    "terluna:climate/crm/README.md#L688-690",
+    "terluna:climate/gcm/README.md#L93",
+    "calc:lscpu, free -g and /sys/class/dmi/id/product_name on the machine, run 2026-10-18 (Intel Core i9-11980HK, 8 cores and 16 threads; 31 GiB; Gigabyte AERO 17 YD)",
+    "repo:paper/review/slice_reason_2026-10-18.md"
+   ],
+   "state": "documented"
   }
  ]
 }
