@@ -410,6 +410,66 @@
    "bytes": 7503
   },
   {
+   "path": "geography/.gitignore",
+   "sha256": "18c5ef8d0deb532388d7fce8291ea35e231343c806e6a1fff8234098da3e065f",
+   "bytes": 51
+  },
+  {
+   "path": "geography/atlas.py",
+   "sha256": "e5ce62df01c940976901f0308620116fbce3657c4945098a70ce0f301f4ee14b",
+   "bytes": 13715
+  },
+  {
+   "path": "geography/basins.py",
+   "sha256": "038c3675d532fde0a07b106d679726cf7f384f703a119bb75bf9a57ce5af0cb4",
+   "bytes": 9855
+  },
+  {
+   "path": "geography/drainage.py",
+   "sha256": "a1b8d163c2ee340c1e58d218772278f3b229fddc96b8cc051757ab4051094c68",
+   "bytes": 18855
+  },
+  {
+   "path": "geography/fetch_inputs.py",
+   "sha256": "eadef4f9b0d45b5bcb30c06143e538aca1c3aca93d347bf7d1b2062bebc66b6d",
+   "bytes": 637
+  },
+  {
+   "path": "geography/inputs.json",
+   "sha256": "d5021efa860a3b0ad625c058dd16de993763c3fb5b90638ab3aca7790751922c",
+   "bytes": 4884
+  },
+  {
+   "path": "geography/nomenclature.py",
+   "sha256": "b0cb3bbfcadc12b85c506cb1ebf9175548db31ddc37eaa4c8f0ffaf061705ea7",
+   "bytes": 2963
+  },
+  {
+   "path": "geography/results/water_levels.csv",
+   "sha256": "399fa32ecee56df2ff4fb4be5156095e54dacb97f91d862025ea781c45595623",
+   "bytes": 636
+  },
+  {
+   "path": "geography/tests/test_atlas.py",
+   "sha256": "b42256bcfc7b8b0f4a4e0900e36a507519733b489fae9c0448840eee34d6d5ea",
+   "bytes": 7157
+  },
+  {
+   "path": "geography/tests/test_drainage.py",
+   "sha256": "1a4d98dd1e23b0b6027fec7da721994fae4d583f468cd8d37bc41a89a31b2dcb",
+   "bytes": 2808
+  },
+  {
+   "path": "geography/tests/test_water.py",
+   "sha256": "65dd66e108384d77ff147f6b4fb50e75463ed2c85b018acfdee1d2e4a432b8ee",
+   "bytes": 4215
+  },
+  {
+   "path": "geography/topography.py",
+   "sha256": "228e08f79efca868b49bcae0687c7f80a239b18234629c4390c147075b3f5c29",
+   "bytes": 6717
+  },
+  {
    "path": "illumination/cloud_light/model.py",
    "sha256": "7bb800ee4695c58856acd23125b8cee4579947106dd4c81b2a2411f46af009d3",
    "bytes": 7592
@@ -558,7 +618,12 @@
    "path": "shared/provenance.py",
    "sha256": "c59d32186d453a80992eb02203b644fe759aca869dc892d91af9aa74fd65c7f8",
    "bytes": 3275
+  },
+  {
+   "path": "shared/scenarios/water.json",
+   "sha256": "a9d4d60ef3bf20b52454fdc07f2e05de107ebdd896b03288e9117af0c87e46a0",
+   "bytes": 1378
   }
  ],
- "checked": "2026-10-17: every other file byte-identical to Terluna 186b294"
+ "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography tools and their scenario file, brought from 186b294, byte-identical to it, and unchanged in Terluna since"
 }

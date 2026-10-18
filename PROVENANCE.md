@@ -48,8 +48,11 @@ drive. Upstream source code is never committed whole.
 ## Python tools
 
 The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna at
-186b294, under their Terluna package paths; `python/provenance.json` lists all 111 files with their sha256
+186b294, under their Terluna package paths; `python/provenance.json` lists all 124 files with their sha256
 (98 brought first; the electricity package's conductivity column, muon ionization and charging laws, with
-their three tests and committed products, added on 2026-10-17).
+their three tests and committed products, added on 2026-10-17; and on 2026-10-18 the geography package's
+heights above the geoid, storage levels, atlas, drainage and gazetteer reader, with their input restorer and its
+manifest, their three tests, the level table one test reads, the package's `.gitignore` and Terluna's water
+scenario, which the atlas reads).
 One file differs: `python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
 `models/exoplasim/patches/10-ice-optics.patch` in place of the runner's Python string (both hashes recorded).

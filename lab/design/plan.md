@@ -114,14 +114,17 @@ lists, file by file, the entries that differ and why.
   and LOLA's heights and the GRAIL geoid from NASA's Planetary Data System, by the hashes Terluna recorded
   (`atmosphere/radiative_convective/inputs.json`, `geography/inputs.json`). `lab/data/manifest.toml` records
   each file's source, hash, licence and credit.
-- **Brought into `python/` under their Terluna paths, with provenance:** `geography/atlas.py` and
-  `geography/drainage.py` (stage 2), which flood the heights to a seas share and route runoff into lakes, and
-  `research/studies/solar_shield_array/glow.py` (stage 5), which computes the infrared of a glow in space.
+- **Brought into `python/` under their Terluna paths, with provenance:** in stage 2, `geography/atlas.py` and
+  `geography/drainage.py`, which flood the heights to a seas share and route runoff into lakes, with the modules
+  the atlas imports, `topography.py` (the heights above the geoid), `basins.py` (the levels and the connected
+  seas), `nomenclature.py` (the gazetteer's names) and the input restorer `fetch_inputs.py`, and their tests,
+  brought byte for byte from 186b294 on 2026-10-18 as the starting point for the lab's own versions; in stage 5,
+  `research/studies/solar_shield_array/glow.py`, which computes the infrared of a glow in space.
 - **Read in place by the comparison tests alone, where Terluna is at hand:**
   - `climate/gcm/exoplasim_run.py`, `climate/crm/cm1_run.py` and `climate/crm/cm1_elec.py`, Terluna's set-up
     of its runs, which the comparisons cite;
   - `climate/gcm/products/`: the planet record and the T21 surfaces;
-  - `geography/products/`: the atlas and the drainage, with which stage 5 compares the geography producer's
+  - `geography/products/`: the atlas and the drainage, with which stage 2 compares the geography producer's
     seas and lakes;
   - `climate/results/gcm/`: the ledger, gas-band, shortwave and longwave products;
   - `gcm-runs/<run>/`: `progress.json`, `inputs/`, `model/*_namelist` and the yearly output
