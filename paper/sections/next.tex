@@ -6,9 +6,9 @@ global and resolved calculations share their physics: the Mars GCM's parameteriz
 WRF's core, which the GCM drives at its boundaries \autocite{spiga2009new}, and the generic model's radiation and
 cloud have run on the same core over Proxima~b, where the resolved cloud feedback came out much weaker than the
 GCMs' \autocite{lefevre2021convection}. Codes built separately, as here, are brought toward that consistency by
-calibration. The lunar case supplies the first experiments: its longwave correction and PlaSim's cloud, the two
-Earth fits whose tests moved its
-climate most, are the first calibrations to revisit. Their accuracy depends on an independent check of the
+calibration. The first experiments take up the two Earth fits whose
+tests moved the test world's climate most: PlaSim's longwave by height, under its correction, and its cloud, still
+uncalibrated. Their accuracy depends on an independent check of the
 shared radiation reference, after which comparisons on worlds modelled in other studies would test the reach
 proposed in Table~\ref{tab:reach}. The remaining experiments use the lunar departures from Earth to test
 specific approximations in the dynamics, microphysics and wave physics.
@@ -20,11 +20,10 @@ cloud-free columns, and iterating to a consistent pair of fit and climate, decid
 the consistent state returns near 295~K, the design's dimming stands, and if it stays near 307~K, the dimming that
 holds the design temperature must grow, and the rain and cloud change with it. Beyond the refit, a correction with
 humidity among its predictors would extend the fit, and a reduced correlated-$k$ scheme built from the reference
-model's own spectroscopy would go further and replace both the correction and Sasamori's and Lacis and Hansen's
-fits, and, once that spectroscopy is
-checked and the reduction is checked against it layer by layer, would hold on columns within the gases, pressures
-and temperatures of the checks, under the starlight its shortwave would be built for, on another world as on the
-test world. Free tools exist for the reduction and for its check: ecCKD divides a spectrum into $k$-terms within an error tolerance the
+model's own spectroscopy would go further, replacing the correction and the fits of Sasamori and of Lacis and
+Hansen. Once that spectroscopy is checked, and the reduction checked against it layer by layer, such a scheme would
+hold on columns within the gases, pressures and temperatures of the checks, under the starlight its shortwave would
+be built for, on another world as on the test world. Free tools exist for the reduction and for its check: ecCKD divides a spectrum into $k$-terms within an error tolerance the
 user sets \autocite{hogan2022tool}, and CKDMIP evaluates such schemes against benchmark line-by-line calculations
 \autocite{hogan2020evaluating}; both were built around Earth's columns, so the reference model would supply the
 spectra of the test world's columns.
@@ -36,16 +35,17 @@ PlaSim's humidity thresholds and its cloud-water profile are fitted, and the sam
 longwave closes the 3.7~K by which CM1's lowest 1.8~km at 45\textdegree\,N stays warmer than the GCM's. Refitted cloud
 could move the test world as far as the cloud settings do, up to about 6~K, and the design's dimming with it.
 Cloud fitted this way remains a calibration, refitted for each other world from cloud-resolving runs of that
-world. On Titan a GCM's convection has been tuned this way: \textcite{rafkin2022interaction}
+world. On Titan a GCM's convection has been tuned by the same route: \textcite{rafkin2022interaction}
 started a cloud-resolving model from dozens of the GCM's unstable profiles, and \textcite{battalio2022interaction}
 tuned two parameters of its convection scheme with the resolved runs and observations.
 
-\textbf{The reference against an independent code.} Every calibration was fitted to the line-by-line model, whose
-carbon dioxide, oxygen, collision-induced absorption and sunlight have yet to be compared with an independent
-code on the lunar column. Running the design column through LBLRTM \autocite{clough2005atmospheric} for the
+\textbf{The reference against an independent code.} Every calibration was fitted to the line-by-line model, the
+longwave correction through its correlated-$k$ emulation, and that model's carbon dioxide, oxygen,
+collision-induced absorption and sunlight have yet to be compared with an independent code on the lunar column. Running the design column through LBLRTM \autocite{clough2005atmospheric} for the
 longwave and a solver built on DISORT \autocite{stamnes1988numerically} for the sunlight, with every absorber on
 identical layers, tests the reference itself. Layer heating or a split of sunlight departing from the reference by
-more than the calibration residuals, 0.97~W\,m$^{-2}$ rms by layer or 0.6 points in the split, would require the
+more than the calibration's residual by layer, 0.97~W\,m$^{-2}$ rms, or the split's 0.6 points rms on columns
+outside its fit, would require the
 multipliers and the gas bands to be refitted against a corrected reference before it serves further worlds;
 the lunar design's dimming would then be reset against the revised climate.
 
@@ -55,11 +55,11 @@ the sidereal periods of the ROCKE-3D runs of \textcite{way2018climates}, with th
 columns like theirs: the pair would measure the three defects' joint effect on worlds that other studies model; the
 repaired runs' sunlight by longitude and convective cover against rain would test the arithmetic of the Sun-clock
 and convective-cover repairs off the test world; and a comparison of the repaired climate with ROCKE-3D's would
-measure what the two models' own physics and configurations change once the defects are removed. Released and
-repaired ExoPlaSim run on the sixteen cases of the SAMOSA intercomparison, a planet rotating once in 15 days around
-a 3000~K blackbody star, sampled across surface pressure and instellation from a survey made with ExoPlaSim and
-compared with ExoCAM \autocite{haqqmisra2022samosa}, would test the convective-cover repair in synchronous rotation,
-where the released unit biases the cover by ExoPlaSim's own arithmetic. A general repair
+measure what the two models' own physics and configurations change once the defects are removed. A second set
+of runs would test the convective-cover repair in synchronous rotation, where the released unit biases the cover by
+ExoPlaSim's own arithmetic: released and repaired ExoPlaSim on the sixteen cases of the SAMOSA intercomparison, a
+planet rotating once in 15 days around a 3000~K blackbody star, sampled across surface pressure and instellation
+from a survey made with ExoPlaSim and compared with ExoCAM \autocite{haqqmisra2022samosa}. A general repair
 whose arithmetic fails off the test world would be reclassified, and the reach of Table~\ref{tab:reach} would
 narrow with it.
 
@@ -72,8 +72,8 @@ repairs, and air as cool as PlaSim's would place the error in the slices' forcin
 a flat slab, while lunar gravity falls 5\% by the air's mass-mean height and the air in spherical shells holds
 11.5\% more over each square metre of ground than $p_s/g_s$. The consistent deep-atmosphere equations
 \autocite{white2005consistent} and the deep forms of global models \autocite{mayne2014unified} include both
-effects, and before adopting them a first step corrects the GCM's column mass and heights, while a test of the
-circulation's sensitivity shows whether the full equations are needed. A change in the GCM's poleward heat transport larger than the
+effects, and before they are adopted, a first step would correct the GCM's column mass and heights, while a test of
+the circulation's sensitivity would show whether the full equations are needed. A change in the GCM's poleward heat transport larger than the
 design case's spread from year to year would make a deep core a requirement for air as tall against its world's
 radius.
 
@@ -99,25 +99,25 @@ budget has to be drawn from the cloud-resolving rain.
 
 \textbf{The arrangement of the lunar storms' charge.} The lunar storms' arrangement of charge turns over with the
 laboratory charging law chosen, since the laws disagree on the charge rimed ice takes in the storms' little cloud
-water: in two windows of an earlier electrified run, made before the ventilation repair and with leakage off, the
-storms held an inverted dipole under Takahashi's law, their main negative charge above the positive, and the normal
-arrangement under Saunders and Peck's, in most of the second window's outputs and about half of the
-first's.\claim{G11} Under Saunders and Peck's law hail, striking ice and snow at 4--8~m\,s$^{-1}$, carried most of
-the charge, and under Takahashi's graupel, striking at about 1--4~m\,s$^{-1}$. Measured in a laboratory at hail's
+water: in the two windows that Results describes, the storms held an inverted dipole under Takahashi's law and the
+normal arrangement under Saunders and Peck's in most of the second window's outputs and about half of the
+first's.\claim{G11} Under Saunders and Peck's law, hail, striking ice and snow at 4--8~m\,s$^{-1}$, carried most of
+the charge, and under Takahashi's, hail carried 37--43\% and graupel, striking at about 1--4~m\,s$^{-1}$, most of
+the rest. Measured in a laboratory at hail's
 speeds in 0.02--0.2~g\,m$^{-3}$ of cloud water at $-5$ to $-16$\,\textdegree C, the sign of that charge would
-decide between the two laws for hail, and graupel's sign at its own speeds would complete what decides the
-arrangement the model's lunar storms take.\claim{N01} The sign of the ground strikes under Takahashi's law also
+decide between the two laws for hail, and graupel's sign at its own speeds would complete the measurements that
+decide the arrangement the model's lunar storms take.\claim{N01} The sign of the ground strikes under Takahashi's law also
 stays open in the windows: the first window ran under a rule that let no lunar channel reach the ground, and the
 second window's strikes, 21 under Saunders and Peck's law and 10 under Takahashi's, all negative, carried charge
 left over from a run with leakage off. For their number, a leader model of the descent from the $-7$\,\textdegree C level, 27--34~km
-up, to the ground would replace the bound on ground strikes, now between none and a fifth of flashes, with a rate,
-and from the rate would follow the number of strikes the ground receives, each lowering a median 149~C.
+up, to the ground would replace the bound on ground strikes, now between none and a fifth of flashes, with a rate of
+strikes, each lowering a median 149~C.
 
 \textbf{The seas' Earth laws.} Wind input and breaking checked against theory at the lunar ratio of air to water
 density, and the spread between source-term packages, Komen's against Janssen's and ST6, would decide whether the
 similarity image of an Earth sea holds on the test world; a wide spread would make the lunar wave heights a
-range. Beyond the source terms, the air's density as a field and a wider frequency band for the small seas that
-fail the band-edge test are numerical needs, and swell decay over the long fetches, where swell carries a third to two thirds of the wave
+range. Beyond the source terms, the air's density as a field and a wider frequency band for the small seas whose
+spectra reach its upper edge are numerical needs, and swell decay over the long fetches, where swell carries a third to two thirds of the wave
 energy, a physical one that ST6 includes.\claim{N04}
 
 \textbf{Reports and the record.} The author reported the Sun clock to ExoPlaSim's maintainers as issue~\#69 on
@@ -125,8 +125,8 @@ energy, a physical one that ST6 includes.\claim{N04}
 \begin{itemize}
 \item reports to ExoPlaSim's maintainers of the convective-cover unit, with its bias in synchronous runs, and of
   the orbit default, and to SWAN's of the uninitialised breaker parameter;
-\item locating CM1's thread race, placed by elimination in CM1's own loops, and reporting it, with a proposal for
-  one gravity parameter read by every scheme;
+\item locating CM1's thread race, placed by elimination in CM1's own loops, and reporting it;
+\item a proposal to CM1's developers for one gravity parameter read by every scheme;
 \item a test of PlaSim's cold lowest level against smoothed terrain, which would confirm or clear the spectral
   transform;
 \item for the record: the 45\textdegree\,N rings with and without the curved-air terms rerun on one build; runtime

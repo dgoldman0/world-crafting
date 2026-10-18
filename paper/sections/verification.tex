@@ -10,9 +10,9 @@ and times with the original, to test whether gravity enters the code consistentl
 benchmarks compare the code with something outside it: the reference model, on the columns a fit was made on and a
 few beyond, and a scheme's published behaviour on Earth. The checks of the first two steps concern properties of
 the code that hold on any world, although a similarity test runs Earth's empirical laws at the scaled gravity with
-their Earth coefficients, which it leaves untested there. Each check of the third step leaves the lunar climate untested in its own way: the
-reference is a clear-sky model built on HITRAN lines and the MT\_CKD continuum, a fit holds near its fitted
-state, and the benchmarks were run in Earth's air.
+their Earth coefficients, which it leaves untested there. Each check of the third step measures the code against a standard with a range of its
+own: a clear-sky reference built on HITRAN lines and the MT\_CKD continuum, a fit near its fitted state, and
+benchmarks run in Earth's air.
 
 \textbf{Identity and reproduction.} Five ExoPlaSim runs, each a model year from one restart, repeat byte for byte
 the restart of the same build before the patch, with the patch at its neutral setting: the Rayleigh and
@@ -40,9 +40,9 @@ identity checks.\claim{V02}\claim{H26}
 
 \textbf{Similarity and arithmetic.} Gravity is the parameter of a wind sea that stays fixed in a laboratory on
 Earth: the wind-tunnel tests made for SWAN's runs on the seas of ancient Mars varied the air's density and the wind
-\autocite{banfield2015winds}, and \textcite{cazaubiel2019wave}, who raised gravity up to twentyfold in a
-centrifuge, studied wave turbulence in a container, so a wave model's gravity is checked numerically, by a
-similarity test. Stock SWAN, run at a
+\autocite{banfield2015winds}, and although \textcite{cazaubiel2019wave} raised gravity up to twentyfold in a
+centrifuge, they studied wave turbulence in a container, so a wave model's response to gravity under wind is
+checked numerically, by a similarity test. Stock SWAN, run at a
 sixth of Earth's gravity with lengths, depths and durations six times longer and frequencies six times lower,
 differs from the Earth run it scales by 5.44\% in significant wave height and 3.91\% in mean period; patched, it
 differs by 0.303\% and 0.326\%, against a 1\% criterion.\claim{V04} SWASH, the model of the shore, was tested against theory and by the same
@@ -71,7 +71,7 @@ against other codes, kept as numbers alone, with their harness outside the repos
 \autocite{koll2018earth}, for longwave with water vapour alone at constant gravity, and a Monte Carlo calculation
 of Rayleigh scattering up to an optical depth of 1.5, where the lunar column's Rayleigh depth is about 4 at
 360~nm. Its carbon dioxide, oxygen, collision-induced absorption and sunlight on the lunar column, however, have
-yet to be compared with an independent code.\claim{V16} Against the same reference RRTMG, checked and left uncalibrated,
+yet to be compared with an independent code.\claim{V16} RRTMG, checked against the same reference and left uncalibrated,
 lies within 2.5 points of the line-by-line shares of reflected, air-absorbed and ground-absorbed sunlight at the
 site where the rings cross the equator at 0\textdegree~E, and on 990 cloud-free columns of the
 45\textdegree\,N ring it cools the air more than the correlated-$k$ model does, by 4.5~W\,m$^{-2}$ in the lowest
@@ -82,8 +82,8 @@ graft stays within 6\% of CM1's own NSSL scheme in its largest updrafts, within 
 half hour and within 9\% in condensate, although its hail differs by up to a factor of two, the two copies being
 different versions of the scheme.\claim{V09} Set beside published runs of the same charging and lightning schemes
 \autocite{macgorman2001lightning,kuhlman2006numerically,sun2023aerosol,salinas2021modeling}, the storm flashes
-first at 28.5 minutes, where those runs flash first at 27--40 minutes, and its flash rates and median charge per
-flash fall inside their ranges, while with WRF-ELEC's ground rule on, 1.1\% of its flashes strike the ground,
+first at 28.5 minutes, where those runs flash first at 27--40 minutes, and its median charge per flash falls
+inside the range of \textcite{macgorman2001lightning}, while with WRF-ELEC's ground rule on, 1.1\% of its flashes strike the ground,
 against 0.33\% in the run of \textcite{salinas2021modeling}. The storm does, however, separate charge several times
 faster than the published storms, a difference traced to cloud ice reaching $2\times10^8$ crystals per kilogram
 where droplets freeze homogeneously in 50~m\,s$^{-1}$ updrafts.\claim{V10} The leakage added for the lunar runs has
@@ -119,9 +119,8 @@ and in the weather runs small seas fail their 5\% time-step criterion where seas
 error lies in the sea states below 1~m. At the shore, SWASH's control with irregular input, the kind of input from
 which the run-up was computed, misses its 5\% bound, at 5.22\% in height and 6.28\% in period.\claim{V12} The
 third shortfall is CM1's: rebuilt at a higher optimisation, CM1 departs from its first build by
-0.28--0.32~\textdegree C rms in the air at 2~m within a model day, inside the spread of last-bit nudges, and since
-runs on several threads part from one another as well, two box runs that differ in one setting compare as
-realisations.
+0.28--0.32~\textdegree C rms in the air at 2~m within a model day, inside the spread of last-bit nudges, so runs
+from different builds compare as realisations, as the threaded box runs do.
 The other two shortfalls were traced or bounded: SWAN with depth breaking off failed its repeatability test by
 about 2.5\%, a failure traced to the uninitialised breaker parameter and avoided in every run by keeping breaking
 on, and the curved-air table's scattering orders reached their cap in one channel of 282, whose omitted tail is

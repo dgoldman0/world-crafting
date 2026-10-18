@@ -17,18 +17,18 @@ from NCAR's Community Atmosphere Model, and ExoPlaSim from the Planet Simulator,
 \autocite{way2017resolving,wolf2022exocam,paradise2022exoplasim}. Convection and wave models built for Earth have
 been run off Earth as well: SAM in cloud-permitting runs on tidally locked planets, CM1 in pure-steam air, and the
 coastal wave model SWAN on the ancient seas of Mars \autocite{yang2023cloud,tan2021convection,banfield2015winds}.
-Some have been joined to GCMs. On Titan, \textcite{rafkin2022interaction} started a cloud-resolving model from a
-GCM's unstable profiles and \textcite{battalio2022interaction} tuned the GCM's convection scheme with its runs and
-observations, while a GCM's winds drive a wave model over the polar lakes \autocite{detelich2026modeling}; the
-LMD's GCM physics runs on WRF's core, in a mesoscale model on Mars and a convection-resolving model over
-Proxima~b, so that the global and resolved calculations share their physics
-\autocite{spiga2009new,lefevre2021convection}.
+Other models built for Earth have been joined to GCMs. On Titan, \textcite{rafkin2022interaction} started a
+cloud-resolving model from a GCM's unstable profiles, \textcite{battalio2022interaction} tuned the GCM's convection
+scheme with the cloud-resolving runs and observations, and a GCM's winds have driven a wave model over the polar
+lakes \autocite{detelich2026modeling}. The LMD's GCM physics, for its part, runs on WRF's core, in a mesoscale
+model on Mars and a convection-resolving model over Proxima~b, so that the global and resolved calculations share
+their physics \autocite{spiga2009new,lefevre2021convection}.
 
-Constructed worlds reach further from Earth, for the bodies of the Solar System that keep atmospheres are those
+Constructed worlds can depart further from Earth, for the bodies of the Solar System that keep atmospheres are those
 whose escape velocity is large against the light they receive: the Moon held the volcanic air of its youth, at
-most about 1~kPa, only for a geological moment \autocite{needham2017lunar}, while Titan, far from the Sun and at
-94~K, keeps a dense atmosphere on a body smaller than Mars. Beyond the Solar System, the known exoplanets crowd
-against the same divide extended \autocite{zahnle2017cosmic}. An engineered world, by contrast, can hold
+most about 1~kPa, for about 70 million years \autocite{needham2017lunar}, while Titan, far from the Sun and at
+94~K, keeps a dense atmosphere on a body smaller than Mars. Beyond the Solar System, the known exoplanets cluster
+near the same divide, extended to them \autocite{zahnle2017cosmic}. An engineered world, by contrast, can hold
 nitrogen--oxygen air where a natural one would lose it. \textcite{mckay1991making} asked how Mars could be made
 habitable, and the Open Moon, a breathable Moon designed in the Terluna project \autocite{goldman2026terluna}, is
 a design of that kind for the Moon: it is to keep 1.2~atm of nitrogen and oxygen under a sixth of Earth's gravity
@@ -37,8 +37,8 @@ escape made for the design, the Moon's exobase stays below 200~K and the air los
 to 150 billion years to remove it.\claim{S15} Such worlds combine nitrogen--oxygen air with a gravity, a size and
 a day that no known natural world combines with it.
 
-Modelling such worlds means adapting codes like those named above, and the developers who ported Earth models to
-other planets found values fixed for Earth in the code. PlanetWRF's developers, finding WRF written to apply to
+Modelling such worlds means adapting codes like those named above, in which the developers who ported Earth
+models to other planets found values fixed for Earth. PlanetWRF's developers, finding WRF written to apply to
 Earth alone, redefined its second as 1/86,400 of the planet's rotation period and removed hard-wired Earth
 settings from its physics, and built TitanWRF on the result
 \autocite{richardson2007planetwrf,newman2011stratospheric}. ROCKE-3D's developers found constants tied to the
@@ -46,15 +46,15 @@ lengths of Earth's day and year in its first release and, in its second, removed
 Earth-centric options, measuring their effects in a sequence of runs
 \autocite{way2017resolving,tsigaridis2025rocke3d}; ExoPlaSim's description records that PlaSim's solar day had
 to be taken out of its unit conversions before slow rotators could be run, and that its near-infrared water
-absorptivity is tuned to a solar spectrum \autocite{paradise2022exoplasim}. Each team removed the Earth values
+absorptivity is tuned to a solar spectrum \autocite{paradise2022exoplasim}. Each team removed Earth values
 that mattered for the worlds it set out to model, but others could stay: ROCKE-3D's developers report that the
-changes their first release made from the Earth configuration went unstudied \autocite{tsigaridis2025rocke3d},
+changes their first release made from the Earth configuration went without systematic study \autocite{tsigaridis2025rocke3d},
 and THOR's developers, who wrote their model for other planets from the start, describe planet-specific tunings
 as often built into adapted codes and hard to find \autocite{deitrick2020thor}. On a Gaean world, then, a run can
 compute the familiar phases of water in nitrogen--oxygen air while retaining a constant set for Earth's gravity,
 or a formula that counts rain per Earth day, and because its output is plausible, the retained value can be hard
-to detect. Plausible results can still disagree: four GCMs given the same moist cases of TRAPPIST-1e all keep it
-temperate, yet differ in global-mean surface temperature by 14~K with nitrogen-dominated air and 24~K with carbon
+to detect. Plausible results can still disagree: four GCMs given the same moist cases of TRAPPIST-1e all simulate a
+temperate climate, yet differ in global-mean surface temperature by 14~K with nitrogen-dominated air and 24~K with carbon
 dioxide, a spread their authors relate to the models' parameterization choices \autocite{sergeev2022thai}. In an
 ensemble linking global climate to resolved storms and coastal waves, moreover, models built separately and tuned
 to Earth in different ways pass forcing to one another, so the retained Earth values affect both the individual
@@ -104,4 +104,9 @@ holds near those columns and must be refitted for another world. Settings, added
 bound, a mitigation and avoidances by configuration make up the remaining changes. The class of a repair followed
 largely from the form of the Earth value it removed. Of the four forms, moreover, the fits moved the test world's
 climate furthest, by amounts of the order of the spreads measured among exoplanet GCMs, and every lunar climate number is therefore a conditional model result, holding given the
-scenario and the Earth values that remain.
+scenario and the Earth values that remain. Replacing those fits
+comes first in the ensemble's further development, with a radiation scheme reduced with existing tools from the
+reference model's spectroscopy \autocite{hogan2022tool,hogan2020evaluating} and cloud calibrated against
+cloud-resolving runs of each world; runs on planets that other studies model, among them slowly rotating planets of
+\textcite{way2018climates} and the cases of the SAMOSA intercomparison \autocite{haqqmisra2022samosa}, would then
+test how far the general repairs hold.

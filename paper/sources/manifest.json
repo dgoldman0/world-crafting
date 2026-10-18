@@ -1943,7 +1943,7 @@
      "note": ""
     }
    ],
-   "notes": "Documents MT_CKD's inclusion in HITRAN (MT_CKD 4.x era). Elsevier copy blocked; no abstract retrieved. Archived 2026-10-17: publisher version of record, NSF Public Access Repository; title found on the first pages. Cited from 2026-10-18 after the related-work scan."
+   "notes": "Documents MT_CKD's inclusion in HITRAN (MT_CKD 4.x era). Elsevier copy blocked; abstract read on the archived original's first page (2026-10-18). Archived 2026-10-17: publisher version of record, NSF Public Access Repository; title found on the first pages. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "koll2018earth",
@@ -3438,6 +3438,13 @@
      "statement": "Slowly rotating planets with Earth's gravity and air are a common subject of exoplanet GCMs.",
      "support": "supported",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "Slowly rotating planets of Way et al. among the planets on which runs would test how far the general repairs hold.",
+     "support": "as in next.tex's test of the reach",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": null
@@ -3953,6 +3960,20 @@
      "statement": "The LMD Mars mesoscale model runs the LMD GCM's physics on WRF's core, driven at its boundaries by the GCM, for downscaling consistency.",
      "support": "supported (abstract)",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The LMD's GCM physics runs on WRF's core in a mesoscale model on Mars, sharing the global and resolved calculations' physics.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "Where one physics package serves the global and resolved calculations, its parameters are shared by construction.",
+     "support": "supported (abstract; constants converted to Mars's values, p. 3, per the round-17 evidence reader)",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": "Author-hosted copy of the JGR version of record. Cited from 2026-10-18 after the related-work scan."
@@ -4514,6 +4535,13 @@
      "statement": "A convection-resolving model coupling WRF's core with the LMD generic model's radiation and cloud, run over Proxima b; its cloud feedback much weaker than the GCMs'.",
      "support": "supported (abstract)",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The LMD generic model's physics on WRF's core in a convection-resolving model over Proxima b.",
+     "support": "supported (abstract; Sect. 2.2 heading per the round-17 evidence reader)",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": "arXiv v1 archived. Bond albedo 0.06 (CRM domain) vs 0.32 (GCM) for the substellar box. Cited from 2026-10-18 after the related-work scan."
@@ -4862,6 +4890,20 @@
      "statement": "Dozens of TAM's unstable profiles initialize the cloud-resolving TRAMS, whose results guide the tuning of TAM's convection scheme.",
      "support": "supported (abstract)",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The Titan loop: a cloud-resolving model started from a GCM's unstable profiles, and the GCM's convection scheme tuned with the cloud-resolving runs and observations.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "A Titan GCM's convection tuned with resolved storms and observations, as the cloud exchange proposes for PlaSim's cloud.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": "Cited from 2026-10-18 after the related-work scan."
@@ -5536,7 +5578,18 @@
      "note": ""
     }
    ],
-   "notes": "CC BY at Wiley; scripted retrieval refused. Cited from 2026-10-18 after the related-work scan."
+   "notes": "CC BY at Wiley; scripted retrieval refused. Cited from 2026-10-18 after the related-work scan.",
+   "supporting_records": [
+    {
+     "kind": "web record",
+     "url": "https://github.com/Cornell-MIT/PlanetWaves",
+     "file": "README.md",
+     "commit": "9a5da8ab30cffa9b8f48c3af7eb35b61ad2bf09c",
+     "retrieved": "2026-10-18, raw README read by the main session",
+     "quote": "Four-dimensional spectral wave model adapted from the University of Miami wave model (UMWM) to produce surface waves for a given bathymetry and a given wind climate on different planets. ... TAMnoTopo : Titan GCM (TAM) with no topography influence ... TAMwTopo : Titan GCM (TAM) with topography influence ... TAM_LM_winds.mat : 10 years of GCM winds at Ligeia Mare; TAM_OL_winds.mat : 10 years of GCM winds at Ontario Lacus",
+     "supports": "PlanetWaves' descent from an Earth wave model (repairs.tex) and the Titan GCM winds behind Detelich et al.'s lake runs (repairs.tex, introduction.tex)"
+    }
+   ]
   },
   {
    "key": "rubin2022ancient",
@@ -6801,6 +6854,20 @@
      "statement": "TAM's simplified Betts-Miller convection scheme tuned in two parameters (reference humidity and relaxation time) with TRAMS results and observations.",
      "support": "supported (abstract, Semantic Scholar)",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The Titan loop: a cloud-resolving model started from a GCM's unstable profiles, and the GCM's convection scheme tuned with the cloud-resolving runs and observations.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "A Titan GCM's convection tuned with resolved storms and observations, as the cloud exchange proposes for PlaSim's cloud.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": "Added from the related-work scan of 2026-10-18."
@@ -6834,9 +6901,27 @@
      "statement": "PlanetWaves driven by a Titan GCM's winds over Titan's polar lakes.",
      "support": "supported (abstract; the GCM winds from the PlanetWaves repository README, github.com/Cornell-MIT/PlanetWaves, which ships ten years of TAM winds for the two lakes)",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "A GCM's winds have driven a wave model over Titan's polar lakes.",
+     "support": "supported (abstract; the GCM winds from the PlanetWaves README, see supporting_records)",
+     "note": "Added in round 17's dispositions."
     }
    ],
-   "notes": "Added from the related-work scan of 2026-10-18."
+   "notes": "Added from the related-work scan of 2026-10-18.",
+   "supporting_records": [
+    {
+     "kind": "web record",
+     "url": "https://github.com/Cornell-MIT/PlanetWaves",
+     "file": "README.md",
+     "commit": "9a5da8ab30cffa9b8f48c3af7eb35b61ad2bf09c",
+     "retrieved": "2026-10-18, raw README read by the main session",
+     "quote": "Four-dimensional spectral wave model adapted from the University of Miami wave model (UMWM) to produce surface waves for a given bathymetry and a given wind climate on different planets. ... TAMnoTopo : Titan GCM (TAM) with no topography influence ... TAMwTopo : Titan GCM (TAM) with topography influence ... TAM_LM_winds.mat : 10 years of GCM winds at Ligeia Mare; TAM_OL_winds.mat : 10 years of GCM winds at Ontario Lacus",
+     "supports": "PlanetWaves' descent from an Earth wave model (repairs.tex) and the Titan GCM winds behind Detelich et al.'s lake runs (repairs.tex, introduction.tex)"
+    }
+   ]
   },
   {
    "key": "turbet2022thai",
@@ -6900,6 +6985,20 @@
      "statement": "Four GCMs on the same moist TRAPPIST-1e aquaplanet cases spread by 14 K (N2) and 24 K (CO2).",
      "support": "supported (abstract)",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "Four GCMs given the same moist TRAPPIST-1e cases all simulate a temperate climate yet differ by 14 K (nitrogen-dominated) and 24 K (carbon dioxide), a spread the authors relate to parameterization choices.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "THAI's planet among the further cases that would test the ensemble along distinct physical directions.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": "Added from the related-work scan of 2026-10-18."
@@ -6966,6 +7065,20 @@
      "statement": "Sixteen cases of a 15-day synchronous rotator around a 3000 K blackbody star, sampled from an ExoPlaSim survey and compared with ExoCAM; proposed as a test of the convective-cover repair.",
      "support": "supported (abstract)",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The SAMOSA cases among the planets other studies model, on which runs would test how far the general repairs hold.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "SAMOSA's planets among the further cases that would test the ensemble along distinct physical directions.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": "Added from the related-work scan of 2026-10-18."
@@ -6999,6 +7112,20 @@
      "statement": "ecCKD divides the spectrum into k-terms within a user-set error tolerance, built for Earth's weather and climate.",
      "support": "supported (abstract)",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "Free tools for the reduction and its check exist, built around Earth's columns, so the reference model would supply them with absorption spectra computed on other worlds' columns.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "A radiation scheme reduced with existing tools from the reference model's spectroscopy.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": "Added from the related-work scan of 2026-10-18."
@@ -7032,6 +7159,20 @@
      "statement": "CKDMIP evaluates CKD schemes against benchmark line-by-line calculations on Earth's columns (profiles and palaeo-to-future gas scenarios).",
      "support": "supported (abstract)",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "Free tools for the reduction and its check exist, built around Earth's columns, so the reference model would supply them with absorption spectra computed on other worlds' columns.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "A radiation scheme reduced with existing tools from the reference model's spectroscopy.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": "Added from the related-work scan of 2026-10-18."

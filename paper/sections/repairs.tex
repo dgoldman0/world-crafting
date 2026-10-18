@@ -94,10 +94,10 @@ a table of curved-air terms computed for one clear design column, 1.2~atm of air
 over a 294.9~K surface: the radiation of the same air was traced once, offline, through 100 spherical shells
 and through the same layers taken flat, at solar elevations from $-90$ to 90\textdegree, with the differences
 tabulated. Sunlight from 360~nm to 5~\textmu m was traced in 10,697 spectral channels, whose construction the
-appendix gives, the 282 thin enough to scatter by spherical successive orders of scattering from an in-house
-sky solver and the rest by a direct beam through the shells with the diffuse light of a pseudo-spherical
-two-stream \autocite{dahlback1991new,kylling1995reliable}, which the code runs only with the Sun above the horizon,
-so that their twilight lacks scattered light. The infrared escape, for its part, was traced through
+appendix gives, the 282 weakly absorbing channels by spherical successive orders of scattering from an in-house
+sky solver, and the rest by the pseudo-spherical approximation \autocite{dahlback1991new,kylling1995reliable}, a
+direct beam through the shells with the diffuse light of a two-stream, which the code runs only with the Sun above
+the horizon, so that their twilight lacks scattered light. The infrared escape, for its part, was traced through
 the same shells by impact parameter. The differences are summed in two terms: the widening of the shells above
 each square metre of ground, $-6.5$~W\,m$^{-2}$ net, and the curved light and escape, the twilight and the low
 Sun's side light, $+0.7$~W\,m$^{-2}$.\claim{R05} Tabulated at 167 solar elevations from $-40$ to 90\textdegree,
@@ -131,7 +131,8 @@ horizon.}
 \textbf{Calibration against the reference.} PlaSim was calibrated against the reference model and its
 correlated-$k$ emulation \autocite{lacis1991description}. The reference is clear-sky and line-by-line, built on
 HITRAN lines of water, carbon dioxide and oxygen, a re-implementation of MT\_CKD \autocite{mlawer2023inclusion} at version~4.3,
-HITRAN's collision-induced absorption \autocite{karman2019update} and Rayleigh scattering,
+HITRAN's collision-induced absorption \autocite{karman2019update}, in its files of 2018--2024, and Rayleigh
+scattering,
 with gravity falling as $GM/r^2$ and a pseudo-spherical direct beam; its emulation reproduces the outgoing
 longwave within 0.4~W\,m$^{-2}$ at 288--290~K and within 1.4~W\,m$^{-2}$ for a saturated 330~K lunar
 column.\claim{R08} Each calibration was fitted to the residual of the one before. The first fitted a Rayleigh
@@ -170,9 +171,8 @@ discharge \autocite{ziegler1994observed} and its three-dimensional discharge ada
 the lunar runs.\claim{R12} For runs that last weeks, the graft was given leakage of charge through a
 conductivity column computed for the lunar air. Ground strikes needed a bound, because WRF-ELEC's two Earth
 rules bracket them widely on the Moon: under its stopping field every lunar channel stops 15--25~km up, while
-its $-7$\,\textdegree C rule alone counts every channel that reaches that level. The bound sits between them: a
-downward channel that reaches the $-7$\,\textdegree C level counts as a strike only if its potential can carry
-a leader the rest of the way down, at an internal field of 1~kV\,m$^{-1}$ at sea-level density, scaled with the
+its $-7$\,\textdegree C rule alone counts every channel that reaches that level. Between them, the bound counts a
+downward channel that reaches the $-7$\,\textdegree C level as a strike only if its potential can carry a leader the rest of the way down, at an internal field of 1~kV\,m$^{-1}$ at sea-level density, scaled with the
 air's density. Point discharge from the ground was added to the graft as well, as an option, and after running
 in one test window it stays off.\claim{R13} The graft's ice needed a mitigation: where it outgrows RRTMG's
 optics, CM1's radiation reads sizes capped at 140~\textmu m and logs the excess. PlaSim, too, is given a
@@ -199,5 +199,5 @@ equivalent wind, so that its friction velocity lies within $-2.5$ to $+1.2$\% of
 coordinates at the lunar radius and with its frequency band scaled by $g/g_\mathrm{E}$, and SWASH, run
 unmodified, takes lunar gravity as an input and SWAN's spectra at its boundary.\claim{R15} Over Titan's polar
 lakes, a Titan GCM's winds likewise force a wave model, PlanetWaves \autocite{detelich2026modeling}, adapted from an
-Earth model to other planets' gravity, air and liquids \autocite{schneck2026modeling}. Since the ensemble's methods
+Earth model to other planets' gravity, air and liquids \autocite{schneck2026modeling}. Since the methods that force CM1
 impose only the GCM's fields and the slice's geometry, they are built for a slice of any world's GCM.
