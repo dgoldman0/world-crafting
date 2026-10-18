@@ -1,111 +1,121 @@
 \section{Verification}
 
-Six kinds of check were made, each testing something further from the code than the one before
-(Table~\ref{tab:verification}). Identity and reproduction checks test the code alone: a patch at its default
-leaves the arithmetic of the build without it unchanged along the trajectory tested, and the recorded code and
-results can be rebuilt. Arithmetic checks test an implementation against a formula or a direct solution. A
-similarity check tests whether gravity enters the code consistently, by showing that a run at scaled gravity,
-lengths and times reproduces the original in dimensionless form. Calibrations and benchmarks compare with
-something outside the code: the reference model on the columns a fit was made on, and a scheme's published
-behaviour on Earth. Each leaves the lunar climate untested in its own way, since the reference is itself a
-clear-sky model resting on its spectroscopy, a fit holds near its fitted state, similarity leaves Earth's
-empirical laws untested at lunar gravity, and a benchmark runs on Earth.
+Six kinds of check were made, in three steps of distance from the code (Table~\ref{tab:verification}).
+Identity and reproduction checks test the code alone: a patch at its default repeats, bit for bit along the
+trajectory tested, the arithmetic of the same build before the patch; the recorded sources are rebuilt byte for
+byte from the pinned archives; and a run restarted, or repeated on one thread, writes the same output.
+Arithmetic and similarity checks test the code against a formula, a direct solution or itself, a similarity
+check comparing in dimensionless form a run at scaled gravity, lengths and times with the original, to test
+whether gravity enters the code consistently. Calibrations and benchmarks compare the code with something
+outside it: the reference model, on the columns a fit was made on and a few beyond, and a scheme's published
+behaviour on Earth. The checks of the first two steps concern properties of the code that hold on any world,
+and a similarity test runs Earth's empirical laws at the scaled gravity with their Earth coefficients, which it
+leaves untested there. Each check of the third step leaves the lunar climate untested in its own way: the
+reference is a clear-sky model built on HITRAN lines and the MT\_CKD continuum, a fit holds near its fitted
+state, and the benchmarks were run in Earth's air.
 
-\textbf{Identity and reproduction.} Five ExoPlaSim runs, each a model year from one restart, repeat byte for
-byte the restart file of the same build without the patch, with the patch at its neutral setting: the
-Rayleigh and continuum calibration at the released values, the cloud-water and convective-day patches,
-infrared from space at zero, and the ice optics off. One of them compares against the released model itself,
-and the other four against builds that already had earlier patches, so the chain back to the release closes
-through those patches' own identities; a year killed a minute in and resumed repeats the uninterrupted year's
-restart and every variable of its output.\claim{V01} In CM1 the tilted-ring patches and the local-time
-advection repeat an existing run's first model day bit for bit, single-thread runs repeat, and the electrified
-supercell, restarted on four threads and on two, repeats its fields and its 41 flashes; SWAN with the
-wind-input patch writes stock output at standard gravity.\claim{V02} Applied to the pinned upstream archives,
-the patch series rebuild byte for byte the deployed ExoPlaSim installation and the Fortran of the eight lunar
-CM1 builds used for the results, and prefixes of the ExoPlaSim series reproduce the source hashes of 32 of
-the 34 GCM runs that recorded one.\claim{V03} The Sun clock, the water scaling, and the curved-air, gas-band
-and longwave patches (07--09) were written to reproduce the released code at their off settings, and have yet
-to be run that way.
+\textbf{Identity and reproduction.} Five ExoPlaSim runs, each a model year from one restart, repeat byte for byte
+the restart of the same build before the patch, with the patch at its neutral setting: the Rayleigh and
+continuum calibration at the released values, the cloud-water and convective-day patches, infrared from space at
+zero, and the ice optics off. The first three link back to the released model in sequence, each run against a
+build that holds only the patches checked before it. The infrared and ice-optics runs were compared against
+builds that already held the Sun clock and the water scaling, and for the ice optics the curved-air, gas-band
+and longwave patches as well; those patches were written to reproduce the released code at their off settings
+and have yet to be run that way, so the chain from these two checks to the released model closes once they are,
+and for the water scaling at its default the identity already follows from arithmetic on this
+spectrum.\claim{V01} Applied to the pinned upstream archives, the patch series rebuild byte for byte the two
+patched sources of the deployed ExoPlaSim copy and the Fortran of the lunar CM1 builds behind the results, eight
+rebuilt directly and the 45\textdegree\,N rings' build through sources identical to one of them, while the
+Earth-gravity benchmark builds were compiled from earlier states of the runners' edit lists. Prefixes of the
+ExoPlaSim series reproduce the source hashes of 32 of the 34 GCM runs that recorded one; of the states in
+Table~\ref{tab:states}, the uncalibrated and first calibrated runs predate source hashing, and the
+convective-cover run compiled a draft of its patch whose committed form repeats its first year byte for
+byte.\claim{V03} A GCM year killed a minute in and resumed repeats the uninterrupted year's restart and every
+variable of its output. Runs of CM1 repeat bit for bit on one thread, and the Earth supercell, restarted on four
+threads and on two, repeats its fields and its 41 flashes; in the lunar boxes, which ran on several threads, runs
+part from one another after 3,000--7,400~s, so each box run is one realisation. Table~\ref{tab:verification}
+lists the other CM1 and SWAN identity checks.\claim{V02}\claim{H26}
 
-\textbf{Similarity.} The strongest evidence about gravity comes from the similarity checks. Stock SWAN, run at
-a sixth of Earth's gravity with lengths, depths and durations six times longer and frequencies six times
-lower, misses its Earth twin by 5.44\% in significant wave height and 3.91\% in mean period; patched, it misses
-by 0.303\% and 0.326\%, against a 1\% criterion.\claim{V04} SWASH reproduces the linear dispersion relation
-within 1.76\% in amplitude and 0.289\% in phase at lunar, four times lunar and Earth gravity, preserves a linear
-waveform to 0.0009\% of its amplitude when gravity quadruples and the clock halves, and, under the same scaling
-with breaking and a moving shoreline, changes its 98th-percentile run-up by 1.20\%.\claim{V05} Each lunar wave
-run is therefore the gravity-scaled image of an Earth run with the same Earth-fitted coefficients, and whether
-those coefficients hold on lunar seas is untested. CM1's gravity-scaled microphysics has no such test yet:
-the pair of runs designed to measure how far lunar convection departs from Earth's stretched sixfold failed to
-convect.\claim{V06}
+\textbf{Similarity and arithmetic.} Gravity is the parameter of a sea that stays fixed in a laboratory on Earth:
+the wind-tunnel tests made for SWAN's runs on the seas of ancient Mars varied the air's density and the wind
+\autocite{banfield2015winds}. A similarity test checks a wave model's gravity numerically. Stock SWAN, run at a
+sixth of Earth's gravity with lengths, depths and durations six times longer and frequencies six times lower,
+differs from the Earth run it scales by 5.44\% in significant wave height and 3.91\% in mean period; patched, it
+differs by 0.303\% and 0.326\%, against a 1\% criterion.\claim{V04} SWASH reproduces the linear dispersion
+relation within 1.76\% in amplitude and 0.289\% in phase at lunar, four times lunar and Earth gravity, preserves
+a linear waveform to 0.0009\% of its amplitude when gravity quadruples and the clock halves, and, under the same
+scaling with breaking and a moving shoreline, changes its 98th-percentile run-up by 1.20\%.\claim{V05} On the
+code paths these tests ran, Komen growth and whitecapping under a fixed wind, DIA, the wind-input knee and
+depth breaking on Cartesian strips started from rest, a lunar wave run is an Earth run scaled in gravity with
+Earth's coefficients; the lunar runs' spherical grids, nests and GCM forcing were checked separately or left
+unchecked. CM1's gravity-scaled microphysics remains untested this way, since the pair of runs designed to
+measure how far lunar convection departs from Earth's stretched sixfold failed to convect.\claim{V06} In the
+arithmetic checks four implementations were compared with the arithmetic they encode
+(Table~\ref{tab:verification}); among them, the uneven sunlight of the Sun-clock defect, rebuilt from PlaSim's
+solar-position routine alone, correlates with the run's at 1.0000.\claim{V11}
 
-\textbf{Calibration and the reference.} The calibrations hold on the columns they were fitted to and a little
-beyond. The clear-sky split of sunlight holds within 0.6 points rms on eleven columns outside the fit's set,
-and a 303~K column carrying 338~kg\,m$^{-2}$ of vapour, warmer and wetter than any fitted, falls 0.7 points
-short, where the scheme before its water recalibration fell 9.7 short.\claim{V07} RRTMG, checked and left
-uncalibrated, lies within 2.5 points of the line-by-line shares of reflected, air-absorbed and ground-absorbed
-sunlight at the site where the rings cross the equator at 0\textdegree~E, and on 990 cloud-free columns of the
-45\textdegree\,N ring cools the air more than the correlated-$k$ model does, by 4.5~W\,m$^{-2}$ in the lowest
-1.8~km, 8.5 at 1.8--6.5~km and 10.2 at 6.5--13.7~km.\claim{V08} Every calibration is clear-sky, and PlaSim's
-clouds remain uncalibrated. The accuracy of all of them is bounded by the reference's own. Its correlated-$k$
-emulation reproduces the line-by-line outgoing longwave within 0.4--1.4~W\,m$^{-2}$, and the line-by-line
-model has two checks against other codes: PyRADS, for longwave with water vapour alone at constant gravity,
-and a Monte Carlo reference for Rayleigh scattering up to an optical depth of 1.5, where the lunar column
-reaches about 4 at 360~nm. No independent code has yet checked its carbon dioxide, oxygen, collision-induced
-absorption or sunlight on the lunar column.\claim{V16}
+\textbf{Calibration and the reference.} Of the calibrations, the split of sunlight has been tested beyond its
+fit, in the version fitted before the gas bands: on eleven columns outside the fit's set it held within 0.6
+percentage points rms, and a 303~K column carrying 338~kg\,m$^{-2}$ of vapour, warmer and wetter than any
+fitted, fell 0.7 points short, where the scheme before its water recalibration fell 9.7 short.\claim{V07} The
+refit with the gas bands and the longwave correction are known through their fit residuals
+(Table~\ref{tab:verification}). Every calibration is clear-sky, PlaSim's clouds remain uncalibrated, and the
+accuracy of each is bounded by the reference's own. The reference's correlated-$k$ emulation reproduces the
+line-by-line outgoing longwave within 0.4--1.4~W\,m$^{-2}$, and the line-by-line model has two recorded checks
+against other codes, kept as numbers alone, with their harness outside the repository: PyRADS
+\autocite{koll2018earth}, for longwave with water vapour alone at constant gravity, and a Monte Carlo calculation
+of Rayleigh scattering up to an optical depth of 1.5, where the lunar column's Rayleigh depth is about 4 at
+360~nm. Its carbon dioxide, oxygen, collision-induced absorption and sunlight on the lunar column have yet to be
+compared with an independent code.\claim{V16} Against the same reference RRTMG, checked and left uncalibrated,
+lies within 2.5 points of the line-by-line shares of reflected, air-absorbed and ground-absorbed sunlight at the
+site where the rings cross the equator at 0\textdegree~E, and on 990 cloud-free columns of the
+45\textdegree\,N ring it cools the air more than the correlated-$k$ model does, by 4.5~W\,m$^{-2}$ in the lowest
+1.8~km, 8.5 at 1.8--6.5~km and 10.2 at 6.5--13.7~km.\claim{V08}
 
-\textbf{Benchmarks and arithmetic.} The electrified graft was benchmarked on Earth. Against CM1's own NSSL
-scheme in the Weisman--Klemp supercell \autocite{weisman1982dependence}, its largest updrafts stay within 6\%,
-its reflectivity within 3.4~dBZ at every half hour and its condensate within 9\%, while hail differs by up to
-a factor of two, the two copies being different versions of the scheme.\claim{V09} Against published runs of
-the same charging and lightning schemes, the first flash comes at 28.5 minutes against a published 27--40, and
-the flash rates and the median charge per flash fall within the published ranges; with WRF-ELEC's ground rule
-on, 1.1\% of flashes struck the ground, against 0.33\% in a published run. The charging runs several times
-stronger, traced to cloud ice reaching $2\times10^8$ crystals per kilogram where droplets freeze homogeneously
-in 50~m\,s$^{-1}$ updrafts.\claim{V10} The lunar conductivity column reproduces Earth's measured fair-weather
-positive conductivity within 2--8\% from 5 to 30~km at a 3~GV cutoff. Arithmetic checks rebuild the uneven
-sunlight of the Sun-clock defect from PlaSim's solar-position arithmetic with correlation 1.0000, place a
-tilted ring's Sun within $8\times10^{-7}$ of the spherical formula and its Coriolis parameter within
-$3\times10^{-12}$~s$^{-1}$ of $2\Omega\sin\phi$, match the field solver to a direct solve to one part in
-$10^5$, and hold the curved-air ledger's channels within 0.9~W\,m$^{-2}$ of the fine spectral grid in every
-layer with the Sun overhead.\claim{V11}
+\textbf{Benchmarks on Earth.} In the Weisman--Klemp supercell \autocite{weisman1982dependence} the electrified
+graft stays within 6\% of CM1's own NSSL scheme in its largest updrafts, within 3.4~dBZ in reflectivity at every
+half hour and within 9\% in condensate, and its hail differs by up to a factor of two, the two copies being
+different versions of the scheme.\claim{V09} Beside published runs of the same charging and lightning schemes
+\autocite{macgorman2001lightning,kuhlman2006numerically,sun2023aerosol,salinas2021modeling}, the storm flashes
+first at 28.5 minutes, where those runs flash first at 27--40 minutes, and its flash rates and median charge per
+flash fall inside their ranges; with WRF-ELEC's ground rule on, 1.1\% of its flashes strike the ground, against
+0.33\% in the run of \textcite{salinas2021modeling}. The storm separates charge several times faster than the
+published storms, a difference traced to cloud ice reaching $2\times10^8$ crystals per kilogram where droplets
+freeze homogeneously in 50~m\,s$^{-1}$ updrafts.\claim{V10} In the lunar runs the code leaks charge through a
+conductivity column whose ion chain, run for Earth at a geomagnetic cutoff rigidity of 3~GV, reproduces Earth's
+measured fair-weather positive conductivity \autocite{nicoll2012measurements} within 2--8\% from 5 to
+30~km.\claim{V11}
 
-\textbf{What the checks caught.} The adaptation introduced defects of its own, found by these checks or in
-the course of the work. The GCM runner first extended the solar spectrum past its 2.73~\textmu m end at its
-last value, an invented infrared tail that put 86\% of the sunlight in the near infrared and warmed the first
-run past 320~K.\claim{H28} The first electrified build discharged once per 6~s step, after all the step's
-charging, so the field stood a median 3.2 times breakdown at a step's first discharge, which then removed a
-median 150~C. Its fall-speed scaling multiplied memory the scheme had left unset, and an OpenMP directive made
-private a variable the threads shared, both caught when results changed with the thread count; and the first
-lunar gravity patch scaled the NSSL fall speeds but left the ventilation tied to them at Earth's values, so
-lunar rain evaporated 1.3--1.5 times too fast for its size until a code review found the omission.\claim{H29}
-The spherical sky solver's production grid of 114 spectral channels averaged optical depth over windows and
-opaque lines and absorbed 58\% too much sunlight above 500~nm with the Sun overhead, which had made PlaSim look
-short of its calibration; the ledger's first channels, bisected on the whole column alone, put near-infrared
-sunlight too high, 19.0 against 10.7~W\,m$^{-2}$ at 66--85~km, and the first two 20-year GCM tests of the
-curved air ran on those terms.\claim{H30} The first terrain build placed its forcing by a corner column
-standing 2.9~km up; CM1's starting soundings held the vapour of the GCM's top level, near 130~km, constant
-above it, so the 45\textdegree\,N rings began 6--15 times saturated over ice at 140--150~km and every column
-kept 1.1~g\,m$^{-2}$ of ice above 107~km through both lunar days; and the 45\textdegree\,N rings with and
-without the curved-air terms, the twilight pair, ran on builds compiled at different optimisation levels, so
-their 0.013--0.021~K difference lies below what the pair resolves.\claim{H31} The last two remain in the runs
-made before they were found.
+\textbf{Defects of the adaptation.} The patches and runners written for the test world contained defects of
+their own, found by these checks, by code review or in the course of the work. Six were removed before the runs
+reported here: the GCM runner's first solar spectrum, whose tail held its last value past 2.73~\textmu m, put
+86\% of the sunlight in the near infrared and warmed the first run past 320~K;\claim{H28} the first electrified
+build discharged once per step after all the step's charging, multiplied memory the scheme had left unset and
+made private a variable its threads shared; the first terrain build placed its forcing by a corner column
+2.9~km up; and the sky solver's production grid of 114 channels absorbed 58\% too much sunlight above 500~nm with
+the Sun overhead, which had made PlaSim look short of its calibration. Four remain in reported runs. The first
+channels of the curved-air table, bisected on the whole column alone, put near-infrared sunlight too high, 19.0
+against 10.7~W\,m$^{-2}$ at 66--85~km, and the curved-air and gas-band runs of Table~\ref{tab:states} ran on
+them.\claim{H30} Every CM1 case set up before 2026-10-17, and so every CM1 run reported here, started from
+soundings that held the vapour of the GCM's top level, near 130~km, constant above it; on the 45\textdegree\,N
+rings, the only cases examined for it, the air began 6--15 times saturated over ice at 140--150~km and every
+column kept 1.1~g\,m$^{-2}$ of ice above 107~km through both lunar days. The first lunar gravity patch scaled the
+NSSL fall speeds and left the ventilation tied to them at Earth's values, so that lunar rain evaporated 1.3--1.5
+times too fast for its size; a code review found the omission after the windows of the storm results that
+compare charging laws had run and before the main electrified run began.\claim{H29} The 45\textdegree\,N rings
+with and without the curved-air terms ran on builds compiled at different optimisation levels, so their
+0.013--0.021~K difference falls below what the pair resolves.\claim{H31}
 
-\textbf{Checks that fell short.} SWAN with depth breaking off failed its repeatability test by about 2.5\%, and
-tracing the failure found the uninitialised breaker parameter. SWAN's early growth depends on the time step:
-halving it changes the first hours' wave height by up to 33\%, while the 48-hour endpoints move under 0.3\%,
-and small seas in the weather runs fail their 5\% time-step criterion where seas above 1~m pass. SWASH's control
-with irregular input misses its 5\% bound, at 5.22\% in height and 6.28\% in period.\claim{V12} CM1 rebuilt at a
-higher optimisation departs from its first build by 0.28--0.32~\textdegree C rms in the air at 2~m within a
-model day, inside the spread of last-bit nudges, and on several threads it departs from itself. The ledger's
-scattering orders reached their cap in one channel of 282, whose omitted tail is about $3\times10^{-4}$ of that
-channel's diffuse light at the ground.\claim{V13}
-
-\textbf{Checks still to make.} The full design column has yet to be run through an independent radiation code
-with every absorber, which would test the reference on which all the calibrations rest. CM1 has yet to be
-forced from the longwave-corrected GCM, so whether the corrected physics closes the gap between the two
-models is untested. The longwave correction, fitted at 295~K, ran in a test that settled near 307~K with twice
-the water vapour, and its accuracy there is unchecked. The twilight pair lacks a control on the same build and
-an estimate of its realisation noise. CM1's thread race remains unlocated, RRTMG's extrapolation past its
-tables and CM1's gravity-scaled microphysics remain untested on their own, and an independent GCM has yet to
-run the scenario.\claim{V14}
+\textbf{Checks that fell short.} Three of the five shortfalls concern reported results. SWAN's early growth
+depends on the time step: halving it changes the first hours' wave height by up to 33\%, while the 48-hour
+endpoints move under 0.3\%, and in the weather runs small seas fail their 5\% time-step criterion where seas
+above 1~m pass, so the step's error lies in the sea states below 1~m. SWASH's control with irregular input, the
+kind of input from which the run-up at the shore was computed, misses its 5\% bound, at 5.22\% in height and
+6.28\% in period.\claim{V12} CM1 rebuilt at a higher optimisation departs from its first build by
+0.28--0.32~\textdegree C rms in the air at 2~m within a model day, inside the spread of last-bit nudges, and runs
+on several threads part from one another, so two box runs that differ in one setting compare as realisations.
+The other two shortfalls were traced or bounded: SWAN with depth breaking off failed its repeatability test by
+about 2.5\%, a failure traced to the uninitialised breaker parameter and avoided in every run by keeping breaking
+on, and the curved-air table's scattering orders reached their cap in one channel of 282, whose omitted tail is
+about $3\times10^{-4}$ of that channel's diffuse light at the ground.\claim{V13} The checks still open are taken
+up with the next steps.

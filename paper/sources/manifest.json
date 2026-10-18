@@ -10,18 +10,18 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 151,
-  "with_local_original": 86,
+  "total": 152,
+  "with_local_original": 87,
   "blocked": 65,
-  "deferred": 86,
+  "deferred": 87,
   "passed": 0,
   "depth": {
-   "full": 1,
-   "claim-locators": 69,
+   "claim-locators": 70,
    "abstract-only": 60,
-   "not read": 21
+   "not read": 21,
+   "full": 1
   },
-  "cited_in_paper": 53,
+  "cited_in_paper": 73,
   "cited_blocked": [
    "battjes1985calibration",
    "berger1978long",
@@ -29,21 +29,28 @@
    "bryan2002benchmark",
    "cavaleri1981wind",
    "charnock1955wind",
+   "christian2003global",
+   "clough2005atmospheric",
    "dwyer2003fundamental",
    "ebert1992parameterization",
    "fierro2013implementation",
    "komen1984existence",
    "kristjansson2000impact",
+   "kuhlman2006numerically",
    "macgorman2001lightning",
+   "mckay1991making",
    "mlawer2012development",
+   "nicoll2012measurements",
    "rodgers1967use",
+   "salinas2021modeling",
    "saunders1998laboratory",
    "slingo1991response",
+   "stamnes1988numerically",
+   "sun2023aerosol",
    "takahashi1978riming",
    "trenberth2005trends",
    "verlinde1993fitting",
    "weisman1982dependence",
-   "wolf2015evolution",
    "wu1982wind",
    "ziegler1994observed"
   ]
@@ -1946,7 +1953,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": "Legal local original archived on 2026-10-17 (found by the legal-copies helper, fetched by the main session); not yet read in full",
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "PNAS/PMC block scripted access; abstract (significance statement) read. L23 rests on the PyRADS README, a primary technical record: a line-by-line longwave code using HITRAN 2016 and MT_CKD (shortwave in the separate PyRADS-shortwave repository). Correction: PNAS 116, 15308 (2019). Archived 2026-10-17: publisher version of record with an MIT Open Access cover page, via the Wayback copy of DSpace@MIT; title found on the first pages."
   },
@@ -2873,7 +2880,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "arXiv copy archived."
   },
@@ -3134,7 +3141,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "arXiv v1 (submitted) archived; the published QJRMS version is CC BY."
   },
@@ -3399,7 +3406,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "GMD (CC BY) archived. Agent A also reports pp. 5835-5836 (three Earth-specific settings removed, -1.27 W/m2) and p. 5851 (Earth-centric tunings matter less than planet differences)."
   },
@@ -3682,7 +3689,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": "Legal local original archived on 2026-10-17 (found by the legal-copies helper, fetched by the main session); not yet read in full",
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "CC BY-NC-ND at ScienceDirect but scripted access refused; the USRA repository handle returned HTTP 500. Archived 2026-10-17: publisher version of record (CC BY-NC-ND), via the Wayback copy of the USRA repository; title found on the first pages."
   },
@@ -3956,7 +3963,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "arXiv v2 archived; agent A: GA7.0 'with minimal changes can be adapted for any Earth-like atmosphere'; deep, non-hydrostatic equations."
   },
@@ -3989,7 +3996,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": true,
+   "cited_in_paper": false,
    "paper_use": [
     {
      "claim_id": null,
@@ -4038,7 +4045,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": null
   },
@@ -4079,7 +4086,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": true,
+   "cited_in_paper": false,
    "paper_use": [
     {
      "claim_id": null,
@@ -4202,7 +4209,7 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": true,
+   "cited_in_paper": false,
    "paper_use": [
     {
      "claim_id": null,
@@ -4342,7 +4349,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "The project's 'Yang et al. 2023'. Nature Astronomy main text paywalled; arXiv v1 and the free Supplementary Information archived. The paper calls SAM a cloud-permitting model; cloud fraction is defined by a condensate threshold unlike the GCMs; the largest gap is on the nightside and at dayside high latitudes."
   },
@@ -4589,7 +4596,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": null
   },
@@ -4972,7 +4979,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": null
   },
@@ -5005,7 +5012,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": null
   },
@@ -5109,7 +5116,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "Author-hosted version of record (CC BY 4.0) archived; arXiv v1 also archived as loftus2021physics_arxiv.pdf. Eq. (26): r_max ~ sqrt(sigma/(g (rho_c - rho_air))). Limiting finding: absolute r_max uncertain by a factor of a few; on Earth collisions set the largest drops."
   },
@@ -5288,7 +5295,7 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
+   "cited_in_paper": true,
    "paper_use": null,
    "notes": "Icarus version of record posted by CNR (licence not stated; adopted). SWAN and UMWM run on Mars by changing physical constants only."
   },
@@ -6272,6 +6279,54 @@
    "cited_in_paper": true,
    "paper_use": "The upstream report of the Sun-clock defect",
    "notes": "The author's own report; not an independent source."
+  },
+  {
+   "key": "zahnle2017cosmic",
+   "citation": "Zahnle and Catling (2017). The Cosmic Shoreline: The Evidence that Escape Determines which Planets Have Atmospheres, and what this May Mean for Proxima Centauri B. Astrophys. J., 843(2), 122. doi:10.3847/1538-4357/aa7846",
+   "entry_type": "article",
+   "doi": "10.3847/1538-4357/aa7846",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/1538-4357/aa7846 (2026-10-17)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": null,
+    "local_copy_obtained": true
+   },
+   "license": null,
+   "original": {
+    "path": "paper/sources/originals/zahnle2017cosmic_arxiv.pdf",
+    "url": "https://arxiv.org/pdf/1702.03386v2",
+    "retrieved": "2026-10-17",
+    "bytes": 1273203,
+    "sha256": "590368fe0775a4385288938d484dd14b51b430bcda7ef9d4be280c14eaea1f12",
+    "version": "arXiv:1702.03386v2, the accepted manuscript as published in ApJ 843:122",
+    "pages": 32
+   },
+   "additional_files": null,
+   "reading": {
+    "depth": "claim-locators",
+    "reader": "main session; quote machine-checked against the archived text layer",
+    "locators": [
+     {
+      "claim_id": "introduction (cosmic shoreline)",
+      "location": "arXiv v2, Abstract",
+      "quote": "The planets of the Solar System divide neatly between those with atmospheres and those without",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "introduction (cosmic shoreline)",
+      "location": "arXiv v2, Abstract",
+      "quote": "when arranged by insolation (I) and escape velocity",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "DEFERRED",
+   "admission_reason": "Legal local original (arXiv) archived on 2026-10-17; read at the abstract's locators, not yet in full",
+   "cited_in_paper": true,
+   "paper_use": "Introduction: natural worlds keep atmospheres where escape velocity is large against insolation",
+   "notes": "arXiv copy archived."
   }
  ]
 }

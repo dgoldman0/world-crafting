@@ -172,6 +172,24 @@ def main() -> dict:
     out['exoplasim_synchronous_cover_bias']['formula'] = ('synchronous runs keep N = max(int(360/P/12 + 0.5), 1) x 12 '
                                                           'and model day P N/(N-1); cover bias 0.125 ln(model day / 1 d)')
 
+    # Retention: the atmosphere's mass against the design's loss rates over a solar cycle (Terluna
+    # research/decisions.md 125: 0.61-0.80 kg/s in the cooler titania cases, 1.4 kg/s in the warmest, without magnets),
+    # as the time each loss would take to remove the whole atmosphere (column at constant g; the shells' 11.5% more
+    # air lengthens it)
+    mass = col_moon * 4 * math.pi * MOON_R ** 2
+    year_s = 365.25 * 86400
+    out['retention'] = dict(atmosphere_mass_kg=mass,
+                            removal_time_years={f'{q:g} kg/s': mass / q / year_s for q in (0.61, 0.80, 1.0, 1.4)},
+                            formula='M = (p_s/g_s) 4 pi R^2; t = M / loss rate')
+    out['shell']['area_ratio_at_48_6km'] = ((MOON_R + 48.6e3) / MOON_R) ** 2
+
+    # Earth's average flash density from the Optical Transient Detector's global rate (Christian et al. 2003: 44
+    # flashes a second) over Earth's surface, against the lunar electrified box's 0.022 per km2 per year
+    earth_area_km2 = 4 * math.pi * (EARTH_R / 1e3) ** 2
+    fd = 44.0 * year_s / earth_area_km2
+    out['flash_density'] = dict(earth_per_km2_yr=fd, lunar_box_per_km2_yr=0.022, ratio=0.022 / fd,
+                                formula='44 flashes/s x seconds per year / Earth surface area')
+
     # RRTMG's table edge: depth of the lunar air below 1053.63 hPa at the water level
     p_hpa = P_MOON / 100
     out['rrtmg_extrapolated_depth_km'] = {f'{t:.0f}K': R_GAS * t / (m_air / 1000 * gm) * math.log(

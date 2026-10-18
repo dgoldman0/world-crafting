@@ -3,14 +3,14 @@
 \textbf{Code and data.} The patch series for ExoPlaSim, CM1 with WRF-ELEC and SWAN, the Fortran written for
 CM1's electrified build, the in-house reference and calibration tools with their tests, the notes on each
 component's correctness and limits, the defect log, the verification record, and this manuscript's figure
-scripts, data extracts and claims register are held in the world-crafting repository, whose release commit
-will be recorded in the release register. The case comes from the Terluna project \autocite{goldman2026terluna},
-whose repository at commit 186b294 holds the scenario, the runners, the case set-up and the analyses; the
-model runs themselves are held on the project's research drive, and the products derived from them are
-committed to Terluna with the hashes of their inputs. The upstream sources are pinned by checksum: ExoPlaSim
-3.4.2 from its source distribution, CM1 release 22.0, SWAN 41.51, SWASH 12.01 and WRF-ELEC at commit
-\code{e43041b}. The patches inherit their upstream licences: the GNU GPL version 3 for ExoPlaSim and version 3
-or later for SWAN, CM1's MIT-style licence, and the WRF public-domain notice for WRF-ELEC.
+scripts, data extracts and claims register are held in the world-crafting repository, to be published with
+the paper's release commit. The case comes from the Terluna project \autocite{goldman2026terluna}, whose
+repository at commit 186b294 holds the scenario, the runners, the case set-up and the analyses; the model runs
+themselves are held on the project's research drive, and the products derived from them are committed to
+Terluna with the hashes of their inputs. The upstream sources are pinned by checksum: ExoPlaSim 3.4.2 from its
+source distribution, CM1 release 22.0, SWAN 41.51, SWASH 12.01 and WRF-ELEC at commit \code{e43041b}. The
+patches inherit their upstream licences: the GNU GPL version 3 for ExoPlaSim and version 3 or later for SWAN,
+CM1's MIT-style licence, and the WRF public-domain notice for WRF-ELEC.
 
 \textbf{Author and assistance.} Daniel S. Goldman set the scenario and its questions, made the decisions
 recorded in Terluna's decisions register and is responsible for the content. The adaptations, analyses and
@@ -18,23 +18,33 @@ this manuscript were developed with AI assistance. Claude Opus~5.5 (Anthropic), 
 direction, wrote and ran most of the code, patches and analyses in Terluna, where 374 of the 487 commits to
 186b294 name it as co-author,\claim{Z01} assembled the world-crafting repository and drafted this text;
 subagents of the same model compiled the defect log and the verification record, checked the bibliography and
-gathered the sources, refereed the claims, challenged the whole manuscript and reviewed the prose. Every
-number in the prose carries a claim in the register, traced to a file in one of the two repositories, a run
-on the research drive, a web record or a stated calculation.
+gathered the sources, refereed the claims, challenged the whole manuscript and reviewed the prose. In Terluna,
+OpenAI's Codex reviewed the solar-shield, atmospheric-electricity and three other research branches on
+8 October 2026 and planned their merge, an order the author accepted, and wrote notes outside this paper's
+subject; by Terluna's records, the July 2026 knowledge bundle from which the scenario's earlier decisions were
+recovered, and the editorial controls behind the paper's writing rules, came from the author's conversations
+with ChatGPT. Each claim marker in the source names a register entry that traces the claim to a file in one of
+the two repositories, a run on the research drive, a web record or a stated calculation, and the paper's check
+script confirms that every marker resolves and every listed source exists; numbers repeated in the conclusions
+and the next steps refer to the same entries without markers.
 
-\textbf{Competing interests.} The author declares no competing interests: the work is an unfunded personal
-project that earns the author nothing, and every part that may be made public is public.
+\textbf{Competing interests.} The author declares no competing interests. The work is an unfunded personal
+project that brings the author no income, and the author's practice is to make public every part of it that its
+licences and sources allow.
 
 \textbf{Review history.} A first draft, written section by section on 17 October 2026, received the drafting
 assistant's own silent prose passes; two subagents acting as technical referees checked every claim and table
 row against its sources and found 94 statements to correct or qualify; and a third, as whole-manuscript
-challenger, raised 5 blocking, 11 major and 21 minor findings. The author then read the draft and rejected its
-framing and much of its prose, and that reading served as the cadence review of the first draft. This second
-draft answers both: it reframes the paper, rewrites its prose to the rules recorded in the repository's
-instructions, and acts on the challenge. Its editorial rounds by fresh reviewer agents, the referees' reports,
-the challenge and every disposition are recorded in the repository's review folder. Review by people other
-than the author, or by a journal, is still to come.
+challenger, raised 5 blocking, 11 major and 21 minor findings. The author then read the draft in a
+stream-of-thought review, which the author counts as its cadence review, and rejected its framing and much of
+its prose. Claude Opus~5.5, under the author's direction, wrote a second draft in answer to that review and to
+the challenge, and five fresh reviewer agents read it in a first editorial round, four by section and one across
+the whole paper, raising 172 findings, 20 of them blocking. The author, reading the second draft during that
+round, found it still centred on the test world; the third draft, written by the same assistant, reframes the
+paper on the field and acts on the round's findings. Each round's findings and dispositions, with the referees'
+reports and the challenge, are recorded in the repository's review folder as the round closes. Review by people
+other than the author, or by a journal, is still to come.
 
-\textbf{Acknowledgements.} The work rests on models and data that their developers make freely available:
-ExoPlaSim and the Planet Simulator, CM1, WRF-ELEC, SWAN and SWASH, the HITRAN database, the MT\_CKD continuum
-and the TSIS-1 solar spectrum.
+\textbf{Acknowledgements.} The work used models and data that their developers make freely available: ExoPlaSim
+and the Planet Simulator, CM1, WRF-ELEC, SWAN and SWASH, the HITRAN database, the MT\_CKD continuum and the
+TSIS-1 solar spectrum.

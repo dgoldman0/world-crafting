@@ -1,51 +1,51 @@
-\section{Worlds beyond Earth's range}
+\section{Worlds beyond Earth's range and the test world}
 
-An Earth value in a model holds where a world's governing ratios equal Earth's, and its error grows with the
-world's distance from them. Four ratios govern most of the values found in these models
-(Table~\ref{tab:regime}): the scale height over the radius, which fixes the geometry of the sunlit and
-radiating air; the mass of air over each square metre, which fixes the absorber paths that broadband
-radiation fits were made on and the pressures that radiation tables span; the gravity, which fixes the
-height of each pressure level and the fall of every particle; and the solar day, which fixes whatever a
-formula counts per day. Found and constructed worlds lie off Earth's values in different directions
-(Figure~\ref{fig:regimes}). Titan's air holds ten times Earth's mass over each square metre and Venus's a
-hundred times, and their solar days of 16 and 117 Earth days place both far along the day axis; present Mars
-departs mainly in its thin column, and Earth-like planets that rotate slowly depart along the day axis
-alone. The breathable Moon departs along all four at once, in air close to Earth's.\claim{W02}
+Four ratios between a world and Earth set where many of the models' Earth values err
+(Table~\ref{tab:regime}). Two set the radiation's paths: the mass of air over each square metre sets the
+absorber paths, which PlaSim's broadband fits took from Earth's column, and the pressures, which RRTMG's
+tables cover to 1,053.63~hPa; the scale height over the radius sets how far the sunlit and radiating air
+departs from a flat column. Two set the scales of height and time: gravity sets the height of each pressure
+level and, with drag and the air's density, each particle's fall speed, and the solar day sets whatever a
+formula counts per day. Natural and constructed worlds lie off Earth's values in different directions
+(Figure~\ref{fig:regimes}). Titan departs along all four, with ten times Earth's air over each square metre,
+a gravity below the Moon's and a 16-day solar day, and Venus along the column and the day, with a hundred times
+Earth's air and a 117-day solar day; present Mars departs mainly in its thin column, and slowly rotating
+Earth-like planets along the day alone. Among these worlds the breathable Moon alone departs along all four in
+air close to Earth's, which makes it a test of every Earth value that depends on them.\claim{W02}
 
 \begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_regimes.pdf}
-\caption{Found and constructed worlds against the ratios on which the models' Earth assumptions depend.
-Left: scale height over radius against the air's mass per unit area, relative to Earth's; PlaSim's horizon
-air mass is exact on the vertical line through Earth, and its broadband radiation fits were made near the
-horizontal one. Right: solar day against surface gravity; PlaSim's per-day formulas are exact on the
-vertical line, and released CM1 holds only where the two lines cross. Grey filled points are found worlds;
-open points are constructed or illustrative ones (Mars held at 1~bar; Earth-like planets with solar days of
-16, 64 and 243 days); blue points are the breathable Moon at 1.2 and 1.0~atm. Scale heights use each world's
-surface temperature and mean molar mass.}
+\caption{Natural and constructed worlds against the ratios on which the models' Earth values depend. Left: the
+air's mass per unit area, relative to Earth's, against scale height over radius; PlaSim's horizon air mass of
+35 holds on the vertical line through Earth, and its broadband radiation fits were made near the horizontal
+one. Right: surface gravity against solar day; PlaSim's per-day formulas hold on the vertical line, and
+released CM1 holds only where the two lines cross. Filled grey points are natural worlds; open points are
+constructed or illustrative ones (Mars held at 1~bar; Earth-like planets with solar days of 16, 64 and 243
+days); blue points are the breathable Moon at 1.2 and 1.0~atm. Scale heights use each world's surface
+temperature and mean molar mass.}
 \label{fig:regimes}
 \end{figure}
 
-The models take the case's scenario as fixed conditions. The TSIS-1 solar spectrum
-\autocite{coddington2021tsis}, passed through a titania shield in space, brings 1,235~W\,m$^{-2}$ to the top
-of the air, dimmed evenly at every wavelength to 1,198~W\,m$^{-2}$ in the design case, a scale of 0.970
-chosen so that the GCM's global-mean surface settles at the design temperature of 295~K; a change in the
-physics therefore appears as a change in the dimming the design needs. The shield removes the ultraviolet
-that would make ozone, so the air holds none.\claim{S07}\claim{G04} Beneath the shield the air holds
-121,590~Pa at the water level, with oxygen at Earth's partial pressure of 21,227~Pa (17.5\% of the air),
-argon in Earth's ratio to nitrogen, 400~ppm of carbon dioxide and nitrogen for the balance; because the land
-stands above the water level, the surface pressure averages 1.16~atm over the globe and ranges from 1.02 to
-1.22~atm.\claim{S05} At the ground, seas fill the lunar basins to 28\% of the surface and rain-fed lakes
-stand at their own levels, so that 759 of the GCM's 2,048 cells, 40\% of its surface, hold
-water;\claim{S06} the seas are a 50~m slab with sea ice, and the land has a placeholder albedo of 0.2.
+The models take the test world's scenario as fixed conditions. The TSIS-1 solar spectrum
+\autocite{coddington2021tsis}, passed through a titania shield in space, brings 1,235~W\,m$^{-2}$ to the top of
+the air, dimmed evenly at every wavelength to 1,198~W\,m$^{-2}$ in the design case, a scale of 0.970 chosen so
+that the GCM's global-mean surface temperature settles at the design value of 295~K; the sensitivity runs
+reported below hold their sunlight fixed, and the scale was set once, for the design case. The shield removes
+the ultraviolet that would make ozone, so the air holds none.\claim{S07}\claim{G04} Beneath the shield the air
+holds 1,216~hPa at the water level, with oxygen at Earth's partial pressure of 212~hPa (17.5\% of the air),
+argon in Earth's ratio to nitrogen, 400~ppm of carbon dioxide and nitrogen for the balance; land standing above
+the water level lowers the global-mean surface pressure to 1.16~atm, and across the GCM's cells the surface
+pressure runs from 1.02 to 1.22~atm.\claim{S05} At the ground, seas fill the lunar basins to 28\% of the
+surface and rain-fed lakes stand at their own levels, so that 759 of the GCM's 2,048 cells, 40\% of its area,
+hold water;\claim{S06} the seas are a 50~m slab with sea ice, and the land has a placeholder albedo of 0.2.
 
 \begin{table}[t]
-\caption{The ratios that separate the breathable Moon from Earth, and the model parts that depend on each.
-Lunar values are for the 1.2~atm design case; scale heights use the surface temperature and the air's mean
-molar mass; horizon air masses are Chapman's grazing factor $\sqrt{\pi R/2H}$ for an isothermal air, which
-PlaSim's code sets at 35 for Earth. Rows marked $^\dagger$ are CM1 results for the case, conditional model
-results; the grid for deep convection is a nominal scale from the dry dynamics' similarity; the other lunar
-values are scenario inputs or calculations from them.}
+\caption{The quantities that separate the breathable Moon from Earth, and the model parts that depend on each.
+Lunar values are for the 1.2~atm design case and are scenario inputs or calculations from them; scale heights
+use the surface temperature and the air's mean molar mass; horizon air masses are Chapman's grazing factor
+$\sqrt{\pi R/2H}$ for an isothermal atmosphere, which PlaSim's code sets at 35 for Earth; the grid for deep
+convection is a nominal scale from the dry dynamics' similarity.}
 \label{tab:regime}
 \small
 \begin{tabularx}{\textwidth}{@{}lrrL@{}}
@@ -53,7 +53,7 @@ values are scenario inputs or calculations from them.}
 Quantity & Earth & Moon & Model parts that depend on it \\
 \midrule
 Surface gravity (m\,s$^{-2}$) & 9.81 & 1.62 & Dynamics; fall speeds; sea roughness; wave dispersion; heights in pressure terms \\
-Surface pressure at the water level (bar) & 1.01 & 1.22 & RRTMG's tables, whose highest pressure is 1.05~bar \\
+Surface pressure at the water level (hPa) & 1,013 & 1,216 & RRTMG's tables, whose highest pressure is 1,053.63~hPa \\
 Air over each square metre (t) & 10.3 & 74.9 & Broadband absorber paths fitted on Earth's \\
 Scale height at the surface (km) & 8.4 & 52 & Every height-based formula \\
 Scale height over radius & 0.0013 & 0.030 & Flat, sunlit-only columns; the thin shell \\
@@ -61,36 +61,43 @@ Horizon air mass of well-mixed air & 34.5 & 7.2 & Earth's slant factor, fixed in
 Solar day (Earth days) & 1 & 29.53 & Formulas written per day; the soil's thermal wave; the model calendar \\
 Sidereal rotation (Earth days) & 0.997 & 27.32 & ExoPlaSim's Sun clock; the Coriolis parameter \\
 Tilt of the equator (\textdegree) & 23.44 & 1.54 & ExoPlaSim's orbit default \\
-Height of the 0\,\textdegree C level (km)$^\dagger$ & 4.5--5 & 25 & Ground-strike rules; the charging zone \\
-Tops of deep storm cloud (km)$^\dagger$ & 15--18 & 55--80 & Model tops; the levels of cold cloud \\
 Fall speed of rain, relative & 1 & 0.34 & Evaporation of falling rain \\
 Grid for deep convection (km) & 1 & 6 & Cost; the meaning of a resolution \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Every path through the case's air is longer than its counterpart on Earth (Table~\ref{tab:regime}). With
-7.25 times Earth's mass over each square metre, the design case's GCM column holds 170~kg\,m$^{-2}$ of
-water vapour, and 348~kg\,m$^{-2}$ in its warmest test, where Earth's holds about 25
-\autocite{trenberth2005trends}.\claim{S08} A scale height of about 52~km against a radius of 1,737~km places
-the air's mass on average 48.6~km above the ground, where a shell has 5.8\% more area than the ground
-beneath it, and straight rays through the design column give horizon air masses of 7.1 for well-mixed air
-and 13.5 for water vapour, against the 35 of PlaSim's formula, written for Earth.\claim{S09} Sunlight
-reaches far past each column's horizon: a full Earth day after sunset, about half the air above a place
-still lies above the Moon's geometric shadow.\claim{S04} At these heights the thin-shell approximation of
-the dynamics also becomes inexact. Gravity at the 86~km tropopause is 9\% below its surface value, a column
-with gravity falling as $GM/r^2$ holds about 5\% more air per unit area than $p_s/g_s$, and spherical shells
-with that gravity hold 11.5\% more over each square metre of ground than $p_s/g_s$.\claim{S10}
+Every absorber path through the test world's air is longer than its counterpart on Earth, and every layer the
+models treat as flat is curved. With 7.25 times Earth's mass over each square metre, the design case's GCM
+column holds 170~kg\,m$^{-2}$ of water vapour, and 348~kg\,m$^{-2}$ in its warmest test, where Earth's holds
+about 25 \autocite{trenberth2005trends}.\claim{S08} In the column on which the curved geometry was computed,
+with a scale height of about 52~km over a radius of 1,737~km, the air's mass lies on average 48.6~km above the
+ground, where a shell has 5.7\% more area than the ground beneath it, and straight rays through that column
+give horizon air masses of 7.1 for well-mixed air and 13.5 for water vapour, against the 35 of PlaSim's formula,
+written for Earth; Titan's air, at 0.8\% of its radius, is about a quarter as tall in
+proportion.\claim{S09}\claim{W02} Sunlight reaches far past each column's horizon: a full Earth day after
+sunset, about half the air above a place still lies above the Moon's geometric shadow, before refraction adds
+more.\claim{S04} Gravity
+falls 9\% by the 86~km tropopause, so a column with gravity falling as $GM/r^2$ holds about 5\% more air than the
+$p_s/g_s$ the codes assume, and spherical shells with that gravity raise the excess to 11.5\% per square metre of
+ground: for the same surface pressure, the lunar air holds about a tenth more mass than the models
+count.\claim{S10}
 
-Gravity's surface value matters more. A sixth of Earth's gravity raises every pressure level sixfold in
-height, so a formula written in metres places its features six times too low; it slows the fall of droplets
-sixfold, of rain about threefold and of graupel 2.3-fold; it lengthens the roughness of a wind-driven sea
-sixfold for the same friction velocity \autocite{charnock1955wind}; and it slows a deep-water wave of a
-given length to 0.41 of its speed on Earth.\claim{S11} The dry dynamics stretch about sixfold in size and
-duration at the same speeds, so a 6~km column of a cloud-resolving model stands for about 1~km at Earth's
-scale, while the microphysics and the radiation keep their own scales; a pair of runs designed to measure how far
-lunar convection departs from Earth's convection stretched sixfold failed to convect.\claim{S12} The 29.53-day solar day deepens the soil's thermal wave to about
-0.6~m, $\sqrt{29.53}\approx5.4$ times the depth of Earth's diurnal wave, and multiplies nearly thirtyfold
-whatever a formula counts per day; the 27.32-day rotation sets a Coriolis parameter of
-\SI{5.2e-6}{s^{-1}} at 80\textdegree, an inertial period of 14 Earth days.\claim{S13} The tilt of
-1.54\textdegree\ gives the poles a grazing Sun all year.
+Gravity's surface value matters more. A sixth of Earth's gravity raises every pressure level sixfold in height,
+so a code that sets a feature's height in metres puts it at a sixth of its lunar height. Fall speeds follow
+gravity to powers set by each particle's fall-speed law, slowing droplets sixfold, rain about threefold and
+graupel 2.3-fold, the dependence on gravity that \textcite{loftus2021physics} trace for raindrops across
+planetary atmospheres; at the sea, Charnock's roughness grows sixfold for the same friction velocity
+\autocite{charnock1955wind}, and a deep-water wave of a given length travels at 0.41 of its speed on
+Earth.\claim{S11} The dry dynamics stretch about sixfold in size and duration at the same speeds, so a 6~km
+column of a cloud-resolving model stands for about 1~km at Earth's scale, while the microphysics and the
+radiation keep their own scales. How far lunar convection departs from Earth's, stretched sixfold, remains
+unmeasured: the pair of runs designed to measure it failed to convect, and the 6~km grid is justified by the dry
+similarity alone.\claim{S12}
+
+The 29.53-day solar day deepens the soil's thermal wave to about 0.6~m, $\sqrt{29.53}\approx5.4$ times the depth
+of Earth's diurnal wave, and a formula written per Earth day but applied per lunar day takes nearly thirty times
+its intended input; the 27.32-day rotation sets a Coriolis parameter of \SI{5.2e-6}{s^{-1}} at 80\textdegree,
+the latitude of the polar CM1 rings, an inertial period of 14 Earth days;\claim{S13} and the 1.54\textdegree\ tilt
+keeps the Sun grazing at the poles all year, where ExoPlaSim's default orbit puts Earth's tilt of
+23.7\textdegree.\claim{H24}

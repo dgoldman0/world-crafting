@@ -81,21 +81,27 @@ def run_mean(run: str, years: range) -> tuple[float, int]:
     return sum(vals) / len(vals), len(vals)
 
 
-REPAIRS = [  # (label, kind, baseline run, its years, test run, its years, note)
-    ('Cloud water counted in pressure terms', 'repair', 'A', range(30, 40), 'A_earth_path_clouds', range(10, 15),
+REPAIRS = [  # (label, kind, baseline run, its years, test run, its years, note); kind is the change's class or a test
+    ('First calibration of the radiation', 'calibration', 'A_uncalibrated', range(12, 13), 'A', range(30, 40),
+     'the uncalibrated run still warming in year 12, so the change is at least this large'),
+    ('Cloud water counted in pressure terms', 'general', 'A', range(30, 40), 'A_earth_path_clouds', range(10, 15),
      'settles near 298.0 K'),
-    ('Convective cover per Earth day', 'repair', 'A_earth_path_clouds', range(10, 15), 'A_corrected_clouds', range(10, 15),
+    ('Convective cover per Earth day', 'general', 'A_earth_path_clouds', range(10, 15), 'A_corrected_clouds', range(10, 15),
      'settles near 299.6 K'),
-    ("The Sun's clock, the Moon's tilt and the sunlight split", 'repair', 'A28_dim5', range(15, 25), 'A28_dim5_moon', range(20, 30), ''),
-    ('Curved air: twilight, cone and slant path', 'repair', 'A28_dim5_moon', range(20, 30), 'A28_dim5_moon_geometry', range(10, 20), ''),
-    ('CO2 and O2 in the sunlight', 'repair', 'A28_dim5_moon_geometry', range(10, 20), 'A28_dim5_moon_geometry_gases', range(10, 20),
-     'still cooling 0.3 K a decade'),
-    ('Longwave by height with ice optics', 'test', 'A28_corrected_970', range(10, 20), 'A28_corrected_970_lw_ice', range(10, 20),
-     'extrapolates to balance at 306.8-307.1 K; a sensitivity test, off in the design case'),
-    ('Cloud water at the full-column bound', 'bracket', 'A', range(30, 40), 'A_full_column_clouds', range(10, 15), 'settles near 292.0 K'),
-    ('Thinner convective cloud', 'cloud setting', 'A28_dim5_moon', range(20, 30), 'A28_dim5_moon_thin_convective', range(5, 15),
+    ("Sun clock and tilt, with the split refitted", 'general with a calibration', 'A28_dim5', range(15, 25), 'A28_dim5_moon',
+     range(20, 30), 'one step joining two general repairs and a calibration'),
+    ('Curved air, first channels', 'method', 'A28_dim5_moon', range(20, 30), 'A28_dim5_moon_geometry', range(10, 20),
+     'on the curved-air table\'s first channels'),
+    ('CO2 and O2 bands, first channels', 'calibration', 'A28_dim5_moon_geometry', range(10, 20), 'A28_dim5_moon_geometry_gases',
+     range(10, 20), 'still cooling 0.3 K a decade; on the first channels'),
+    ('Longwave by height with ice optics', 'test: calibration with a general repair', 'A28_corrected_970', range(10, 20),
+     'A28_corrected_970_lw_ice', range(10, 20), 'extrapolates to balance at 306.8-307.1 K; a sensitivity test, off in the design case'),
+    ('Cloud water at the full-column bound', 'test: setting', 'A', range(30, 40), 'A_full_column_clouds', range(10, 15),
+     'settles near 292.0 K'),
+    ('Thinner convective cloud', 'test: setting', 'A28_dim5_moon', range(20, 30), 'A28_dim5_moon_thin_convective', range(5, 15),
      'settles near 297.1 K'),
-    ('More low cloud', 'cloud setting', 'A28_dim5_moon', range(20, 30), 'A28_dim5_moon_low_cloud', range(5, 15), 'settles near 289.0 K'),
+    ('More low cloud', 'test: setting', 'A28_dim5_moon', range(20, 30), 'A28_dim5_moon_low_cloud', range(5, 15),
+     'settles near 289.0 K'),
 ]
 
 
@@ -109,9 +115,9 @@ def repairs() -> None:
                          test=dict(run=test, years=[ty[0], ty[-1]], surface_k=round(t, 3), n=nt),
                          change_k=round(t - b, 3), note=note))
     write('repairs', "Global-mean surface temperature of each test run against its baseline over the README's stated years, "
-          "from the runs' yearly summaries (progress.json); repairs in the design case, and sensitivity tests: the "
-          "longwave correction with ice optics, the cloud-water bracket's upper bound, and two of PlaSim's Earth-tuned cloud "
-          "settings", sorted(paths), dict(rows=rows))
+          "from the runs' yearly summaries (progress.json); each repair with its class, the first calibration against the "
+          "uncalibrated run's year 12, and sensitivity tests: the longwave correction with ice optics, the cloud-water "
+          "bracket's upper bound, and two of PlaSim's Earth-tuned cloud settings", sorted(paths), dict(rows=rows))
 
 
 def gap45n() -> None:

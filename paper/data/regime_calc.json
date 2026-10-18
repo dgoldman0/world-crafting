@@ -47,7 +47,8 @@
   "g_drop_at_86km": 0.09210477195120392,
   "g_drop_at_100km": 0.10588740989454759,
   "g_drop_at_150km": 0.15263263675636662,
-  "formula": "(r/R)^2; g(z) = GM/(R+z)^2"
+  "formula": "(r/R)^2; g(z) = GM/(R+z)^2",
+  "area_ratio_at_48_6km": 1.0567281453219086
  },
  "column_with_falling_gravity": {
   "exponential": 1.058664349916867,
@@ -168,6 +169,22 @@
    "cover_bias": 0.30536317359721177
   },
   "formula": "synchronous runs keep N = max(int(360/P/12 + 0.5), 1) x 12 and model day P N/(N-1); cover bias 0.125 ln(model day / 1 d)"
+ },
+ "retention": {
+  "atmosphere_mass_kg": 2.8396368495419244e+18,
+  "removal_time_years": {
+   "0.61 kg/s": 147512560406.94592,
+   "0.8 kg/s": 112478327310.29625,
+   "1 kg/s": 89982661848.23701,
+   "1.4 kg/s": 64273329891.59787
+  },
+  "formula": "M = (p_s/g_s) 4 pi R^2; t = M / loss rate"
+ },
+ "flash_density": {
+  "earth_per_km2_yr": 2.722272333144546,
+  "lunar_box_per_km2_yr": 0.022,
+  "ratio": 0.008081483888346836,
+  "formula": "44 flashes/s x seconds per year / Earth surface area"
  },
  "rrtmg_extrapolated_depth_km": {
   "290K": 7.3754352803689995,
