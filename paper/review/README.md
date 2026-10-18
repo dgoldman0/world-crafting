@@ -78,6 +78,17 @@ the checks, the corrections and the rebuilt PDF. The author then judged the stat
 run, repeated through the paper, to be defensive and badly phrased; it was recast to inform once, in Reach, as
 the same record sets out.
 
+Round 15 followed the author's direction of the same day on flow: after transitions had been cut from a drafted
+abstract sentence, the author asked that the paper's prose flow, with transition words wherever they move the
+reader on, and that paratactic paragraphs, facts chained like bullet points, be found. Three fresh Claude subagents
+read the paper by thirds for flow alone at 64d04e0, later reworded as 2800b68 over the same tree, and returned 101
+findings, 28 MAJOR and 73 MINOR: 9 and 21 in the abstract, Introduction, Worlds and Assumptions; 15 and 28 in
+Repairs, Verification and Results; 4 and 24 in Reach, Next steps, the Conclusion, the appendix's prose and
+Availability, the Conclusion's three marked for the author. Each MAJOR finding carries a sample rewrite that keeps
+its passage's claims, numbers, citations and claim markers. The records are `editorial_round15_flow_opening.md`,
+`editorial_round15_flow_middle.md` and `editorial_round15_flow_closing.md`; their dispositions follow the author's
+reading.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
@@ -85,7 +96,7 @@ the same record sets out.
 | Claude Opus 5.5, the drafting assistant (main session) | Drafted the paper's drafts and their conclusions to 04a6c27; silent prose passes on the first draft; dispositions of rounds 1, 6, 7 and 8, and of round 9 in 04a6c27's commit message; the exact-build page review; the release register; the check of Codex's revision | `passes_<section>.md` (first draft), `*_dispositions.md`, `g7_visual_review.md`, `release_register.md`, `terracompatible_check_2026-10-18.md` |
 | Claude subagents, technical referees | Checked every claim and table row of the first draft against its sources | `referee_technical_part1.md`, `referee_technical_part2.md`, `referee_dispositions.md` |
 | A Claude subagent, whole-manuscript challenger | Challenged the first draft as a whole against G1–G5 | `whole_manuscript.md`, `whole_manuscript_dispositions.md` |
-| Fresh Claude subagents, editorial reviewers | Read the second draft against the rules, by part and as a whole (round 1), then the rewritten closing section and the passages revised with it, for prose and for evidence (rounds 2–9), and the revised conclusion's evidence alone (round 10) | `editorial_round<n>_<part>.md` |
+| Fresh Claude subagents, editorial reviewers | Read the second draft against the rules, by part and as a whole (round 1), then the rewritten closing section and the passages revised with it, for prose and for evidence (rounds 2–9), the revised conclusion's evidence alone (round 10), and the whole paper's flow alone, by thirds (round 15) | `editorial_round<n>_<part>.md` |
 | Codex, drafting assistant | Wrote a fresh conclusion on 18 October 2026, revised it after rounds 11 and 12, and replaced its lunar framing after the author's review | `conclusion_rewrite_2026-10-18.md`, `conclusion_ensemble_rewrite_2026-10-18.md` |
 | Fresh Codex reviewer agents | Separate prose and evidence readings in rounds 11–13; bounded verification of round 13's dispositions; whole-manuscript terminology and framing review in round 14 | `editorial_round11_conclusion_*.md`, `editorial_round12_conclusion_*.md`, `editorial_round13_conclusion_*.md`, `editorial_round14_whole_*.md` |
 | Claude subagents, record keepers | Reconstructed the dispositions of rounds 2–5 from the revision commits | `editorial_round<n>_dispositions.md`, n = 2–5 |
