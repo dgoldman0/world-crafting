@@ -19,10 +19,14 @@ exoplasim_h2o_continuum = 0.004                 # Terluna's hand trials
 cm1_run_days = 59.06                            # two lunar days as Terluna typed them; 2 solar days come to 59.0612
 cm1_series_through = { core = 17, elec = 9 }    # each CM1 series before the namelist patches: gravity and the air compiled in
 gravity = "gm-over-r2"                          # Terluna's g, without the spin term (5 ppm on the Moon)
-sunlight_scale = 0.970                          # Terluna's trials: 0.9655, 0.9685, then 0.970 at 295.02 K
-cm1_soil_factor = 5.0                           # patch 08's fixed layers, 0.05-0.80 m; (29.53 d / 1 d)^(1/2) gives 5.43
-cm1_rain_size_limits = "earth"                  # Morrison's own, as Terluna's runner left them
 exoplasim_ice_weights = [0.6164, 0.2283, 0.0811, 0.0742]   # patch 10's, from the unfiltered TSIS-1 spectrum
+cm1_day_night_from_days = 29.5                  # the twilight ring's output Terluna averaged; one solar day is 29.53 d
+
+[compatibility.set]                             # resolved fields Terluna held at other values, by dotted path as in [set]
+"sunlight.scale" = 0.970                        # Terluna's trials: 0.9655, 0.9685, then 0.970 at 295.02 K
+"cm1.physics.rain_size_limits" = "earth"        # Morrison's own, as Terluna's runner left them
+"cm1.diurnal.soil_top_layer_m" = 0.05           # patch 08's, stated unscaled (rule 9); the day's depth gives 0.0543
+"cm1.coupling.reference_season" = "annual"      # Terluna's rings averaged whole model years
 
 [compatibility.cm1_build_labels]                # the deployed build whose sources each case's build reproduces, by the
 ring_45n_corrected = "moon_omp_o3"              # label Terluna's Makefile patch writes into the OPTS comment
@@ -30,8 +34,8 @@ ring_45n_corrected_twilight = "moon_omp_twilight"
 box_jura = "moon_omp_terrain_sea_twilight"
 
 [compatibility.initial_states]                  # the restart files Terluna's runs started from, by recorded hash
-A28_corrected_970 = { run = "terluna-drive:gcm-runs/A28_corrected_9685", model_year = 19, sha256_16 = "d65b88aa68443890" }
-A28_corrected_970_lw_ice = { run = "terluna-drive:gcm-runs/A28_corrected_970", model_year = 19, sha256_16 = "cc83ad0f936e5c02" }
+A28_corrected_970 = "terluna-drive:gcm-runs/A28_corrected_9685/model/MOST_REST.00019@d65b88aa68443890"
+A28_corrected_970_lw_ice = "terluna-drive:gcm-runs/A28_corrected_970/model/MOST_REST.00019@cc83ad0f936e5c02"
 
 [compatibility.products]                        # the products Terluna's runs read, used as recorded in place of the
                                                 # lab's own stages; stage 5 reproduces each separately
@@ -93,7 +97,7 @@ variants = ["terrain", "sea", "twilight"]
 site = { ring = "ring_45n_corrected", latitude_deg = 45.0, longitude_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes
 columns = { nx = 100, ny = 90 }
 terrain = { half_width_deg = 0.125, passes = 2, taper_km = 50.0 }
-day_night = { from_case = "ring_45n_corrected_twilight", from_days = 29.5, wavenumbers = 5, bins = 36, harmonics = 4, top_m = 16000.0 }
+day_night = { from_case = "ring_45n_corrected_twilight", from_solar_days = 1.0, wavenumbers = 5, bins = 36, harmonics = 4 }
 large_scale_w = "gcm"
 land_moisture = "gcm"
 surface_output = true

@@ -1,8 +1,9 @@
 # Specifications: draft schema 0
 
-Draft 3 of 2026-10-17. The seed files in [../worlds/](../worlds/) follow schema 0, and an uncommitted scratch
-script computed their derived quantities on 2026-10-17 with Terluna's own formulas and constants. The code
-that stage 1 of plan.md writes to read the seeds takes those derivations over.
+Draft 4 of 2026-10-18. The seed files in [../worlds/](../worlds/) follow schema 0, and uncommitted scratch
+scripts computed their derived quantities on 2026-10-17 and 18, with Terluna's formulas and constants and the
+lab's own derivations: the spin term, the scale-height, capillary and soil factors. The code that stage 1 of
+plan.md writes to read the seeds takes those derivations over.
 
 ## Four levels
 
@@ -10,7 +11,7 @@ that stage 1 of plan.md writes to read the seeds takes those derivations over.
 |---|---|---|---|
 | World | The body: its size and mass, rotation, orbit, star, host planet and surface geometry. Its `kind` is `found` for an observed body and `illustrative` for a supposed one | `moon` | `lab/worlds/<world>/world.toml` |
 | Scenario | The state of the world's air, water and land, the sunlight's filter and scale, and outside forcings, as observed, made or supposed. Its `kind` is `found`, `crafted` or `illustrative` | `moon/open-moon` | `lab/worlds/<world>/scenarios/<name>.toml` |
-| Model defaults | One model's settings for any world: upstream pin, patches and switches, grid, physics, output and the calibration stages it reads. CM1's also define named variants and give lengths and the time step at a reference gravity | `cm1/defaults` | `lab/configs/<model>/defaults.toml` |
+| Model defaults | One model's settings for any world: upstream pin, patches and switches, grid, physics, output and the calibration stages it reads. CM1's also define named variants and give lengths, times and rates at a reference state | `cm1/defaults` | `lab/configs/<model>/defaults.toml` |
 | Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults, with the study's compatibility settings | `open-moon` | `lab/studies/<study>.toml` |
 
 World and scenario kinds combine freely. The Open Moon and its 1.0 atm extension (`moon/open-moon-1.0atm`)
@@ -35,9 +36,10 @@ scenario.
    value its basis. A model choice in a scenario of any kind, such as a slab ocean and its depth, names its
    basis.
 4. **External data by pin.** External data are named by pinned identifiers, such as `tsis1-hsrs-stride100`
-   or `terluna:protection/shield_transmission#titania_stack`. A `terluna:` pin names a file in Terluna's
-   repository and a `terluna-drive:` pin one on its research drive; `#` selects an entry in the file, and
-   `@` appends the first 16 hex digits of the file's sha256.
+   or `terluna:protection/spectra/shield_transmission.json#titania_stack`. A plain name, such as the TSIS-1
+   spectrum's, names data from outside Terluna that the manifest resolves to its source; a `terluna:` pin
+   names a file in Terluna's repository and a `terluna-drive:` pin one on its research drive. `#` selects an
+   entry in the file, and `@` appends the first 16 hex digits of the file's sha256.
    - **The lab's own stages** resolve a pin through the lab's manifest, which holds each one's hash, source,
      licence and credit and points to the lab's own copy.
    - **A study's compatibility settings** name Terluna's files by pin and hash, and the reproduction tests
@@ -46,8 +48,8 @@ scenario.
    `"unchosen"`. A field marked `"model-default"` takes the model's own value, which the adapter records.
 6. **Extended items.** `extends` names the parent, `[set]` lists the changed fields by dotted path, and
    `variants` names variants that the model's defaults define.
-   - **The delta.** Every changed input enters through `[set]` or `variants`; descriptive fields such as
-     `purpose` and `recorded_key` may be restated outside them.
+   - **The delta.** Every changed input enters through `[set]`, `variants` or the study's compatibility
+     settings; descriptive fields such as `purpose` and `recorded_key` may be restated outside them.
    - **Replacement.** A set value replaces the parent's whole, an inline table included.
    - **Record.** The resolved form is hashed, and the delta, its set fields and variants together, is
      recorded with it.
@@ -64,9 +66,16 @@ scenario.
    - **Molar masses.** ExoPlaSim computes the gas constant from its own molar masses: CO2 at 44.01 g/mol,
      against 44.0095 in Terluna's runner.
    - **CM1's Earth gravity** is 9.81 m/s².
+   - **Planned settings.** A setting whose planned patch the build lacks resolves to what the build does:
+     `capillary` to the scaled `brkup_db` under Morrison's own 2.8 mm cap, `from-season` to the equinox,
+     and the day's soil depth to patch 08's 5 cm top layer. The registry tests the resolved settings, so
+     their entries warn until the patches land.
 8. **Compatibility settings.** For byte-for-byte reproduction of a Terluna run's inputs and its builds'
-   sources, which the lab's tests check, the study holds each of Terluna's quirks as a named compatibility
-   setting:
+   sources, which the lab's tests check, the study holds each of Terluna's quirks as a compatibility
+   setting. A quirk with a field of its own is set by dotted path in `[compatibility.set]`, as in `[set]`, so
+   that the registry tests what the reproduction runs: the sunlight scale Terluna's trials found, Morrison's
+   own rain limits, patch 08's 5 cm top soil layer and the rings' averaging over whole years. The others
+   are named:
    - the radius divisor;
    - the eccentricity Terluna typed;
    - the calibration values copied by hand and rounded;
@@ -75,9 +84,8 @@ scenario.
    - the point in each CM1 patch series before the namelist patches, where gravity and the air are
      compiled in;
    - Terluna's gravity, GM/R² without the spin term;
-   - the sunlight scale Terluna's trials found;
-   - the CM1 soil layers that patch 08 fixes, Morrison's own rain limits and patch 10's ice-optics weights
-     from the unfiltered Sun;
+   - patch 10's ice-optics weights, from the unfiltered Sun;
+   - the 29.5 days of the twilight ring's output that the box's day–night forcing averages;
    - the restart files Terluna's runs started from, and the products they read, its seas and lakes among
      them, named by their recorded hashes.
 
@@ -130,10 +138,10 @@ scenario.
 | `air.reference_level` | – | The level at which the stated pressure holds: `water`, `sea` or `mean-radius` |
 | `air.surface_pressure_pa` | Pa | Total pressure at that level |
 | `air.o2_partial_pressure_pa` or `o2_mole_fraction`, `co2_ppm`, `ar_per_n2` or `ar_mole_fraction`, `balance` | Pa or –, ppm of the total, –, gas | The air, built as Terluna builds it (`exoplasim_run.py:820-821, 843-844`); the lab derives the partial pressures and mole fractions from either form |
-| `air.reference_temperature_k` | K | The surface temperature the scenario is stated at, observed for a found scenario and designed or supposed otherwise, with its basis: the design column, the ledger and the gas fits are computed at it, and the scale height and horizon factor take it as their reference |
+| `air.reference_temperature_k` | K | The surface temperature the scenario is stated at, observed for a found scenario and designed or supposed otherwise, with its basis, or `settled`, the GCM's settled global mean, which the fixpoint finds: the design column, the ledger and the gas fits are computed at it, and the scale height and horizon factor take it as their reference |
 | `air.cloud_droplets_per_cm3` | cm⁻³ | The cloud droplets the air's aerosol supports, which CM1's two-moment schemes take |
 | `air.ozone`, `air.water_vapour` | – | `none`, `model-default` or a pinned profile; `prognostic` |
-| `water.seas_share`, `water.seas`, `water.lakes` | –, pinned names | The standing water: the seas `from-heights`, the world's heights flooded to the share, and the lakes `from-runoff`, a GCM run's runoff routed over the heights; either may be pinned instead |
+| `water.seas_share`, `water.seas`, `water.lakes` | –, pinned names | The standing water: the seas `from-heights`, the world's heights flooded to the share, and the lakes `from-runoff`, a GCM run's runoff routed over the heights; either may be pinned instead. `water.lakes_start` pins the first link of the runoff chain, and a study's GCM run names `lakes_from`, an earlier run whose runoff fills its lakes; a run derived from another keeps its parent's lakes unless its delta sets `lakes_from` |
 | `water.ocean` | – | `kind` (`slab`), `mixed_layer_m`, `sea_ice` |
 | `land.albedo` | – | One value marked as a placeholder until a surface map exists |
 | `sunlight.filter`, `sunlight.scale` | pinned name, – | A transmission spectrum or `none`; a multiplier the same at every wavelength, stated or `to-reference-temperature`, which the target stage finds from the GCM's global-mean surface temperature |
@@ -159,10 +167,10 @@ scenario.
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
 | CM1 lengths, times and rates | Lengths × H/H_ref, times × (H/c)/(H/c)_ref, rates × (c/H)/(c/H)_ref (rule 9) | A factor of 1 at the reference state: 6 km columns, a 150 km top, nudging from 8 to 16 km, a 40 s step | CM1's grid, top, nudging heights, `dtl`, `l_inf` and `rdalpha` (`cm1_run.py:1979-2035`) |
 | CM1's raindrop limits | Morrison's 0.3 mm breakup and 2.8 mm cap on rain's mean diameter × (9.81/g)^½ | × 2.4576: 0.737 mm and 6.88 mm | `brkup_db`; the cap through a planned patch (registry B28) |
-| CM1's soil layers | CM1's 1–16 cm × (solar day/1 d)^½ | × 5.4342: 5.4 to 86.9 cm | The slab soil, through a planned version of patch 08 (registry `cm1-soil-day`) |
-| CM1's Sun | Declination asin(sin ε · sin L_s), from the obliquity ε and the case's solar longitude L_s | 0 at the equinox the study's cases take | A planned version of patch 05 (registry `cm1-equinox-sun`) |
-| Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | From the filtered spectrum; Terluna's 0.6164, 0.2283, 0.0811 and 0.0742 came from the unfiltered TSIS-1 | Patch 10 |
-| ExoPlaSim's output steps | `mean_interval_days` rounded to whole model days, or below a model day to a whole number of means in it | 10 means a model day, 2.98 d | `NSTPW` |
+| CM1's soil layers | CM1's 1 cm top layer × (solar day/1 d)^½, the four below doubling | × 5.4342: a 5.4 cm top layer, 5.4 to 86.9 cm | `slab_dzs`, through a planned patch after core 17 (registry `cm1-soil-day`) |
+| CM1's Sun | Declination asin(sin ε · sin L_s), from the obliquity ε and the case's solar longitude L_s | 0 at the equinox the study's cases take | A planned patch after core 17 (registry `cm1-equinox-sun`); the case's sunrise, −acos(−tan φ tan δ) |
+| Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | From the filtered spectrum; Terluna's 0.6164, 0.2283, 0.0811 and 0.0742 came from the unfiltered TSIS-1 | The planned ExoPlaSim patch 11; patch 10's constants until it passes |
+| ExoPlaSim's output steps | `mean_interval_days`: below a model day, the divisor of the steps per model day whose mean lies nearest it; from a model day up, whole model days | 10 means of 143 steps, 2.98 d | `NSTPW` |
 | ExoPlaSim's time-step limit | The advective limit set by the radius a, the truncation N and the run's largest wind u: u·Δt·N/a below 1 | Checked in stage 1 against the largest winds of Terluna's runs, which ran stable at 30 minutes | The guard on `timestep_min` |
 
 The registry's tests (`q`) name these quantities in snake case with their units: `gravity_m_s2`,

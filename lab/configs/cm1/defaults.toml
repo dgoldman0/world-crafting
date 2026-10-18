@@ -7,7 +7,8 @@
 # the Open Moon's, where Terluna's rings ran them, so there they stand as written. At Earth's 288 K and air, with
 # CM1's 9.81 m/s2, they come to columns of 965 m, a top at 24.1 km, nudging from 1.29 to 2.57 km, a 6.5 s time
 # step, a 73 m boundary-layer length and a damping rate of 1/296 per second. Terluna derived the lunar values from
-# CM1's Earth 75 m and 1/300 per second by gravity alone, which leaves that 3%.
+# CM1's Earth 75 m and 1/300 per second by gravity alone, so at Earth's state the lab's length falls 2.8% below
+# 75 m and its rate lies 1.4% above 1/300 per second.
 
 schema = "worldlab.defaults.cm1/0"
 id = "cm1/defaults"
@@ -21,10 +22,10 @@ ranks_multiple = 8                             # a ring's column count is rounde
 world_constants = "build"                      # gravity, CO2 and O2 compiled in, as Terluna's builds have them;
                                                # "namelist" once the namelist patches pass plan stage 3
 
-[reference]                                    # the state at which the scaled values hold: the Open Moon's
-gravity_m_s2 = 1.6242188765608128              # GM/R^2, as Terluna's rings ran
-temperature_k = 295.0                          # the scenario's reference temperature
-molar_mass_g_mol = 28.8319                     # the design air at 1.2 atm (world_spec.md, derived quantities)
+[reference]                                    # the state at which the scaled values hold, derived from the scenario:
+scenario = "moon/open-moon"                    # its gravity, reference temperature and air's molar mass, with
+gravity = "gm-over-r2"                         # Terluna's GM/R^2, where its rings ran: 1.6242188765608128 m/s2, 295 K
+                                               # and 28.83195 g/mol
 
 [scaled_length]                                # times H/H_ref
 column_target_m = 6000.0
@@ -35,6 +36,7 @@ ztop_m = 150000.0
 nudge_start_m = 8000.0                         # nudging toward the GCM from here, fully from nudge_full_m
 nudge_full_m = 16000.0
 pbl_length_m = 452.98697768979696              # l_inf, 75 m x 9.81/g at the reference; cm1_run.py:2005 rounds it to 453.0
+day_night_top_m = 16000.0                      # a box's day-night forcing reaches this height, nudge_full_m's
 
 [scaled_time]                                  # times (H/c)/(H/c)_ref
 time_step_s = 40.0
@@ -49,11 +51,12 @@ breakup_diameter_m = 3.0e-4                    # brkup_db, read from the namelis
 rain_max_mean_diameter_m = 2.8e-3              # 1/LAMMINR (morrison.F:486-503); a planned patch reads it from the namelist
 
 [diurnal]                                      # times (solar day / 1 d)^(1/2), the depth the day's heat reaches
-soil_layers_m = [0.01, 0.02, 0.04, 0.08, 0.16] # CM1's slab soil; Terluna's patch 08 fixes 0.05-0.80 m on every world
+soil_top_layer_m = 0.01                        # CM1's slab soil: five layers doubling from this one (init_surface.F,
+                                               # slab_dzs); Terluna's patch 08 sets 0.05 m on every world
 
 [unscaled]
 z_stretch = 1.08                               # the grid's growth per level, a ratio
-start_hour_angle_deg = -90.0                   # sunrise
+start = "sunrise"                              # the hour angle -acos(-tan(latitude) tan(declination)), -90 deg at the equinox
 run_solar_days = 2.0                           # in the world's solar days
 output_s = 10800.0                             # seconds on every world
 restart_s = 43200.0
@@ -61,6 +64,10 @@ segment_s = 86400.0
 nudge_tau_s = 259200.0
 nudge_ramp_s = 86400.0
 radiation_s = 1800.0
+
+[coupling]
+reference_season = "window"                    # the GCM reference averages solar longitudes about the case's season
+season_window_deg = 15.0                       # proposed: +-15 deg, a twelfth of the year
 
 [physics]
 microphysics = "morrison"                      # ptype 5; its cloud droplets per cm3 come from the scenario's air
@@ -71,7 +78,7 @@ twilight = "none"                              # the curved air's twilight in RR
 rain_size_limits = "capillary"                 # the [capillary] values; "earth" keeps Morrison's own, the identity
                                                # default of the planned patch (registry B28)
 sun_declination = "from-season"                # from the world's obliquity and the case's solar longitude, through a
-                                               # planned version of patch 05, whose Sun stands at the equinox
+                                               # planned patch after core 17; patch 05's Sun stands at the equinox
 
 # Variants: the named changes a case may declare. Each adds its patch series and sets what it needs, by dotted
 # path as a study's [set] does, and the lab's pair check accepts a pair that differs by its declared variants alone.

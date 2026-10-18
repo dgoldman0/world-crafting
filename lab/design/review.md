@@ -25,7 +25,8 @@ draft 2, and the author's answers to the open questions led to draft 3.
 | 7 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 3 seed; 4 between the documents | 2 | — |
 | 8 | 2026-10-17 | A: README, architecture, plan, with AGENTS.md and the seeds (the single round on draft 3) | 3 prose | — | 9, and 3 minor |
 | 8 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 2 prose; 3 seed; 2 between the documents | 1 | — |
-| 9 | 2026-10-18 | One round on draft 4 | pending | — | — |
+| 9 | 2026-10-18 | A: README, architecture, plan, with AGENTS.md and the seeds (the single round on draft 4) | 6 prose | — | 10, and 4 typed values |
+| 9 | 2026-10-18 | B: world_spec, regeneration, every seed and the registry (the same) | 1 prose; 8 seed; 6 between the documents; 3 typed values | 2 | — |
 
 ## Round 1 dispositions
 
@@ -376,3 +377,58 @@ compute from a world's base parameters. Draft 4 carries the answers:
   soil layers, rain limits and ice-optics weights, and its seas and lakes by hash.
 - **Registry.** Two entries joined the seed, `cm1-soil-day` and `cm1-equinox-sun`, and B28 names its
   planned repair.
+
+## Round 9 dispositions
+
+**Revised: the seven prose items.** Reviewer A's were these:
+
+- the guard sentence, which now ends at the guard, with the output interval moved to the calendar;
+- the orphan sentence on cloud droplets, deleted;
+- the principles' unequal coordination, now two sentences;
+- the plan's time-step item, now a check of its own;
+- the decision row's "margin", now its basis;
+- the CM1 header's "3%", now 2.8% for the length and 1.4% for the rate.
+
+Reviewer B's was "Not timed", now "Untimed in Terluna".
+
+**Adopted: the technical, seed and typed-value items.**
+
+- **The reference state** of CM1's scaling is derived from `moon/open-moon` under Terluna's gravity, so the
+  factors are exactly 1 in the reproduction study. The typed molar mass, which moved the model top by
+  0.25 m, is gone.
+- **Planned patches** follow core 17 and electrified 9, and each identity default reproduces the build
+  without it, patch 08's 5 cm top soil layer included. A setting whose patch the build lacks resolves to
+  what the build does, so the equinox-Sun and rain entries warn until the patches land, and B28 fires on
+  anything short of the full capillary scaling.
+- **Patch 10's weights** move to a planned ExoPlaSim patch 11, which reads them from the namelist (stage 2).
+- **NSSL's two-moment rain** has its explicit breakup off, and stage 3 searches it for other limits.
+- **Compatibility.** Quirks with fields of their own sit in `[compatibility.set]` by dotted path, so the
+  registry tests what the reproduction runs, and rule 6 names the channel. The restart pins name their
+  files, `MOST_REST.00019`, with their hashes.
+- **Pins.** The shield's pin names its file, and the Moon's heights take a plain pinned name from the PDS.
+- **Lakes** form a keyed chain: the scenario pins the first link, a study's run names `lakes_from`, and a
+  derived run keeps its parent's lakes.
+- **The target stage** averages the last ten model years and stops within 0.1 K or after six runs, first in
+  each fixpoint pass; stage 5 builds it, and its runs follow stage 7.
+- **Output steps** take the divisor of the steps per model day nearest the interval.
+- **Seasons.** A case starts at its own sunrise, and its GCM reference averages ±15° of solar longitude
+  about its season. The box's day–night forcing averages one solar day of the ring's output up to the
+  scaled `day_night_top_m`. Terluna's whole years and 29.5 days are compatibility settings.
+- **Mars** takes the reference temperature `settled`, which the fixpoint finds under the real Sun.
+- **Regeneration.**
+  - The target stage and the runoff chain add marks by rule.
+  - The lab computes the design column at the reference temperature.
+  - The spin term leaves a stated gravity as stated.
+  - The ledger's albedo weights the mask's water, lakes included.
+  - Patch 10's weights follow the shield as well as the star.
+  - Mars's example names B11, B12 and the cloud droplets.
+- **States and names.** The documents say draft 4, and CM1's defaults hold a reference state. The Earth
+  control's comments name the fraction behind Terluna's partial pressure and its own Ar/N2 of 0.011963.
+
+**Kept: ExoPlaSim's 30-minute step,** a stated model choice that the guard checks; a step derived from a
+design wind would add a choice of its own.
+
+## State after round 9
+
+Round 9 was the single round on draft 4, and its findings are revised with no confirmation round after them.
+Before stage 1, the author's confirmations of the engine and the proposed thresholds remain.

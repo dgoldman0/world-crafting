@@ -13,10 +13,11 @@ title = "Earth control: 1 atm of Earth's dry air with 400 ppm CO2"
 [air]
 reference_level = "sea"
 surface_pressure_pa = 101325.0               # the standard atmosphere
-o2_mole_fraction = 0.2095                    # Earth's dry air (Terluna exoplasim_run.py:78)
+o2_mole_fraction = 0.2095                    # Earth's dry air, the fraction behind Terluna's 21,227 Pa (exoplasim_run.py:78)
 co2_ppm = 400.0                              # a model choice: the lunar design air's value (exoplasim_run.py:80),
                                              # so the control and the Moon share their CO2
-ar_mole_fraction = 0.00934                   # Earth's dry air (exoplasim_run.py:79)
+ar_mole_fraction = 0.00934                   # Earth's dry air (exoplasim_run.py:79); with N2 by balance at 0.78076, Ar/N2
+                                             # comes to 0.011963, where the Moon's recipe takes 0.00934/0.78084
 balance = "N2"
 reference_temperature_k = 288.0      # Earth's global mean (paper/data/worlds.json, "global means")
 cloud_droplets_per_cm3 = 100.0       # a model choice: the Open Moon's value, held for the comparison

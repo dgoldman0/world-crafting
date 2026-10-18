@@ -16,8 +16,9 @@ ranks = 4                                      # Terluna's design case ran on 4 
 precision = 8
 seed = 1
 initial = "model-default"                      # ExoPlaSim's own starting state; a run may branch from another run of its study
-mean_interval_days = 3.0                       # rounded to whole model days, or below a model day to a whole number of
-                                               # means in it: 10 a model day on the Moon (2.98 d, NSTPW 143)
+mean_interval_days = 3.0                       # below a model day, rounded to the divisor of the steps per model day
+                                               # whose mean lies nearest: 10 of 143 steps on the Moon (2.98 d); from a
+                                               # model day up, to whole model days
 whole_model_days = true                        # defect log A3; Terluna's whole_lunar_days
 fixed_orbit = true                             # defect log A2; NFIXORB 1
 clear_sky = true                               # NDIAGCF 1

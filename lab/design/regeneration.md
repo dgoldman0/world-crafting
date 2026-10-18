@@ -103,8 +103,8 @@ flowchart LR
 | Shortwave fit | `python -m climate.gcm.plasim_shortwave fit RUN --years A B --lunar`, then copied by hand into `MODEL` | Minutes |
 | Longwave correction | `python -m climate.gcm.plasim_longwave fit RUN --year 0`, on a run with heating diagnostics | About 2 min |
 | Water continuum (`TH2OC`) | Hand trials in calibration runs (`gcm-runs/cal_*`), the chosen value typed into `MODEL` | A GCM run for each value tried |
-| Seas and lakes | Terluna's `geography/atlas.py`, from the heights and the seas share, and `geography/drainage.py`, from a GCM run's runoff | Not timed |
-| Infrared from space | Terluna's `research/studies/solar_shield_array/glow.py`, copied into a study's runner | Not timed |
+| Seas and lakes | Terluna's `geography/atlas.py`, from the heights and the seas share, and `geography/drainage.py`, from a GCM run's runoff | Untimed in Terluna |
+| Infrared from space | Terluna's `research/studies/solar_shield_array/glow.py`, copied into a study's runner | Untimed in Terluna |
 | CM1 builds | `python -m climate.crm.cm1_run build LABEL…` | Minutes each |
 | GCM experiment | `python -m climate.gcm.exoplasim_run A28 --folder NAME --years 20 --ncpus 4 [--set …] [--start-from …]` | 2.5–4.7 min a model year |
 | CM1 case | `python -m climate.crm.cm1_run setup CASE`, then `run CASE --hours H --threads T` | 1.8–12.3 h a ring and 2.3–27.2 h a box, for two lunar days |
@@ -116,6 +116,14 @@ Marks: ● produced again; ○ produced again through a loop, once the GCM exper
 loop is closed; b produced again while CM1's builds compile gravity and the air in, and unaffected once the
 namelist patches pass plan stage 3 (cross-dependency 3); c kept, after a consistency or range check;
 — unaffected.
+
+Two rules add marks to every row:
+
+- **The target stage.** Where a scenario's sunlight scale follows its reference temperature, each change
+  that marks the GCM experiment ● also produces the spectrum files and flux again through the target
+  stage, as ○.
+- **The runoff chain.** A change of the heights or the water share produces the seas and lakes again, and
+  each change that marks the GCM experiment ● reaches the lakes through the runoff chain, as ○.
 
 The product groups that head the columns:
 
@@ -189,13 +197,14 @@ The product groups that head the columns:
      (`cm1_run.py:1088`). In the lab both read the scenario's land albedo, so a change alters the CM1 case
      inputs and leaves the builds as they are.
    - Terluna's ledger assumes its own ground albedo of 0.1 (`python/illumination/sky/atmospheres.py:24`). The
-     lab's takes the scenario's, the land's and the sea's weighted by the seas share, so a change of either
-     makes the ledger stale.
+     lab's takes the scenario's land albedo and the model's own albedo for open water, weighted by the
+     surface mask's water fraction, lakes included, so a change of the land albedo or of the water makes
+     the ledger stale.
 8. **RRTMG takes the Sun's spectrum unfiltered** (defect log B9), so CM1 receives a shield as the lowered
    total in `var17`.
-9. **The design temperature enters as an input,** as the scenario's `air.reference_temperature_k`. The
-   reference column, the ledger, the gas fits, the surface light and the glow are computed at a prescribed
-   surface temperature of 294.9 K. A run that settles elsewhere, as the 307 K test does, leaves them
+9. **The design temperature enters as an input,** as the scenario's `air.reference_temperature_k`. The lab
+   computes the reference column, the ledger, the gas fits, the surface light and the glow at it, where
+   Terluna computed them at 294.9 K. A run that settles elsewhere, as the 307 K test does, leaves them
    describing another state.
 10. **Only the GCM receives infrared from space,** through patch 06.
 11. **PlaSim's levels enter four calibrations.** The ledger's GCM terms and the longwave correction are
@@ -204,17 +213,17 @@ The product groups that head the columns:
 12. **The air has two Ar/N2 ratios.** The reference tools build the air with 0.0093/0.7808 by default
     (`python/atmosphere/radiative_convective/thermodynamics.py:124, 148`), and the GCM runner with
     0.00934/0.78084. Terluna's products hold both; the lab passes the scenario's air to every tool.
-13. **Patch 10 compiles in a property of the star.** It writes the weights of Ebert and Curry's four
+13. **Patch 10 compiles in a property of the sunlight.** It writes the weights of Ebert and Curry's four
     near-infrared bands inside PlaSim's band 2 as Fortran constants, `zew(4)` = 0.6164, 0.2283, 0.0811,
     0.0742 (`models/exoplasim/patches/10-ice-optics.patch:70`). Terluna computed them from the unshielded
     TSIS-1 spectrum, where the clouds see the light after the shield; the lab computes them from the
     spectrum at the top of the air.
-    - With ice optics on, another star needs a new patch 10 and a new build.
-    - A namelist input would remove the dependency, at the cost of a new patch version and its identity
-      test.
+    - With ice optics on, another star or shield needs new weights. The planned patch 11 reads them from
+      the namelist; until it passes, they need a new patch 10 and a new build.
 
 14. **Gravity carries the spin term.** The lab takes g as GM/R² less (2/3)Ω²R, so a change of rotation
-    reaches every consumer of g, by 5 parts per million on the Moon and 0.23% on Earth.
+    reaches every consumer of g, by 5 parts per million on the Moon and 0.3% on Mars; a stated gravity,
+    such as Earth's, stays as stated.
 15. **CM1's raindrops and soil follow the world.** Its breakup diameter and rain cap scale with the capillary
     length, and its soil layers with the square root of the solar day, so a change of gravity or of the day
     reaches the case inputs through them.
@@ -226,7 +235,7 @@ The product groups that head the columns:
 | Calibrations fitted on the GCM's own columns: the shortwave multipliers and the longwave correction | Running, taking the columns, refitting and running again until both move less than a tolerance | Fitted once. The longwave correction was fitted at 295 K and runs in a test that settles at 307 K | A fixpoint stage with stated tolerances, each pass recorded |
 | The ledger and the shortwave fit | Recomputing the ledger with the refitted multipliers and refitting, until both move less than a tolerance | Open: the ledger holds the multipliers from before the refit | Part of the same fixpoint |
 | The sunlight scale and the design temperature | Adjusting the scale until the global mean surface temperature meets the target | By hand. Trial runs at 0.9655, 0.9685 and 0.970 gave 295.02 K at 0.970. The target is open, and new runs are held until it is set (Terluna `research/decisions.md`, 2026-10-17) | A target stage of secant steps over runs, with the runs kept as its record |
-| Climate, runoff, lakes, surface | Running the drainage again on the current design run's runoff | Deferred on 2026-10-16 | A stage that calls the geography producer as an external tool, marked stale once its climate is superseded |
+| Climate, runoff, lakes, surface | Running the drainage again on the current design run's runoff | Deferred on 2026-10-16 | A chain of keyed links: each GCM run's lakes come from the runoff of a named earlier run (`lakes_from`), and a fixpoint step repeats the chain on request |
 | The glow and the GCM's efficacy | Recomputing the glow's dimming with the efficacy the GCM returns | By hand: 0.71, then about 0.59 on the corrected radiation | A loop of two stages |
 | Other gases as CO2 | Fitting the CO2 that warms as much as the other gases (755 ppm) against the reduced-gas forcing | By hand, from calibration runs | A calibration with its envelope |
 
@@ -282,11 +291,13 @@ The product groups that head the columns:
     model day, which the synodic clock repairs, and each model year must still hold whole model days
     (defect log A3);
   - H/R of 0.0066 and a horizon factor of 15.5 against PlaSim's 35: a ledger of its own column;
+  - a model day of 1.0289 d: Slingo's cloud cover needs patch 03's convective day (B11);
+  - CCM3's cloud water at 3.72 m/s²: patch 02's gravity switch (B12);
   - a column 2.6 times Earth's: every calibration refitted;
-  - a tilt of 25.19°: the equinox-Sun entry warns until the planned version of patch 05 gives each case its
-    season's declination.
+  - a tilt of 25.19°: the equinox-Sun entry warns until the planned declination patch gives each case its
+    season's.
 - **Before any of this:** the lab refuses every stage that reads an unchosen field (the world's surface
-  heights, the scenario's seas, land and ozone) until it is chosen.
+  heights, the scenario's seas, land, ozone and cloud droplets) until it is chosen.
 
 **(d) Ice optics switched on.**
 

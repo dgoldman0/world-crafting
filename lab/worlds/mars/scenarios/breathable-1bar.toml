@@ -12,7 +12,8 @@ title = "Mars held at 1 bar of Earth-like air"
 [air]
 reference_level = "mean-radius"      # Mars has no sea level; the pressure holds at the mean radius
 surface_pressure_pa = 100000.0       # 1 bar, the illustration's premise
-reference_temperature_k = 288.0      # Earth's mean, as paper/data/worlds.json takes it for "Mars at 1 bar"
+reference_temperature_k = "settled"  # the GCM's settled global mean under the real Sun, which the fixpoint finds;
+                                     # its first pass starts at the 288 K paper/data/worlds.json takes
 cloud_droplets_per_cm3 = "unchosen"   # the aerosol of a breathable Mars
 o2_partial_pressure_pa = 21227.0
 co2_ppm = 400.0

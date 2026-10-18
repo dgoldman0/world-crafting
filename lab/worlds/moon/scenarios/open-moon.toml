@@ -24,6 +24,8 @@ water_vapour = "prognostic"
 [water]
 seas_share = 0.28                    # shared/scenarios/water.json, chosen 2026-09-25
 seas = "from-heights"                # the world's heights flooded to the seas share (Terluna: geography/atlas.py)
+lakes_start = "terluna:geography/products/drainage_28pct_16ppd.npz"   # the runoff chain's first link: Terluna's lakes
+                                     # from run A's runoff, copied in stage 1
 lakes = "from-runoff"                # rain-fed lakes at their own levels, from a GCM run's runoff (geography/drainage.py);
                                      # with them the GCM's mask holds about 40% water (land share 0.5995 in A28_corrected_970)
 ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }   # exoplasim_run.py:92
@@ -33,7 +35,7 @@ albedo = 0.2                         # placeholder: no soil or vegetation map ye
 # roughness, soil and bucket: each model's own defaults, recorded by its adapter
 
 [sunlight]
-filter = "terluna:protection/shield_transmission#titania_stack"   # protection/spectra/shield_transmission.json
+filter = "terluna:protection/spectra/shield_transmission.json#titania_stack"
 scale = "to-reference-temperature"   # found by the lab's target stage; Terluna's trials gave 0.970 (295.02 K), a
                                      # compatibility setting of the open-moon study
 

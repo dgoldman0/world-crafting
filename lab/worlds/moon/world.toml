@@ -32,4 +32,5 @@ id = "earth"
 neglected = ["earthshine, under 0.1 W/m2", "lunar eclipses, a few hours about twice a year"]   # climate/gcm/boundary.py:171-172
 
 [surface]
-geometry = "terluna:geography/lola-grail"   # LOLA heights above the GRAIL geoid (Terluna's geography domain)
+geometry = "lola-ldem16-grail-jggrx0420a"  # LOLA's 16 ppd heights over the GRAIL geoid, from the PDS by pinned hash,
+                                            # as Terluna's geography/fetch_inputs.py takes them
