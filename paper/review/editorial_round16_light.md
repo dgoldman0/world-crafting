@@ -108,3 +108,15 @@ reader found the synthesis free of recap, the line of argument intact and the en
 | 4 | `conclusions.tex`:15–20 | The LMD sentence came before the gravity example, and construction shares only the physics package's own parameters, since WRF's core was adapted to Mars | Applied: the sentence follows the gravity and day sentence, "its parameters are shared by construction; in codes built separately, as here, they are made consistent by repair", and leads into "The repairs make ..." |
 | 5 | `conclusions.tex`:69–71 | "Intercomparisons" unqualified generalised from two works, and SAMOSA reports one survey and a preliminary comparison | Applied with item 2: the two are named |
 | 6 | `conclusions.tex`:35, 48, 69 | Three added "already"s joined three earlier ones and the ending's | Applied: "exist", "tuned", "define" |
+
+## The abstract, last (dde4212)
+
+Two clauses changed, keeping the text the author approved: the fits' effect is set beside the spreads measured
+among exoplanet GCMs, and the radiation scheme would be reduced with existing tools. Verdict: two MINOR fixes,
+nothing blocking. The reader found both clauses supported by Results, Next steps and the Conclusion, consistent
+with the Introduction's wording, free of inventory, and the repository kept out.
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1 | `abstract.tex`:18–22 | The comparison lengthened the abstract's longest sentence to about 71 words, and its colon let the 20 K and 6 K read for a moment as the GCMs' spreads | Applied: the sentence ends at "... the spreads measured among exoplanet GCMs.", and "Calibrating the radiation's fits ..." opens the next, with the three claim markers |
+| 2 | `abstract.tex`:22–23 | "With existing tools" could attach to "spectroscopy" | Applied: "A radiation scheme reduced with existing tools from line-by-line spectroscopy, ..." |
