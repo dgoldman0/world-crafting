@@ -13,7 +13,7 @@ tests, `make check` and one code review, and the design documents changed with t
 | Stage | Product | Acceptance check | State |
 |---|---|---|---|
 | 0. Design | `lab/design/`; seed specifications in `lab/worlds/`, `lab/configs/` and `lab/studies/`; the registry seed | The author has answered the design's open questions and closed it for coding (architecture.md, "Decisions") | Passed on 2026-10-18. The thresholds, the time-step guard, the target stage's tolerances and the season window stay proposed values in the data, which later work may change without code |
-| 1. Specifications, data and derivations | The package in `lab/worldlab/` and its tests in `lab/tests/`, which `pyproject.toml`'s `testpaths` and `pythonpath` gain so that `make check` runs them; `worldlab.spec` (load, `extends` and `set`, resolve, hash), `worldlab.derive` with every quantity of world_spec.md's table (gravity with the spin term, CM1's scale-height, capillary and soil factors, the Sun's declination, the ice-optics weights, ExoPlaSim's output steps and time-step limit), and the data manifest, with the data the seeds pin copied into the store with their provenance | As listed under "Stage 1: checks" | In progress: the loader, the derivations and the data manifest (`lab/worldlab/spec.py`, `derive.py`, `data.py` and `lab/data/manifest.toml`) pass their checks against world_spec.md, the paper and Terluna's records, and the store holds the manifest's files. Remaining: the sunlight at the top, the ice-optics weights and the pressure at the surface's lowest point; the check against ExoPlaSim's `configure`; and the time-step guard's check on the winds of Terluna's runs |
+| 1. Specifications, data and derivations | The package in `lab/worldlab/` and its tests in `lab/tests/`, which `pyproject.toml`'s `testpaths` and `pythonpath` gain so that `make check` runs them; `worldlab.spec` (load, `extends` and `set`, resolve, hash), `worldlab.derive` with every quantity of world_spec.md's table (gravity with the spin term, CM1's scale-height, capillary and soil factors, the Sun's declination, the ice-optics weights, ExoPlaSim's output steps and time-step limit), and the data manifest, with the data the seeds pin copied into the store with their provenance | As listed under "Stage 1: checks" | In progress: the loader, the derivations and the data manifest (`lab/worldlab/spec.py`, `derive.py`, `data.py` and `lab/data/manifest.toml`) pass their checks against world_spec.md and the paper, their comparisons with Terluna's records hold within their tolerances, and the store holds the manifest's files. Remaining: the sunlight at the top, the ice-optics weights and the pressure at the surface's lowest point; the check against ExoPlaSim's `configure`; and the time-step guard's check on the winds of Terluna's runs |
 | 2. ExoPlaSim inputs | The ExoPlaSim adapter's input writer; the geography producer, with Terluna's `atlas.py` and `drainage.py` brought into `python/geography/`, for the seas from the heights, the lakes and the T21 surfaces; ExoPlaSim's builds, keyed by their patch series; the planned patch 11, which reads the ice-optics weights from the namelist | From the `open-moon` study and `exoplasim/defaults`, the lab writes the files of the first design run ("Stage 2: files") from its derivations, the manifest's data and the geography producer's surface, with each calibration at its identity default. Given calibration products, the writer writes their values, and given a ledger, the twilight table; for the run with the longwave correction and ice optics it adds `lwcorr.dat` and the namelist entries its switches need. Each namelist entry that ExoPlaSim's own `configure` also sets equals what `configure` writes. The geography producer's seas and lakes are compared with Terluna's `atlas_28pct_4ppd` and `drainage_28pct_16ppd`, and the run's inputs with those of Terluna's design run, `A28_corrected_970`, each difference listed with its cause. At its identity default, patch 10's constants, patch 11 leaves the output byte for byte as the build without it | To start |
 | 3. CM1 builds and cases | Build keys from patch sets and compile constants; the case writers and the GCM-to-CRM extraction; the core patch that reads gravity, CO2 and O2 from the namelist; the planned patches for rain's mean-diameter cap, the soil layers and the Sun's declination, each reading its value from the namelist, appended after core 17 and electrified 9 (architecture.md, "Points in the series") | Over a one-day ring segment each, the namelist builds, core and electrified, match builds of the lab's own compiled with the same values and flags, at the Moon's values and at 9.81 m/s². Their output is identical, or differs from the compiled build's by no more than a last-bit nudge of that build does, the test by which Terluna accepted its `-O3` rebuild (`notes/verification_record.md`, "Compiler rebuilds"). At its identity default each planned patch leaves the output byte for byte as the build without it. NSSL's two-moment rain is searched for size limits besides its breakup switch. Timed best of three on a quiet machine, they run within 2% of the compiled builds' wall time. The lab then builds CM1 once per patch set and flags. Run on the output of Terluna's design run and of its 45° N twilight ring as test input, the case writers and the extraction write the files of the study's three cases, and a comparison with Terluna's cases lists each difference with its cause; the lab's own cases follow from its own design run in stage 8 | To start |
 | 4. Stage graph and planner | Keys, headers, declared read sets, staleness, `plan` | Keys computed from a study extending `open-moon`, which runs on the lab's own stages, before and after each of regeneration.md's worked changes differ for exactly the products the example lists; with nothing changed, no key changes. A declared pair whose resolved inputs or build flags differ outside its delta is refused, as a twilight case would be whose control was compiled with other optimisation flags (defect log C8) | To start |
@@ -24,15 +24,15 @@ tests, `make check` and one code review, and the design documents changed with t
 
 ## Stage 1: checks
 
-- **Against Terluna's records.** Under the study's compatibility settings, Terluna's gravity and sunlight
-  scale among them, the Moon's derived values must equal those Terluna recorded:
-  - gravity, the partial pressures and the flux in `progress.json` of `A28_corrected_970`;
+- **Compared with Terluna's records.** The Moon's derived values agree with those Terluna recorded within
+  each comparison's stated tolerance, or differ by a stated cause, such as the spin term in the gravity:
+  - gravity, the partial pressures and the flux in `progress.json` of `A28_corrected_970`, the flux at
+    Terluna's sunlight scale of 0.970;
   - the build macros in `build.json`;
   - `var16` and `var19` in each ring case's `namelist.input`, and `grid.nx` and the ring length in its
     `case.json`;
-  - the CM1 lengths, time step, boundary-layer length and damping rate scaled from `cm1/defaults` at the
-    Moon's gravity. Written with the rounding of Terluna's namelist writer (`cm1_run.py:1979-2035`), they must
-    equal Terluna's ring settings exactly.
+  - the CM1 lengths, time step, boundary-layer length and damping rate scaled from `cm1/defaults`, against
+    Terluna's ring settings.
 - **Against ExoPlaSim.** `N_DAYS_PER_YEAR` and `ROTSPD` from `worldlab.derive` must equal what ExoPlaSim's
   own `configure` writes, in the pinned 3.4.2 install that the test fixture builds once, and the model day
   and steps per model day what `plasim.f90:1287-1348` computes from them:
@@ -43,9 +43,9 @@ tests, `make check` and one code review, and the design documents changed with t
     to 12 just above 20 days.
 - **The time-step guard.** At 80% of the advective limit it stays silent on the largest winds of Terluna's
   runs, which ran stable at 30 minutes.
-- **Against the paper.** The quantities world_spec.md derives must come out of the derivations unchanged,
-  each from the basis its row states, as `regime_calc.json` takes g = GM/R² and `worlds.json` states each
-  world's g and temperature:
+- **Against the paper.** The quantities world_spec.md derives agree with `regime_calc.json` to one part in
+  10¹² and with `worlds.json` to its stated digits, each from the basis its row states, as `regime_calc.json`
+  takes g = GM/R² and `worlds.json` states each world's g and temperature:
   - in `paper/data/regime_calc.json`: the gravity, column mass, scale height, horizon air mass, capillary
     length ratio, rotation, soil wave depth ratio, PlaSim calendar, Sun-clock skip and slow rotators;
   - in `paper/data/worlds.json`: each row's scale height, H/R, column mass and horizon factor.
@@ -54,10 +54,9 @@ tests, `make check` and one code review, and the design documents changed with t
 - **Ice-optics weights.** From the unfiltered TSIS-1 file the derivation gives patch 10's four constants.
 - **The data manifest.** Every pin the lab's own stages read resolves within world-crafting and the store,
   with its hash, source, licence and credit recorded. Data from outside Terluna, such as LOLA, GRAIL and
-  TSIS-1, pass the review of redistribution rights that AGENTS.md requires before they are copied. The
-  compatibility settings' pins name Terluna's files, which the reproduction tests alone open, or the store's copy
-  of the same bytes where Terluna has since replaced a file.
-- **Without Terluna.** With Terluna's paths absent, the stage's tests pass and the checks against Terluna's
+  TSIS-1, pass the review of redistribution rights that AGENTS.md requires before they are copied. Terluna's
+  other files are read in place, by the comparison tests alone.
+- **Without Terluna.** With Terluna's paths absent, the stage's tests pass and the comparisons with Terluna's
   records report themselves skipped.
 
 ## Stage 2: files

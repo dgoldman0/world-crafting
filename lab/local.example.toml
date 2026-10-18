@@ -3,6 +3,6 @@
 # from lab/. Tests that need a root this file leaves out report themselves skipped.
 
 [roots]
-terluna = "/path/to/terluna"                      # Terluna's repository, read by the reproduction tests
+terluna = "/path/to/terluna"                      # Terluna's repository, read by the comparison tests
 terluna-drive = "/path/to/terluna-research"       # its research drive: gcm-runs, crm-runs, cm1/build
 store = "/path/to/worldlab-store"                 # the lab's own store

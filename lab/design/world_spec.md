@@ -12,7 +12,7 @@ plan.md writes to read the seeds takes those derivations over.
 | World | The body: its size and mass, rotation, orbit, star, host planet and surface geometry. Its `kind` is `found` for an observed body and `illustrative` for a supposed one | `moon` | `lab/worlds/<world>/world.toml` |
 | Scenario | The state of the world's air, water and land, the sunlight's filter and scale, and outside forcings, as observed, made or supposed. Its `kind` is `found`, `crafted` or `illustrative` | `moon/open-moon` | `lab/worlds/<world>/scenarios/<name>.toml` |
 | Model defaults | One model's settings for any world: upstream pin, patches and switches, grid, physics, output and the calibration stages it reads. CM1's also define named variants and give lengths, times and rates at a reference state | `cm1/defaults` | `lab/configs/<model>/defaults.toml` |
-| Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults, with the study's compatibility settings | `open-moon` | `lab/studies/<study>.toml` |
+| Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults | `open-moon` | `lab/studies/<study>.toml` |
 
 World and scenario kinds combine freely. The Open Moon and its 1.0 atm extension (`moon/open-moon-1.0atm`)
 are crafted scenarios of a found world, and an exoplanet study pairs a found world with an illustrative
@@ -43,15 +43,13 @@ scenario.
    entry in the file, and `@` appends the first 16 hex digits of the file's sha256.
    - **The lab's own stages** resolve a pin through the lab's manifest, which holds each one's hash, source,
      licence and credit and points to the lab's own copy.
-   - **A study's compatibility settings** name Terluna's files by pin and hash, and the reproduction tests
-     open them in place and check the hash. Where Terluna has since replaced a file, the store's copy of the
-     same bytes serves, if the manifest holds one.
+   - **Comparison tests** read Terluna's records in place, under the Terluna roots, and skip without them.
 5. **`"unchosen"` and `"model-default"`.** The lab refuses any stage that reads a field marked
    `"unchosen"`. A field marked `"model-default"` takes the model's own value, which the adapter records.
 6. **Extended items.** `extends` names the parent, `[set]` lists the changed fields by dotted path, and
    `variants` names variants that the model's defaults define.
-   - **The delta.** Every changed input enters through `[set]`, `variants` or the study's compatibility
-     settings; descriptive fields such as `purpose` and `recorded_key` may be restated outside them.
+   - **The delta.** Every changed input enters through `[set]` or `variants`; descriptive fields such as
+     `title` and `purpose` may be restated outside them.
    - **Replacement.** A set value replaces the parent's whole, an inline table included.
    - **Record.** The resolved form is hashed, and the delta, its set fields and variants together, is
      recorded with it.
@@ -63,10 +61,8 @@ scenario.
      world whose stated solar day is exactly one day, as Earth's is, the adapter passes 1; PlaSim's model day
      is then exactly one day (`plasim.f90:1287`), and the year holds its whole days, 365 for Earth
      (`exoplasim/__init__.py:2609-2610`). For any other world it passes the sidereal period.
-   - **CM1's namelist.** Its writer rounds the boundary-layer length to 0.1 m and the damping rate to
-     10⁻⁸ s⁻¹, as Terluna's does (`cm1_run.py:2004-2005`).
    - **Molar masses.** ExoPlaSim computes the gas constant from its own molar masses: CO2 at 44.01 g/mol,
-     against 44.0095 in Terluna's runner.
+     against the 44.0095 g/mol of the lab's derivations.
    - **CM1's Earth gravity** is 9.81 m/s².
    - **Planned settings.** A setting whose planned patch the build lacks resolves to what the build does:
      `capillary` to `breakup-only`, the scaled `brkup_db` under Morrison's own 2.8 mm cap; `from-season` to
@@ -74,37 +70,11 @@ scenario.
      weights. The registry tests the resolved settings, so their entries warn wherever their conditions hold
      until the patches land. On the Moon the soil and equinox entries stay silent, since patch 08's 5 cm lies
      within 10% of the day's 5.4 cm and the obliquity is 1.54°.
-8. **Compatibility settings.** For byte-for-byte reproduction of a Terluna run's inputs and its builds'
-   sources, which the lab's tests check, the study holds each of Terluna's quirks as a compatibility
-   setting. A quirk with a field of its own is set by dotted path in `[compatibility.set]`, as in `[set]`, so
-   that the registry tests what the reproduction runs: the sunlight scale Terluna's trials found, Morrison's
-   own rain limits, patch 08's 5 cm top soil layer and the rings' averaging over whole years. The others
-   are named:
-   - the radius divisor;
-   - the eccentricity Terluna typed;
-   - the calibration values copied by hand and rounded;
-   - the CM1 run length typed as 59.06 days;
-   - the build labels that Terluna's Makefile patch writes into a comment;
-   - the point in each CM1 patch series before the namelist patches, where gravity and the air are
-     compiled in;
-   - Terluna's gravity, GM/R² without the spin term;
-   - patch 10's ice-optics weights, from the unfiltered Sun;
-   - each GCM run's other run-key inputs, its experiment, purpose and recorded start path, with its point in
-     the ExoPlaSim series;
-   - the 29.5 days of the twilight ring's output that the box's day–night forcing averages;
-   - the restart files Terluna's runs started from, and the products they read, its seas and lakes among
-     them, named by their recorded hashes.
-
-   The products carry Terluna's other states with them, such as the reference tools' Ar/N2 of 0.0093/0.7808
-   and a design column at the sunlight scale of 0.95 and 294.9 K. The lab uses them as recorded in place of
-   its own stages, and stage 5 reproduces each separately.
-   - **Builds.** The lab compiles at its defaults' flags. A run that Terluna made on a stale build, such as
-     the -O2 control of the 45° N twilight pair (defect log C8), is therefore reproduced in its inputs alone.
-   - **Correction.** Correcting a quirk afterwards is a declared delta with a new key, and Terluna's record of
-     the earlier run remains valid.
-   - **Inheritance.** Compatibility settings and recorded keys stay with the study that holds them. A study
-     extending it inherits its runs and cases, which then use the lab's own stages and earn keys of their
-     own.
+8. **Studies extending studies.** A study may extend another: it inherits that study's runs and cases, adds
+   its own and redefines none. An inherited item keeps its settings and their hash, and its product key
+   differs from the parent study's where the scenario or an upstream key differs. A study extending
+   `open-moon` runs the same chain on a changed scenario, as `lab new study` writes it (architecture.md,
+   "A session with the lab").
 9. **Scaling with the scale height.** Where a model's grid follows the scale height, as CM1's does, its
    defaults give their lengths, times and rates at a stated reference state, the gravity, temperature and
    air at which they were tested, from which the lab derives the reference scale height and speed as it
@@ -144,7 +114,7 @@ scenario.
 | `kind` | – | `found`, `crafted` or `illustrative` |
 | `air.reference_level` | – | The level at which the stated pressure holds: `water`, `sea` or `mean-radius` |
 | `air.surface_pressure_pa` | Pa | Total pressure at that level |
-| `air.o2_partial_pressure_pa` or `o2_mole_fraction`, `co2_ppm`, `ar_per_n2` or `ar_mole_fraction`, `balance` | Pa or –, ppm of the total, –, gas | The air, built as Terluna builds it (`exoplasim_run.py:820-821, 843-844`); the lab derives the partial pressures and mole fractions from either form |
+| `air.o2_partial_pressure_pa` or `o2_mole_fraction`, `co2_ppm`, `ar_per_n2` or `ar_mole_fraction`, `balance` | Pa or –, ppm of the total, –, gas | The air: O2 by partial pressure or mole fraction, CO2 in ppm of the total, Ar by its ratio to N2 or its mole fraction, and N2 the balance; the lab derives the mole fractions, and from them the partial pressures |
 | `air.reference_temperature_k` | K | The surface temperature the scenario is stated at, observed for a found scenario and designed or supposed otherwise, with its basis, or `settled`, the GCM's settled global mean, which the fixpoint finds: the design column, the ledger and the gas fits are computed at it, and the scale height and horizon factor take it as their reference |
 | `air.cloud_droplets_per_cm3` | cm⁻³ | The cloud droplets the air's aerosol supports, which CM1's two-moment schemes take |
 | `air.ozone`, `air.water_vapour` | – | `none`, `model-default` or a pinned profile; `prognostic` |
@@ -158,12 +128,12 @@ scenario.
 
 | Quantity | Derivation | The Moon (Open Moon design) | Used by |
 |---|---|---|---|
-| Surface gravity | GM/R² − (2/3)Ω²R, the area mean with the spin term | 1.6242107 m/s²; Terluna's GM/R², 1.6242188765608128 m/s², is a compatibility setting | ExoPlaSim `gravity`; CM1's gravity, compiled in as `TERLUNA_G` until the namelist patches (architecture.md, "Model adapters"); the surface geopotential; every hydrostatic height in the GCM-to-CRM extraction |
+| Surface gravity | GM/R² − (2/3)Ω²R, the area mean with the spin term | 1.6242107 m/s², against Terluna's GM/R² of 1.6242188765608128 m/s² | ExoPlaSim `gravity`; CM1's gravity, compiled in as `TERLUNA_G` until the namelist patches (architecture.md, "Model adapters"); the surface geopotential; every hydrostatic height in the GCM-to-CRM extraction |
 | Rotation rate | 2π/P_rot | 2.6616995 × 10⁻⁶ s⁻¹ | CM1's Coriolis parameter (`cm1_run.py:2038-2040`) |
 | Solar day | 1/(1/P_rot − 1/P_year), or stated | 29.53059 d stated; 29.5305882 d derived | CM1 `var19` (`cm1_run.py:2016`; 2,551,443.0 s). PlaSim's synodic clock derives its own from the rotation and the year (patch 04), 0.2 s a lunar day shorter than CM1's |
-| Partial pressures | p_CO2 = x·p; p_N2 + p_Ar = p − p_O2 − p_CO2, split by Ar/N2 | N2 0.99128639, O2 0.21227, Ar 0.01185725, CO2 0.00048636 bar | ExoPlaSim `configure` |
-| Mole fractions | p_i/p | CO2 4.0 × 10⁻⁴, O2 0.17457850 | CM1's CO2 and O2, compiled in as `TERLUNA_CO2` and `TERLUNA_O2` (written as 0.174579) until the namelist patches |
-| Mass fractions | x_i M_i / Σ x_j M_j, from the partial pressures as Terluna's runner computes them (`exoplasim_run.py:878-882`) | CO2 6.1057 × 10⁻⁴, O2 0.19375 | PlaSim `ZGASW` (patch 08) |
+| Partial pressures | x_i·p, from the mole fractions | N2 0.99128639, O2 0.21227, Ar 0.01185725, CO2 0.00048636 bar | ExoPlaSim `configure` |
+| Mole fractions | CO2 as ppm of the total; O2 as p_O2/p or as given; the rest N2 and Ar, split by Ar/N2 or with Ar as given | CO2 4.0 × 10⁻⁴, O2 0.17457850 | CM1's CO2 and O2, compiled in as `TERLUNA_CO2` and `TERLUNA_O2` (written as 0.174579) until the namelist patches |
+| Mass fractions | x_i M_i / Σ x_j M_j, from the mole fractions | CO2 6.1057 × 10⁻⁴, O2 0.19375 | PlaSim `ZGASW` (patch 08) |
 | Molar mass and gas constant | Σ x_i M_i; 8314.46/M | 28.8319 g/mol; 288.38 J kg⁻¹ K⁻¹ | ExoPlaSim `GASCON`, computed inside ExoPlaSim |
 | ExoPlaSim's rotation period | 1 for a stated one-day solar day, otherwise P_rot (rule 7) | 27.321661 d | `rotationperiod` |
 | ExoPlaSim's days per year | The year in whole days when `rotationperiod` is 1 (`exoplasim/__init__.py:2609-2610`); otherwise N = 12 · max(1, ⌊360/(12 P_rot) + 0.5⌋) (`:2618-2619`) | 12 | `N_DAYS_PER_YEAR` |
@@ -173,7 +143,7 @@ scenario.
 | Sunlight at the top | ∫ S_λ T_λ dλ over the measured spectrum, plus the rest of the total at the longest measured wavelength's transmission (`exoplasim_run.py:976-984`); times (1 AU/a)² and the scale | 1,235.25 W/m² through the shield; 1,198.19 W/m² at Terluna's scale of 0.970 | ExoPlaSim `flux` (`GSOL0`); CM1 `var17` |
 | Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at `air.reference_temperature_k` | At 295 K: 52.4 km, 0.03015, 74,861 kg/m², 7.2 (`paper/data/worlds.json`) | The reach report; deciding whether a column needs a ledger of its own |
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
-| CM1 lengths, times and rates | Lengths × H/H_ref, times × (H/c)/(H/c)_ref, rates × (c/H)/(c/H)_ref (rule 9) | A factor of 1 at the reference state: 6 km columns, a 150 km top, nudging from 8 to 16 km, a 40 s step | CM1's grid, top, nudging heights, `dtl`, `l_inf` and `rdalpha` (`cm1_run.py:1979-2035`) |
+| CM1 lengths, times and rates | Lengths × H/H_ref, times × (H/c)/(H/c)_ref, rates × (c/H)/(c/H)_ref (rule 9) | A factor of 1 at the reference state, and 1 + 5.05 × 10⁻⁶ on the Moon with the spin term: 6 km columns, a 150 km top, nudging from 8 to 16 km, a 40 s step | CM1's grid, top, nudging heights, `dtl`, `l_inf` and `rdalpha` (`cm1_run.py:1979-2035`) |
 | CM1's raindrop limits | Morrison's 0.3 mm breakup and 2.8 mm cap on rain's mean diameter × (9.81/g)^½ | × 2.4576: 0.737 mm and 6.88 mm | `brkup_db`; the cap through a planned patch (registry B28) |
 | CM1's soil layers | CM1's 1 cm top layer × (solar day/1 d)^½, the four below doubling | × 5.4342: a 5.4 cm top layer, 5.4 to 86.9 cm | `slab_dzs`, through a planned patch after core 17 (registry `cm1-soil-day`) |
 | CM1's Sun | Declination asin(sin ε · sin L_s), from the obliquity ε and the case's solar longitude L_s | 0 at the equinox the study's cases take | A planned patch after core 17 (registry `cm1-equinox-sun`); the case's sunrise, −acos(−tan φ tan δ) |
@@ -191,10 +161,10 @@ a case's top soil layer against 1 cm × (solar day/1 d)^½.
 `lab/worldlab/derive.py` computes the quantities of the table above, and its `planet()` gathers them into
 the planet record under the registry's names, each stated value beside its derivation. Three wait for later
 parts of stage 1, which read the manifest's data: the sunlight at the top, the ice-optics weights and the
-pressure at the surface's lowest point. Where the module reproduces a record bit for bit, its
-arithmetic follows the order the record was computed in: the partial pressures and mass fractions as
-Terluna's GCM runner builds them, the mole fractions, molar mass and scale height as
-`paper/tools/regime_calc.py` does, and the calendar as ExoPlaSim's configure and `plasim.f90` count it.
+pressure at the surface's lowest point. Each derivation takes its plainest form, and the calendar follows
+the rounding of ExoPlaSim's configure and `plasim.f90`, which the model applies. The derivations agree with
+`paper/data/regime_calc.json` to one part in 10¹² and with `worlds.json` to its stated digits, and with
+Terluna's records within each comparison's stated tolerance.
 `lab/worldlab/spec.py` codes these rules:
 
 - **Ids.** A world takes its folder's name, a scenario `<world>/<name>`, a model's defaults `<model>/defaults`
@@ -203,27 +173,24 @@ Terluna's GCM runner builds them, the mole fractions, molar mass and scale heigh
 - **References.** `forced_by` and `initial.from` name another GCM run, and `site.ring` and
   `day_night.from_case` another CM1 case of kind `ring`. A run's start lies within its source's
   `model_years`, a case's `reference_model_years` within its forcing run's, and no chain of starts closes
-  on itself. The compatibility tables keyed by name name items of the study.
+  on itself.
 - **Order.** A derived item takes its parent, then its own fields, then its added variants, then its
-  `[set]`. A study's `[compatibility.set]` comes last, when the study reproduces Terluna's runs: its paths
-  that start with a model's name apply to that model's runs or cases, and the rest to the scenario. It
-  applies only where the item's chain left the value of the defaults or of the root scenario, so that a
-  quirk never undoes a declared change, and each of its paths is checked on every resolution.
+  `[set]`.
 - **Variants** add to the parent's and apply in the order the model's defaults define them, which is the
-  order Terluna's builds apply their series in. An item's series are rebuilt from the defaults' and its
+  order in which `models/cm1/builds.json` applies their series. An item's series are rebuilt from the defaults' and its
   variants', so that they never depend on the chain that reached them. `requires` checks; two variants that
   set one path differently are an error, as is a variant that changes a value its parent's chain set.
 - **Changes.** Only an item that extends model defaults adds fields of its own; any other changes through
   `[set]` and variants, and restates a field only with its parent's value, compared as the hash sees it.
-  Descriptive fields (`title`, `purpose`, `recorded_key`) are restated freely and never inherited. A
+  Descriptive fields (`title`, `purpose`) are restated freely and never inherited. A
   `[set]` path names an existing field and leaves structural ones alone (`schema`, `id`, `extends`, `set`,
   `variants`, `model`, `world`, `kind`, `patches`). A table that replaces a table keeps all its keys, which
   refuses the unquoted dotted keys TOML reads as nested tables.
-- **Studies** may extend a study, taking its runs and cases without its compatibility settings or recorded
-  keys; a parent's item is never redefined, only derived from.
+- **Studies** may extend a study, taking its runs and cases; a parent's item is never redefined, only
+  derived from.
 - **The hash** is the sha256 of the resolved settings as JSON with sorted keys, no spaces and floats as
   Python writes them, its descriptive fields left out. It covers an item's own settings; stage 4's product
-  keys add the scenario, the upstream keys and the compatibility state.
+  keys add the scenario and the upstream keys.
 - **Unchosen fields** are listed by path, for the stages that read them to refuse.
 
 `lab/worldlab/data.py` codes rule 4, and `lab/data/manifest.toml` holds its records:
@@ -232,7 +199,7 @@ Terluna's GCM runner builds them, the mole fractions, molar mass and scale heigh
   lowercase hex digits. A plain name takes lowercase letters, digits, `.`, `_` and `-`; a root's path is
   relative, without empty, `.` or `..` parts. A world's `star.spectrum` and `surface.geometry`, and a
   scenario's `sunlight.filter` and `water.lakes_start`, hold a pin or one of `none`, `model-default` and
-  `unchosen`, and Terluna's files enter the seeds elsewhere only through compatibility settings.
+  `unchosen`; these fields alone name Terluna's files in the seeds.
 - **The manifest** keys each entry by its pin without `#` or `@`. An entry holds a title, a use, the licence
   its review found, a credit, the review's date and its files; each file its name, size, sha256 and one
   source, a URL or a Terluna pin, with the date the lab took its bytes. A pin with a digest names one file of
@@ -240,12 +207,11 @@ Terluna's GCM runner builds them, the mole fractions, molar mass and scale heigh
 - **The store** keeps each file at `data/<digest>/<name>`, read-only. A fetch copies from Terluna's roots and
   downloads only when asked, writing through a temporary file and keeping only bytes of the recorded size
   and hash; each read checks both again.
-- **Compatibility pins** carry their digest, and `compat_path` opens Terluna's file in place. Where Terluna
-  has replaced the file under its name, the store's copy of the pinned bytes serves, if the manifest holds one;
-  the manifest holds such copies of Terluna's files that its Git ignores and may rebuild.
+- **Comparisons** read Terluna's records in place, under the Terluna roots, and skip without them; their
+  files enter neither the manifest nor the store.
 
-Still to settle, each in the commit that codes it: the field tables of the defaults, studies, runs, cases
-and compatibility keys, with optional fields and their defaults; the pressure at the surface's lowest point
+Still to settle, each in the commit that codes it: the field tables of the defaults, studies, runs and
+cases, with optional fields and their defaults; the pressure at the surface's lowest point
 and the `water` and `sea` reference levels; and whether sources stay as comments.
 
 ## The Moon worked through
@@ -258,12 +224,12 @@ models:
 | `body.radius_m`, `body.gm_m3_s2` | `shared/constants.json`, through `boundary.planet()` (`boundary.py:162-172`) into `climate/gcm/products/moon_gcm_configuration.json` | ExoPlaSim's radius and gravity (`exoplasim_run.py:814, 840`); CM1's build gravity (`cm1_run.py:969-971`), ring lengths (`:2051-2056`) and box columns (`:1828`); about 15 analysis scripts through `cm1_run.planet()` |
 | `rotation.sidereal_period_days`, `obliquity_deg` | The same chain | ExoPlaSim's `rotationperiod` and `obliquity` (`exoplasim_run.py:841-842`); CM1's Coriolis parameter (`cm1_run.py:2040`) |
 | `rotation.solar_day_days` | The same chain, as `solar_day_days` | CM1's `var19` (`cm1_run.py:2065-2066`); the CRM analyses through `solar_day_s()` |
-| `orbit.from_host`, which takes Earth's year (365.25636 d) and eccentricity (0.0167) | Typed into `exoplasim_run.py:841-842` as 365.25636 d and 0.016715, the second now a compatibility setting of the study | ExoPlaSim's `year` and `eccentricity`, with `fixedorbit` |
+| `orbit.from_host`, which takes Earth's year (365.25636 d) and eccentricity (0.0167) | Typed into `exoplasim_run.py:841-842` as 365.25636 d and 0.016715, the second a typed value beside the 0.0167 of Earth's file | ExoPlaSim's `year` and `eccentricity`, with `fixedorbit` |
 | `star.spectrum`, `constant_w_m2` | The `atmosphere/radiative_convective` inputs (TSIS-1); 1361 typed into `exoplasim_run.py:983` | `sun_<shield>.dat` and `_hr.dat`, copied into the model folder as `sun.dat` and `sun_hr.dat`, and the total flux (`exoplasim_run.py:954-996, 1028-1029`) |
 | `air.*` | `EXPERIMENTS['A28']` with `O2_PA`, `AR_PER_N2` and `CO2_PPM` (`exoplasim_run.py:78-92`) | ExoPlaSim's gases; CM1's build macros, read back from the GCM run's `progress.json` (`cm1_run.py:860-869`) |
-| `water.*` | `EXPERIMENTS['A28']`; `boundary.py`, from the geography products, which the seed derives from the heights and the runoff, and the study pins for reproduction | The T21 land mask and topography (`exoplasim_run.py:934-951`); CM1's surfaces along rings and in boxes, through `boundary.lakes_product` (`cm1_run.py:1607-1632, 1767-1821`) |
+| `water.*` | `EXPERIMENTS['A28']`; `boundary.py`, from the geography products, which the seed derives from the heights and the runoff | The T21 land mask and topography (`exoplasim_run.py:934-951`); CM1's surfaces along rings and in boxes, through `boundary.lakes_product` (`cm1_run.py:1607-1632, 1767-1821`) |
 | `land.albedo` | `MODEL['land_albedo']` (`exoplasim_run.py:98`) | ExoPlaSim's `soilalbedo`; CM1's placeholder land row holds a separate value (`cm1_run.py:1088`) |
-| `sunlight.filter`, `scale` | `EXPERIMENTS['A28']['shield']`; `--set sunlight_scale=0.970` in the session script, now a compatibility setting, since the seed's scale follows its reference temperature | The spectrum files and `GSOL0`; CM1's `var17`, from the GCM run's recorded flux (`cm1_run.py:869, 2013`) |
+| `sunlight.filter`, `scale` | `EXPERIMENTS['A28']['shield']`; `--set sunlight_scale=0.970` in the session script, where the seed's scale follows its reference temperature | The spectrum files and `GSOL0`; CM1's `var17`, from the GCM run's recorded flux (`cm1_run.py:869, 2013`) |
 
 **Two sources on the CM1 side.** CM1 reads the world from `moon_gcm_configuration.json` and again from the
 GCM run's `progress.json`.

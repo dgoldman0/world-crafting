@@ -22,10 +22,10 @@ def _copy_lab(tmp_path):
     return root
 
 
-def _probe(tmp_path, body, *, reproduce=False, head=STUDY_HEAD):
+def _probe(tmp_path, body, *, head=STUDY_HEAD):
     root = _copy_lab(tmp_path)
     (root / 'studies' / 'probe.toml').write_text(head + textwrap.dedent(body))
-    return Library(root).study('probe', reproduce=reproduce)
+    return Library(root).study('probe')
 
 
 def _refused(match):
@@ -40,8 +40,8 @@ def test_every_seed_loads():
     for scenario in ('moon/open-moon', 'moon/open-moon-1.0atm', 'earth/control', 'mars/breathable-1bar'):
         LIB.scenario(scenario)
     study = LIB.study('open-moon')
-    assert set(study.gcm) == {'A28_corrected_970', 'A28_corrected_970_lw_ice'}
-    assert set(study.crm) == {'ring_45n_corrected', 'ring_45n_corrected_twilight', 'box_jura'}
+    assert set(study.gcm) == {'design', 'design_lw_ice'}
+    assert set(study.crm) == {'ring_45n', 'ring_45n_twilight', 'box_jura'}
     assert {'A1', 'B1', 'B28', 'cm1-soil-day', 'cm1-equinox-sun', 'exoplasim-ice-weights'} <= {
         e['id'] for e in LIB.registry()}
 
@@ -62,35 +62,32 @@ def test_the_1_atm_extension_changes_its_set_alone():
 
 def test_the_lw_ice_pair_differs_by_its_delta():
     study = LIB.study('open-moon')
-    design, lw_ice = study.gcm['A28_corrected_970'], study.gcm['A28_corrected_970_lw_ice']
+    design, lw_ice = study.gcm['design'], study.gcm['design_lw_ice']
     assert design.settings['initial'] == 'model-default'
-    assert lw_ice.settings['initial'] == {'from': 'A28_corrected_970', 'model_year': 19}
+    assert lw_ice.settings['initial'] == {'from': 'design', 'model_year': 19}
     assert (design.settings['switches']['ice_optics'], lw_ice.settings['switches']['ice_optics']) == (False, True)
     assert set(lw_ice.delta['set']) == {'initial', 'switches.longwave_correction', 'switches.ice_optics',
                                         'heating_diagnostics'}
-    assert lw_ice.parent == 'A28_corrected_970' and design.parent == 'exoplasim/defaults'
-    assert lw_ice.settings['recorded_key'] == '14070719b35c52d7'    # its own, never its parent's
+    assert lw_ice.parent == 'design' and design.parent == 'exoplasim/defaults'
+    assert lw_ice.settings['purpose'] != design.settings['purpose']   # its own description, never its parent's
     assert design.settings_hash != lw_ice.settings_hash
 
 
 def test_cm1_variants_add_their_series_in_the_builds_order():
     study = LIB.study('open-moon')
-    ring, twilight, box = (study.crm[n] for n in ('ring_45n_corrected', 'ring_45n_corrected_twilight', 'box_jura'))
+    ring, twilight, box = (study.crm[n] for n in ('ring_45n', 'ring_45n_twilight', 'box_jura'))
     assert ring.settings['physics']['twilight'] == 'none' and twilight.settings['physics']['twilight'] == 'full'
     assert twilight.settings['patches'] == ['series-core', 'series-twilight'] and twilight.delta['variants'] == ['twilight']
-    # Terluna's box build applied core, terrain, sea, then twilight (models/cm1/builds.json).
+    # The box's series apply in the order of models/cm1/builds.json: core, terrain, sea, then twilight.
     assert box.settings['patches'] == ['series-core', 'series-terrain', 'series-sea', 'series-twilight']
 
 
-def test_compatibility_applies_only_to_a_reproduction():
-    own, reproduction = LIB.study('open-moon'), LIB.study('open-moon', reproduce=True)
-    assert own.compatibility == {} and reproduction.compatibility['gravity'] == 'gm-over-r2'
-    assert own.scenario['sunlight']['scale'] == 'to-reference-temperature'
-    assert reproduction.scenario['sunlight']['scale'] == 0.970
-    ring_own, ring_rep = own.crm['ring_45n_corrected'].settings, reproduction.crm['ring_45n_corrected'].settings
-    assert (ring_own['physics']['rain_size_limits'], ring_rep['physics']['rain_size_limits']) == ('capillary', 'earth')
-    assert (ring_own['diurnal']['soil_top_layer_m'], ring_rep['diurnal']['soil_top_layer_m']) == (0.01, 0.05)
-    assert reproduction.gcm['A28_corrected_970'].settings == own.gcm['A28_corrected_970'].settings
+def test_the_study_runs_on_the_labs_own_values():
+    study = LIB.study('open-moon')
+    assert study.scenario['sunlight']['scale'] == 'to-reference-temperature'
+    ring = study.crm['ring_45n'].settings
+    assert ring['physics']['rain_size_limits'] == 'capillary' and ring['diurnal']['soil_top_layer_m'] == 0.01
+    assert ring['forced_by'] == 'design' and study.crm['box_jura'].settings['site']['ring'] == 'ring_45n'
 
 
 def test_the_mars_illustration_lists_its_unchosen_fields():
@@ -119,9 +116,9 @@ def test_the_hash_ignores_layout_comments_and_descriptions(tmp_path):
     root = _copy_lab(tmp_path)
     path = root / 'studies' / 'open-moon.toml'
     lines = [line.split('  #')[0].rstrip() for line in path.read_text().splitlines() if not line.startswith('#')]
-    text = '\n'.join(lines).replace('purpose = "the 45 N ring on the corrected design case"', 'purpose = "another"')
+    text = '\n'.join(lines).replace('purpose = "the 45 N ring on the design case"', 'purpose = "another"')
     path.write_text(text)
-    before, after = LIB.study('open-moon').crm['ring_45n_corrected'], Library(root).study('open-moon').crm['ring_45n_corrected']
+    before, after = LIB.study('open-moon').crm['ring_45n'], Library(root).study('open-moon').crm['ring_45n']
     assert after.settings['purpose'] == 'another' and after.settings_hash == before.settings_hash
     assert spec_hash({**before.settings, 'latitude_deg': 44.0}) != before.settings_hash
 
@@ -150,19 +147,35 @@ def test_variants_added_along_a_chain_resolve_as_variants_added_at_once(tmp_path
     assert then.settings_hash == at_once.settings_hash and then.delta['variants'] == ['terrain', 'sea']
 
 
+def test_set_paths_gather_along_a_chain_and_descriptions_stay_with_their_item(tmp_path):
+    study = _probe(tmp_path, '''
+        [crm.c]
+        model = "cm1"
+        extends = "cm1/defaults"
+        latitude_deg = 45.0
+        purpose = "the parent"
+        set = { "diurnal.soil_top_layer_m" = 0.05 }
+
+        [crm.d]
+        extends = "c"
+        set = { "unscaled.damping_base_fraction" = 0.8 }
+        ''')
+    c, d = study.crm['c'], study.crm['d']
+    assert c.set_paths == {'diurnal.soil_top_layer_m'}
+    assert d.set_paths == {'diurnal.soil_top_layer_m', 'unscaled.damping_base_fraction'}
+    assert c.settings['purpose'] == 'the parent' and 'purpose' not in d.settings
+
+
 # Studies that extend studies.
 
-def test_a_study_extending_open_moon_takes_its_runs_without_its_quirks(tmp_path):
-    study = _probe(tmp_path, '', head=STUDY_HEAD.replace('scenario = "moon/open-moon"\n', 'extends = "open-moon"\n'),
-                   reproduce=True)
+def test_a_study_extending_open_moon_takes_its_runs_and_cases(tmp_path):
+    study = _probe(tmp_path, '', head=STUDY_HEAD.replace('scenario = "moon/open-moon"\n', 'extends = "open-moon"\n'))
     own = LIB.study('open-moon')
-    assert study.parent == 'open-moon' and study.compatibility == {}
-    assert study.scenario['sunlight']['scale'] == 'to-reference-temperature'
+    assert study.parent == 'open-moon' and study.scenario == own.scenario
     for table in ('gcm', 'crm'):
         mine, theirs = getattr(study, table), getattr(own, table)
         assert set(mine) == set(theirs)
         for name in mine:
-            assert 'recorded_key' not in mine[name].settings
             assert mine[name].settings_hash == theirs[name].settings_hash
 
 
@@ -192,29 +205,12 @@ def test_a_study_extending_open_moon_takes_its_runs_without_its_quirks(tmp_path)
      '[crm.c]\nmodel = "cm1"\nextends = "cm1/defaults"\nforced_by = "g"\nreference_model_years = [10, 20]\n', 'outside the 20'),
     ('[crm.c]\nmodel = "cm1"\nextends = "cm1/defaults"\nforced_by = "missing"\n', 'forced_by'),
     ('[crm.c]\nmodel = "cm1"\nextends = "cm1/defaults"\nkind = "box"\nsite = { ring = "c" }\n', 'not another ring'),
-    ('[compatibility.cm1_build_labels]\nnowhere = "moon_omp_o3"\n', 'name no item'),
-    ('[compatibility.set]\n"cm1.physics.twilight_typo" = "none"\n', 'names no field'),
-    ('[compatibility.set]\n"sunlight.scael" = 0.97\n', 'names no field'),
     ('[cases]\n', 'unknown top-level'),
+    ('[compatibility]\ngravity = "gm-over-r2"\n', 'unknown top-level'),
 ])
 def test_ill_formed_studies_are_refused(tmp_path, body, message):
     with _refused(message):
         _probe(tmp_path, body)
-
-
-def test_compatibility_may_not_undo_a_declared_change(tmp_path):
-    body = '''
-        [compatibility.set]
-        "cm1.physics.twilight" = "none"
-
-        [crm.c]
-        model = "cm1"
-        extends = "cm1/defaults"
-        variants = ["twilight"]
-        '''
-    assert _probe(tmp_path / 'a', body).crm['c'].settings['physics']['twilight'] == 'full'
-    with _refused('would undo'):
-        _probe(tmp_path / 'b', body, reproduce=True)
 
 
 def test_a_variant_may_not_change_what_its_parent_set(tmp_path):

@@ -482,9 +482,9 @@ lab new scenario moon/open-moon-0.960 --extends moon/open-moon --set sunlight.sc
 lab new study open-moon-0.960 --extends open-moon --scenario moon/open-moon-0.960   # runs and cases, own keys
 lab plan open-moon-0.960                         # stale products, their order and their cost
 lab make open-moon-0.960                         # fits, builds, GCM runs and CM1 cases, within the budget
-lab diff open-moon:A28_corrected_970 open-moon:A28_corrected_970_lw_ice   # resolved inputs that differ
+lab diff open-moon:design open-moon:design_lw_ice                     # resolved inputs that differ
 lab status                                       # the runner's jobs: running, waiting, stopped, with progress
-lab stop open-moon-0.960:A28_corrected_970       # the runner writes the job's stop file; it resumes later
+lab stop open-moon-0.960:design                  # the runner writes the job's stop file; it resumes later
 ```
 
 ## Decisions

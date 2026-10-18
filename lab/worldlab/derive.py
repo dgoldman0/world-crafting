@@ -2,10 +2,9 @@
 
 `planet()` gathers them into the planet record, under the names the registry's tests use (world_spec.md, "The
 first derived quantities"), with each stated value beside its derivation. The functions it calls are the
-derivations, one for each quantity. Where a record of Terluna's or the paper's data is reproduced bit for bit,
-the arithmetic follows the order it was computed in: the partial pressures and mass fractions as Terluna's GCM
-runner builds them, the mole fractions, molar mass and scale height as paper/tools/regime_calc.py does, and the
-calendar as ExoPlaSim's configure and plasim.f90 count it.
+derivations, one for each quantity, each written in its plainest form. ExoPlaSim's calendar follows the model's
+own rounding, as its configure and plasim.f90 count it, since the lab predicts the days and steps the model will
+take.
 """
 from __future__ import annotations
 
@@ -14,9 +13,8 @@ import math
 from .spec import SpecError, unchosen
 
 DAY_S = 86400.0
-R_GAS = 8.314462618                      # J mol-1 K-1 (CODATA 2018), as paper/tools/regime_calc.py takes it
-MOLAR_MASS = {'N2': 28.0134, 'O2': 31.9988, 'Ar': 39.948, 'CO2': 44.0095}             # g/mol, the paper's
-MOLAR_KG = {'pN2': 0.0280134, 'pO2': 0.0319988, 'pAr': 0.039948, 'pCO2': 0.0440095}   # kg/mol, Terluna's runner
+R_GAS = 8.314462618                      # J mol-1 K-1, CODATA 2018
+MOLAR_MASS = {'N2': 28.0134, 'O2': 31.9988, 'Ar': 39.948, 'CO2': 44.0095}             # g/mol
 CM1_EARTH_G = 9.81                       # CM1's and Morrison's Earth gravity
 STANDARD_G = 9.80665
 # A stated value must lie this close to its derivation (world_spec.md, rule 2), relatively; a breach refuses.
@@ -25,26 +23,24 @@ TOLERANCE = {'gravity_m_s2': 2e-3, 'solar_day_days': 1e-5}
 
 # The planet record.
 
-def planet(world: dict, scenario: dict, *, exoplasim: dict | None = None, compat: dict | None = None) -> dict:
+def planet(world: dict, scenario: dict, *, exoplasim: dict | None = None) -> dict:
     """The planet record: the quantities of world_spec.md's table that the world and scenario fix, under the
-    registry's names, and ExoPlaSim's calendar where its defaults are given. `compat` is a reproduction's
-    compatibility settings, whose `gravity` chooses Terluna's GM/R². `stated` holds each stated value beside
-    its derivation. The sunlight at the top and the ice-optics weights wait for the data manifest, and the
-    pressure at the surface's lowest point for the world's heights."""
-    rule = (compat or {}).get('gravity', 'with-spin')
-    g = gravity(world, rule=rule)
+    registry's names, and ExoPlaSim's calendar where its defaults are given. `stated` holds each stated value
+    beside its derivation. The sunlight at the top, the ice-optics weights and the pressure at the surface's
+    lowest point come with the derivations that read the manifest's data."""
+    g = gravity(world)
     stated = {}
-    if rule == 'with-spin' and world['body'].get('gravity_m_s2') is not None:
+    if world['body'].get('gravity_m_s2') is not None:
         stated['gravity_m_s2'] = dict(stated=world['body']['gravity_m_s2'], derived=gravity_derived(world))
     if world['rotation'].get('solar_day_days') is not None:
         stated['solar_day_days'] = dict(stated=world['rotation']['solar_day_days'], derived=solar_day_derived(world))
     day = solar_day_days(world)
-    pressures, fractions = partial_pressures_bar(scenario), mole_fractions(scenario)
-    molar_mass = molar_mass_g_mol(fractions)
+    fractions = mole_fractions(scenario)
+    pressures, molar_mass = partial_pressures_bar(scenario), molar_mass_g_mol(fractions)
     record = dict(gravity_m_s2=g, rotation_rate_rad_s=rotation_rate(world), solar_day_days=day,
                   exoplasim_rotationperiod_days=exoplasim_rotationperiod_days(world),
                   partial_pressures_bar=pressures, mole_fractions=fractions, molar_mass_g_mol=molar_mass,
-                  zgasw=zgasw(pressures), specific_gas_constant=specific_gas_constant(molar_mass),
+                  zgasw=zgasw(fractions), specific_gas_constant=specific_gas_constant(molar_mass),
                   capillary_factor=capillary_factor(g), soil_factor=soil_factor(day), stated=stated)
     if scenario['air']['reference_temperature_k'] != 'settled':
         radius = world['body']['radius_m']
@@ -61,7 +57,7 @@ def planet(world: dict, scenario: dict, *, exoplasim: dict | None = None, compat
 
 def gravity(world: dict, *, rule: str = 'with-spin') -> float:
     """Surface gravity: GM/R² less the spin term (2/3)Ω²R, the area mean, unless the world states it with its
-    basis. `rule` 'gm-over-r2' is Terluna's GM/R², a compatibility setting."""
+    basis. `rule` 'gm-over-r2' gives GM/R² alone, the basis of the paper's regime data."""
     body = world['body']
     if rule == 'gm-over-r2':
         return body['gm_m3_s2'] / body['radius_m'] ** 2
@@ -112,6 +108,9 @@ def _air(scenario: dict) -> dict:
     """The scenario's air, refused where a field it needs is unchosen, its balance other than N2, or a gas given
     in two forms."""
     air = scenario['air']
+    missing = [k for k in ('surface_pressure_pa', 'co2_ppm') if k not in air]
+    if missing:
+        raise SpecError(f'{scenario["id"]}: the air states no {missing}')
     if air.get('balance') != 'N2':
         raise SpecError(f'{scenario["id"]}: the balance gas is {air.get("balance")!r}; the lab builds N2-balanced air')
     for gas, forms in (('O2', ('o2_partial_pressure_pa', 'o2_mole_fraction')), ('Ar', ('ar_per_n2', 'ar_mole_fraction'))):
@@ -126,32 +125,31 @@ def _air(scenario: dict) -> dict:
     return air
 
 
-def partial_pressures_bar(scenario: dict) -> dict:
-    """The dry air's partial pressures, bar, in the order Terluna's GCM runner builds them
-    (climate/gcm/exoplasim_run.py:820-821, 843-844): CO2 as ppm of the total; O2 as given; the rest split
-    between N2 and Ar by their ratio, or Ar as given and N2 the balance."""
-    air = _air(scenario)
-    dry = air['surface_pressure_pa'] / 1e5
-    co2 = air['co2_ppm'] * 1e-6 * dry
-    o2 = air['o2_partial_pressure_pa'] / 1e5 if 'o2_partial_pressure_pa' in air else air['o2_mole_fraction'] * dry
-    if 'ar_per_n2' in air:
-        rest, ratio = dry - o2 - co2, air['ar_per_n2']
-        return dict(pN2=rest / (1 + ratio), pO2=o2, pAr=rest * ratio / (1 + ratio), pCO2=co2)
-    ar = air['ar_mole_fraction'] * dry
-    return dict(pN2=dry - o2 - ar - co2, pO2=o2, pAr=ar, pCO2=co2)
-
-
 def mole_fractions(scenario: dict) -> dict:
-    """The dry air's mole fractions, as paper/tools/regime_calc.py computes them."""
+    """The dry air's mole fractions: CO2 as ppm of the total, O2 as given, and the rest N2 and Ar, split by
+    their ratio or with Ar as given and N2 the balance. Stated gases beyond the total are refused."""
     air = _air(scenario)
     co2 = air['co2_ppm'] / 1e6
     o2 = (air['o2_partial_pressure_pa'] / air['surface_pressure_pa'] if 'o2_partial_pressure_pa' in air
           else air['o2_mole_fraction'])
+    rest = 1.0 - o2 - co2
     if 'ar_per_n2' in air:
-        n2 = (1 - o2 - co2) / (1 + air['ar_per_n2'])
-        return dict(N2=n2, O2=o2, Ar=n2 * air['ar_per_n2'], CO2=co2)
-    ar = air['ar_mole_fraction']
-    return dict(N2=1 - o2 - ar - co2, O2=o2, Ar=ar, CO2=co2)
+        n2 = rest / (1.0 + air['ar_per_n2'])
+        ar = n2 * air['ar_per_n2']
+    else:
+        ar = air['ar_mole_fraction']
+        n2 = rest - ar
+    fractions = dict(N2=n2, O2=o2, Ar=ar, CO2=co2)
+    if min(fractions.values()) < 0.0:
+        raise SpecError(f'{scenario["id"]}: the stated gases exceed the total pressure, leaving {fractions}')
+    return fractions
+
+
+def partial_pressures_bar(scenario: dict) -> dict:
+    """The dry air's partial pressures, bar: each gas's mole fraction of the total."""
+    fractions = mole_fractions(scenario)
+    total = scenario['air']['surface_pressure_pa'] / 1e5
+    return {f'p{gas}': x * total for gas, x in fractions.items()}
 
 
 def molar_mass_g_mol(fractions: dict) -> float:
@@ -159,12 +157,10 @@ def molar_mass_g_mol(fractions: dict) -> float:
             + fractions['Ar'] * MOLAR_MASS['Ar'] + fractions['CO2'] * MOLAR_MASS['CO2'])
 
 
-def zgasw(pressures_bar: dict) -> dict:
-    """The mass fractions of CO2 and O2 that PlaSim's ZGASW takes (patch 08), from the partial pressures as
-    Terluna's runner computes them (climate/gcm/exoplasim_run.py:878-882)."""
-    total = sum(pressures_bar.values())
-    molar = sum(pressures_bar[k] / total * MOLAR_KG[k] for k in pressures_bar)
-    return {gas: pressures_bar[f'p{gas}'] / total * MOLAR_KG[f'p{gas}'] / molar for gas in ('CO2', 'O2')}
+def zgasw(fractions: dict) -> dict:
+    """The mass fractions of CO2 and O2 that PlaSim's ZGASW takes (patch 08): x_i M_i / Σ x_j M_j."""
+    molar_mass = molar_mass_g_mol(fractions)
+    return {gas: fractions[gas] * MOLAR_MASS[gas] / molar_mass for gas in ('CO2', 'O2')}
 
 
 def specific_gas_constant(molar_mass: float) -> float:
@@ -183,7 +179,7 @@ def reference_temperature_k(scenario: dict) -> float:
 
 
 def scale_height_m(temperature_k: float, molar_mass: float, gravity_m_s2: float) -> float:
-    """H = RT/(Mg), as paper/tools/regime_calc.py computes it."""
+    """H = RT/(Mg)."""
     return R_GAS * temperature_k / (molar_mass / 1000 * gravity_m_s2)
 
 
@@ -308,18 +304,17 @@ SCALED_TABLES = {'scaled_length': 'length', 'scaled_time': 'time', 'scaled_rate'
                  'capillary': 'capillary', 'diurnal': 'soil'}
 
 
-def cm1_factors(world: dict, scenario: dict, defaults: dict, *, gravity_rule: str = 'with-spin',
-                temperature_k: float | None = None) -> dict:
+def cm1_factors(world: dict, scenario: dict, defaults: dict, *, temperature_k: float | None = None) -> dict:
     """The factors on CM1's scaled values (world_spec.md, rule 9): lengths by H/H_ref, times by (H/c)/(H/c)_ref
     and rates by its inverse, with H = RT/(Mg) and c = (RT/M)^½ at the scenario's reference temperature, or at
     `temperature_k`, the fixpoint's, where given; raindrop limits by the capillary factor, soil layers by the
     soil factor. The reference state is derived from the defaults' [reference] as a scenario's is, so that a
-    case at that state scales by exactly 1."""
+    case at that state scales by 1."""
     ref = defaults['reference']
     m_ref = molar_mass_g_mol(mole_fractions({'id': 'cm1/defaults [reference]', 'air': ref['air']}))
     h_ref = scale_height_m(ref['temperature_k'], m_ref, ref['gravity_m_s2'])
     c_ref = math.sqrt(R_GAS * ref['temperature_k'] / (m_ref / 1000))
-    g = gravity(world, rule=gravity_rule)
+    g = gravity(world)
     t = reference_temperature_k(scenario) if temperature_k is None else temperature_k
     m = molar_mass_g_mol(mole_fractions(scenario))
     h, c = scale_height_m(t, m, g), math.sqrt(R_GAS * t / (m / 1000))
@@ -329,8 +324,8 @@ def cm1_factors(world: dict, scenario: dict, defaults: dict, *, gravity_rule: st
 
 
 def cm1_values(settings: dict, factors: dict, *, set_paths: frozenset = frozenset()) -> dict:
-    """A case's scaled values: each field of its scaled tables times its factor, unless the case's chain or its
-    compatibility settings set it, when it stands as set (rule 9). The raindrop limits follow the case's
+    """A case's scaled values: each field of its scaled tables times its factor, unless the case's chain sets it,
+    when it stands as set (rule 9). The raindrop limits follow the case's
     `physics.rain_size_limits`: `earth` keeps Morrison's own, `breakup-only` scales the breakup diameter alone."""
     limits = settings['physics']['rain_size_limits']
     out = {}

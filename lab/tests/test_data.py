@@ -1,8 +1,7 @@
-"""The data manifest: pins, the manifest's records, the store's copies, and the compatibility pins' files."""
+"""The data manifest: pins, the manifest's records and the store's copies."""
 import datetime
 import hashlib
 import json
-import os
 import stat
 import tomllib
 
@@ -15,11 +14,9 @@ from worldlab.spec import LAB, Library
 
 LIB = Library()
 MANIFEST = Manifest()
-STORE, TERLUNA, DRIVE = root('store'), root('terluna'), root('terluna-drive')
+STORE, TERLUNA = root('store'), root('terluna')
 needs_store = pytest.mark.skipif(STORE is None, reason='the store is unset (lab/local.example.toml)')
 needs_repo = pytest.mark.skipif(TERLUNA is None, reason="Terluna's repository is unset (lab/local.example.toml)")
-needs_terluna = pytest.mark.skipif(TERLUNA is None or DRIVE is None,
-                                   reason="Terluna's repository or research drive is unset (lab/local.example.toml)")
 SEEDS = [p for p in LAB.glob('*/**/*.toml') if p.parts[len(LAB.parts)] in ('worlds', 'configs', 'studies', 'registry')]
 
 
@@ -37,11 +34,6 @@ def _strings(tree, prefix=''):
             yield from _strings(value, prefix)
     elif isinstance(tree, str):
         yield prefix[:-1], tree
-
-
-def _compat_pins():
-    compatibility = LIB.study('open-moon', reproduce=True).compatibility
-    return [(field, value) for field, value in _strings(compatibility) if value.startswith(('terluna:', 'terluna-drive:'))]
 
 
 def _seed_pins():
@@ -124,24 +116,22 @@ def test_every_entry_records_its_licence_credit_and_one_source_for_each_file():
             assert f.url is None or f.url.startswith('https://')
 
 
-def test_the_manifest_holds_the_seeds_pins_and_copies_of_compatibility_pins_alone():
+def test_the_manifest_holds_the_seeds_pins_alone():
     seeds = {p.name for p in _seed_pins()}
-    compat = {parse_pin(value).name for _, value in _compat_pins()}
-    assert seeds <= set(MANIFEST.entries) and set(MANIFEST.entries) <= seeds | compat
-    assert seeds == {'tsis1-hsrs-stride100', 'lola-ldem16-grail-jggrx0420a',
+    assert seeds == set(MANIFEST.entries) == {'tsis1-hsrs-stride100', 'lola-ldem16-grail-jggrx0420a',
                      'terluna:protection/spectra/shield_transmission.json',
                      'terluna:geography/products/drainage_28pct_16ppd.npz'}
     for pin in _seed_pins():
         assert MANIFEST.files(pin)
 
 
-def test_terlunas_files_enter_the_seeds_only_through_pin_fields_and_compatibility_settings():
+def test_terlunas_files_enter_the_seeds_only_through_pin_fields():
     assert SEEDS
     for path in SEEDS:
         kind = 'world' if path.name == 'world.toml' else 'scenario' if path.parent.name == 'scenarios' else None
         for field, value in _strings(tomllib.loads(path.read_text())):
             if value.startswith(('terluna:', 'terluna-drive:')):
-                assert field.startswith('compatibility.') or (kind and field in data.PIN_FIELDS[kind]), (path, field)
+                assert kind and field in data.PIN_FIELDS[kind], (path, field)
 
 
 @needs_repo
@@ -289,40 +279,6 @@ def test_an_entry_of_several_files_names_one_by_its_digest(tmp_path):
         manifest.files('x@0123456789abcdef')
 
 
-def test_a_compatibility_pin_falls_back_to_the_stores_copy_of_its_bytes(terluna, tmp_path, monkeypatch):
-    repo, store = terluna
-    (repo / 'lakes.npz').write_bytes(b'old')
-    manifest = Manifest(_manifest(tmp_path, [_record('lakes.npz', b'old', source='terluna:lakes.npz')],
-                                  name='terluna:lakes.npz'))
-    pin = f"terluna:lakes.npz@{_digest(b'old')}"
-    assert data.compat_path(pin, manifest=manifest, store=store, lab=tmp_path) == repo / 'lakes.npz'
-    manifest.fetch(store=store, lab=tmp_path)
-    copy = store / 'data' / _digest(b'old') / 'lakes.npz'
-    (repo / 'lakes.npz').write_bytes(b'new')                  # Terluna regenerates its lakes in place
-    assert data.compat_path(pin, manifest=manifest, store=store, lab=tmp_path) == copy
-    assert copy.read_bytes() == b'old'
-    monkeypatch.delenv('TERLUNA_REPO')
-    assert data.compat_path(pin, manifest=manifest, store=store, lab=tmp_path) == copy
-
-    renamed = f"terluna:other/seas.npz@{_digest(b'old')}"       # the pinned digest, under another file's name
-    with pytest.raises(DataError, match='unset'):
-        data.compat_path(renamed, manifest=manifest, store=store, lab=tmp_path)
-    os.chmod(copy, 0o644)
-    copy.write_bytes(b'odd')
-    with pytest.raises(DataError, match='differ'):
-        data.compat_path(pin, manifest=manifest, store=store, lab=tmp_path)
-    with pytest.raises(DataError, match='with its digest'):
-        data.compat_path('terluna:lakes.npz', manifest=manifest, store=store, lab=tmp_path)
-
-
-def test_a_compatibility_pin_without_a_copy_refuses_terlunas_changed_file(terluna, tmp_path):
-    repo, store = terluna
-    (repo / 'seas.npz').write_bytes(b'new')
-    manifest = Manifest(_manifest(tmp_path, [_record('a.json', b'{}', source='terluna:a.json')]))
-    with pytest.raises(DataError, match='missing or has changed'):
-        data.compat_path(f"terluna:seas.npz@{_digest(b'old')}", manifest=manifest, store=store, lab=tmp_path)
-
-
 def test_the_command_line_reports_refusals_and_takes_download_with_fetch(tmp_path, capsys, monkeypatch):
     monkeypatch.delenv('WORLDLAB_STORE', raising=False)
     manifest = Manifest(_manifest(tmp_path, [_record('a.json', b'{}', source='terluna:a.json')]))
@@ -333,14 +289,6 @@ def test_the_command_line_reports_refusals_and_takes_download_with_fetch(tmp_pat
 
 
 # This machine's store, and Terluna's files.
-
-def test_each_compatibility_pin_names_a_file_of_terlunas_with_its_digest():
-    pins = _compat_pins()
-    assert len(pins) == 6
-    for field, value in pins:
-        pin = parse_pin(value)
-        assert pin.root in data.ROOTS and pin.digest is not None, field
-
 
 @needs_store
 def test_the_store_holds_every_file_of_the_manifest():
@@ -354,10 +302,3 @@ def test_the_open_moons_filter_names_an_entry_of_its_file():
     pin = parse_pin(LIB.scenario('moon/open-moon')['sunlight']['filter'])
     product = json.loads(MANIFEST.path(pin).read_text())
     assert len(product['transmission'][pin.entry]) == len(product['wavelength_nm'])
-
-
-@needs_terluna
-def test_terlunas_files_hold_the_bytes_the_compatibility_pins_name():
-    for field, value in _compat_pins():
-        path = data.compat_path(value)
-        assert hashlib.sha256(path.read_bytes()).hexdigest().startswith(parse_pin(value).digest), field

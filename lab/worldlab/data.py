@@ -7,10 +7,8 @@ drive. `#<entry>` selects an entry in the file, and `@<digest>` gives the first 
 The lab's own stages read data through the manifest, lab/data/manifest.toml. Each entry there lists its files,
 each with its size, sha256, one source (a URL to download, or a Terluna pin to copy) and the date the lab took
 its bytes, beside the entry's licence and credit; the lab's copy of each file sits in the store as
-data/<digest>/<name>, read-only. A study's compatibility pins name Terluna's files themselves, which a
-reproduction opens in place and checks against the pin's digest; where Terluna's file has changed since, the
-store's copy of the pinned bytes serves, when the manifest records them. Nothing is substituted: a file
-missing, or of another size or hash than its record, raises DataError, and a fetch keeps only bytes that match.
+data/<digest>/<name>, read-only. Nothing is substituted: a file missing, or of another size or hash than its
+record, raises DataError, and a fetch keeps only bytes that match.
 
     PYTHONPATH=lab python -m worldlab.data                       # each file's state in the store
     PYTHONPATH=lab python -m worldlab.data --fetch               # copy what Terluna's roots hold
@@ -145,7 +143,6 @@ class Manifest:
     def __init__(self, path: Path = MANIFEST):
         self.toml = Path(path)
         self.entries = _load(self.toml)
-        self._by_digest = {f.digest: f for e in self.entries.values() for f in e['files']}
 
     def entry(self, pin) -> dict:
         pin = parse_pin(pin)
@@ -163,9 +160,6 @@ class Manifest:
         if not chosen:
             raise DataError(f'{pin.name!r} holds no file of digest {pin.digest}')
         return chosen
-
-    def by_digest(self, digest: str) -> File | None:
-        return self._by_digest.get(digest)
 
     def paths(self, pin, *, store: Path | None = None, lab: Path = LAB) -> dict[str, Path]:
         """Each of the pin's files in the store, by name, after its size and sha256 are checked."""
@@ -215,29 +209,6 @@ class Manifest:
 
     def _chosen(self, names) -> list[File]:
         return [f for name in (names or self.entries) for f in self.files(name)]
-
-
-def compat_path(pin, *, manifest: Manifest | None = None, store: Path | None = None, lab: Path = LAB) -> Path:
-    """A compatibility pin's file: Terluna's own, in place, whose sha256 begins with the pin's digest; or, where
-    Terluna's file has changed or is absent, the store's copy of the pinned bytes, where the manifest records them
-    under the pinned file's name. The check holds at the call: a caller that reads Terluna's file later, while
-    Terluna may rewrite it, hashes what it reads."""
-    pin = parse_pin(pin)
-    if pin.root is None or pin.digest is None:
-        raise DataError(f"{pin.name!r}: a compatibility pin names a file under one of Terluna's roots, with its digest")
-    base = root(pin.root, lab)
-    if base is not None and (base / pin.path).is_file():
-        path = base / pin.path
-        if _digest_of(path).startswith(pin.digest):
-            return path
-    record = (manifest or Manifest()).by_digest(pin.digest)
-    if record is not None and record.name == pin.path.rsplit('/', 1)[-1]:
-        return checked(record.in_store(_store(store, lab)), record)
-    if base is None:
-        raise DataError(f"{pin.name!r}: the root {pin.root!r} is unset (${VARIABLES[pin.root]} or lab/local.toml), "
-                        'and the manifest holds no copy of its bytes')
-    raise DataError(f"{pin.name!r}: Terluna's file is missing or has changed since the pin's digest {pin.digest}, "
-                    'and the manifest holds no copy of its bytes')
 
 
 # Files and their checks.

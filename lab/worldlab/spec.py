@@ -19,16 +19,15 @@ from pathlib import Path
 LAB = Path(__file__).resolve().parent.parent
 
 # Fields that describe an item without changing what a model computes. They stay out of the hash, a derived
-# item restates them freely, and it inherits none of them, so that Terluna's recorded key for a parent stays
-# with the parent.
-DESCRIPTIVE = frozenset({'title', 'purpose', 'recorded_key'})
+# item restates them freely, and it inherits none of them, so that a parent's description stays with the parent.
+DESCRIPTIVE = frozenset({'title', 'purpose'})
 IDENTITY = frozenset({'schema', 'id'})
 CONTROL = frozenset({'extends', 'set', 'variants'})
-# Fields that neither [set] nor a compatibility setting may change: what an item is, and what its variants make it.
+# Fields that only extends and variants change: what an item is, and what its variants make it.
 STRUCTURAL = IDENTITY | CONTROL | {'model', 'world', 'kind', 'patches'}
 TABLES = {'gcm': 'exoplasim', 'crm': 'cm1'}
 MODELS = tuple(TABLES.values())
-STUDY_KEYS = frozenset({'schema', 'id', 'title', 'scenario', 'extends', 'compatibility', *TABLES})
+STUDY_KEYS = frozenset({'schema', 'id', 'title', 'scenario', 'extends', *TABLES})
 REGISTRY_ACTIONS = frozenset({'require-switch', 'require-build', 'require-refit', 'warn', 'refuse'})
 REGISTRY_STATES = frozenset({'repaired', 'calibrated', 'bounded', 'open'})
 
@@ -120,11 +119,9 @@ def _read(path: Path) -> dict:
 class Item:
     """A resolved GCM run or CM1 case.
 
-    `settings_hash` covers the item's own resolved settings alone. Stage 4's product key adds the
-    scenario, the upstream products' keys and the compatibility state, so the lab's own run and its
-    reproduction of Terluna's share a settings hash and differ in their keys. `set_paths` are the paths that
-    [set] changed along the item's chain, with the compatibility paths applied to it: values a study states
-    as they apply there, which CM1's scaling leaves as they are (world_spec.md, rule 9).
+    `settings_hash` covers the item's own resolved settings alone; stage 4's product key adds the scenario
+    and the upstream products' keys. `set_paths` are the paths that [set] changed along the item's chain:
+    values a study states as they apply there, which CM1's scaling leaves as they are (world_spec.md, rule 9).
     """
     study: str
     name: str
@@ -138,15 +135,12 @@ class Item:
 
 @dataclass(frozen=True)
 class Study:
-    """A resolved study. `compatibility` holds Terluna's quirks when the study reproduces its runs, and is
-    empty otherwise, so that no adapter applies them by mistake."""
+    """A resolved study: its scenario, and its GCM runs and CM1 cases by name."""
     id: str
     parent: str | None
     scenario: dict
     gcm: dict
     crm: dict
-    compatibility: dict
-    reproduce: bool
 
 
 class Library:
@@ -171,17 +165,11 @@ class Library:
             world['orbit'] = {**host_orbit, 'from_host': orbit['from_host']}
         return world
 
-    def scenario(self, scenario_id: str, compat_set: dict | None = None) -> dict:
-        """A scenario resolved through its `extends` chain, with a study's compatibility paths applied if given."""
-        resolved, root = self._scenario(scenario_id, ())
-        for path, value in (compat_set or {}).items():
-            if path.split('.', 1)[0] in MODELS:
-                continue
-            _apply_compat(resolved, root, path, value, where=f'{scenario_id} [compatibility.set]')
-        return resolved
+    def scenario(self, scenario_id: str) -> dict:
+        """A scenario resolved through its `extends` chain."""
+        return self._scenario(scenario_id, ())
 
-    def _scenario(self, scenario_id: str, seen: tuple) -> tuple[dict, dict]:
-        """The resolved scenario and the root of its chain, against which compatibility paths are checked."""
+    def _scenario(self, scenario_id: str, seen: tuple) -> dict:
         if scenario_id in seen:
             raise SpecError(f'{scenario_id}: extends itself through {" -> ".join(seen)}')
         world_id, sep, name = scenario_id.partition('/')
@@ -194,11 +182,11 @@ class Library:
         if 'extends' not in raw:
             if raw.get('world') != world_id:
                 raise SpecError(f'{scenario_id}: world {raw.get("world")!r} differs from its folder {world_id!r}')
-            return raw, copy.deepcopy(raw)
-        parent, root = self._scenario(raw['extends'], seen + (scenario_id,))
+            return raw
+        parent = self._scenario(raw['extends'], seen + (scenario_id,))
         if parent.get('world') != world_id:
             raise SpecError(f'{scenario_id}: extends a scenario of another world')
-        return _derive(parent, raw, where=scenario_id, may_add=False), root
+        return _derive(parent, raw, where=scenario_id, may_add=False)
 
     # Model defaults and studies.
 
@@ -210,31 +198,23 @@ class Library:
         _check_identity(raw, f'worldlab.defaults.{model}/0', defaults_id)
         return raw
 
-    def study(self, study_id: str, *, reproduce: bool = False) -> Study:
-        """A study with every run and case resolved; `reproduce` applies its compatibility settings."""
+    def study(self, study_id: str) -> Study:
+        """A study with every run and case resolved."""
         raw, parent_id = self._study_raw(study_id, ())
         if 'scenario' not in raw:
             raise SpecError(f'{study_id}: names no scenario')
-        compatibility = raw.get('compatibility', {})
-        compat_set = compatibility.get('set', {})
-        scenario = self.scenario(raw['scenario'], compat_set if reproduce else None)
-        self._check_compat_paths(study_id, raw['scenario'], compat_set)
+        scenario = self.scenario(raw['scenario'])
         tables = {}
         for table, model in TABLES.items():
             memo = {}
             for name in raw.get(table, {}):
                 self._item(study_id, raw[table], name, model, memo, ())
             tables[table] = memo
-        if reproduce:
-            for table, model in TABLES.items():
-                tables[table] = {name: self._reproduce(item, compat_set) for name, item in tables[table].items()}
-        _check_references(study_id, tables, compatibility)
-        return Study(study_id, parent_id, scenario, tables['gcm'], tables['crm'],
-                     copy.deepcopy(compatibility) if reproduce else {}, reproduce)
+        _check_references(study_id, tables)
+        return Study(study_id, parent_id, scenario, tables['gcm'], tables['crm'])
 
     def _study_raw(self, study_id: str, seen: tuple) -> tuple[dict, str | None]:
-        """A study's own file with the runs and cases of the study it extends, which bring no compatibility
-        settings and no recorded keys with them (world_spec.md, rule 8)."""
+        """A study's own file with the runs and cases of the study it extends (world_spec.md, rule 8)."""
         if study_id in seen:
             raise SpecError(f'{study_id}: extends itself through {" -> ".join(seen)}')
         raw = _read(self.root / 'studies' / f'{study_id}.toml')
@@ -247,8 +227,7 @@ class Library:
             return raw, None
         parent, _ = self._study_raw(parent_id, seen + (study_id,))
         for table in TABLES:
-            inherited = {name: {k: v for k, v in item.items() if k != 'recorded_key'}
-                         for name, item in parent.get(table, {}).items()}
+            inherited = parent.get(table, {})
             clash = set(inherited) & set(raw.get(table, {}))
             if clash:
                 raise SpecError(f'{study_id}: redefines {sorted(clash)} of {parent_id}; derive a new item instead')
@@ -287,29 +266,6 @@ class Library:
                     inherited | frozenset(raw.get('set', {})))
         memo[name] = item
         return item
-
-    def _reproduce(self, item: Item, compat_set: dict) -> Item:
-        settings = copy.deepcopy(item.settings)
-        defaults = self.defaults(f'{item.model}/defaults')
-        applied = set()
-        for path, value in compat_set.items():
-            root, _, rest = path.partition('.')
-            if root == item.model:
-                _apply_compat(settings, defaults, rest, value, where=f'{item.study}:{item.name} [compatibility.set]')
-                applied.add(rest)
-        return Item(item.study, item.name, item.model, item.parent, settings, item.delta, spec_hash(settings),
-                    item.set_paths | applied)
-
-    def _check_compat_paths(self, study_id: str, scenario_id: str, compat_set: dict) -> None:
-        """Every compatibility path names a field, whether or not this resolution applies it."""
-        scenario = self.scenario(scenario_id)
-        for path in compat_set:
-            root, _, rest = path.partition('.')
-            target, inner = (self.defaults(f'{root}/defaults'), rest) if root in MODELS else (scenario, path)
-            try:
-                get_path(target, inner)
-            except KeyError:
-                raise SpecError(f'{study_id} [compatibility.set]: {path!r} names no field') from None
 
     # The registry of Earth assumptions.
 
@@ -408,16 +364,7 @@ def _apply_variants(resolved: dict, added: list, defaults: dict, *, where: str) 
     resolved['variants'] = [v for v in definitions if v in applied]
 
 
-def _apply_compat(tree: dict, root: dict, path: str, value, *, where: str) -> None:
-    """Apply a compatibility path where the item's own chain left the root's value, so that a quirk never
-    undoes a change the item declared."""
-    current = get_path(tree, path)
-    if not same(current, get_path(root, path)) and not same(current, value):
-        raise SpecError(f'{where}: {path!r} would undo a change the item declares')
-    set_path(tree, path, value, where=where)
-
-
-def _check_references(study_id: str, tables: dict, compatibility: dict) -> None:
+def _check_references(study_id: str, tables: dict) -> None:
     """Each reference names an item of the right table and kind, and none closes a loop."""
     gcm, crm = tables['gcm'], tables['crm']
     starts = {}
@@ -454,7 +401,3 @@ def _check_references(study_id: str, tables: dict, compatibility: dict) -> None:
                 continue
             if ref not in crm or ref == name or crm[ref].settings.get('kind') != 'ring':
                 raise SpecError(f'{study_id}:{name}: {label} names {ref!r}, which is not another ring of the study')
-    for key, table in (('cm1_build_labels', 'crm'), ('initial_states', 'gcm'), ('exoplasim_run_key', 'gcm')):
-        strays = set(compatibility.get(key, {})) - set(tables[table])
-        if strays:
-            raise SpecError(f'{study_id} [compatibility.{key}]: {sorted(strays)} name no item of the study')

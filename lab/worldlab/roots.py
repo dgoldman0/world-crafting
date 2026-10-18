@@ -1,5 +1,5 @@
-"""The folders outside Git that the lab reads: Terluna's repository and research drive, which the reproduction
-tests compare with and the `terluna:` and `terluna-drive:` pins name, and the lab's own store.
+"""The folders outside Git that the lab reads: Terluna's repository and research drive, whose records the
+comparison tests read and the `terluna:` and `terluna-drive:` pins name, and the lab's own store.
 
 Each root comes from its environment variable, or from lab/local.toml ([roots], kept out of Git; see
 lab/local.example.toml), a relative path there taken from lab/. A root counts as a folder that holds

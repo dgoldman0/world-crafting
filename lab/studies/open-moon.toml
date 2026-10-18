@@ -1,112 +1,67 @@
-# The Open Moon design study: the chain Terluna ran on the design case of the corrected radiation, two GCM runs
-# and three CM1 cases forced from the first, each extending its model's shared defaults (lab/configs/). Draft
-# schema 0 (lab/design/world_spec.md); the targets of plan.md stages 2 and 3. The names are Terluna's folder
-# names, and the lab files each run under its product key. Terluna's definitions: climate/gcm/exoplasim_run.py
-# (EXPERIMENTS, MODEL) and climate/crm/cm1_run.py (CASES, :1093-1526). Its compatibility settings serve the
-# tests that reproduce Terluna's runs; a study extending it runs the same chain with the lab's own stages and
-# starts (world_spec.md, rule 8).
+# The Open Moon design study: the lab's chain on the Open Moon's design case, two GCM runs and three CM1 cases
+# forced from the first, each extending its model's shared defaults (lab/configs/). Draft schema 0
+# (lab/design/world_spec.md); the subject of plan.md stages 2 and 3, and the lab files each run under its
+# product key. The chain follows the one Terluna ran on its corrected design case (climate/gcm/exoplasim_run.py,
+# EXPERIMENTS and MODEL; climate/crm/cm1_run.py, CASES, :1093-1526), whose runs A28_corrected_970 and
+# A28_corrected_970_lw_ice, rings ring_45n_corrected and ring_45n_corrected_twilight and box box_jura the
+# comparisons cite.
 
 schema = "worldlab.study/0"
 id = "open-moon"
 scenario = "moon/open-moon"
 
-[compatibility]                                 # Terluna's quirks, for byte-for-byte reproduction (world_spec.md, rule 8)
-exoplasim_radius_divisor_m = 6371000.0          # ExoPlaSim's own is 6,371,220 m
-exoplasim_eccentricity = 0.016715               # typed into exoplasim_run.py:842; Earth's file gives 0.0167
-exoplasim_rayleigh_scale = 2.237                # MODEL's rounded copies of the fit on A28_dim5, a run at sunlight scale 0.95
-exoplasim_sw_water_absorption = 1.292
-exoplasim_h2o_continuum = 0.004                 # Terluna's hand trials
-cm1_run_days = 59.06                            # two lunar days as Terluna typed them; 2 solar days come to 59.0612
-cm1_series_through = { core = 17, elec = 9 }    # each CM1 series before the namelist patches: gravity and the air compiled in
-gravity = "gm-over-r2"                          # Terluna's g, without the spin term (5 ppm on the Moon)
-exoplasim_ice_weights = [0.6164, 0.2283, 0.0811, 0.0742]   # patch 10's, from the unfiltered TSIS-1 spectrum
-cm1_day_night_from_days = 29.5                  # the twilight ring's output Terluna averaged; one solar day is 29.53 d
-
-[compatibility.exoplasim_run_key]               # the other inputs of Terluna's run key (exoplasim_run.py:905-911), as each
-                                                # run's progress.json records them, with the point of the ExoPlaSim series
-A28_corrected_970 = { experiment = "A28", purpose = "design case with the atlas seas and rain-fed lakes", initial_state_path = "climate/gcm/runs/A28_corrected_9685/model/MOST_REST.00019", series_through = 8 }
-A28_corrected_970_lw_ice = { experiment = "A28", purpose = "design case with the atlas seas and rain-fed lakes", initial_state_path = "climate/gcm/runs/A28_corrected_970/model/MOST_REST.00019", series_through = 10 }
-
-[compatibility.set]                             # resolved fields Terluna held at other values, by dotted path as in [set]
-"sunlight.scale" = 0.970                        # Terluna's trials: 0.9655, 0.9685, then 0.970 at 295.02 K
-"cm1.physics.rain_size_limits" = "earth"        # Morrison's own, as Terluna's runner left them
-"cm1.diurnal.soil_top_layer_m" = 0.05           # patch 08's, stated unscaled (rule 9); the day's depth gives 0.0543
-"cm1.coupling.reference_season" = "annual"      # Terluna's rings averaged whole model years
-
-[compatibility.cm1_build_labels]                # the deployed build whose sources each case's build reproduces, by the
-ring_45n_corrected = "moon_omp_o3"              # label Terluna's Makefile patch writes into the OPTS comment
-ring_45n_corrected_twilight = "moon_omp_twilight"
-box_jura = "moon_omp_terrain_sea_twilight"
-
-[compatibility.initial_states]                  # the restart files Terluna's runs started from, by recorded hash
-A28_corrected_970 = "terluna-drive:gcm-runs/A28_corrected_9685/model/MOST_REST.00019@d65b88aa68443890"
-A28_corrected_970_lw_ice = "terluna-drive:gcm-runs/A28_corrected_970/model/MOST_REST.00019@cc83ad0f936e5c02"
-
-[compatibility.products]                        # the products Terluna's runs read, used as recorded in place of the
-                                                # lab's own stages; stage 5 reproduces the first three separately
-ledger = "terluna:climate/results/gcm/twilight.json@c7cdb8e252f8425e"
-gas_bands = "terluna:climate/results/gcm/shortwave_gases.json@52532952682c6026"
-longwave = "terluna:climate/results/gcm/longwave_A28_corrected_970_heating.json@e58ad11b423ca3aa"
-surface = "terluna:climate/gcm/products/moon_28pct_water_lakes_gaussian_T21.nc@4081b8600b8d33b6"
-                                                # the T21 seas and lakes the runs' masks and heights come from
-                                                # (exoplasim_run.py:936-945), built on 2026-09-25 from the atlas
-                                                # (dc283827f349fdc1) and the lakes of run A's runoff (060219b12f480619),
-                                                # a drainage file Terluna replaced under its name on 2026-09-29
-
-[gcm.A28_corrected_970]
+[gcm.design]
 model = "exoplasim"
 extends = "exoplasim/defaults"
 model_years = 20
-purpose = "the design case of the corrected radiation, at the sunlight scale that holds the design temperature"
-recorded_key = "b4d10329a8723d42"               # Terluna's run key in progress.json; stage 2 must reproduce it
+purpose = "the design case, at the sunlight scale that holds the reference temperature"
 
-[gcm.A28_corrected_970_lw_ice]
-extends = "A28_corrected_970"
-purpose = "the longwave by height and ice optics, from the design case's year 19; settles near 307 K"
-recorded_key = "14070719b35c52d7"
+[gcm.design_lw_ice]
+extends = "design"
+purpose = "the design case with the longwave correction by height and ice optics, from the design run's year 19"
+# Terluna's run of the same pair, A28_corrected_970_lw_ice, settled near 307 K.
 
-[gcm.A28_corrected_970_lw_ice.set]              # the declared delta; the lab refuses the pair if anything else differs
-"initial" = { from = "A28_corrected_970", model_year = 19 }
+[gcm.design_lw_ice.set]                         # the declared delta; the lab refuses the pair if anything else differs
+"initial" = { from = "design", model_year = 19 }
 "switches.longwave_correction" = true
 "switches.ice_optics" = true
 "heating_diagnostics" = true                    # diagnostics only: nine more outputs, the same prognostic fields
 
-[crm.ring_45n_corrected]
+[crm.ring_45n]
 model = "cm1"
 extends = "cm1/defaults"
-forced_by = "A28_corrected_970"
+forced_by = "design"
 reference_model_years = [10, 19]                # the GCM's model years averaged into the reference, 10 to 19 inclusive
 kind = "ring"                                   # a circle of latitude
 latitude_deg = 45.0
 band_deg = 3.0                                  # the GCM row nearest the latitude
-solar_longitude_deg = 0.0                       # the equinox, as Terluna's rings ran; with the obliquity it sets the Sun's
-                                                # declination (cm1/defaults, sun_declination)
+solar_longitude_deg = 0.0                       # the equinox; with the obliquity it sets the Sun's declination
+                                                # (cm1/defaults, sun_declination)
 large_scale_w = "gcm"
 land_moisture = "gcm"
-purpose = "the 45 N ring on the corrected design case"
+purpose = "the 45 N ring on the design case"
 
-[crm.ring_45n_corrected_twilight]
-extends = "ring_45n_corrected"
+[crm.ring_45n_twilight]
+extends = "ring_45n"
 variants = ["twilight"]                         # the declared delta (cm1/defaults, [variants.twilight])
 purpose = "the 45 N ring with the curved air's twilight and side light"
 # Both cases take their builds from the same defaults, at -O3 -march=native, and differ by the twilight variant
-# alone. Terluna ran the control on moon_omp, compiled at -O2 and never rebuilt, and this case on moon_omp_twilight
-# at -O3 (defect log C8). The lab keeps its own control at -O3, and the importer's pair check flags the
-# optimisation difference between Terluna's two records.
+# alone. Terluna ran its control on a build compiled at -O2 and its twilight case at -O3 (defect log C8), the
+# fault the lab's pair check catches.
 
 [crm.box_jura]
 model = "cm1"
 extends = "cm1/defaults"
-forced_by = "A28_corrected_970"
+forced_by = "design"
 reference_model_years = [10, 19]
 kind = "box"
 solar_longitude_deg = 0.0
 variants = ["terrain", "sea", "twilight"]
-site = { ring = "ring_45n_corrected", latitude_deg = 45.0, longitude_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes
+site = { ring = "ring_45n", latitude_deg = 45.0, longitude_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes
 columns = { nx = 100, ny = 90 }
 terrain = { half_width_deg = 0.125, passes = 2, taper_km = 50.0 }
-day_night = { from_case = "ring_45n_corrected_twilight", from_solar_days = 1.0, wavenumbers = 5, bins = 36, harmonics = 4 }
+day_night = { from_case = "ring_45n_twilight", from_solar_days = 1.0, wavenumbers = 5, bins = 36, harmonics = 4 }
 large_scale_w = "gcm"
 land_moisture = "gcm"
 surface_output = true
-purpose = "Jura Island at its heights with the sea and islets round it, forced by the corrected design case and the 45 N twilight ring's day-night circulation"
+purpose = "Jura Island at its heights with the sea and islets round it, forced by the design case and the 45 N twilight ring's day-night circulation"
