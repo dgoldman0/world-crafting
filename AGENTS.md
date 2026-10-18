@@ -68,6 +68,10 @@ notes it was built from, in Terluna's `ensemble/planning/source_controls/` (`STY
 corrections of 2026-10-17. Read those four sources in full once before writing for the paper; the rules
 below are their working form.
 
+The author's explicit direction for a piece outranks these rules. Where a direction and a rule conflict,
+carry out the direction; where the conflict is unclear, ask the author once, naming both. A rule is never
+grounds for setting a direction aside.
+
 **Say what is.** State what a thing is, does or includes.
 
 - The words "not" and "rather than" are excluded from authorial prose. Other negative contrasts
@@ -80,7 +84,9 @@ below are their working form.
   excluded.
 
 **No witticisms.** Titles, headings, coined terms and paragraph landings say what they name. Aphorisms,
-puns, personified coinages, quotable closing lines and rhetorical questions are excluded.
+puns, personified coinages, quotable closing lines and rhetorical questions are excluded. These bans, like
+the ban on promotional framing, aim at cheap wit and hype; vision is welcome, and the Conclusion's ending
+is meant to inspire.
 
 **Write for the expert.** The reader models planetary atmospheres, convection or waves and knows the
 general concepts.
@@ -127,9 +133,14 @@ proposition) is a list disguised as prose.
   "Notably", "It is worth noting") are excluded.
 - A genuine catalogue goes in a table or a list.
 
-**Conclusions and the arc.** A conclusion gathers the developed lines into a new relation or consequence.
-Replaying the section order, reciting the inventory and delivering a generic lesson are excluded. The
-abstract, the opening pages and the conclusion promise, develop and land on the same contribution.
+**Conclusions and the arc.** The paper has no separate discussion, so its Conclusion is the discussion. It
+reminds the reader of the work in a line or two at most, then discusses what the findings mean and open up,
+rooted in the code and technology built, in as many paragraphs as the ideas need and with one line of argument
+across them. It excites throughout, and its ending ties the section together in pure inspiration: the vision
+of what this work makes possible, in concrete images and prospects. Numbers enter only where they make a
+point, and a condition is stated once. Recaps, data dumps, replaying the section order, reciting the inventory
+and delivering a generic lesson are excluded. The abstract, the opening pages and the conclusion promise,
+develop and land on the same contribution.
 
 **Technical meaning survives editing.** Each edit keeps the claim's conditions, numbers, scope and
 evidence state. Reproducibility and physical validation stay distinct.
@@ -156,9 +167,12 @@ universal claim is checked against what was actually examined.
 ## Review of the paper
 
 The paper alone is written in drafts and review rounds. Its editorial quality is judged by reading: after
-a section is drafted, fresh reviewer agents that see only the text and these rules read it whole and
-return located findings; the text is revised and read again by fresh reviewers, round after round, until a
-round finds nothing blocking. The author's readings are the decisive review. `paper/tools/lint.py` screens
+a section is drafted, fresh reviewer agents that see the text, the author's direction for it in the author's
+own words, and these rules read it whole and return located findings. They judge the text against the
+author's direction first and the rules second, and no finding overrides that direction. The author's
+readings are the decisive review and come ahead of further rounds: once a draft carries out the author's
+direction, it goes to the author, and later rounds follow the author's reading. Otherwise the text is
+revised and read again by fresh reviewers until a round finds nothing blocking. `paper/tools/lint.py` screens
 for candidate places, and its output is reported as screening only. Each round's reviewers, findings and
 dispositions go in `paper/review/`.
 
