@@ -1,6 +1,6 @@
 \section{Reach to other worlds}
 
-Table~\ref{tab:reach} gives, property by property, the range each repair was built for; the breathable Moon is
+Table~\ref{tab:reach} gives, property by property, the range each repair was built for; the Open Moon is
 the first world besides Earth that the repaired codes have simulated. To extend the ensemble to another world, a
 modeller applies the general repairs unchanged within those ranges, recomputes the curved-air table from that
 world's own column, refits the Rayleigh and water multipliers, the water continuum, the longwave correction and
@@ -41,7 +41,7 @@ columns with the calibrations. Of the natural worlds in Figure~\ref{fig:regimes}
 the adapted models.
 
 \textbf{Worlds near the existing fits.} With the repairs as they stand, the four models are built to simulate the
-breathable Moon under other dimmings while its columns stay near the fitted ones: the split of sunlight, in the
+Open Moon under other dimmings while its columns stay near the fitted ones: the split of sunlight, in the
 version fitted before the gas bands, fell 0.7 points short on a 303~K column with 338~kg\,m$^{-2}$ of vapour; the
 refit with the gas bands is known through its fit residuals, and the longwave correction's accuracy near 307~K is
 unchecked. For slowly rotating planets with Earth's gravity and air around a Sun-like star near Earth's insolation,
@@ -57,7 +57,7 @@ analyses that sort output by the Sun's position avoid the drift.\claim{W03}
 
 \textbf{Worlds that need refitted calibrations.} Synchronous planets of M dwarfs, such as TRAPPIST-1e and
 Proxima Centauri~b, add a spectrum outside the near-infrared water fit, and their shortwave needs refitting
-against the reference with the star's spectrum. The breathable Moon at 1.0~atm, a case yet to be run, or behind
+against the reference with the star's spectrum. The Open Moon at 1.0~atm, a case yet to be run, or behind
 another shield that blocks the ultraviolet needs its calibrations refitted and its cloud settings checked; under
 a shield that passes the ultraviolet the air would form ozone, which every patched CM1 build sets to zero. A
 constructed world with breathable air on a small body, such as Mars held at 1~bar, has a scale height over
@@ -73,7 +73,7 @@ the downward infrared that PlaSim now takes at its top for the host's glow.\clai
 and Venus's 92~bar lie outside what PlaSim's and RRTMG's radiation and Morrison's water-only microphysics
 represent; the general repairs of units, clocks and gravity would apply to them unchanged, while their
 radiation, condensation and clouds would have to be built.\claim{W05} Four restrictions on the current
-implementation further limit its use within the terracompatible class: compositions of nitrogen, oxygen, argon,
+implementation further limit its use within the Gaean class: compositions of nitrogen, oxygen, argon,
 water and modest carbon dioxide; surface pressures within
 RRTMG's tables, already exceeded over the lowest 7.5~km at 1.2~atm; scale heights up to a few hundredths of the
 radius, the test world's, where thin-shell, constant-gravity dynamics already omit the 5--15\% fall of gravity

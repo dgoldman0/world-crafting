@@ -1,9 +1,9 @@
 # World-crafting
 
-The models, patches and in-house tools for modelling terracompatible worlds beyond Earth's range — planets
+The models, patches and in-house tools for modelling Gaean worlds beyond Earth's range — planets
 and constructed worlds with nitrogen–oxygen air, water as the principal condensable, and broadly terrestrial
 surface pressures and temperatures, while their gravity, size, day or starlight differ — and the paper that
-describes them. The work so far comes from one case, a breathable Moon
+describes them. The work so far comes from one case, the Open Moon, a breathable Moon
 designed in the Terluna project (github.com/dgoldman0/Terluna). The machinery here was brought from
 Terluna at commit 186b294 (2026-10-17), and `PROVENANCE.md` records its provenance file by file.
 
@@ -46,19 +46,19 @@ These follow Terluna's AGENTS.md (sha256 7fac1ca0…be6 at 186b294):
 
 ## The paper
 
-The paper stands alone as a field paper on modelling terracompatible worlds beyond Earth's range: exoplanets
+The paper stands alone as a field paper on modelling Gaean worlds beyond Earth's range: exoplanets
 and constructed worlds with nitrogen–oxygen atmospheres and water as the principal condensable, at surface
 pressures and temperatures broadly comparable to Earth's and permitting liquid surface water and an active
-water cycle. Their gravity, size, rotation and starlight may differ substantially from Earth's. Terracompatible
+water cycle. Their gravity, size, rotation and starlight may differ substantially from Earth's. Gaean
 names this physical class; the tested range of each code is specified separately. The paper's central purpose is the
 development of an ensemble of models for those worlds, connecting
-global climate to storms and seas. That purpose, and the work toward it, frame the paper. The breathable
+global climate to storms and seas. That purpose, and the work toward it, frame the paper. The Open
 Moon is its worked case, the world on which the work so far was done and existing systems' limitations
 became apparent. Terluna enters as provenance only: the origin of the case, the code and data records,
 and the history of AI assistance. Terluna's paper IDs and five-paper ensemble stay out of this paper;
 the model ensemble is the subject. The Conclusion develops that broader purpose throughout, with the
 lunar work as evidence and a starting point. Further physics for other gases and condensables could extend
-the ensemble beyond the terracompatible class; that extension remains prospective.
+the ensemble beyond the Gaean class; that extension remains prospective.
 
 Evidence and release follow Terluna's editorial charter
 (`ensemble/planning/Open_Moon_Editorial_Charter_control-01.md`, sha256 aac4a4f2…0b0): technical meaning

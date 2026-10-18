@@ -23,7 +23,7 @@ def fig_regimes():
     fig, (a, b) = plt.subplots(1, 2, figsize=(FULL, 2.9), gridspec_kw=dict(wspace=0.32))
     offsets = {'Earth': (6, -9), 'Mars': (6, 2), 'Titan': (6, -3), 'Venus': (6, -3), 'Breathable Moon 1.2 atm': (7, -3),
                'Mars at 1 bar': (6, -3)}
-    names_a = {'Breathable Moon 1.2 atm': 'Breathable Moon\n(1.2 and 1.0 atm)'}
+    names_a = {'Breathable Moon 1.2 atm': 'Open Moon\n(1.2 and 1.0 atm)'}
     for r in rows:
         if r['kind'] == 'illustrative':          # Earth's bulk properties, longer solar days: right panel only
             b.scatter([r['solar_day_days']], [r['g_m_s2']], s=22, color='white', edgecolor=CONTEXT, linewidth=1.1, zorder=3)
@@ -40,7 +40,7 @@ def fig_regimes():
             dx, dy = offsets[r['name']]
             label(a, r['h_over_r'], r['column_mass_over_earth'], names_a.get(r['name'], r['name']), xytext=(dx, dy),
                   textcoords='offset points', ha='left', va='center' if moon else 'baseline', color=INK if moon else INK2)
-        names_b = {'Breathable Moon 1.2 atm': 'Breathable Moon', 'Mars': 'Mars, present and at 1 bar'}
+        names_b = {'Breathable Moon 1.2 atm': 'Open Moon', 'Mars': 'Mars, present and at 1 bar'}
         if r['name'] in names_b or r['name'] in ('Earth', 'Titan', 'Venus'):
             if r['name'] == 'Venus':                 # below its point, clear of the 243-day planet's marker
                 label(b, r['solar_day_days'], r['g_m_s2'], 'Venus', xytext=(0, -7), textcoords='offset points',

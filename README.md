@@ -1,7 +1,7 @@
 # World-crafting
 
-An ensemble in development for modelling the climate, storms and seas of terracompatible exoplanets and
-constructed worlds. Terracompatible worlds have nitrogen–oxygen air and water as the principal condensable,
+An ensemble in development for modelling the climate, storms and seas of Gaean exoplanets and
+constructed worlds. Gaean worlds have nitrogen–oxygen air and water as the principal condensable,
 at broadly terrestrial surface pressures and temperatures permitting liquid surface water and an active
 water cycle; their gravity, size, rotation and starlight may differ substantially from Earth's.
 

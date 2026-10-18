@@ -1,6 +1,6 @@
 \section{Introduction}
 
-We use \emph{terracompatible} for worlds with nitrogen--oxygen atmospheres and water as the principal
+We use \emph{Gaean} for worlds with nitrogen--oxygen atmospheres and water as the principal
 condensable, at surface pressures and temperatures broadly comparable to Earth's and permitting liquid surface
 water and an active water cycle. Their gravity, size, rotation and starlight may differ substantially from
 Earth's, so modelling their climate, storms and seas requires adapting both the component models and the fields
@@ -24,7 +24,7 @@ divide extended \autocite{zahnle2017cosmic}: the Moon held the volcanic air of i
 only for a geological moment \autocite{needham2017lunar}, while Titan, far from the Sun and at 94~K, keeps a
 dense atmosphere on a body smaller than Mars. An engineered world can hold nitrogen--oxygen air where a natural one
 would lose it. \textcite{mckay1991making} asked how Mars could be made
-habitable, and the breathable Moon designed in the Terluna project \autocite{goldman2026terluna} is to keep
+habitable, and the Open Moon, a breathable Moon designed in the Terluna project \autocite{goldman2026terluna}, is to keep
 1.2~atm of nitrogen and oxygen under a sixth of Earth's gravity behind a shield in space that removes the
 ultraviolet heating its upper air. By the design's own models its exobase stays below 200~K and the air loses
 0.6--1.4~kg\,s$^{-1}$ over a solar cycle, losses that would take 60 to 150 billion years to remove
@@ -43,15 +43,15 @@ absorptivity is tuned to a solar spectrum \autocite{paradise2022exoplasim}. Each
 that mattered for the worlds it set out to model, and others could stay: ROCKE-3D's developers report that the
 changes their first release made from the Earth configuration went unstudied \autocite{tsigaridis2025rocke3d},
 and THOR's developers, who wrote their model for other planets from the start, describe planet-specific tunings
-as often built into adapted codes and hard to find \autocite{deitrick2020thor}. On a terracompatible world, a run
+as often built into adapted codes and hard to find \autocite{deitrick2020thor}. On a Gaean world, a run
 can compute the familiar phases of water in nitrogen--oxygen air while retaining a constant set for Earth's
 gravity, or a formula that counts rain per Earth day; its plausible output can make the retained value hard to
 detect. In an ensemble linking global climate to resolved storms
 and coastal waves, those values affect both the individual calculations and the forcing exchanged between them.
-Developing such an ensemble for terracompatible exoplanets and constructed worlds requires identifying which changes
+Developing such an ensemble for Gaean exoplanets and constructed worlds requires identifying which changes
 follow from general laws and which need calculations or calibrations for each world.
 
-The adaptations and couplings described here began with the breathable Moon as their test world. Its air is close
+The adaptations and couplings described here began with the Open Moon as their test world. Its air is close
 to Earth's in composition and surface pressure, while four ratios on which the models' Earth values depend lie far from Earth's at once: each
 square metre holds 7.25 times Earth's air,\claim{S02} the scale height of about 52~km is 23 times Earth's in
 proportion to the radius,\claim{S03} gravity is a sixth of Earth's, and the solar day lasts 29.53 Earth days. A run
