@@ -21,7 +21,8 @@ scenario.
 
 1. **Units.** Each key's suffix names its unit, as Terluna names them (`radius_m`, `gm_m3_s2`, `co2_ppm`,
    `sidereal_period_days`, `timestep_min`, `taper_km`), and the adapters convert to each model's own units.
-   `_days` counts days of 86,400 s; `_solar_days` counts the world's solar days.
+   `_days` counts days of 86,400 s; `_solar_days` counts the world's solar days; `model_` names the model's
+   own calendar, as in `model_years` and `means_per_model_day`.
 2. **Stated or derived.** Each derived quantity has one derivation.
    - A specification may state such a quantity together with its basis. The lab then compares the stated
      value with the derivation, within the derivation's tolerance, and records both.
@@ -33,9 +34,13 @@ scenario.
    value its basis. A model choice in a scenario of any kind, such as a slab ocean and its depth, names its
    basis.
 4. **External data by pin.** External data are named by pinned identifiers, such as `tsis1-hsrs-stride100`
-   or `terluna:protection/shield_transmission#titania_stack`, and resolved through the lab's manifest. The
-   manifest holds each one's hash, source, licence and credit and points to the lab's own copy; a
-   `terluna:` pin names the Terluna file the data were copied from.
+   or `terluna:protection/shield_transmission#titania_stack`. A `terluna:` pin names a file in Terluna's
+   repository and a `terluna-drive:` pin one on its research drive; `#` selects an entry in the file, and
+   `@` appends the first 16 hex digits of the file's sha256.
+   - **The lab's own stages** resolve a pin through the lab's manifest, which holds each one's hash, source,
+     licence and credit and points to the lab's own copy.
+   - **A study's compatibility settings** name Terluna's files by pin and hash, and the reproduction tests
+     open them in place and check the hash.
 5. **`"unchosen"` and `"model-default"`.** The lab refuses any stage that reads a field marked
    `"unchosen"`. A field marked `"model-default"` takes the model's own value, which the adapter records.
 6. **Extended items.** `extends` names the parent, `[set]` lists the changed fields by dotted path, and
@@ -49,9 +54,10 @@ scenario.
    - **The radius.** ExoPlaSim reads it in units of 6,371,220 m (`shared/constants.json`, `model_closures`).
      Terluna's runner divided by 6,371,000 m, which lengthens PlaSim's radius by 60 m
      (`notes/exoplasim.md`).
-   - **The solar day.** ExoPlaSim keeps a 24-hour solar day only when `rotationperiod` is exactly 1. The
-     adapter passes 1 for a world whose stated solar day is exactly one day, as Earth's is, and the sidereal
-     period otherwise. PlaSim's model day is then exactly one day (`plasim.f90:1287`).
+   - **The solar day.** ExoPlaSim keeps a 24-hour solar day only when `rotationperiod` is exactly 1. For a
+     world whose stated solar day is exactly one day, as Earth's is, the adapter passes 1; PlaSim's model day
+     is then exactly one day (`plasim.f90:1287`), and the year holds its whole days, 365 for Earth
+     (`exoplasim/__init__.py:2609-2610`). For any other world it passes the sidereal period.
    - **CM1's namelist.** Its writer rounds the boundary-layer length to 0.1 m and the damping rate to
      10⁻⁸ s⁻¹, as Terluna's does (`cm1_run.py:2004-2005`).
    - **Molar masses.** ExoPlaSim computes the gas constant from its own molar masses: CO2 at 44.01 g/mol,
@@ -65,6 +71,8 @@ scenario.
    - the calibration values copied by hand and rounded;
    - the CM1 run length typed as 59.06 days;
    - the build labels that Terluna's Makefile patch writes into a comment;
+   - the point in each CM1 patch series before the namelist patches, where gravity and the air are
+     compiled in;
    - the restart files Terluna's runs started from, and the products they read, named by their recorded
      hashes.
 
@@ -112,6 +120,7 @@ scenario.
 | `air.reference_level` | – | The level at which the stated pressure holds: `water`, `sea` or `mean-radius` |
 | `air.surface_pressure_pa` | Pa | Total pressure at that level |
 | `air.o2_partial_pressure_pa`, `co2_ppm`, `ar_per_n2`, `balance` | Pa, ppm of the total, –, gas | The air, built as Terluna builds it (`exoplasim_run.py:820-821, 843-844`) |
+| `air.reference_temperature_k` | K | The surface temperature the scenario is stated at, observed for a found scenario and designed or supposed otherwise, with its basis: the design column, the ledger and the gas fits are computed at it, and the scale height and horizon factor take it as their reference |
 | `air.ozone`, `air.water_vapour` | – | `none`, `model-default` or a pinned profile; `prognostic` |
 | `water.seas_share`, `water.seas`, `water.lakes` | –, pinned names | The standing water and its geometry |
 | `water.ocean` | – | `kind` (`slab`), `mixed_layer_m`, `sea_ice` |
@@ -123,19 +132,19 @@ scenario.
 
 | Quantity | Derivation | The Moon (Open Moon design) | Used by |
 |---|---|---|---|
-| Surface gravity | GM/R² | 1.6242188765608128 m/s² | ExoPlaSim `gravity`; CM1's gravity, compiled in as `TERLUNA_G` until the namelist patch (architecture.md, "Model adapters"); the surface geopotential; every hydrostatic height in the GCM-to-CRM extraction |
+| Surface gravity | GM/R² | 1.6242188765608128 m/s² | ExoPlaSim `gravity`; CM1's gravity, compiled in as `TERLUNA_G` until the namelist patches (architecture.md, "Model adapters"); the surface geopotential; every hydrostatic height in the GCM-to-CRM extraction |
 | Rotation rate | 2π/P_rot | 2.6616995 × 10⁻⁶ s⁻¹ | CM1's Coriolis parameter (`cm1_run.py:2038-2040`) |
 | Solar day | 1/(1/P_rot − 1/P_year), or stated | 29.53059 d stated; 29.5305882 d derived | CM1 `var19` (`cm1_run.py:2016`; 2,551,443.0 s). PlaSim's synodic clock derives its own from the rotation and the year (patch 04), 0.2 s a lunar day shorter than CM1's |
 | Partial pressures | p_CO2 = x·p; p_N2 + p_Ar = p − p_O2 − p_CO2, split by Ar/N2 | N2 0.99128639, O2 0.21227, Ar 0.01185725, CO2 0.00048636 bar | ExoPlaSim `configure` |
-| Mole fractions | p_i/p | CO2 4.0 × 10⁻⁴, O2 0.17457850 | CM1's CO2 and O2, compiled in as `TERLUNA_CO2` and `TERLUNA_O2` (written as 0.174579) until the namelist patch |
+| Mole fractions | p_i/p | CO2 4.0 × 10⁻⁴, O2 0.17457850 | CM1's CO2 and O2, compiled in as `TERLUNA_CO2` and `TERLUNA_O2` (written as 0.174579) until the namelist patches |
 | Mass fractions | x_i M_i / Σ x_j M_j | CO2 6.1057 × 10⁻⁴, O2 0.19375 | PlaSim `ZGASW` (patch 08) |
 | Molar mass and gas constant | Σ x_i M_i; 8314.46/M | 28.8319 g/mol; 288.38 J kg⁻¹ K⁻¹ | ExoPlaSim `GASCON`, computed inside ExoPlaSim |
 | ExoPlaSim's rotation period | 1 for a stated one-day solar day, otherwise P_rot (rule 7) | 27.321661 d | `rotationperiod` |
-| ExoPlaSim's days per year | N = 12 · max(1, ⌊360/(12 P_rot) + 0.5⌋) (`exoplasim/__init__.py:2618-2619`) | 12 | `N_DAYS_PER_YEAR` |
+| ExoPlaSim's days per year | The year in whole days when `rotationperiod` is 1 (`exoplasim/__init__.py:2609-2610`); otherwise N = 12 · max(1, ⌊360/(12 P_rot) + 0.5⌋) (`:2618-2619`) | 12 | `N_DAYS_PER_YEAR` |
 | PlaSim's model day | P_rot · N/(N − 1) (`plasim.f90:1292-1300`); exactly one day when `rotationperiod` is 1 (`:1287`) | 29.8054 d | The calendar every output follows |
 | Steps per model day | nint(model day) ÷ nint(time step), as an integer division (`plasim.f90:1348`) | 1,430 at 30 min | `NSTPW` 143 for 10 means a day; `N_RUN_STEPS` 17,160 for 12 whole days; 120 means a year |
 | Sunlight at the top | ∫ S_λ T_λ dλ over the measured spectrum, plus the rest of the total at the longest measured wavelength's transmission (`exoplasim_run.py:976-984`); times (1 AU/a)² and the scale | 1,235.25 W/m² through the shield; 1,198.19 W/m² at 0.970 | ExoPlaSim `flux` (`GSOL0`); CM1 `var17` |
-| Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at a stated reference temperature | At 295 K: 52.4 km, 0.03015, 74,861 kg/m², 7.2 (`paper/data/worlds.json`) | The reach report; deciding whether a column needs a ledger of its own |
+| Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at `air.reference_temperature_k` | At the paper's 295 K: 52.4 km, 0.03015, 74,861 kg/m², 7.2 (`paper/data/worlds.json`); the seed's 294.9 K changes none of these digits | The reach report; deciding whether a column needs a ledger of its own |
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
 | CM1 lengths and time step | The defaults' values × g_ref/g (rule 9) | A factor of 1, with the reference at lunar gravity: 6 km columns, a 150 km top, nudging from 8 to 16 km, a 40 s step | CM1's grid, top, nudging heights and `dtl` (`cm1_run.py:1979-2035`) |
 

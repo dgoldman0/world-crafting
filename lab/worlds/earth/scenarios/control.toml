@@ -14,9 +14,11 @@ title = "Earth control: 1 atm, Earth's O2 partial pressure and Ar/N2, 400 ppm CO
 reference_level = "sea"
 surface_pressure_pa = 101325.0               # the standard atmosphere
 o2_partial_pressure_pa = 21227.0             # 0.2095 of it, Earth's dry air (Terluna exoplasim_run.py:78)
-co2_ppm = 400.0                              # Earth's of about 2015, the lunar design air's value
+co2_ppm = 400.0                              # a model choice: the lunar design air's value (exoplasim_run.py:80),
+                                             # so the control and the Moon share their CO2
 ar_per_n2 = 0.011961477                      # Earth's 0.00934/0.78084 (exoplasim_run.py:79)
 balance = "N2"
+reference_temperature_k = 288.0      # Earth's global mean (paper/data/worlds.json, "global means")
 ozone = "model-default"              # ExoPlaSim's ozone profile, as the released model runs Earth
 water_vapour = "prognostic"
 

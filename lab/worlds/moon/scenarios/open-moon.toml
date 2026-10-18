@@ -14,6 +14,8 @@ o2_partial_pressure_pa = 21227.0     # Earth's (exoplasim_run.py:78)
 co2_ppm = 400.0                      # of the total pressure (exoplasim_run.py:80, :820)
 ar_per_n2 = 0.011961477              # Earth's 0.00934/0.78084 (exoplasim_run.py:79)
 balance = "N2"
+reference_temperature_k = 294.9      # the design column's surface: A28_dim5_moon's global mean (atmosphere/lower_air.py:29);
+                                     # the paper's table of reach takes 295 K
 ozone = "none"                       # the titania stack's design (moon_gcm_configuration.json, atmosphere.ozone)
 water_vapour = "prognostic"
 

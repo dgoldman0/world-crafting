@@ -123,7 +123,7 @@ model = "exoplasim, cm1"
 where = "both dynamical cores"
 form = "geometry"
 assumes = "constant gravity and a thin shell"
-when = [{ q = "scale_height_over_radius", gt = 0.01 }]       # proposed: about eight times Earth's
+when = [{ q = "scale_height_over_radius", gt = 0.01 }]       # proposed: about 7.5 times Earth's
 effect = "the column holds more air than p/g and heights read low aloft; on the Moon about 5% more air and heights 5% low at 86 km"
 state = "open"
 action = "warn"

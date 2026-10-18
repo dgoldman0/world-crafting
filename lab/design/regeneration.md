@@ -78,9 +78,10 @@ flowchart LR
 ```
 
 - **Dashed edges:** a run's output, or the refitted multipliers, returning to a product upstream.
-- **Planet record and scenario to CM1 builds:** gravity and the air, while CM1's builds compile them in. Once
-  the namelist patch passes plan stage 3, those values reach the case inputs alone. Terluna's builds read CO2
-  and O2 from a GCM run's record (inventory.md, hand step 9).
+- **Planet record and scenario to CM1 builds:** gravity and the air, which the lab's builds take from the
+  specification while they compile them in, where Terluna's read CO2 and O2 from a GCM run's record
+  (inventory.md, hand step 9); once the namelist patches pass plan stage 3, those values reach the case
+  inputs alone.
 
 ## Producers today
 
@@ -106,7 +107,7 @@ flowchart LR
 
 Marks: ● produced again; ○ produced again through a loop, once the GCM experiment has run again and if the
 loop is closed; b produced again while CM1's builds compile gravity and the air in, and unaffected once the
-namelist patch passes plan stage 3 (cross-dependency 3); c kept, after a consistency or range check;
+namelist patches pass plan stage 3 (cross-dependency 3); c kept, after a consistency or range check;
 — unaffected.
 
 The product groups that head the columns:
@@ -131,13 +132,14 @@ The product groups that head the columns:
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Radius or GM | ● | ● | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | Rotation period | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
-| Solar day, where stated | ● | — | — | — | — | — | — | — | — | — | ● where the change crosses one day, otherwise c | ● | ● |
+| Solar day, where stated | ● | — | — | — | — | — | — | — | — | — | ● where the stated day becomes or ceases to be exactly one day, otherwise c | ● | ● |
 | Tilt, year, eccentricity | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | Star spectrum (shape) | ● | — | ● | ● | ● | ● | ●○ | ○ | ● with ice optics on | c | ● | ● | ● |
 | Star total, or distance | ● | — | ● | ● | c | c | ○ | ○ | — | — | ● | ● | ● |
 | Surface pressure | ● | — | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | O2 or CO2 | ● | — | — | ● | ● | ● | ●○ | ●○ | — | b | ● | ● | ● |
 | Ar/N2 alone | ● | — | — | ● | ● | ● | ●○ | ●○ | — | — | ● | ● | ● |
+| Reference temperature | ● | — | — | ● | ● | ● | ●○ | ○ | — | — | ● | ● | ● |
 | Surface heights (world) | ● | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | Water share, seas, lakes | ● | ● | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | Land albedo | — | — | — | — | c | — | ○ | ○ | — | — | ● | ● | ● |
@@ -159,7 +161,7 @@ The product groups that head the columns:
    The shortwave fit then uses the ledger's slant factors.
 2. **The Rayleigh multiplier scales a coefficient that ExoPlaSim derives from the spectrum,** so a
    multiplier fitted under one spectrum is refitted under another.
-3. **CM1's builds compile gravity, CO2 and O2** until the namelist patch passes plan stage 3. O2 is held as a
+3. **CM1's builds compile gravity, CO2 and O2** until the namelist patches pass plan stage 3. O2 is held as a
    partial pressure, so a change of surface pressure moves its mole fraction and with it every build, even
    with the O2 partial pressure, the CO2 ppm and the Ar/N2 ratio unchanged. Once the patch passes, the same
    change reaches the case inputs alone.
@@ -182,9 +184,10 @@ The product groups that head the columns:
      check.
 8. **RRTMG takes the Sun's spectrum unfiltered** (defect log B9), so CM1 receives a shield as the lowered
    total in `var17`.
-9. **The design temperature enters as an input.** The reference column, the ledger, the gas fits, the
-   surface light and the glow are computed at a prescribed surface temperature of 294.9 K. A run that
-   settles elsewhere, as the 307 K test does, leaves them describing another state.
+9. **The design temperature enters as an input,** as the scenario's `air.reference_temperature_k`. The
+   reference column, the ledger, the gas fits, the surface light and the glow are computed at a prescribed
+   surface temperature of 294.9 K. A run that settles elsewhere, as the 307 K test does, leaves them
+   describing another state.
 10. **Only the GCM receives infrared from space,** through patch 06.
 11. **PlaSim's levels enter four calibrations.** The ledger's GCM terms and the longwave correction are
     computed per PlaSim layer, and the offline shortwave copy and the water-continuum fit run on PlaSim's

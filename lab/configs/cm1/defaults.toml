@@ -18,7 +18,7 @@ ranks_multiple = 8                             # a ring's column count is rounde
                                                # (cm1_run.py:2051-2056); a box states its own
 reference_gravity_m_s2 = 1.6242188765608128    # the Moon's GM/R^2
 world_constants = "build"                      # gravity, CO2 and O2 compiled in, as Terluna's builds have them;
-                                               # "namelist" once the namelist patch passes plan stage 3
+                                               # "namelist" once the namelist patches pass plan stage 3
 
 [scaled]                                       # times g_ref/g
 column_target_m = 6000.0

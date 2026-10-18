@@ -17,6 +17,7 @@ exoplasim_rayleigh_scale = 2.237                # MODEL's rounded copies of the 
 exoplasim_sw_water_absorption = 1.292
 exoplasim_h2o_continuum = 0.004                 # Terluna's hand trials
 cm1_run_days = 59.06                            # two lunar days as Terluna typed them; 2 solar days come to 59.0612
+cm1_series_through = { core = 17, elec = 9 }    # each CM1 series before the namelist patches: gravity and the air compiled in
 
 [compatibility.cm1_build_labels]                # the deployed build whose sources each case's build reproduces, by the
 ring_45n_corrected = "moon_omp_o3"              # label Terluna's Makefile patch writes into the OPTS comment
@@ -24,8 +25,8 @@ ring_45n_corrected_twilight = "moon_omp_twilight"
 box_jura = "moon_omp_terrain_sea_twilight"
 
 [compatibility.initial_states]                  # the restart files Terluna's runs started from, by recorded hash
-A28_corrected_970 = { run = "terluna-drive:gcm-runs/A28_corrected_9685", year = 19, sha256_16 = "d65b88aa68443890" }
-A28_corrected_970_lw_ice = { run = "terluna-drive:gcm-runs/A28_corrected_970", year = 19, sha256_16 = "cc83ad0f936e5c02" }
+A28_corrected_970 = { run = "terluna-drive:gcm-runs/A28_corrected_9685", model_year = 19, sha256_16 = "d65b88aa68443890" }
+A28_corrected_970_lw_ice = { run = "terluna-drive:gcm-runs/A28_corrected_970", model_year = 19, sha256_16 = "cc83ad0f936e5c02" }
 
 [compatibility.products]                        # the products Terluna's runs read, used as recorded in place of the
                                                 # lab's own stages; stage 5 reproduces each separately
@@ -36,7 +37,7 @@ longwave = "terluna:climate/results/gcm/longwave_A28_corrected_970_heating.json@
 [gcm.A28_corrected_970]
 model = "exoplasim"
 extends = "exoplasim/defaults"
-years = 20
+model_years = 20
 purpose = "the design case of the corrected radiation, at the sunlight scale that holds the design temperature"
 recorded_key = "b4d10329a8723d42"               # Terluna's run key in progress.json; stage 2 must reproduce it
 
@@ -46,7 +47,7 @@ purpose = "the longwave by height and ice optics, from the design case's year 19
 recorded_key = "14070719b35c52d7"
 
 [gcm.A28_corrected_970_lw_ice.set]              # the declared delta; the lab refuses the pair if anything else differs
-"initial" = { from = "A28_corrected_970", year = 19 }
+"initial" = { from = "A28_corrected_970", model_year = 19 }
 "switches.longwave_correction" = true
 "switches.ice_optics" = true
 "heating_diagnostics" = true                    # diagnostics only: nine more outputs, the same prognostic fields
@@ -55,7 +56,7 @@ recorded_key = "14070719b35c52d7"
 model = "cm1"
 extends = "cm1/defaults"
 forced_by = "A28_corrected_970"
-years = [10, 19]                                # the GCM years averaged into the reference
+model_years = [10, 19]                          # the GCM's model years averaged into the reference
 kind = "ring"                                   # a circle of latitude
 latitude_deg = 45.0
 band_deg = 3.0                                  # the GCM row nearest the latitude
@@ -76,7 +77,7 @@ purpose = "the 45 N ring with the curved air's twilight and side light"
 model = "cm1"
 extends = "cm1/defaults"
 forced_by = "A28_corrected_970"
-years = [10, 19]
+model_years = [10, 19]
 kind = "box"
 variants = ["terrain", "sea", "twilight"]
 site = { ring = "ring_45n_corrected", latitude_deg = 45.0, longitude_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes

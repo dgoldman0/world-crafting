@@ -25,9 +25,9 @@ column mass and scale height far from Earth's. The adapted models exclude scenar
 CO2 or CH4, whose surface pressure reaches several bar, or whose condensables are other than water, and the
 registry refuses them until a model that handles them is adapted.
 
-The lab runs from the command line on one shared machine. Its stages are plain Python functions, which
-Snakemake rules call in the order the stage graph sets, so the same rules can later run on a cluster
-(Decisions).
+The lab runs from the command line on one shared machine. Its stages are plain Python functions; under the
+engine proposed in Decisions, Snakemake rules call them in the order the stage graph sets, and the same
+rules can later run on a cluster.
 
 ## Principles
 
@@ -87,7 +87,7 @@ Snakemake rules call in the order the stage graph sets, so the same rules can la
     - The pipeline's Earth run is compared with a released run configured through ExoPlaSim's own
       interface with the same air and sunlight: its global means of surface temperature, top-of-atmosphere
       net flux, precipitation and cloud cover must fall within two standard deviations of the released run's
-      yearly means. The author accepted this criterion on 2026-10-17, and the two runs open plan stage 8.
+      yearly means, a criterion the author accepted on 2026-10-17. Plan stage 8 opens with the two runs.
 - **A shared machine.** Every job states its threads, memory and disk. The lab checks the load and the
   free disk before it starts one, and runs it at reduced priority.
 
@@ -180,20 +180,29 @@ product's key is a hash of five things:
 - the upstream products' hashes;
 - the pins of the external data it reads, such as HITRAN lines, TSIS-1, MT_CKD and the RRTMG tables;
 - the values in its read set;
-- the environment's class: Python and the major and minor versions of numpy, scipy and numba, and the
-  Fortran compiler and its version for builds.
+- the environment's class: Python and the major and minor versions of numpy, scipy and numba; for builds,
+  the Fortran compiler and its version, and for a build at `-march=native` the CPU type it compiles for.
 
 The full versions are recorded beside the key.
 
-**Read sets** are recorded as a producer runs. The producer receives a tracking view of the
-specifications, and each value it reads enters its read set by name and value. A derived value enters as
+**Read sets** are declared by each stage, by name, so that a product's key follows from the specifications
+before the product exists. The producer receives a tracking view of the specifications, which records each
+value it reads by name and value and refuses a read outside the declaration. A derived value enters as
 its value, so a consumer that reads only g stays current when GM and R change together and leave g where
 it was. Terluna's `shared/provenance.py` applies this rule to its constants; the lab extends it to every
 input.
 
 **Plan.** `lab plan` computes the keys from the current specifications and compares them with the store.
 It lists the stale products in the order it would rebuild them, each priced from the wall times in its
-records. `lab make` then passes them to Snakemake as targets, which rebuilds them within the machine budget.
+records. `lab make` then passes them to Snakemake as targets, which runs them within the machine budget.
+
+**Running under Snakemake.** Each product's key names its output path, and a rule's inputs are its
+upstream products' paths. The lab runs Snakemake with its file-time trigger alone: a step runs where its
+output is missing, as a new key's is, or older than an input, and each product is write-protected once
+complete, so its key remains the one test of its staleness. Since Snakemake deletes the declared outputs of
+a failed step, a long run declares its record, written when the run completes, and keeps its folder
+beside it; downstream stages read the folder the record names. The fixpoint loop runs inside one step,
+since Snakemake's graph is acyclic.
 
 **The test of the planner.** The dependency map in regeneration.md was worked out by hand from Terluna's
 code. Before `lab make` acts on its plans, the planner's computed staleness must match the map in its
@@ -216,9 +225,10 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   compiled for its resolution, levels and ranks, and kept in the store under its key. Terluna patched its
   shared installation with patches 01–06 and kept a second copy for 07–10 (inventory.md); in the lab each
   state of the series has a copy of its own.
-- **The calendar** follows ExoPlaSim's own rule (`exoplasim/__init__.py:2615-2620`;
-  `plasim.f90:1292-1302`):
-  - `N_DAYS_PER_YEAR` is 12 · max(1, ⌊360/(12·P_rot) + 0.5⌋);
+- **The calendar** follows ExoPlaSim's own rule (`exoplasim/__init__.py:2609-2619`;
+  `plasim.f90:1287-1302`):
+  - `N_DAYS_PER_YEAR` is the year in whole days, 365 for Earth, when `rotationperiod` is 1, and otherwise
+    12 · max(1, ⌊360/(12·P_rot) + 0.5⌋);
   - the model day is P_rot · N/(N − 1), and exactly one day when `rotationperiod` is 1 (`plasim.f90:1287`).
 
   The steps per model day, the whole-day run length, the steps per mean and the expected output count
@@ -237,10 +247,15 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   and 07 and the electrified series' fall speeds read them as macros (`models/cm1/README.md`), so each world
   or air has needed builds of its own. CM1's dynamics and the Morrison scheme already take gravity from
   `set_constants` as the model starts. A planned core patch reads all three from the namelist, giving RRTMG
-  and the CAPE diagnostic the run's gravity and RRTMG its CO2 and O2, so that one build serves every world,
-  as the author preferred on 2026-10-17. MYNN's shared constants need gravity at compile time and keep
-  9.81; the lab already refuses MYNN off Earth. Until the patch passes its checks (plan.md, stage 3), the
-  adapter compiles the values in, and a build's key covers them with its patch set, flags and compiler.
+  and the CAPE diagnostic the run's gravity and RRTMG its CO2 and O2, and a companion patch in the
+  electrified series gives the NSSL fall speeds the same gravity, so that one build of each patch set serves
+  every world, as the author preferred on 2026-10-17. MYNN's shared constants need gravity at compile time
+  and keep 9.81; the lab already refuses MYNN off Earth. Until the patches pass their checks (plan.md,
+  stage 3), the adapter compiles the values in, and a build's key covers them with its patch set, flags and
+  compiler.
+- **Points in the series.** A build names how far it applies each patch series, as ExoPlaSim's builds
+  name their point in theirs. The reproduction tests build at the point before the namelist patches, which
+  the `open-moon` study names among its compatibility settings.
 - **Case kinds,** as Terluna has them:
   - a ring on a circle of latitude, or on a tilted great circle;
   - a box: flat, over terrain, or over terrain with sea;
@@ -271,15 +286,15 @@ A calibration is a product whose header also records:
 
 - the reference model and its version;
 - the columns or states it was fitted on, as ranges of surface temperature, precipitable water, column
-  mass, composition, spectrum and the GCM's levels;
+  mass, composition, spectrum and the GCM's levels, with the model switches in force, such as ice optics;
 - the fit's residuals;
 - the fit's form.
 
 The lab checks the envelope twice:
 
 - **Before a run,** the scenario and the run's settings must fall inside it in the dimensions they fix:
-  column mass, composition, spectrum and the GCM's levels. Outside it, the run waits for an explicit
-  override (Principles).
+  column mass, composition, spectrum, the GCM's levels and the switches in force. Outside it, the run
+  waits for an explicit override (Principles).
 - **After a run,** the settled state must fall inside it in every dimension, surface temperature and
   precipitable water included. Outside it, the run's products are marked "used beyond its fit", and every
   report built on them carries the warning.
@@ -399,8 +414,8 @@ lab status
 | Self-contained | What the lab uses for its own work lives in world-crafting and its store; Terluna's files serve the reproduction tests alone (Principles) |
 | Patches | Builds apply the `models/` series alone, whose patched sources match Terluna's byte for byte today (`models/check_patches.sh`, run on this branch on 2026-10-17); whether Terluna's runners then drop their string edits is Terluna's decision |
 | Format | TOML specifications, with sources as comments beside values; JSON products and records, in the form of Terluna's products |
-| Runs | Terluna's runs stay in its folders, where the reproduction tests and the importer read them. The lab's own runs begin once stages 2–3 have shown its inputs match Terluna's, and are filed in its store |
-| CM1 compiled once | A planned core patch reads gravity, CO2 and O2 from the namelist; once it passes plan stage 3, one build serves every world (Model adapters) |
+| Runs | Terluna's runs stay in its folders, where the reproduction tests and the importer read them. The lab's own runs begin once stages 2–3 have shown its inputs match Terluna's and stage 7's job wrappers hold them to the machine budget, and they are filed in its store |
+| CM1 compiled once | Planned patches read gravity, CO2 and O2 from the namelist; once they pass plan stage 3, one build of each patch set serves every world (Model adapters) |
 | After the 1.2 atm Open Moon | The Moon at 1.0 atm, the same body with every calibration refitted; then Mars at 1 bar, a new column and ledger inside RRTMG's range; then a slowly rotating Earth-like planet, which needs the general repairs alone |
 | Outside an envelope | The lab refuses the run unless explicitly overridden, warns clearly even then, and records the override (Principles) |
 | The Earth control's test | Global means within two standard deviations of the released run's yearly means (Principles) |
@@ -410,5 +425,5 @@ lab status
 
 | Decision | Choice | Reason |
 |---|---|---|
-| Engine | Snakemake schedules and runs the stages; the lab's own code computes product keys, writes headers and records, and applies the registry and envelope checks | Snakemake reruns a step when its inputs, parameters or code change, keeps jobs within thread and memory limits, prints its plan before running and can later submit jobs to a cluster, all of which the lab would otherwise write. Product keys name the output paths, so Snakemake's graph of files follows the lab's keys. Two points need care: Snakemake deletes the outputs of a failed step, so a long run's folder lies outside the step's declared outputs, and its graph is acyclic, so the fixpoint loop runs inside one step. The author leaned against draft 2's in-house engine |
-| Registry thresholds | The schemes that hard-code Earth's gravity refused beyond 0.5% from 9.81 m/s²; a ledger of the world's own column required beyond 10% from Earth's horizon air mass of 35; the thin-shell warning above H/R = 0.01 | 0.5% passes the Earth control's 9.80665 m/s², and 0.01 is about eight times Earth's H/R (`lab/registry/earth_assumptions.toml`) |
+| Engine | Snakemake schedules and runs the stages; the lab's own code computes product keys, writes headers and records, and applies the registry and envelope checks | Snakemake reruns a step when its inputs, parameters or code change, keeps jobs within thread and memory limits, prints its plan before running and can later submit jobs to a cluster, all of which the lab would otherwise write. Product keys name the output paths, so Snakemake's graph of files follows the lab's keys ("Running under Snakemake"). The author leaned against draft 2's in-house engine |
+| Registry thresholds | The schemes that hard-code Earth's gravity refused beyond 0.5% from 9.81 m/s²; a ledger of the world's own column required beyond 10% from Earth's horizon air mass of 35; the thin-shell warning above H/R = 0.01 | 0.5% passes the Earth control's 9.80665 m/s², and 0.01 is about 7.5 times Earth's H/R (`lab/registry/earth_assumptions.toml`) |

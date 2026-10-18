@@ -23,7 +23,8 @@ draft 2, and the author's answers to the open questions led to draft 3.
 | 6 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 1 prose; 4 schema and seed; 1 between the documents | 4 | — |
 | 7 | 2026-10-17 | A: README, architecture, plan, with the seeds (confirmation round) | 2 prose; 5 technical | — | — |
 | 7 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 3 seed; 4 between the documents | 2 | — |
-| 8 | 2026-10-17 | One round on draft 3 | pending | — | — |
+| 8 | 2026-10-17 | A: README, architecture, plan, with AGENTS.md and the seeds (the single round on draft 3) | 3 prose | — | 9, and 3 minor |
+| 8 | 2026-10-17 | B: world_spec, regeneration, every seed and the registry (the same) | 2 prose; 3 seed; 2 between the documents | 1 | — |
 
 ## Round 1 dispositions
 
@@ -300,3 +301,54 @@ Draft 2 is tagged `lab-design-draft-2` (commit 42a0ef3). The author answered the
   schedule and run the stages, for the author to confirm. The three registry thresholds remain proposed.
 - **Review cadence.** The author asked for fewer rounds: from round 8, one round follows each substantive
   revision, and its findings are acted on without a confirmation round.
+
+## Round 8 dispositions
+
+**Revised: the five prose items.** Reviewer A's were the engine row's signpost, the Earth control's two
+joined propositions, and the plan's cost bullet, whose rewrite also corrected the stages that run on one
+core. Reviewer B's were rule 7's solar-day sentence, whose "then" now follows the one-day world, and the
+regeneration legend's turn back to Terluna.
+
+**Adopted: reviewer A's technical items.**
+
+- **Keys before runs.** Each stage declares its read set, so a product's key follows from the
+  specifications before the product exists, and the tracking view refuses a read outside the declaration.
+  Stage 4 tests the planner by the `open-moon` study's keys before and after each worked change, and the
+  lw_ice envelope check moved to stage 7, after the import.
+- **One test of staleness.** Snakemake runs with its file-time trigger alone on key-named,
+  write-protected products. A long run declares its record, and downstream stages read the folder the
+  record names. A build at `-march=native` keys the CPU type.
+- **The electrified build** gains a companion namelist patch, and stage 3 compares it with `moon_omp_elec`.
+- **Reproduction after the namelist patches.** A CM1 build names its point in each series, and the study's
+  compatibility settings hold the point before the namelist patches: core 17, electrified 9.
+- **Stage 3's thresholds.** Output that differs from the compiled build's passes within a last-bit nudge's
+  difference, Terluna's test for its `-O3` rebuild, and the timing is the best of three on a quiet machine.
+- **The fixpoint** starts from the lab's own run of the design case, and stage 5 reproduces Terluna's
+  correction.
+- **The Earth control's calibrations** are the released model's own shortwave multipliers and water
+  continuum, with the ledger and gas-band fits of Earth's own column.
+- **Earth's calendar.** At `rotationperiod` 1 the year sets the days, 365 for Earth, and stage 1 checks it.
+- **Envelopes** include the switches in force, so a fit made with ice optics off flags a run with them on.
+- **Minor items.** The lab's own runs wait for stage 7's machine budget, `shared/constants.json` is in the
+  repository already, and Snakemake appears as proposed in the opening and in stages 4 and 7.
+
+**Adopted: reviewer B's seed and technical items.**
+
+- **A reference temperature,** `air.reference_temperature_k`, enters the schema and every scenario seed:
+  294.9 K for the Open Moon's design column, 288 K for Earth and for the Mars illustration. The regeneration
+  matrix gains its row, and stage 1 derives the paper's rows at the temperatures `paper/data/worlds.json`
+  states.
+- **Pins.** Rule 4 defines `terluna:`, `terluna-drive:`, `#` and `@`, and separates the manifest's copies
+  from the files that the reproduction tests open in place.
+- **Units.** `model_years` and `model_year` replace `years` and `year`, and rule 1 names the `model_`
+  prefix.
+- **Bases.** The Mars illustration's level, pressure, ocean, sunlight and forcing, and the Earth control's
+  CO2, give their bases.
+- **The solar-day row** marks the GCM run where the stated day becomes or ceases to be exactly one day.
+- **B21's threshold** is about 7.5 times Earth's H/R.
+
+## State after round 8
+
+Round 8 was the single round on draft 3, at the author's direction, and its findings are revised with no
+confirmation round after them. Before stage 1, the author's confirmations of the engine and the three
+registry thresholds remain.
