@@ -118,8 +118,9 @@ general concepts.
 - Nouns are precise: the variable, the scheme, the switch, the run, the layer.
 - Physical processes, and the people who did the work, stay visible where they belong.
 
-**Sentences carry their dependencies.** A string of equal-weight declaratives (proposition, stop,
-proposition) is a list disguised as prose.
+**Sentences carry their dependencies.** Paratactic prose is excluded: a string of equal-weight declaratives
+(proposition, stop, proposition), or a paragraph that chains facts like bullet points, is a list disguised as
+prose.
 
 - Write the causal, temporal, constitutive, comparative, concessive or evidentiary relation into the
   syntax: subordination, apposition, participial phrases, relative clauses, periodic sentences.
@@ -137,8 +138,13 @@ proposition) is a list disguised as prose.
   is unwritten, and the passage is rebuilt.
 - Each paragraph develops a question, mechanism, sequence, comparison, consequence or tension; its last
   sentence completes that movement or sets up the next paragraph.
-- Transitions come from the subject matter. Stock signposts ("Moreover", "In addition", "Turning to",
-  "Notably", "It is worth noting") are excluded.
+- Writing flows and transitions smoothly. Each move from one thought to the next is marked: by the relation
+  written into the syntax, by a transition drawn from the subject matter, or by a transition word
+  ("moreover", "even though", "however", "in addition") used where it moves the reader on. A new or
+  independent point is marked as one, so that it reads as an addition and never as a consequence of the
+  sentence before. The author's own transitions stay.
+- Stock signposts are filler and are excluded: "It is worth noting", "Notably", "Turning to", or a
+  "Moreover" that opens a point with no relation to what came before.
 - A genuine catalogue goes in a table or a list.
 
 **Conclusions and the arc.** The paper has no separate discussion, so its Conclusion is the discussion. It
