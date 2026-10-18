@@ -1,94 +1,102 @@
 \section{Conclusion}
 
-Where an Earth value in the four codes was repaired, the kind of repair followed largely from the value's form:
-units and constants took general repairs with no coefficient fitted to the test world, geometry took a method whose
-table is computed from the world's own column, and the radiation's fits took calibrations to a line-by-line model
-and its correlated-$k$ emulation. Two of the general repairs remove, and a switch avoids, three of the five
-defects, all in ExoPlaSim, which produce little or no error at Earth's values and an error that grows the more
-slowly a world rotates or the further its day, tilt or eccentricity departs from Earth's. By the code's own
-arithmetic, the convective-cover unit adds about 0.23, up to the cover's cap of 0.8, to the convective cover of a
-synchronous run of TRAPPIST-1e, and, on the default solar geometry, the Sun clock sets the Sun back about
-33\textdegree\ each model day in a non-synchronous run of any planet rotating more slowly than once in 20 days.
+Four codes that began as models of Earth were joined into a chain that runs from a planet's climate to the waves at
+its shore, and the chain was taken to a world whose air is Earth's while its gravity, day, column of air and scale
+height all differ from Earth's. ExoPlaSim's climate forces CM1, whose resolved storms, with WRF-ELEC's
+electrification grafted in, separate charge and strike the ground; the GCM's surface stress drives SWAN over the
+seas, and SWAN's spectra drive SWASH up the shore; and the radiation of both atmospheric models was calibrated or
+checked against a line-by-line model built in house. Most repairs of an Earth value or a defect were built as
+switches whose default reproduces the released code, so that Earth's share of a result can be taken out one value
+at a time and measured.
 
-On the test world two of the three kept the global mean of the sunlight arriving at the top of the air and moved
-that sunlight between places. The Sun clock errs in the Sun's longitude alone and so keeps every zonal mean of the
-arriving sunlight, while the test world's equator received up to 17\% more than its mean in one sector and 8\% less
-in another; the orbit default, which put Earth's tilt in place of the configured one, brought Earth's seasons and
-summer rain to 60\textdegree. In a two-year test of the corrected Sun clock and tilt alone, the share of land under
-half a millimetre of rain a day rose from 9 to 36\%, and the moved sunlight changed the clouds and through them the
-global means: the clouds' effect in sunlight weakened by 2.4~W\,m$^{-2}$, and the test world ran 0.9~K warmer while
-still gaining heat. A modeller finds such an error in maps of sunlight by longitude and of rain by season.
+Measured that way on the test world, Earth's share was smallest in the units and constants and largest in the fits,
+the formulas that read as physics while their coefficients come from Earth's columns, clouds and storms. Correcting
+the convective cover's unit, or the height scale of the cloud water, moved the global-mean surface temperature by
+1.6--2.5~K; calibrating the radiation's fits against the line-by-line model moved it by at least 20~K, and PlaSim's
+Earth-tuned cloud settings, pushed to the ends of their tests, by up to about 6~K. A fit holds near the data it was
+fitted to, and on a world beyond Earth's range only new evidence can replace it.
 
-Whereas two of the defects moved sunlight between places, changes to the parts fitted to Earth's atmosphere moved
-the test world's global-mean surface temperature furthest: the first calibration of the radiation's Earth fits, a
-Rayleigh multiplier and a weaker water continuum, moved the first design runs by at least 20~K; the longwave
-correction and the ice optics, switched on together, warmed the design case by 11.5~K over years 10--19, with a
-correction fitted at 295~K; and PlaSim's Earth-tuned cloud settings, pushed to the ends of their tests, moved the
-global mean by up to about 6~K as the runs settled, against 1.6--2.5~K for the two general repairs measured alone.
-What a modeller of a new world needs for each part depends on how far the world's own column determines it. The
-radiative geometry of tall air is computed from that column, as the curved-air table was for the test world; on
-Titan, whose haze has a scale height of about 80~km, the same three hundredths of the radius as the test world's
-air, the plane-parallel codes that separate the surface from the haze hold typically to about 65\textdegree\ from
-the zenith \autocite{vincendon2010spherical}, although the adapted models lack Titan's nitrogen--methane radiation.
-The dynamical cores approximate the same geometry by a thin shell in the GCM and a flat slab in CM1, both at
-constant gravity, with an effect on the test world's circulation still to be measured. A scheme built from the
-reference's line-by-line spectroscopy would replace the radiation's gas and scattering fits for air of nitrogen and
-oxygen with water and modest carbon dioxide, under the starlight the scheme would be built for and at the pressures
-and temperatures where that spectroscopy agrees with an independent code, while the cloud optics would remain fits.
-The reference has been compared with an independent code, PyRADS, for water-only longwave at constant gravity and
-with an independent method, a Monte Carlo calculation, for Rayleigh scattering to an optical depth of 1.5, and a
-comparison of its carbon dioxide, oxygen, collision-induced absorption and sunlight on the design column is
-planned. Cloud amount would be calibrated for each world against cloud-resolving runs of that world: on two
-tidally locked planets in the comparison of \textcite{yang2023cloud}, cloud covered 82--97\% of the sky in two GCMs
-whose cover follows relative humidity, stability and large-scale ascent, and 27 and 41\% in quasi-global
-cloud-permitting runs that count cloud by a condensate threshold, over sea surfaces fixed from a coarser run of the
-same model, while the planetary albedos lay 2 to 11 points apart. On the test world the cloud fit is still to be
-made, and CM1's runs compute with Earth-fitted microphysics of their own.
+Small as their share of the global mean was, the repairs made by arithmetic put the world's own gravity and
+geometry into the models, and with them the models computed the features by which such a world departs from Earth.
+Gravity carried through the fall-speed laws slows raindrops about threefold, and in a storm-resolving box, with
+drop sizes still set for Earth, 85\% of the water leaving the clouds evaporated on the way down, against 64\% when
+the same drops fell at Earth's speeds. Read by CM1's dynamics and microphysics, the same gravity stretched the
+storms upward: their cloud tops rose to 55--80~km, and in the electrified run their charge took Earth's arrangement
+at five to six times its height, flashing at about a hundredth of Earth's average density. On the sea, once the
+bend in SWAN's wind growth moved with gravity, a lunar sea became the scaled image of an Earth sea, and the same
+wind, fetch and duration as on Earth raised waves four to five times higher, with periods five times longer and
+Earth's steepness. Geometry, last, sets the twilight: the curved-air terms add to each layer the sunlight that
+reaches air so tall that half of it still lies above the Moon's shadow a full Earth day after sunset. Each of these
+features lay beyond the models while the code held the Earth value it depends on.
 
-The charging laws grafted into CM1 were fitted to laboratory measurements. Two of them, Takahashi's and Saunders
-and Peck's, disagree on the sign that rimed ice takes in little cloud water, so that in two windows of an earlier
-electrified run, made before the ventilation repair and with leakage off, the test world's storms held their charge
-in opposite arrangements under the two. Measurements of that sign at the impact speeds of the lunar storms' hail and
-graupel, 4--8 and about 1--4~m\,s$^{-1}$, would decide which arrangement the model's lunar storms take, since hail
-carried most of the charge under Saunders and Peck's law and graupel under Takahashi's. The flash-rate laws with
-which \textcite{braam2022lightning} and \textcite{sergeev2025lightning} estimated lightning on tidally locked planets
-were fitted to Earth's storms and set the rate from the cloud-top height or, in Sergeev et al.'s storm-resolving
-runs, from the upward flux of graupel and the column's ice water path. At a sixth of Earth's gravity the cloud tops
-of six runs with Morrison's microphysics rose to 55--80~km, far above the storms the cloud-top law was fitted on,
-while the main electrified run, with the NSSL microphysics, forced from the Earth-orbit state and computing its
-flashes from resolved charge, flashed at about a hundredth of Earth's average flash density, part of the difference
-possibly from its grid. Tuning such laws on electrified storms resolved at other gravities, an application of the
-route Sergeev et al. propose for different planetary atmospheres where observations are lacking, would fit them to
-flashes computed from the same laboratory charging laws and from discharge thresholds set for Earth's storms, on
-grids fine enough to converge the flash count: a comparison between models at each gravity.
+A world that exists only as a design has weather only in its models, and its models have to be checked by means
+that need no observation of it. Most of the checks made here are of that kind: five patches at their neutral
+settings repeat the runs of the builds before them byte for byte; the patch series rebuild the deployed sources
+byte for byte from pinned archives; and a sea at a sixth of Earth's gravity, its lengths and times stretched
+sixfold, matches the Earth sea it scales to 0.3\% in wave height, where the released code misses by up to 5.4\%.
+Such checks test whether a code computes what it is written to compute, and they need nothing from the world it
+models. They leave the fits open, and the fits moved the test world's climate most.
 
-Whether gravity enters a model consistently is a property of the code, tested by similarity runs. Patched, SWAN
-passes such a test, reproducing a sixfold gravity scaling of an Earth sea to 0.3\% in wave height where the released
-code misses it by up to 5.4\%; the patch, built to keep the scaling at any gravity, has been tested at a sixth of
-Earth's on the code paths those tests ran, while Earth's empirical laws of drag, wind input and breaking keep
-coefficients fitted at Earth's gravity and ratio of air to water density. For CM1 the pair of runs designed to
-measure how far its convection, with gravity-scaled microphysics, departs from Earth's convection stretched sixfold
-failed to convect. Morrison's drop-size limits in CM1 stay Earth's: under them, 85\% of the water falling from the
-clouds of a box forced from the GCM evaporated on the way down, against 64\% when the same drops fell at Earth's
-speeds, and the ground received about a quarter of the GCM's rain. The largest raindrop that survives its fall
-scales with the capillary length, 2.46 times longer at a sixth of Earth's gravity: experiments on the largest stable
-drops of other media falling through other fluids agree with that capillary-length form within about 20\%, and on
-present-day Earth collisions between hydrometeors, in place of the breakup of single drops, set the largest
-raindrops \autocite{loftus2021physics}. Runs with Morrison's limits scaled by the capillary length would show, if
-the sizes that collisions allow scale as the largest stable drop does, how much of the lunar rain's evaporation its
-small drops cause.
+The evidence for a fit has to come from outside the code that holds it. A scheme built from line-by-line
+spectroscopy would replace the radiation's gas and scattering fits for air of nitrogen and oxygen with water and
+modest carbon dioxide, under the starlight it would be built for, once an independent code has checked that
+spectroscopy, a comparison planned on the design column. Cloud would be calibrated against runs that resolve it,
+and \textcite{yang2023cloud} found the two kinds of model far apart on two tidally locked planets: two GCMs covered
+82--97\% of the sky, and cloud-permitting runs over sea surfaces fixed from a coarser run, counting cloud by a
+condensate threshold, 27 and 41\%.
 
-Part of the test world's design was set with the model, and so with the Earth fits that remain in it: the shield's
-dimming was chosen so that the calibrated GCM settles at the design's 295~K, and holding that temperature on the
-corrected curved-air terms and the gas bands took easing it from 5.0 to 3.0\%. With a longwave correction refitted
-at the settled state, or cloud fitted to cloud-resolving runs, the dimming that holds 295~K could change again, and
-under a lower pressure or another shield the columns would differ from those the calibrations were fitted on.
-Although the changes that remove or avoid the three defects contain no coefficient fitted to the test world, away
-from Earth's values the repaired codes have run on the test world alone, so the defects' biases on other worlds are
-known from the code's arithmetic; runs of released and repaired ExoPlaSim in the configuration of two of the
-ROCKE-3D runs of \textcite{way2018climates}, ozone-free planets of nitrogen-dominated air at Earth's insolation and
-zero obliquity and eccentricity, rotating once in 16 and 64 days, would measure their joint effect. The radiation and
-cloud fits, which moved the test world's climate furthest, would be refitted or replaced on another world of
-nitrogen--oxygen air from evidence beyond the GCM: the gas and scattering fits from line-by-line spectroscopy
-checked against an independent code, and the cloud from cloud-resolving runs of that world, a second model whose
-own drop and ice laws, fitted on Earth, would in turn need testing at that world's gravity.
+The resolved runs compute with Earth-fitted laws of their own, and some of those laws come from Earth's
+laboratories. The two charging laws grafted into CM1 were fitted to laboratory measurements and disagree on the
+sign rimed ice takes in little cloud water; in two windows of an earlier run, made before the ventilation repair
+and with leakage off, they held the lunar storms' charge in opposite arrangements, and measurements of that sign at
+the impact speeds of the storms' hail and graupel, 4--8 and about 1--4~m\,s$^{-1}$, would decide which way up the
+model's storms hold their charge. CM1's raindrops keep Earth's size limits, while the largest drop that survives
+its fall scales with the capillary length, 2.46 times longer at a sixth of Earth's gravity, a scaling that
+experiments on the largest stable drops of other liquids, falling through other fluids at Earth's gravity, follow
+within about 20\% \autocite{loftus2021physics}.
+
+What it takes to use a part of a code on another world follows from how the part was made. A general repair holds
+as it is, within the limits of its law. The curved-air method holds once its table is recomputed from the new
+world's own column, which matters wherever the scattering layer is tall against the radius: the plane-parallel
+codes that separate Titan's surface from its haze, whose scale height of about 80~km is the same three hundredths
+of the radius as the test world's air, hold typically to about 65\textdegree\ from the zenith
+\autocite{vincendon2010spherical}. A calibration has to be refitted on the new world's columns, and for an air or a
+condensate other than Earth's the radiation, condensation and clouds have to be built anew. Away from Earth's
+values, the repaired codes have run on the test world alone.
+
+The first runs off that world would measure the defects, which bear most directly on exoplanets. Released and
+repaired ExoPlaSim, run in the configuration of two of the ROCKE-3D runs of \textcite{way2018climates}, ozone-free
+planets of nitrogen-dominated air at Earth's insolation and zero obliquity and eccentricity rotating once in 16 and
+64 days, would measure the three defects' joint effect on slowly rotating planets of the kind many climate studies
+model. By the code's own arithmetic, on its default solar geometry, the Sun clock sets the Sun back about
+33\textdegree\ each model day on any non-synchronous planet rotating more slowly than once in 20 days, and the
+convective-cover unit adds about 0.23 to the convective cover of a synchronous run of TRAPPIST-1e. The Sun clock
+and the orbit default keep the global mean of the sunlight arriving at the top of the air, and the Sun clock every
+zonal mean as well: in a two-year test on the test world, correcting the Sun and tilt moved the global-mean surface
+temperature by 0.9~K while the share of land under half a millimetre of rain a day rose from 9 to 36\%. A modeller
+who checks global means passes such errors, and one who maps sunlight by longitude and rain by season finds them.
+
+For a constructed world the model is part of the design. The test world's shield was dimmed until the calibrated
+GCM settled at the design's 295~K, and as the curved-air terms and the carbon dioxide and oxygen bands entered the
+radiation, holding that temperature took easing the dimming from 5.0 to 3.0\%; a refitted longwave correction, or
+cloud calibrated against resolved runs, could move it again. Until such a world is built its models are the only
+evidence of its climate, and the Earth values left in them are the design's own uncertainty: in the air where
+people and plants would live, the lowest 1.8~km at 45\textdegree\,N, the GCM and the storm model it forces still
+bracket the warmth within 3.7~K once the transport across the ring is imposed.
+
+Designs can also combine Earth's air with a gravity, a size and a day that no known natural world combines with it.
+By the design's own models, a shield in space would hold Earth's air under a sixth of Earth's gravity, seven times
+Earth's mass of air over each square metre, with a scale height three hundredths of the radius. A world built that
+way departs from Earth along every ratio at once, so a model run on it meets at once every Earth value that depends
+on those ratios, the same values a run of a slow rotator or a smaller world meets one at a time.
+
+Many models used for other worlds began as models of Earth, and in the four codes here that origin was followed
+value by value and taken apart in steps: constants and clocks by arithmetic, the geometry of tall air from the
+world's own column, and the gases by calibration to their line-by-line spectroscopy, with the clouds to be fitted
+to runs that resolve them and the laws inside those runs to be measured in Earth's laboratories. Already, for a
+world that exists only as a design, the repaired codes compute storms that hold their charge at five to six times
+Earth's heights, rain that mostly evaporates before it lands, and seas whose waves under an Earth wind grow taller
+and slower than Earth's, each a conditional result that the remaining fits can still move. Followed to its end,
+that path would let modellers compute the weather of an Earth-like exoplanet from its own gravity, day and
+starlight, and the storms, rain, seas and skies of a world still being designed before anyone lives under them,
+each with every Earth value left in its model named and measured.
