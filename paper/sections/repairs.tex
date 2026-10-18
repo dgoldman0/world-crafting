@@ -96,7 +96,7 @@ and through the same layers taken flat, at solar elevations from $-90$ to 90\tex
 tabulated. Sunlight from 360~nm to 5~\textmu m was traced in 10,697 spectral channels, whose construction the
 appendix gives, the 282 thin enough to scatter by spherical successive orders of scattering from an in-house
 sky solver and the rest by a direct beam through the shells with the diffuse light of a pseudo-spherical
-two-stream, so that their twilight lacks scattered light. The infrared escape, for its part, was traced through
+two-stream \autocite{dahlback1991new,kylling1995reliable}, so that their twilight lacks scattered light. The infrared escape, for its part, was traced through
 the same shells by impact parameter. The differences are summed in two terms: the widening of the shells above
 each square metre of ground, $-6.5$~W\,m$^{-2}$ net, and the curved light and escape, the twilight and the low
 Sun's side light, $+0.7$~W\,m$^{-2}$.\claim{R05} Tabulated at 167 solar elevations from $-40$ to 90\textdegree,
@@ -126,8 +126,9 @@ horizon.}
 \end{figure}
 
 \textbf{Calibration against the reference.} PlaSim was calibrated against the reference model and its
-correlated-$k$ emulation. The reference is clear-sky and line-by-line, built on HITRAN lines of water, carbon
-dioxide and oxygen, a re-implementation of MT\_CKD~4.3, collision-induced absorption and Rayleigh scattering,
+correlated-$k$ emulation \autocite{lacis1991description}. The reference is clear-sky and line-by-line, built on
+HITRAN lines of water, carbon dioxide and oxygen, a re-implementation of MT\_CKD~4.3 \autocite{mlawer2023inclusion},
+HITRAN's collision-induced absorption \autocite{karman2019update} and Rayleigh scattering,
 with gravity falling as $GM/r^2$ and a pseudo-spherical direct beam; its emulation reproduces the outgoing
 longwave within 0.4~W\,m$^{-2}$ at 288--290~K and within 1.4~W\,m$^{-2}$ for a saturated 330~K lunar
 column.\claim{R08} Each calibration was fitted to the residual of the one before. The first fitted a Rayleigh

@@ -10,37 +10,44 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 152,
+  "total": 158,
   "with_local_original": 87,
-  "blocked": 65,
+  "blocked": 71,
   "deferred": 87,
   "passed": 0,
   "depth": {
    "claim-locators": 70,
-   "abstract-only": 60,
-   "not read": 21,
+   "abstract-only": 65,
+   "not read": 22,
    "full": 1
   },
-  "cited_in_paper": 73,
+  "cited_in_paper": 81,
   "cited_blocked": [
    "battjes1985calibration",
    "berger1978long",
    "booij1999third",
    "bryan2002benchmark",
    "cavaleri1981wind",
+   "cazaubiel2019wave",
    "charnock1955wind",
    "christian2003global",
    "clough2005atmospheric",
+   "dahlback1991new",
    "dwyer2003fundamental",
    "ebert1992parameterization",
    "fierro2013implementation",
+   "karman2019update",
    "komen1984existence",
    "kristjansson2000impact",
    "kuhlman2006numerically",
+   "kylling1995reliable",
+   "lacis1991description",
    "macgorman2001lightning",
+   "mccaul2009forecasting",
    "mckay1991making",
    "mlawer2012development",
    "nicoll2012measurements",
+   "price1992simple",
    "rodgers1967use",
    "salinas2021modeling",
    "saunders1998laboratory",
@@ -1912,9 +1919,17 @@
    },
    "admission": "DEFERRED",
    "admission_reason": "Legal local original archived on 2026-10-17 (found by the legal-copies helper, fetched by the main session); not yet read in full",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "Documents MT_CKD's inclusion in HITRAN (MT_CKD 4.x era). Elsevier copy blocked; no abstract retrieved. Archived 2026-10-17: publisher version of record, NSF Public Access Repository; title found on the first pages."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "MT_CKD as included in HITRAN, the continuum the reference re-implements at version 4.3.",
+     "support": "title only",
+     "note": ""
+    }
+   ],
+   "notes": "Documents MT_CKD's inclusion in HITRAN (MT_CKD 4.x era). Elsevier copy blocked; no abstract retrieved. Archived 2026-10-17: publisher version of record, NSF Public Access Repository; title found on the first pages. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "koll2018earth",
@@ -2695,9 +2710,17 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "Elsevier, closed; no abstract retrieved. L10 (pseudo-spherical: spherical direct beam, plane-parallel diffuse) is unverified here."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "The pseudo-spherical method behind the diffuse light of the curved-air channels.",
+     "support": "title only",
+     "note": ""
+    }
+   ],
+   "notes": "Elsevier, closed; no abstract retrieved. L10 (pseudo-spherical: spherical direct beam, plane-parallel diffuse) is unverified here. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "li2006effective",
@@ -6455,6 +6478,204 @@
    "cited_in_paper": true,
    "paper_use": "Introduction: natural worlds keep atmospheres where escape velocity is large against insolation",
    "notes": "arXiv copy archived."
+  },
+  {
+   "key": "cazaubiel2019wave",
+   "citation": "Cazaubiel, Mawet, Darras, Grosjean, van Loon, Dorbolo and Falcon (2019). Wave turbulence on the surface of a fluid in a high-gravity environment. Phys. Rev. Lett., 123(24), 244501. doi:10.1103/PhysRevLett.123.244501",
+   "entry_type": "article",
+   "doi": "10.1103/PhysRevLett.123.244501",
+   "verified_via": "Crossref api.crossref.org/works/10.1103/PhysRevLett.123.244501 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "verification.tex",
+     "statement": "A centrifuge has raised gravity up to twentyfold for wave turbulence in a container; wind seas in the laboratory stay at Earth's gravity.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "price1992simple",
+   "citation": "Price and Rind (1992). A simple lightning parameterization for calculating global lightning distributions. J. Geophys. Res.-Atmos., 97(D9), 9919-9933. doi:10.1029/92JD00719",
+   "entry_type": "article",
+   "doi": "10.1029/92JD00719",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/92JD00719 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "The flash-rate law that sets the rate from the convective cloud-top height.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "mccaul2009forecasting",
+   "citation": "McCaul, Goodman, LaCasse and Cecil (2009). Forecasting lightning threat using cloud-resolving model simulations. Weather Forecast., 24(3), 709-729. doi:10.1175/2008WAF2222152.1",
+   "entry_type": "article",
+   "doi": "10.1175/2008WAF2222152.1",
+   "verified_via": "Crossref api.crossref.org/works/10.1175/2008WAF2222152.1 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "The flash-rate laws from the upward flux of precipitating ice at -15 C and the column's integrated ice.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "lacis1991description",
+   "citation": "Lacis and Oinas (1991). A description of the correlated k distribution method for modeling nongray gaseous absorption, thermal emission, and multiple scattering in vertically inhomogeneous atmospheres. J. Geophys. Res.-Atmos., 96(D5), 9027-9063. doi:10.1029/90JD01945",
+   "entry_type": "article",
+   "doi": "10.1029/90JD01945",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/90JD01945 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "The correlated-k method behind the reference model's emulation.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "kylling1995reliable",
+   "citation": "Kylling, Stamnes and Tsay (1995). A reliable and efficient two-stream algorithm for spherical radiative transfer: documentation of accuracy in realistic layered media. J. Atmos. Chem., 21(2), 115-150. doi:10.1007/BF00696577",
+   "entry_type": "article",
+   "doi": "10.1007/BF00696577",
+   "verified_via": "Crossref api.crossref.org/works/10.1007/BF00696577 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its bibliographic record, for the method its title names",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "The pseudo-spherical two-stream used for the diffuse light of the curved-air channels.",
+     "support": "title only",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "karman2019update",
+   "citation": "Karman et al. (2019). Update of the HITRAN collision-induced absorption section. Icarus, 328, 160-175. doi:10.1016/j.icarus.2019.02.034",
+   "entry_type": "article",
+   "doi": "10.1016/j.icarus.2019.02.034",
+   "verified_via": "Crossref api.crossref.org/works/10.1016/j.icarus.2019.02.034 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "green",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "HITRAN's collision-induced absorption (N2-N2, N2-O2, O2-O2, N2-H2O among its pairs) used by the reference model.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
   }
  ]
 }
