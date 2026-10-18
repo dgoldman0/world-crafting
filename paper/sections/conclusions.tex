@@ -1,104 +1,98 @@
 \section{Conclusion}
 
-Adapting climate, storm and wave models to a breathable Moon required following familiar air and water under
-a small world's gravity and long day. The resulting calculations also turned a constructed world into a test
-of models used for natural planets.
+An ensemble for Earth-like exoplanets and constructed worlds would follow the consequences of a world's
+gravity, size, day and starlight from its global climate into its storms and seas. The adaptations begun
+for Terluna's breathable Moon are a start toward that ensemble: climate, convection and wave models
+connected through their forcing, with custom tools for the radiation and geometry that change between worlds.
 
-ExoPlaSim's clock, rain-unit and orbit defects became conspicuous because their errors grew with the test
-world's long day and small tilt, although the code continued to compute climates. Two redistributed sunlight
-while preserving its global mean at the top of the air; correcting them warmed the surface by less than a
-kelvin over a two-year test, still gaining heat, while the fraction of land receiving little rain grew
-fourfold. The altered sunlight changed the clouds and their reflection, so its distribution affected both
-the energy balance and where water reached the ground. For the slowly rotating planets on which these
-defects also act, the corresponding climate change remains to be measured. The lunar result makes that a
-question about the spatial organisation of the climate as well as its mean warmth.
+ExoPlaSim's developers had already extended PlaSim to other planets, retaining the speed with which a
+modeller can explore possible climates. Connecting that global calculation to CM1 and the wave models
+makes selected climates accessible at the scales of a storm or a shore. The GCM can be used to explore a
+range of illumination or rotation, with resolved calculations concentrated on states where cloud, rain or
+surface conditions change. Such a comparison could follow a change in a planet's climate down to the water
+arriving in a basin and the waves arriving at its coast, through the circulation that determines both.
 
-A similar distinction between an integrated quantity and its distribution arose within the radiation.
-PlaSim could be calibrated to an outgoing flux while cooling the wrong layers; its water absorption could
-be fitted to the column's total while taking up sunlight that carbon dioxide and oxygen should have absorbed
-higher in the air. Those differences matter to the comparison with resolved convection: the GCM determines
-the heating and circulation from which CM1's storms develop, and CM1 computes its own radiative cooling
-within that imposed environment. A disagreement between the models can therefore originate in the vertical
-distribution of energy before their convection schemes respond to it.
+For those calculations to describe the same world, its physical parameters have to be used consistently
+across the models. The gravity in a dynamical core also determines the weight of cloud water, the fall
+of rain and the frequency scale of wind-generated waves; as the day lengthens, the conversion from rain
+to convective cover has to retain its intended physical time interval. The repairs make several of these dependencies
+explicit, so a modeller can vary a planetary property through the relevant processes together. Where a
+coefficient instead describes an empirical fit, the work required is different: changing gravity in the
+fall-speed law leaves the drop-size distribution to be determined, just as correcting the units of
+convective cover leaves its relation to rain to be calibrated.
 
-At the ground, that distribution becomes a question about the depth through which heat is mixed. In the
-lunar comparison, imposing the transport across the ring removed part of CM1's warm offset, while comparison
-with the radiation reference identified excess low-level cooling in both models. The remainder includes
-their different treatment of upward heat transport, with the starting sounding's high ice also contributing
-an unquantified term. A warmer resolved atmosphere becomes evidence about the GCM's convection only after the
-forcing and radiative differences have been accounted for; the choice of cloud calibration depends on the
-same separation.
+The ensemble's reference and calibration tools make that distinction useful when specifying another
+world. Its radius and atmospheric column determine a new curved-air table, while its spectrum and columns
+determine the targets for the radiation fits. The existing offline calculations can recompute these
+quantities and compare the atmospheric models on the same layers. Agreement in total outgoing radiation
+can coexist with different cooling profiles, so matching the layers matters before a GCM climate is used
+to force resolved convection. Otherwise the comparison mixes the response of the convection schemes with
+a change in where the air gains and loses heat.
 
-The proposed use of resolved cloud to calibrate the GCM thus entails agreement on the environment in which
-that cloud develops. With consistent radiative heating and the missing large-scale transport imposed,
-CM1's condensate and cover could constrain the GCM's cloud relations at the world's own gravity and day.
-That calibration would feed back into the global heating and circulation, requiring a new comparison with
-the resolved runs. The resulting iteration would test whether the two descriptions of cloud can agree in
-one climate, with the resolved model's microphysics determining how much confidence to place in the target.
+A reduced radiation scheme built from the reference spectroscopy would extend this work beyond successive
+adjustments of the inherited broadband fits. With the spectroscopy checked against an independent code
+and its reduction checked by layer, the two atmospheric models could compute heating over the tested
+gases, pressures and temperatures under the starlight for which the scheme was built. A different stellar
+spectrum would then enter through the spectral calculation, with its effects followed into circulation
+and cloud. That development would join the existing ability to explore climates quickly to a physical
+reference that can be recomputed for the worlds being explored.
 
-In the lunar box, most of the water leaving the clouds evaporated during its descent, and the ground
-received about a quarter of the forcing GCM's rain.
-The fall-speed repair follows gravity through weight and drag, while the limits on drop size and breakup
-remain fitted to Earth. Larger drops could survive more of the descent; their possible size increases with
-the capillary length, although collisions determine which sizes actually occur. Testing the retained size
-limits would measure how much of the rain gap comes from that choice within CM1. Only after this
-discrimination could the smaller resolved rainfall be used to revise the water budgets of the proposed lakes.
+Cloud requires a further exchange between the models. CM1 already receives the GCM's circulation, with
+custom forcing for the transport that its rings and boxes omit, while its boundary layer and convection
+develop freely. Once their radiative heating is consistent, the resolved cloud could become the target
+for the GCM's cloud amount and water profile at the chosen gravity and day. The revised cloud would alter
+the global heating and circulation, requiring another resolved calculation in that changed environment.
+Iterating between the two would make the cloud calibration depend on weather simulated for the world
+itself, with the empirical microphysics in CM1 setting the remaining physical limits of that comparison.
 
-The need for that test follows from the different scalings within a storm. The dry dynamics stretch in
-height and time as gravity falls, while the fall speeds of droplets, rain and graupel change by different
-powers. A stretched terrestrial storm therefore has different ratios of ascent, sedimentation and
-evaporation times. The wave calculations offer a useful comparison: on the paths tested, their gravity
-scaling preserves the sea's dimensionless form with Earth's growth and breaking coefficients retained.
-The storm's particle processes depart from the dry similarity, so their effect on cloud and precipitation
-has to be computed.
+Those limits also define physical questions worth pursuing across worlds. Lower gravity stretches
+dry convection in height and time, while droplets, rain and graupel change their fall speeds by different
+powers. The resulting storm has different ratios of ascent, sedimentation and evaporation times, so the
+rain reaching its ground can depart from a geometrically stretched terrestrial storm. The scaled wave
+tests offer a complementary case in which dimensionless sea states agree closely along the tested paths,
+with Earth's empirical coefficients retained. An ensemble that computes both can examine which
+properties of an environment follow a similarity law and which emerge from competing processes whose
+relative rates change.
 
-Some of the particle physics can be tested in the conditions of an Earth laboratory. In the charging
-calculations, two laws fitted to laboratory measurements produced different arrangements of charge in
-windows of the lunar runs because they assigned different signs to rimed ice in little cloud water.
-Measurements at the simulated collision speeds, temperatures and water contents could distinguish those
-laws for the relevant particles. They would constrain the electrical structure of a storm tens of
-kilometres high through collisions reproduced at laboratory scale. Ground-strike rates would require the
-additional calculation of a leader's descent through the deep air.
+Constructed worlds permit these comparisons over combinations of parameters that atmospheric escape
+would exclude from a natural temperate planet. A massive atmosphere on a small body separates the
+consequences of low gravity from those of thin air; varying its pressure changes the column mass while
+leaving gravity fixed. Alongside planets with different rotation rates or stellar spectra, such cases
+would test the ensemble along distinct physical directions. The breathable Moon remains the sole case
+run away from Earth's values, numerical controls apart. Further cases would measure the general repairs'
+performance and determine where new calibrations, deeper atmospheric dynamics or additional physics
+become necessary.
 
-Where a comparison changes the predicted heating of a constructed world, it can also change a chosen
-boundary condition. Correcting the lunar radiation changed the shield's dimming required to maintain the design temperature,
-and a consistent longwave fit or a cloud calibration could change it again. The uncertain quantity is the
-predicted heating; the available design control is the illumination. Holding the target temperature while
-revising that control would require the circulation, cloud and rain to be recomputed, with new forcing for
-the storm and sea models. Two versions of the design could satisfy the same temperature target while
-requiring different shielding and supplying different amounts of water to the land.
+The choice of those cases can also sharpen the use of terrestrial experiments. The electrification graft
+computes charge separation in ice-particle collisions within the simulated storms, where alternative
+laboratory fits can predict different charge arrangements. Their disagreement identifies collision
+speeds, water contents and temperatures at which further measurements would discriminate between the
+laws. A storm's planetary scale can thus be combined with experiments on the particles composing it,
+and the revised particle physics tested in the climates where its consequences are largest. Comparisons
+across worlds would help select the experiments as well as use their results.
 
-For a natural planet, the corresponding calculation would hold the prescribed starlight and determine how
-far the revised physics moves the climate. A process constrained on the designed world can be tested under
-a natural planet's conditions, while a comparison between models on that planet can test a proposed use
-of the repaired code. The general repairs
-are built to transfer within their laws; the geometry needs the new world's column, and empirical
-calibrations need evidence over its conditions. Beyond Earth's values and numerical controls, the
-adapted models have so far run on the lunar case alone. Further worlds would test the interactions of
-processes that the lunar adaptation has made individually accessible.
+For a natural planet, those developments would refine the climate predicted under its prescribed
+starlight. For a constructed world, they could change the illumination chosen to sustain a desired
+climate, as the radiation corrections already changed the dimming in the lunar design. Holding a target
+temperature while adjusting that illumination still changes the circulation, cloud and rain, so the
+storm and sea calculations have to follow the revised climate. Designs with similar mean warmth could
+then be compared through the water they deliver to the land and the winds they drive over the seas.
+The same ensemble would serve the interpretation of a world found around another star and the design
+of an environment whose boundary conditions people could choose.
 
-Following a change in illumination through absorption, convection and cloud into the water arriving at
-the ground would make those interactions the subject of comparison between worlds. A scheme reduced from
-the reference spectroscopy, checked independently and by layer, would compute the heating across its
-tested gases, pressures and temperatures under the starlight for which it was built; cloud calibrated
-against resolved convection would respond under the conditions of the world being studied. Their joint
-effect could then be examined through the redistribution of water, including changes that remain small
-in a global temperature.
+Developed in this way, the ensemble could be used to explore where those environments admit persistent
+surface water and what weather accompanies it. Simulated rain would constrain the water budgets of
+prescribed lakes; the winds transporting moisture would force the sea, and its spectra would determine
+the waves reaching a particular shore. Comparing changes in illumination or surface-water distribution
+through these connected calculations could turn a broad temperature requirement into a geographically
+specific design. On an exoplanet, the corresponding calculations would describe possible environments
+within the range of planetary properties consistent with observations.
 
-At the surface, the simulated rainfall would constrain the water budget of a lake prescribed in the climate.
-The winds transporting heat and moisture would also force a sea, whose spectra determine the waves arriving
-at a particular shore.
-Following these dependencies would bring the atmosphere, water distribution and coastal conditions of a
-proposed world into the same physical calculation. A designer could then compare changes to illumination
-or the distribution of surface water through their effects on a place, while retaining the body's own
-gravity, size and day.
-
-\enlargethispage{\baselineskip}
-On a small world with breathable air, those native conditions can produce storms tens of kilometres high,
-with rain descending slowly through the deep atmosphere. Where enough of that rain survives to replenish
-the basins, lakes could become part of a living landscape beneath those storms. Along a sea, even light
-winds could generate the long-period swell of the lunar calculations, so that the shore would have its
-own rhythm within the long cycle of daylight and darkness. After sunset, upper air could still receive
-sunlight above the shadowed ground. These are places whose water, weather and light could be explored
-together as conditions for life: environments made from familiar air and water, shaped by another world's
-gravity and day, in which people might eventually make their homes.
+Across that range, familiar air and water could form landscapes with different rhythms. A slowly
+moving Sun could sustain weather through days lasting weeks, while a smaller world's deep atmosphere
+could contain towering storms and rain descending slowly toward its basins. Under another star, a
+different distribution of absorbed light could reorganise the clouds and the places replenished by
+rain. To explore such worlds through their weather and their shores is to imagine places in physical
+detail: the passage of a storm over a lake, the return of sunlight to wet ground, the arrival of swell
+along a coast. Among those possible environments may be places where life has already developed, and
+others that people could one day construct and inhabit.

@@ -45,10 +45,13 @@ These follow Terluna's AGENTS.md (sha256 7fac1ca0…be6 at 186b294):
 
 The paper stands alone as a field paper on modelling Earth-like worlds beyond Earth's range: exoplanets
 and constructed worlds whose air and water resemble Earth's while their gravity, size, day or starlight
-differ. That purpose, and the work toward it, frame the paper. The breathable Moon is its worked case,
-the world on which the work so far was done. Terluna enters as provenance only: the origin of the case,
-the code and data records, and the history of AI assistance. Paper IDs and ensemble language belong to
-Terluna's five-paper ensemble and stay out of this paper.
+differ. Its central purpose is the development of an ensemble of models for those worlds, connecting
+global climate to storms and seas. That purpose, and the work toward it, frame the paper. The breathable
+Moon is its worked case, the world on which the work so far was done and existing systems' limitations
+became apparent. Terluna enters as provenance only: the origin of the case, the code and data records,
+and the history of AI assistance. Terluna's paper IDs and five-paper ensemble stay out of this paper;
+the model ensemble is the subject. The Conclusion develops that broader purpose throughout, with the
+lunar work as evidence and a starting point.
 
 Evidence and release follow Terluna's editorial charter
 (`ensemble/planning/Open_Moon_Editorial_Charter_control-01.md`, sha256 aac4a4f2…0b0): technical meaning
