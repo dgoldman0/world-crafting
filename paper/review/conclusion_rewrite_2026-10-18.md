@@ -16,7 +16,7 @@ the body before drafting. Its reading excluded the conclusion and earlier review
 |---|---|---|
 | `drafts/conclusion_round11.tex` | `9f2fed6f54a161b154c69a956e315b4bc0d9f4dabf395998c670f8e6fb9bc924` | Fresh Codex agents `conclusion_round11_prose` and `conclusion_round11_evidence` |
 | `drafts/conclusion_round12.tex` | `0b32b7bc4be6b4864952e2773e909b3a6a4ecdbe38366ebe8a2a4a169646283a` | Fresh Codex agents `conclusion_round12_prose` and `conclusion_round12_evidence` |
-| Revised `../sections/conclusions.tex` | `e1a410e7467f58d2521ec64e0ddd1e0c9adf5c26be034c4c254295166a53d4f9` | Drafting assistant's continuous silent reading after revision; author's reading next |
+| Revised `../sections/conclusions.tex` | `a151c8a9af9a67d7af82e64f5a4d36de90f3c0380b1d99e53f5c194da31cb815` | Drafting assistant's continuous silent reading after revision; author's reading next; one page-height command added after visual inspection |
 
 Round 11's evidence review and round 12's evidence review found zero blocking findings within their stated
 scope. Round 11's prose review required structural revision. Round 12 found the discussion developed and
@@ -53,5 +53,26 @@ lake's water budget. The availability statement and review index now identify th
 | `make check` under the session's initial locale | CM1 aggregate source hashes differed; archive pins, ExoPlaSim and SWAN passed. The script sorts filenames before hashing, so the aggregate depends on collation. |
 | `LC_ALL=en_US.UTF-8 make check` | Passed every patch check and 77 Python tests in 8.75 s. Model code, tests and checksum records were unchanged. |
 
-PDF build and visual observations are recorded below once the final source commit has been built. These
-checks concern this draft; the historical release register's exact-build judgments retain their stated hash.
+## PDF build and visual inspection
+
+The final source commit is `df36c34217f6d96b6d7e956d3880ba5e230b0fba`, following the prose commit
+`d25d5875d0b1c69abd66e5f33749429d114893a9`. A forced latexmk build used the Makefile's flags with
+`SOURCE_DATE_EPOCH=1792332442` and `FORCE_SOURCE_DATE=1`. Forcing the rebuild updated the PDF metadata
+after the source commit; an ordinary make invocation had retained the previous build's metadata.
+
+The 34-page `paper/build/main.pdf` has SHA-256
+`f9b3323b58e04f0ac4baa82bbe2923b084ae25f73be7ae23488b9d04afa46fa9`.
+The build completed with zero overfull-box warnings and the existing underfull reference line.
+The drafting assistant rendered pages 23–30 with Poppler at 1,600 pixels high and inspected those final
+renders at readable scale. The images are retained in the ignored `paper/build/conclusion-review/` directory.
+
+| Pages | Observation |
+|---|---|
+| 23–24 | The preceding Next steps and the conclusion's opening are legible; the heading stays with its opening paragraph. |
+| 24–25 | The complete conclusion is legible. An earlier render left its last line alone above the appendix. A local `enlargethispage` command adds one baseline to page 25 and keeps the final paragraph together, with clear separation from the footer. |
+| 26–28 | The appendix tables remain legible after repagination. The SWAN group label ends page 27, with its rows continuing on page 28; that table-layout detail remains for a whole-document production pass. |
+| 29–30 | The added assistance disclosure and review history are legible; the references follow the acknowledgements. |
+
+This is a visual inspection of the changed region and its neighbours. The whole-document release visual
+review remains DEFERRED; the historical release register's judgments retain their earlier PDF hash.
+The revised conclusion and its prospective ending are ready for the author's reading.
