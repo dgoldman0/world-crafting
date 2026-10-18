@@ -2826,7 +2826,7 @@
     {
      "claim_id": null,
      "section": "repairs.tex",
-     "statement": "On Earth, a spherical atmosphere intercepts 2.5 W/m2 more sunlight than flat layers and heats the climate by 1.5 W/m2 more.",
+     "statement": "On Earth, a spherical atmosphere intercepts 2.5 W/m2 more sunlight than flat layers in the global mean and absorbs (heats the climate by) 1.5 W/m2 more; full abstract also checked on OSTI by the step-4 reader.",
      "support": "supported (abstract, Semantic Scholar)",
      "note": ""
     }
@@ -7029,7 +7029,7 @@
     {
      "claim_id": null,
      "section": "next.tex",
-     "statement": "CKDMIP evaluates CKD schemes against benchmark line-by-line calculations, on Earth's atmospheric conditions.",
+     "statement": "CKDMIP evaluates CKD schemes against benchmark line-by-line calculations on Earth's columns (profiles and palaeo-to-future gas scenarios).",
      "support": "supported (abstract)",
      "note": ""
     }

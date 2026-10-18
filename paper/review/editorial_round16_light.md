@@ -63,3 +63,15 @@ a cover bias of +0.34), and found them sound.
 | 4 | `results.tex`:91–93 | Yang et al. 2016 compare seven 1-D codes, five band and two line-by-line, with longwave differences growing with surface temperature | Applied as proposed |
 | 5 | `results.tex`:87–93 | One sentence chained four results as a list; "while" left the radiation codes unrelated to the radiation fits; the turn to cloud went unmarked | Applied: two sentences, the radiation codes first, then the GCMs' spread widening as water and cloud enter, ending on the causes Yang et al. 2019 name, which hands on to the sentence on parameterized and resolved cloud |
 | 6 | `next.tex`:55–59 | "The SAMOSA intercomparison offers a second benchmark" gave an abstraction a generic verb and named no run; the source's "blackbody" was dropped | Applied: "Released and repaired ExoPlaSim run on the sixteen cases of the SAMOSA intercomparison, ... around a 3000 K blackbody star, ... would test the convective-cover repair in synchronous rotation, ..." |
+
+## Step 4: existing tools and Earth's counterpart (bf56cac)
+
+Verdict: needs four MINOR fixes; nothing blocking. The reader checked Prather and Hsu's 2.5 and 1.5 W m⁻² against
+their full abstract (OSTI 1563031) and the two tools against their abstracts.
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1 | `repairs.tex`:117–118 | Prather and Hsu's figures are global means of sunlight intercepted and absorbed; set after the Moon's net term of −6.5 W m⁻², which includes infrared escape, "heats the climate" invited a false comparison | Applied: "intercepts 2.5 W m⁻² more sunlight than flat layers in the global mean and absorbs 1.5 W m⁻² more of it" |
+| 2 | `assumptions.tex`:47 | "A geometry that suits air a tenth of a percent of the radius tall" disagreed with a cited 1.5 W m⁻² error on Earth | Applied: "a geometry made for air a tenth of a percent of the radius tall" |
+| 3 | `next.tex`:27 | "Both steps" had three candidates in the sentence before, and ecCKD performs neither check | Applied: "Free tools exist for the reduction and for its check" |
+| 4 | `next.tex`:29 | "Built around Earth's air" contrasted the wrong thing, since the test world's air is also nitrogen and oxygen; what is Earth's is the columns | Applied: "both were built around Earth's columns" |
