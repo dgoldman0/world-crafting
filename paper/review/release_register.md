@@ -32,6 +32,10 @@ the paper's new title, the names Gaean and Open Moon, and the dispositions in `e
 Its clean build, 35 pages with zero overfull boxes and every font embedded, has SHA256
 `2bafee085d6f12436ca24e7e3558483149ae7aa8fbe2ca74764698c1dccefe4e`; every page was inspected for layout, and the
 gates stand as for the build before it.
+With the Conclusion's three approved insertions and the appendix's spacing fix, the source at
+`50c3e35376d8b9bab4319dcbad9cbc8841fd845d` builds a PDF of 35 pages with SHA256
+`42b871bab8042d0b21b9316d1e81fc517b4ff6b968cab8ced5b8c4404e048003`; pages 25–30, where the layout moved, were
+inspected, and the gates stand as before.
 
 ## The artifact
 
