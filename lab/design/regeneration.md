@@ -13,7 +13,7 @@ worked examples.
 flowchart LR
   W[world: R, GM, rotation, orbit, star] --> PL[planet record and derived quantities]
   S[scenario: air, water, shield, scale, land, forcing] --> PL
-  CG[GCM configuration] --> PL
+  CG[GCM settings: defaults and study] --> PL
   W --> GEO[surface geometry: heights, seas, lakes]
   S --> GEO
   GEO --> SRF[T21 mask and geopotential]
@@ -61,7 +61,7 @@ flowchart LR
   TWT --> CASE
   CMB --> CASE
   PL --> CASE
-  CC[CRM configuration] --> CASE
+  CC[CRM settings: defaults, variants and study] --> CASE
   CASE --> CRM[CM1 run]
   CRM -. day-night forcing .-> CASE
   GCM --> AN[analyses]
@@ -137,7 +137,7 @@ The product groups that head the columns:
 | GCM time step | ● | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | A patch switch | — | — | — | — | — | — | ○ | ○ | — | — | ● | ● | ● |
 | A refitted calibration | — | — | — | — | — | — | — | — | — | — | ● | ● | ● |
-| CM1 grid, physics, case geometry | — | — | — | — | — | — | — | — | — | ● where the physics needs other patches | — | ● | ● |
+| CM1 grid, physics, variants, case geometry | — | — | — | — | — | — | — | — | — | ● where a variant adds patches | — | ● | ● |
 
 ## Cross-dependencies
 

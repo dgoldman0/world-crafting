@@ -6,10 +6,10 @@ through the reproduction of what Terluna already has, to new work.
 
 | Stage | Product | Acceptance check | State |
 |---|---|---|---|
-| 0. Design | `lab/design/`; seed specifications in `lab/worlds/`, `lab/configs/` and `lab/experiments/`; the registry seed | The author has read the design and answered its open questions (architecture.md, "Decisions") | Drafted 2026-10-17 |
+| 0. Design | `lab/design/`; seed specifications in `lab/worlds/`, `lab/configs/` and `lab/studies/`; the registry seed | The author has read the design and answered its open questions (architecture.md, "Decisions") | Drafted 2026-10-17 |
 | 1. Specifications and derivations | `worldlab.spec` (load, `extends` and `set`, resolve, hash) and `worldlab.derive` | As listed under "Stage 1: checks" | To start |
-| 2. ExoPlaSim inputs | The ExoPlaSim adapter's input writer, with its Terluna compatibility settings | From `moon/open-moon` and `exoplasim/terluna-corrected`, the lab writes the files and run key of `A28_corrected_970` byte for byte ("Stage 2: files"), then those of `A28_corrected_970_lw_ice`, which adds `lwcorr.dat` and four namelist entries, and then the inputs of the 32 runs that `models/exoplasim/runs.json` matches | To start |
-| 3. CM1 builds and cases | Build keys from patch sets and compile constants; the case writers and the GCM-to-CRM extraction | The fields of each deployed build's `build.json` reproduced (`check_patches.sh` already reproduces their sources). The input files of the three seed cases (`ring_45n_corrected`, `ring_45n_corrected_twilight`, `box_jura`) reproduced byte for byte from `A28_corrected_970` | To start |
+| 2. ExoPlaSim inputs | The ExoPlaSim adapter's input writer, reading the study's compatibility settings | From the `open-moon` study, with `exoplasim/defaults` and the study's compatibility settings, the lab writes the files and run key of `A28_corrected_970` byte for byte ("Stage 2: files"), then those of `A28_corrected_970_lw_ice`, which adds `lwcorr.dat` and four namelist entries, and then the inputs of the 32 runs that `models/exoplasim/runs.json` matches | To start |
+| 3. CM1 builds and cases | Build keys from patch sets and compile constants; the case writers and the GCM-to-CRM extraction | The fields of each deployed build's `build.json` reproduced (`check_patches.sh` already reproduces their sources). The input files of the study's three CM1 cases (`ring_45n_corrected`, `ring_45n_corrected_twilight`, `box_jura`) reproduced byte for byte from `A28_corrected_970` | To start |
 | 4. Stage graph and planner | Keys, headers, read sets, staleness, `plan` | With nothing changed, the plan is empty; the computed stale sets equal the worked examples in regeneration.md | To start |
 | 5. Producers and calibrations | Stages for the ledger, the gas bands, the shortwave and longwave fits and the ice optics, with their envelopes | Each reproduces its Terluna product from the same inputs within the tolerance it states. The envelope check marks `A28_corrected_970_lw_ice` as used beyond its fit | To start |
 | 6. Registry and reach | `lab/registry/`, completed from the defect log's classes (a) and (b); the reach report | The report reproduces the paper's table of reach for the worlds of `paper/data/worlds.json`, ten on 2026-10-17 | Eleven-entry seed drafted |
@@ -21,7 +21,9 @@ through the reproduction of what Terluna already has, to new work.
 - **Against Terluna's records.** The Moon's derived values must equal those Terluna recorded:
   - gravity, the partial pressures and the flux in `progress.json` of `A28_corrected_970`;
   - the build macros in `build.json`;
-  - `var16`, `var19` and `nx` in each ring case's `case.json`.
+  - `var16`, `var19` and `nx` in each ring case's `case.json`;
+  - the CM1 lengths and time step scaled from `cm1/defaults` at the Moon's gravity, which must equal Terluna's
+    ring settings exactly.
 - **Against ExoPlaSim.** The calendar from `worldlab.derive` must equal what ExoPlaSim's own `configure`
   writes:
   - for the Moon;

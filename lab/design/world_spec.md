@@ -10,8 +10,8 @@ that stage 1 of plan.md writes to read the seeds takes those derivations over.
 |---|---|---|---|
 | World | The body: its size and mass, rotation, orbit, star, host planet and surface geometry. Its `kind` is `found` for an observed body and `illustrative` for a supposed one | `moon` | `lab/worlds/<world>/world.toml` |
 | Scenario | The state of the world's air, water and land, the sunlight's filter and scale, and outside forcings, as observed, made or supposed. Its `kind` is `found`, `crafted` or `illustrative` | `moon/open-moon` | `lab/worlds/<world>/scenarios/<name>.toml` |
-| Model configuration | One model's set-up for any world: upstream pin, patches and switches, grid, physics, output, calibration products | `exoplasim/terluna-corrected` | `lab/configs/<model>/<name>.toml` |
-| Experiment or case | A run of a configuration on a scenario, or a slice of one, with its initial state and length | `A28_corrected_970` | `lab/experiments/<scenario>.toml` |
+| Model defaults | One model's settings for any world: upstream pin, patches and switches, grid, physics, output, the calibration stages it reads, and the named variants a case may declare | `cm1/defaults` | `lab/configs/<model>/defaults.toml` |
+| Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults, with the study's compatibility settings | `open-moon` | `lab/studies/<study>.toml` |
 
 World and scenario kinds combine freely. The Open Moon and its 1.0 atm variant (`moon/open-moon-1.0atm`)
 are crafted scenarios of a found world, and an exoplanet study pairs a found world with an illustrative
@@ -35,8 +35,9 @@ scenario.
    their hashes.
 5. **`"unchosen"` and `"model-default"`.** The lab refuses any stage that reads a field marked
    `"unchosen"`. A field marked `"model-default"` takes the model's own value, which the adapter records.
-6. **Extended items.** `extends` names the parent, and `[set]` lists the changed fields by dotted path. The
-   resolved form is hashed, and the delta is recorded with it.
+6. **Extended items.** `extends` names the parent, `[set]` lists the changed fields by dotted path, and
+   `variants` names variants that the model's defaults define. The resolved form is hashed, and the delta,
+   its set fields and variants together, is recorded with it.
 7. **Model conventions belong to the adapters.** Examples:
    - **The radius.** ExoPlaSim reads it in units of 6,371,220 m (`shared/constants.json`, `model_closures`).
      Terluna's runner divided by 6,371,000 m, which lengthens PlaSim's radius by 60 m
@@ -45,11 +46,15 @@ scenario.
    - **Molar masses.** ExoPlaSim computes the gas constant from its own molar masses: CO2 at 44.01 g/mol,
      against 44.0095 in Terluna's runner.
    - **CM1's Earth gravity** is 9.81 m/s².
-8. **Compatibility settings.** For byte-for-byte reproduction of a Terluna run, an adapter holds each of
-   Terluna's quirks (the radius divisor, the calibration values copied by hand and rounded) as a named
-   compatibility setting. Correcting a quirk afterwards is a declared delta with a new key, and Terluna's
-   record of the earlier run remains valid. The Moon's solar day is a stated value with its basis
-   (rule 2), which CM1's `var19` takes as Terluna's runner does.
+8. **Compatibility settings.** For byte-for-byte reproduction of a Terluna run, the study holds each of
+   Terluna's quirks as a named compatibility setting: the radius divisor, the calibration values copied by
+   hand and rounded, the CM1 run length typed as 59.06 days. Correcting a quirk afterwards is a declared delta
+   with a new key, and Terluna's record of the earlier run remains valid. The Moon's solar day is a stated
+   value with its basis (rule 2), which CM1's `var19` takes as Terluna's runner does.
+9. **Scaling with gravity.** A model's defaults give their lengths and the time step at a stated reference
+   gravity, the one at which they were tested, and the adapter multiplies them by g_ref/g. Times tied to the
+   day are given in the world's solar days, and the rest in seconds, the same on every world. A study, which
+   belongs to one scenario, states its own values in that world's units.
 
 ## World fields
 
@@ -98,6 +103,7 @@ scenario.
 | Sunlight at the top | ∫ S_λ T_λ dλ over the measured spectrum, plus the rest of the total at the longest measured wavelength's transmission (`exoplasim_run.py:976-984`); times (1 AU/a)² and the scale | 1,235.25 W/m² through the shield; 1,198.19 W/m² at 0.970 | ExoPlaSim `flux` (`GSOL0`); CM1 `var17` |
 | Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at a stated reference temperature | At 295 K: 52.4 km, 0.0302, 74,861 kg/m², 7.2 (`paper/data/worlds.json`) | The reach report; deciding whether a column needs a ledger of its own |
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
+| CM1 lengths and time step | The defaults' values × g_ref/g (rule 9) | A factor of 1, with the reference at lunar gravity: 6 km columns, a 150 km top, nudging from 8 to 16 km, a 40 s step | CM1's grid, top, nudging heights and `dtl` (`cm1_run.py:1979-2035`) |
 
 ## The Moon worked through
 

@@ -40,7 +40,8 @@ Snakemake rules could call if the lab moves to a cluster.
   - the product's schema;
   - its producer, as a code identity;
   - its inputs: upstream products by hash and external data by pin;
-  - its read set: every world, scenario and configuration value it used, by name and value;
+  - its read set: every value it used from the world, the scenario and its run's settings, by name and
+    value;
   - its evidence statement and state;
   - for a fit, the envelope of states it was fitted on.
 
@@ -51,15 +52,16 @@ Snakemake rules could call if the lab moves to a cluster.
 - **Refusal with a reason.** In any of five cases the lab stops the stage and names the cause:
   - an input is missing;
   - a hash differs;
-  - the scenario and configuration lie outside a calibration's envelope, in the dimensions they fix;
+  - the scenario and the run's settings lie outside a calibration's envelope, in the dimensions they fix;
   - a registry entry forbids the scheme;
   - a declared pair differs outside its delta (below).
 
   An override records its justification, which the lab copies into every downstream header.
-- **Declared pairs.** An experiment or case derived from another names its change. The lab compares the two
-  fully resolved input sets, build flags included, and refuses the pair when they differ elsewhere. The check
-  would have caught the 45° N twilight pair's mixed builds (defect log C8). `lab/experiments/open-moon.toml`
-  defines the pair, and the importer applies the same check to Terluna's records of it.
+- **Declared pairs.** A run or case derived from another names its change, as set fields or as a variant
+  that its model's defaults define. The lab compares the two fully resolved input sets, build flags
+  included, and refuses the pair when they differ elsewhere. The check would have caught the 45° N twilight
+  pair's mixed builds (defect log C8). `lab/studies/open-moon.toml` defines the pair as a ring and its
+  twilight variant, and the importer applies the same check to Terluna's records of it.
 - **Earth in two checks.**
   - **Identity, per patch.** With its switch at the default, the patched model reproduces the released
     model's own Earth configuration byte for byte.
@@ -79,25 +81,27 @@ Snakemake rules could call if the lab moves to a cluster.
 |---|---|---|---|
 | World | A body: its size and mass, rotation, orbit, star and any host planet | Name and content hash | `shared/constants.json`, through `climate/gcm/boundary.py`, into `moon_gcm_configuration.json`; the year and eccentricity typed into `exoplasim_run.py:841-842` |
 | Scenario | A designed or supposed state of a world: air, water, shield and sunlight scale, surface properties, outside forcings | Name and content hash | `EXPERIMENTS` (`exoplasim_run.py:85-94`), parts of `MODEL`, command-line flags |
-| Model configuration | One model's set-up for any world: upstream pin, patch-series state and switches, grid, physics options, output | Name and content hash | `MODEL` (`exoplasim_run.py:98-145`), `BUILDS`, `case_settings` (`cm1_run.py:1979-2035`) |
+| Model defaults | One model's settings for any world: upstream pin, patch-series state and switches, grid, physics options, output, named variants, with lengths and the time step given at a reference gravity | Name and content hash | `MODEL` (`exoplasim_run.py:98-145`), `BUILDS`, `case_settings` (`cm1_run.py:1979-2035`) |
+| Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults | Name and content hash | `EXPERIMENTS` and `CASES` together |
 | Calibration | A fitted product, with the states it was fitted on and its residuals | Content hash | Scalars typed into `MODEL`; JSON products in `climate/results/gcm/` |
-| Experiment | A model run on a scenario: configuration, calibrations, initial state, length | Hash of the resolved inputs | GCM run folders and their run key (`exoplasim_run.py:905-911`) |
-| Case | A cloud-resolving slice forced from an experiment: geometry, years, CRM configuration | Hash of the resolved inputs | `CASES` (`cm1_run.py:1093-1526`), `case.json` |
+| Experiment | A GCM run in a study: its settings, calibrations, initial state and length | Hash of the resolved inputs | GCM run folders and their run key (`exoplasim_run.py:905-911`) |
+| Case | A cloud-resolving slice in a study, forced from one of its experiments: geometry, years, variants, CM1 settings | Hash of the resolved inputs | `CASES` (`cm1_run.py:1093-1526`), `case.json` |
 | Build | An executable made from an upstream pin, a patch set, compile-time constants and flags | Hash of all four, with the compiler and its version | `cm1/build/<label>/build.json`; the patched ExoPlaSim copy on the drive |
-| Delta | The declared difference between two experiments or cases | Part of the derived item | Prose ("so the pair differs in that alone") |
+| Delta | The declared difference between two experiments or cases: set fields, named variants | Part of the derived item | Prose ("so the pair differs in that alone") |
 | Registry entry | One Earth assumption in one model: its location, what it assumes, when it matters, what repairs it | Stable id (A1, B1, …) | `notes/defect_log.md` |
 | Record | What happened: segments, wall time, outputs, checks | Belongs to its run or case | `progress.json` |
 
 A world file holds what the body is, and a scenario file what has been made of the body or is assumed for
 it. The Moon's shield, its 28% seas and its air are scenario choices, so the Moon at 1.0 atm becomes a
-second scenario of the same world.
+second scenario of the same world. A run's settings are its model's defaults with the study's changes, and
+the registry and the envelopes test those resolved settings.
 
 ## Components
 
 ```mermaid
 flowchart TB
   subgraph specs [Specifications, in Git]
-    W[worlds] --- S[scenarios] --- C[model configurations] --- E[experiments and cases]
+    W[worlds] --- S[scenarios] --- C[model defaults] --- E[studies: experiments and cases]
   end
   specs --> D[derive: quantities every model needs]
   D --> R[registry and reach report]
@@ -116,9 +120,9 @@ flowchart TB
 
 | Component | Working module | Does | Built from |
 |---|---|---|---|
-| Specifications | `lab/worlds/`, `lab/configs/`, `lab/experiments/` | Worlds, scenarios, configurations, experiments and cases in TOML; `extends` and `set` express a derived item and its delta | `EXPERIMENTS`, `MODEL`, `CASES` |
+| Specifications | `lab/worlds/`, `lab/configs/`, `lab/studies/` | Worlds, scenarios, model defaults and studies in TOML; `extends`, `set` and `variants` express a derived item and its delta | `EXPERIMENTS`, `MODEL`, `CASES` |
 | Derive | `worldlab.derive` | Pure functions from a specification to the quantities the models need: g; Ω; the solar day; the scale height, H/R, the column mass and the Chapman horizon factor; ExoPlaSim's calendar (rotations per year, model day, steps per day, whole-day run steps); the gas mass fractions and gas constant; CM1's domain lengths and Coriolis parameters | `paper/tools/regime_calc.py`, `boundary.planet()`, arithmetic spread through the runners |
-| Registry and reach | `worldlab.registry`, `lab/registry/` | Earth-assumption entries and calibration envelopes, evaluated for a world, a scenario and a configuration into a reach report | `notes/defect_log.md`, classes (a) and (b); the paper's table of reach |
+| Registry and reach | `worldlab.registry`, `lab/registry/` | Earth-assumption entries and calibration envelopes, evaluated for a world, a scenario and a run's settings into a reach report | `notes/defect_log.md`, classes (a) and (b); the paper's table of reach |
 | Stage graph and store | `worldlab.stages`, `worldlab.store` | Stage definitions, product keys and headers, read-set tracking, staleness, priced plans, materialization | Terluna's run key, `case.json`'s input hashes, `shared/provenance.py` |
 | Model adapters | `worldlab.models.exoplasim`, `worldlab.models.cm1` | Builds, input files, namelists, runs and guards for each model | `exoplasim_run.py`, `cm1_run.py`, `cm1_elec.py` |
 | Coupling | `worldlab.couple` | GCM state to CRM inputs: reference profiles, mean vertical wind, sideways and day–night forcing, surfaces along rings and in boxes | `cm1_run.py:1162-1956`, `ring_crossings.day_night_advection`, `ring_heat_budget.gcm_sideways` |
@@ -132,16 +136,22 @@ and read the lab's products.
 ## Specifications
 
 Specifications are TOML, written by hand or by the lab's own commands and kept in Git, while products and
-records are JSON written by
-the lab. In TOML a comment beside each value can give its source, and Python's standard library reads the
-format (`tomllib`). A specification's identity is the hash of its resolved form, computed after its
-`extends` chain is applied and its derived values filled in, which leaves formatting and comments out of
-the identity. [world_spec.md](world_spec.md) sets out the draft schema with the Open Moon worked through,
-and `lab/worlds/` holds the seed files.
+records are JSON written by the lab. In TOML a comment beside each value can give its source, and Python's
+standard library reads the format (`tomllib`). A specification's identity is the hash of its resolved form,
+computed after its `extends` chain and variants are applied and its derived values filled in, which leaves
+formatting and comments out of the identity. [world_spec.md](world_spec.md) sets out the draft schema with
+the Open Moon worked through.
+
+The specifications divide by what they describe:
+
+- **World and scenario files** hold the physical values once, for every model.
+- **Each model's defaults** hold the settings only that model has, stated for any world.
+- **A study** sets up one scenario's chain: its GCM runs, then the CM1 cases forced from them, each extending
+  its model's defaults with the changes particular to the study.
 
 Terluna builds families of cases, such as rings at six latitudes, in loops over Python dicts
-(`cm1_run.py:1124-1159`). The lab generates each family into explicit entries, which can then be read and
-compared one by one.
+(`cm1_run.py:1124-1159`). The lab generates each family into explicit entries of a study, which can then be
+read and compared one by one.
 
 ## The stage graph and staleness
 
@@ -216,13 +226,19 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   - another case's inputs with a new build;
   - a finer box;
   - CM1's own samples.
+- **Variants.** Twilight, terrain, sea and the electrified build are variants in CM1's defaults, each adding
+  its patch series and the settings it needs (`lab/configs/cm1/defaults.toml`). A case names its variants,
+  and those names form its declared delta.
 - **Lengths and times scaled with gravity.**
   - The Rayleigh damping rate and the boundary layer's length already follow g (`cm1_run.py:2004-2005`).
-  - The column width, the model top, the nudging heights and the time step follow it in the lunar cases
-    only through the values chosen for them. Columns of 6 km and a 150 km top at lunar gravity correspond
-    to about 1 km and 25 km on Earth.
-  - The lab writes all of them in Earth-equivalent units scaled by g_ref/g. Terluna's gravity pair applied
-    that rule to every length and time of its Earth case (`time_scale`, `cm1_run.py:1974-1976`).
+  - The column width, the vertical grid, the model top, the nudging heights and the time step follow it in
+    the lunar cases only through the values chosen for them. The defaults give these at a reference
+    gravity, the Moon's, where Terluna's rings ran them, and the adapter multiplies them by g_ref/g.
+  - On the Moon the factor is 1, so the lab reproduces Terluna's values exactly; on Earth the same defaults
+    give columns of 993 m and a top at 24.8 km.
+  - Terluna's gravity pair applied the same factor to its Earth case (`time_scale`, `cm1_run.py:1974-1976`).
+    The run length counts the world's solar days, and the output, restart and nudging times stay in
+    seconds.
 - **Refused schemes.** At any gravity other than 9.81 m/s², the registry refuses the schemes that hard-code
   Earth's gravity (`notes/cm1.md`): MYNN, the GFS EDMF and GFDL layers, P3, WSM6, Jensen–Ishmael, LFO and
   Goddard radiation.
@@ -239,8 +255,8 @@ A calibration is a product whose header also records:
 
 The lab checks the envelope twice:
 
-- **Before a run,** the scenario and configuration must fall inside it in the dimensions they fix: column mass,
-  composition, spectrum and the GCM's levels.
+- **Before a run,** the scenario and the run's settings must fall inside it in the dimensions they fix:
+  column mass, composition, spectrum and the GCM's levels.
 - **After a run,** the settled state must fall inside it in every dimension, surface temperature and
   precipitable water included.
 
@@ -272,12 +288,12 @@ An entry records:
 - **Assumption:** for example g = 9.81, a solar day of 86,400 s, H/R = 0.0013, or a surface pressure below
   1,053.63 hPa.
 - **Condition:** a list of tests, all of which must hold, on derived quantities, specification fields and
-  configuration choices. Examples: gravity other than 9.81 m/s² with the MYNN surface layer, or the lowest
+  the run's settings. Examples: gravity other than 9.81 m/s² with the MYNN surface layer, or the lowest
   level's pressure above 1,053.63 hPa. The seed in `lab/registry/earth_assumptions.toml` encodes these as
   structured tests that the lab can check and print.
 - **State:** repaired, with its patch, switch and identity default; calibrated, with its stage; bounded;
   or open.
-- **Action** when the condition holds and the configuration lacks the repair:
+- **Action** when the condition holds and the run's settings lack the repair:
   - require the switch;
   - require a build;
   - require a refit;
@@ -285,7 +301,7 @@ An entry records:
   - refuse.
 - **Evidence:** the defect-log and verification-record entries it cites.
 
-For a world, a scenario and a configuration, the lab evaluates every entry into a **reach report**, which
+For a world, a scenario and a run's settings, the lab evaluates every entry into a **reach report**, which
 lists:
 
 - what is repaired;
@@ -335,10 +351,10 @@ Intended commands, to be built in plan stages 1–8:
 ```sh
 lab reach moon/open-moon                         # what is repaired, what needs a refit, what is refused
 lab new scenario moon/open-moon-0.960 --extends moon/open-moon --set sunlight.scale=0.960
-lab plan gcm:moon/open-moon-0.960                # stale products, their order and their cost
-lab make gcm:moon/open-moon-0.960 --years 20     # fits, builds and runs within the budget
-lab diff gcm:A28_corrected_970 gcm:A28_corrected_970_lw_ice   # resolved inputs that differ
-lab case ring_45n --from gcm:moon/open-moon-0.960 --kind ring --latitude 45
+lab new study open-moon-0.960 --extends open-moon --scenario moon/open-moon-0.960
+lab plan open-moon-0.960                         # stale products, their order and their cost
+lab make open-moon-0.960                         # fits, builds, GCM runs and CM1 cases, within the budget
+lab diff open-moon:A28_corrected_970 open-moon:A28_corrected_970_lw_ice   # resolved inputs that differ
 lab status
 ```
 

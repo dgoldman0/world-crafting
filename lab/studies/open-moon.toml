@@ -1,0 +1,69 @@
+# The Open Moon design study: the chain Terluna ran on the design case of the corrected radiation, two GCM runs
+# and three CM1 cases forced from the first, each extending its model's shared defaults (lab/configs/). Draft
+# schema 0 (lab/design/world_spec.md); the targets of plan.md stages 2 and 3. The names are Terluna's folder
+# names, and the lab identifies each run by the key of its resolved inputs. Terluna's definitions:
+# climate/gcm/exoplasim_run.py (EXPERIMENTS, MODEL) and climate/crm/cm1_run.py (CASES, :1093-1526).
+
+schema = "worldlab.study/0"
+id = "open-moon"
+scenario = "moon/open-moon"
+
+[compatibility]                                 # Terluna's quirks, for byte-for-byte reproduction (world_spec.md, rule 8)
+exoplasim_radius_divisor_m = 6371000.0          # ExoPlaSim's own is 6,371,220 m
+cm1_run_days = 59.06                            # two lunar days as Terluna typed them; 2 solar days come to 59.0612
+
+[gcm.A28_corrected_970]
+model = "exoplasim"
+extends = "exoplasim/defaults"
+years = 20
+initial = { from = "A28_corrected_9685", year = 19, sha256_16 = "d65b88aa68443890" }   # a branch, as recorded
+purpose = "the design case of the corrected radiation, at the sunlight scale that holds the design temperature"
+recorded_key = "b4d10329a8723d42"               # progress.json; stage 2 must reproduce it
+
+[gcm.A28_corrected_970_lw_ice]
+extends = "A28_corrected_970"
+initial = { from = "A28_corrected_970", year = 19 }
+purpose = "the longwave by height and ice optics, from the design case's year 19; settles near 307 K"
+recorded_key = "14070719b35c52d7"
+
+[gcm.A28_corrected_970_lw_ice.set]              # the declared delta; the lab refuses the pair if anything else differs
+"switches.longwave_correction" = true
+"switches.ice_optics" = true
+"heating_diagnostics" = true                    # diagnostics only: nine more outputs, the same prognostic fields
+
+[crm.ring_45n_corrected]
+model = "cm1"
+extends = "cm1/defaults"
+forced_by = "A28_corrected_970"
+years = [10, 19]                                # the GCM years averaged into the reference
+kind = "ring"                                   # a circle of latitude
+latitude_deg = 45.0
+band_deg = 3.0                                  # the GCM row nearest the latitude
+large_scale_w = "gcm"
+land_moisture = "gcm"
+purpose = "the 45 N ring on the corrected design case"
+
+[crm.ring_45n_corrected_twilight]
+extends = "ring_45n_corrected"
+variants = ["twilight"]                         # the declared delta (cm1/defaults, [variants.twilight])
+purpose = "the 45 N ring with the curved air's twilight and side light"
+# Both cases take their builds from the same defaults and differ by the twilight variant alone. Terluna ran the
+# control on moon_omp, compiled at -O2 and never rebuilt, and this case on moon_omp_twilight at -O3 -march=native
+# (defect log C8); the importer's pair check compares the two imported records and flags the optimisation
+# difference outside the declared variant.
+
+[crm.box_jura]
+model = "cm1"
+extends = "cm1/defaults"
+forced_by = "A28_corrected_970"
+years = [10, 19]
+kind = "box"
+variants = ["terrain", "sea", "twilight"]
+site = { ring = "ring_45n_corrected", lat_deg = 45.0, lon_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes
+columns = { nx = 100, ny = 90 }
+terrain = { half_width_deg = 0.125, passes = 2, taper_km = 50.0 }
+day_night = { from_case = "ring_45n_corrected_twilight", from_day = 29.5, wavenumbers = 5, bins = 36, harmonics = 4, top_m = 16000.0 }
+large_scale_w = "gcm"
+land_moisture = "gcm"
+surface_output = true
+purpose = "Jura Island at its heights with the sea and islets round it, forced by the corrected design case and the 45 N twilight ring's day-night circulation"

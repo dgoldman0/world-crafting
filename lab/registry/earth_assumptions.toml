@@ -1,9 +1,9 @@
 # The registry of Earth assumptions: a seed of eleven entries in draft schema 0 (lab/design/architecture.md,
 # "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
 # it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
-# specification fields (field) or configuration choices (config). Thresholds marked "proposed" come from the
-# design and await the author's decision before the reach report uses them. `rotation.synchronous` is a planned
-# world field (world_spec.md, "Fields still to add"), false unless given.
+# specification fields (field) or the run's settings (config: its model's defaults with the study's changes).
+# Thresholds marked "proposed" come from the design and await the author's decision before the reach report uses
+# them. `rotation.synchronous` is a planned world field (world_spec.md, "Fields still to add"), false unless given.
 #
 # action: require-switch | require-build | require-refit | warn | refuse
 # state:  repaired | calibrated | bounded | open
@@ -56,7 +56,7 @@ where = "module_sf_mynn.F, module_gfs_physcons.F, module_sf_gfdl.F, module_sf_ex
 form = "constant"
 assumes = "Earth's gravity in schemes the lunar cases do not select"
 when = [{ q = "gravity_m_s2", ne = 9.81, tolerance = 1e-6 },
-        { config = "cm1.scheme", in = ["mynn", "gfs-edmf", "gfdl", "hurricane-exchange", "p3", "wsm6", "jensen-ishmael", "lfo", "goddard"] }]
+        { config = "cm1.physics", any_in = ["mynn", "gfs-edmf", "gfdl", "hurricane-exchange", "p3", "wsm6", "jensen-ishmael", "lfo", "goddard"] }]
 effect = "the scheme brings Earth's gravity back"
 state = "open"
 action = "refuse"
@@ -145,7 +145,7 @@ model = "cm1"
 where = "morrison.F (slope bounds; brkup_db)"
 form = "fit beyond its range"
 assumes = "Earth's largest raindrops and breakup, (sigma / (delta-rho g))^(1/2)"
-when = [{ q = "gravity_m_s2", ne = 9.81, tolerance = 1e-6 }, { config = "cm1.microphysics", eq = "morrison" }]
+when = [{ q = "gravity_m_s2", ne = 9.81, tolerance = 1e-6 }, { config = "cm1.physics.microphysics", eq = "morrison" }]
 effect = "rain's mean diameter capped at 2.8 mm, breakup from 0.3 mm; at lunar gravity the stable drop is about 2.5 times larger"
 state = "open"
 action = "warn"

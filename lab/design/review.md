@@ -16,6 +16,7 @@ Lexical scans served as screening only. The author has read none of these docume
 | 3 | 2026-10-17 | B: inventory, regeneration, world_spec (the same) | 1 | — | 6 |
 | 4 | 2026-10-17 | A: README, architecture, plan (confirmation round) | 4 | — | 2 |
 | 4 | 2026-10-17 | B: inventory, regeneration, world_spec (confirmation round) | 0 | — | 2 |
+| 5 | 2026-10-17 | Draft 2's changed files, fresh reviewers | pending | pending | pending |
 
 ## Round 1 dispositions
 
@@ -140,4 +141,19 @@ Reviewer B found no blocking item in the inventory, the regeneration map or the 
   them.
 
 The next round is due once the author's answers to the open questions change the text.
+
+## Draft 2
+
+Draft 1 is tagged `lab-design-draft-1` (commit edcf5dd). The author asked on 2026-10-17 whether the model
+configurations come from a base and where the unified set-up sits. Draft 2 answers with two changes:
+
+- **Shared defaults for each model,** stated for any world (`lab/configs/<model>/defaults.toml`). CM1's
+  defaults carry named variants (twilight, terrain, sea, electrified) and give their lengths and time step at a
+  reference gravity, the Moon's, which the adapter scales by g_ref/g.
+- **One study file per scenario,** setting up the whole chain (`lab/studies/open-moon.toml`): the GCM runs and
+  the CM1 cases forced from them, each extending its model's defaults, with Terluna's quirks held as the
+  study's compatibility settings.
+
+The architecture, the specification schema, the plan, the regeneration graph, the README and the registry's
+conditions changed with them, and those sections reopen for review in round 5.
 
