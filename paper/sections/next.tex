@@ -1,8 +1,10 @@
 \section{Next steps}
 
 Developing the ensemble across worlds requires consistent heating and cloud between its global and resolved
-calculations, followed by tests of the general repairs across planetary parameters. The lunar case supplies
-the first experiments: its longwave correction and PlaSim's cloud, the two Earth fits whose tests moved its
+calculations, followed by tests of the general repairs across planetary parameters. In the LMD's models of Mars
+that consistency is built in, the GCM's own physics running in a mesoscale model on WRF's core
+\autocite{spiga2009new}; codes built separately, as here, have to be brought to it by calibration. The lunar case
+supplies the first experiments: its longwave correction and PlaSim's cloud, the two Earth fits whose tests moved its
 climate most, are the first calibrations to revisit. Their accuracy depends on an independent check of the
 shared radiation reference, after which comparisons on worlds modelled in other studies would test the reach
 proposed in Table~\ref{tab:reach}. The remaining experiments use the lunar departures from Earth to test
@@ -25,7 +27,10 @@ test world.
 several kelvin and remain uncalibrated for it. The cloud cover and water by pressure of CM1 runs forced from the
 consistent state of the first step, with the transport across each ring imposed, become the target to which
 PlaSim's humidity thresholds and its cloud-water profile are fitted, and the same runs test whether the corrected
-longwave closes the 3.7~K by which CM1's lowest 1.8~km at 45\textdegree\,N stays warmer than the GCM's. Refitted cloud
+longwave closes the 3.7~K by which CM1's lowest 1.8~km at 45\textdegree\,N stays warmer than the GCM's. A similar
+loop has run on Titan: \textcite{rafkin2022interaction} started a cloud-resolving model from dozens of a GCM's
+unstable profiles, and \textcite{battalio2022interaction} tuned two parameters of that GCM's convection scheme with
+the resolved runs and observations. Refitted cloud
 could move the test world as far as the cloud settings do, up to about 6~K, and the design's dimming with it.
 Cloud fitted this way remains a calibration, refitted for each other world from cloud-resolving runs of that
 world.

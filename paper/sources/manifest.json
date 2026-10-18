@@ -10,19 +10,20 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 158,
+  "total": 161,
   "with_local_original": 87,
-  "blocked": 71,
+  "blocked": 74,
   "deferred": 87,
   "passed": 0,
   "depth": {
    "claim-locators": 70,
-   "abstract-only": 66,
+   "abstract-only": 69,
    "not read": 21,
    "full": 1
   },
-  "cited_in_paper": 81,
+  "cited_in_paper": 87,
   "cited_blocked": [
+   "battalio2022interaction",
    "battjes1985calibration",
    "berger1978long",
    "booij1999third",
@@ -33,6 +34,7 @@
    "christian2003global",
    "clough2005atmospheric",
    "dahlback1991new",
+   "detelich2026modeling",
    "dwyer2003fundamental",
    "ebert1992parameterization",
    "fierro2013implementation",
@@ -48,10 +50,13 @@
    "mlawer2012development",
    "nicoll2012measurements",
    "price1992simple",
+   "rafkin2022interaction",
    "rodgers1967use",
    "salinas2021modeling",
    "saunders1998laboratory",
+   "schneck2026modeling",
    "slingo1991response",
+   "song2022idealized",
    "stamnes1988numerically",
    "sun2023aerosol",
    "takahashi1978riming",
@@ -3925,9 +3930,17 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "Author-hosted copy of the JGR version of record."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "The LMD Mars mesoscale model runs the LMD GCM's physics on WRF's core, driven at its boundaries by the GCM, for downscaling consistency.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Author-hosted copy of the JGR version of record. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "mayne2014unified",
@@ -4810,9 +4823,17 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": null
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "Dozens of TAM's unstable profiles initialize the cloud-resolving TRAMS, whose results guide the tuning of TAM's convection scheme.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "hueso2006methane",
@@ -5474,9 +5495,17 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "CC BY at Wiley; scripted retrieval refused."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "PlanetWaves, adapted from an Earth wave model to other planets' gravity, air and liquids.",
+     "support": "supported (abstract; the UMWM origin from the PlanetWaves repository README)",
+     "note": ""
+    }
+   ],
+   "notes": "CC BY at Wiley; scripted retrieval refused. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "rubin2022ancient",
@@ -6674,6 +6703,105 @@
      "section": "repairs.tex",
      "statement": "HITRAN's collision-induced absorption (N2-N2, N2-O2, O2-O2, N2-H2O among its pairs) used by the reference model.",
      "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "song2022idealized",
+   "citation": "Song, Yang, Luo, Li and Fu (2022). Idealized 2D cloud-resolving simulations for tidally locked habitable planets. Astrophys. J., 934(2), 149. doi:10.3847/1538-4357/ac7879",
+   "entry_type": "article",
+   "doi": "10.3847/1538-4357/ac7879",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/1538-4357/ac7879 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "A 2-D cloud-resolving model across the day and night sides of a tidally locked aquaplanet, consistent with a GCM in circulation and cloud arrangement, far from it in cloud water and cloud width.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "battalio2022interaction",
+   "citation": "Battalio, Lora, Rafkin and Soto (2022). The interaction of deep convection with the general circulation in Titan's atmosphere. Part 2: impacts on the climate. Icarus, 373, 114623. doi:10.1016/j.icarus.2021.114623",
+   "entry_type": "article",
+   "doi": "10.1016/j.icarus.2021.114623",
+   "verified_via": "Crossref api.crossref.org/works/10.1016/j.icarus.2021.114623 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "TAM's simplified Betts-Miller convection scheme tuned in two parameters (reference humidity and relaxation time) with TRAMS results and observations.",
+     "support": "supported (abstract, Semantic Scholar)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "detelich2026modeling",
+   "citation": "Detelich et al. (2026). Modeling the seasonality of wind-driven hydrocarbon waves in Titan's polar lakes. J. Geophys. Res.-Planets, 131(5), e2026JE009693. doi:10.1029/2026JE009693",
+   "entry_type": "article",
+   "doi": "10.1029/2026JE009693",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/2026JE009693 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "hybrid",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "PlanetWaves driven by a Titan GCM's winds over Titan's polar lakes; daily mean winds almost never pass the threshold, and storm winds raise the waves.",
+     "support": "supported (abstract; the GCM winds from the PlanetWaves repository README, github.com/Cornell-MIT/PlanetWaves, which ships ten years of TAM winds for the two lakes)",
      "note": ""
     }
    ],
