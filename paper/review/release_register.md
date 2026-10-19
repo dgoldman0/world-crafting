@@ -55,6 +55,13 @@ The author then had those five findings applied. The source at `51ea569a7703d9b8
 builds, the same PDF of 38 pages with SHA256 `9a4810d9e7eb72ff18f7d3261b23e33970302b9003237ad4e785a629e7db81fd`, zero overfull
 boxes and every font embedded; pages 1 and 26–28, where the text changed, were inspected, and a third stranded line
 now opens page 3. The gates stand as before.
+Round 18 (`editorial_round18.md`) added the lakes and seas beneath the waves to Next steps and the Conclusion and
+moved the definition of Gaean worlds into a note on terms. Two clean builds from `b3b00468d1acbb343eec7e6f717bd0bf4f08eab5` gave the same
+PDF, now 39 pages, SHA256 `d63f68374cf146e5670cd7d8991f95b734eecd9b6d0542c6808dcda0c97314f4`, with zero overfull boxes and every
+font embedded; pages 24–39 and page 1 were inspected. The last page holds one reference, and stranded lines open
+page 3 and close page 24, all left for the final layout; a tighter spacing of the references was tried and
+lengthened the list, so it was dropped. Four round-18 findings on approved wording await the author, and the gates
+stand as before.
 
 ## The artifact
 
