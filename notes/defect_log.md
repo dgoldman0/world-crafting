@@ -101,13 +101,14 @@ corrected there. The companion note `verification_record.md` describes the check
 
 ## (a) Upstream defects exposed by the adaptation
 
-The paper (third draft, 2026-10-17) classes these items as follows. A3 (the 360-day calendar) is a limitation in
+The paper (third draft, 2026-10-17, as revised 2026-10-19) classes these items as follows. A3 (the 360-day calendar) is a limitation in
 units of time, avoided by configuration; A7 (WRF-ELEC's missing clear-air conduction) a simplification that holds for
 runs of hours; A8 (the flash log's reach threshold) a constant on the lunar path. Its four defects in the released
 codes are A1, A2 and B11 (ExoPlaSim's convective-cover unit, classed here under (b)), which produce little or no error
 at Earth's values, and A5, hidden by SWAN's usual configuration. A6, the parting of CM1's threaded runs, most likely
 in CM1's own threaded loops, and A4, PlaSim's cold lowest level, are faults of uncertain cause (reclassified on
-2026-10-19, since no run of stock CM1 on these cases has located A6 in the released code).
+2026-10-19, since stock CM1 has yet to run with these cases' options, which would place A6 in or out of the
+released code).
 
 ### A1. ExoPlaSim: `solang`'s Sun clock (R)
 

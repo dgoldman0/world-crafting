@@ -119,8 +119,8 @@ gives.
 1.8 km warm from 20.0 to 26.7 °C over two lunar days. The GCM's circulation carries about 15 W/m² of heat
 out of the air below 8 km at that latitude; imposed, it removes about a third of the offset (5.9 → 3.7 K
 in the lowest 1.8 km). The GCM's eddies faster than its 3-day means add 2%. PlaSim's longwave
-over-cooling of its lowest layers, beyond RRTMG's in CM1, accounts for about 1.5 K of what remains; the rest lies in how the
-two models carry the ground's heat upward (CM1 mixes 14–19 km deep by day where the GCM stays stable).
+over-cooling of its lowest layers, beyond RRTMG's in CM1, accounts for about 1.5 K of what remains; the rest plausibly lies in how
+the two models carry the ground's heat upward (CM1 mixes 14–19 km deep by day where the GCM stays stable).
 Neither two dimensions (a 3-D box ran warmer), nor the land surface (at most 0.3 °C), nor the slow fall of
 rain explains the gap.
 
@@ -164,6 +164,6 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
 3. Extend RRTMG's tables past 1,054 hPa or replace RRTMG by the in-house correlated-k scheme; give RRTMG
    the shield's spectrum.
 4. Two-way coupling, or nesting in the GCM, so the forcing answers the slice's own state.
-5. Find and fix the source of CM1's threaded parting, first by running stock CM1 on these cases.
+5. Find and fix the source of CM1's threaded parting, first by a threaded run of stock CM1 with these boxes' options.
 6. Gravity falling with height in the base state and hydrostatics for a 150 km domain.
 7. Upstream: gravity as one namelist parameter in CM1, honoured by every scheme.

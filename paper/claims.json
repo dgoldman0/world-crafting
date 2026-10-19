@@ -767,7 +767,7 @@
   },
   {
    "id": "V14",
-   "text": "Missing checks: the full design column through an independent radiation code; CM1 from the longwave-corrected GCM; the longwave fit at 307 K; the twilight pair's control; RRTMG's extrapolation; the unlocated thread race; CM1 microphysics similarity; an independent GCM",
+   "text": "Missing checks: the full design column through an independent radiation code; CM1 from the longwave-corrected GCM; the longwave fit at 307 K; the twilight pair's control; RRTMG's extrapolation; the unlocated source of CM1's threaded parting; CM1 microphysics similarity; an independent GCM",
    "source": [
     "repo:notes/verification_record.md#L211-250",
     "repo:notes/reference_radiation.md#L271-276"
@@ -844,7 +844,7 @@
   },
   {
    "id": "G07",
-   "text": "Against correlated-k, PlaSim's longwave cools its lowest layer 10.6 W/m2 too much on 151 cloud-free 3-day means at 47 N and RRTMG CM1's lowest 1.8 km 4.5 W/m2 too much: ~6 W/m2, ~1.5 K of the 3.7 K at the ring's estimated 4 W/m2 per K; at the 0 E crossing on A28_dim5 forcing (12% too little sunlight), a 3-D box ran warmer, land at most 0.3 C, Earth-speed rain +1.0 C, each a pair of realisations; the remainder, a degree or two, attributed by elimination to boundary-layer transport",
+   "text": "Against correlated-k, PlaSim's longwave cools its lowest layer 10.6 W/m2 too much on 151 cloud-free 3-day means at 47 N and RRTMG CM1's lowest 1.8 km 4.5 W/m2 too much: ~6 W/m2, ~1.5 K of the 3.7 K at the ring's estimated 4 W/m2 per K; at the 0 E crossing on A28_dim5 forcing (12% too little sunlight), a 3-D box ran warmer, land at most 0.3 C, Earth-speed rain +1.0 C, each a pair of realisations; the remainder, a degree or two, plausibly from boundary-layer transport, with the high ice and the 45 N dry-ground test open",
    "source": [
     "repo:notes/cm1.md#L120-124",
     "terluna:climate/crm/README.md#L1147-1196",
