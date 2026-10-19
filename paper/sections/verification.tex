@@ -19,7 +19,7 @@ continuum calibration at the released values, the cloud-water and convective-day
 zero, and the ice optics off. The first three were compared in sequence, starting from the released model, each against a build that holds only the patches checked before it. The infrared and ice-optics runs, by contrast, were compared
 against builds that already held the Sun clock and the water scaling, and for the ice optics the curved-air, gas-band
 and longwave patches as well; those patches were written to reproduce the released code at their off settings
-and have yet to be run that way, so these two checks establish identity with the released model only once they are,
+and have yet to be run that way, so these two checks establish identity with the released model only once those patches are,
 while for the water scaling at its default the identity already follows from arithmetic on this
 spectrum.\claim{V01} The recorded sources were checked next, against the pinned upstream archives: applied to them,
 the patch series rebuild byte for byte the two patched sources of the deployed ExoPlaSim copy and the Fortran of
@@ -41,7 +41,7 @@ Earth: the wind-tunnel tests made for SWAN's runs on the seas of ancient Mars va
 centrifuge, they studied wave turbulence in a container, so a wave model's response to gravity under wind is
 checked numerically, by a similarity test. Stock SWAN, run at a
 sixth of Earth's gravity with lengths, depths and durations six times longer and frequencies six times lower,
-differs from the Earth run from which it was scaled by 5.44\% in significant wave height and 3.91\% in mean period; patched, it
+differs by 5.44\% in significant wave height and 3.91\% in mean period from the Earth run from which it was scaled; patched, it
 differs by 0.303\% and 0.326\%, against a 1\% criterion.\claim{V04} SWASH, the model of the shore, was tested against theory and by the same
 scaling: it reproduces the linear dispersion relation within 1.76\% in amplitude and 0.289\% in phase at lunar, four times lunar and Earth gravity, preserves
 a linear waveform to 0.0009\% of its amplitude when gravity quadruples and the clock halves, and, under the same
@@ -91,7 +91,7 @@ build discharged once per step after all the step's charging, multiplied memory 
 made private a variable its threads shared; the first terrain build placed its forcing by a corner column
 2.9~km up; and the sky solver's production grid of 114 channels absorbed 58\% too much sunlight above 500~nm with
 the Sun overhead, which had made PlaSim look short of its calibration. Four remain in reported runs, two of them
-across whole sets of runs. The first channels of the curved-air table, bisected on the whole column alone, absorbed near-infrared sunlight too high, 19.0 against 10.7~W\,m$^{-2}$ at 66--85~km, and the curved-air and gas-band runs
+across whole sets of runs. The first channels of the curved-air table, bisected on the whole column alone, absorbed near-infrared sunlight too high in the air, 19.0 against 10.7~W\,m$^{-2}$ at 66--85~km, and the curved-air and gas-band runs
 of Table~\ref{tab:states} ran on them.\claim{H30} Every CM1 case set up before 2026-10-17, and so every CM1 run
 reported here, started from soundings with the vapour of the GCM's top level, near 130~km, held constant above it,
 and on the 45\textdegree\,N rings, the only cases examined for it, the air began 6--15 times saturated over ice at
