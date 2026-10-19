@@ -42,3 +42,20 @@ pointing back to the removed paragraph, and the check script covering the new fi
 |---|---|---|---|
 | 1 | `terms.tex`:5–7 | The note's closing clause, "so modelling their climate, storms and seas requires adapting both the component models and the fields exchanged within an ensemble", is argument more than a term, and echoes the abstract printed above it | For the author: the note could end at "... may differ substantially from Earth's."; it stands as the author moved it |
 | 2 | `paper/Makefile`:10–13 | A build made before a commit keeps the earlier commit's date, and latexmk then skips the rebuild | Noted for the records: every recorded hash comes from `make -C paper clean` followed by `make -C paper pdf` |
+
+## Stage 3: the Conclusion (904c4a3)
+
+One clause entered the sentence on rain, the sea and the waves: "and the same winds and waves, mixing the lakes and
+seas, would drive the exchange of oxygen between their waters and the air". Verdict: one MINOR fix, content ready.
+The reader found that the clause ends the sentence on the waters it began with, claims no oxygen content (only the
+exchange the winds and waves drive), adds no numbers, and agrees with Next steps, which states the Earth-fit
+condition once.
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1 | `conclusions.tex`:95 | Three coordinated clauses read as a list, though the waves at the shore follow from the forced sea | Applied: "would force the sea, whose spectra would determine the waves reaching a particular shore, and the same winds and waves, ... would drive ..." |
+
+## Stage 4: the abstract
+
+No change: the abstract's account of the ensemble and its prospect already covers the seas, and the note on terms
+leaves the abstract's own definition of Gaean worlds in place.
