@@ -179,7 +179,7 @@ and the six approved fixes clean in their paragraphs. Verdict: one MAJOR and fou
 
 | # | Location | Finding | Disposition |
 |---|---|---|---|
-| 1, MAJOR | `next.tex`:18 | "at its own speed" claimed a speed that no run has timed, and the ROCKE-3D paper it cites calls SOCRATES the costlier of its two schemes | Applied: the phrase is dropped. The reader also asked the author about the Conclusion's approved "could still explore climates quickly", which rests on the same untimed premise; it stands, as a prospect for a reduced scheme made with a tool built for "fast $k$-distribution gas-optics models", in the title of Hogan and Matricardi (2022) |
+| 1, MAJOR | `next.tex`:18 | "at its own speed" claimed a speed that no run has timed, and the ROCKE-3D paper it cites calls SOCRATES the costlier of its two schemes | Applied: the phrase is dropped. The reader also asked the author about the Conclusion's approved "could still explore climates quickly", which rests on the same untimed premise; it stands, as a prospect for a reduced scheme made with a tool built for "fast $k$-distribution gas-optics models", in the title of Hogan and Matricardi (2022); the author judged "could" soft enough |
 | 2 | `next.tex`:18 | "k-distributions" set the k in text, where the paper sets it as math | Applied: "$k$-distributions" |
 | 3 | `next.tex`:18–20 | The new sentence parted "that spectroscopy" and "such a scheme" from the phrases they point back to | Applied: the sentence moves, unchanged otherwise, to the end of its paragraph, after the reduction and its check |
 | 4 | `conclusions.tex`:35 | "take only the GCM's fields" left out the slice's geometry and SWAN's spectra, which Repairs names | Applied: "take from the GCM only its fields" |
