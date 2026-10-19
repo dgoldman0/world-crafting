@@ -13,5 +13,6 @@ drive.
 | `reference_radiation.md` | The line-by-line and correlated-k reference models every calibration was fitted to |
 | `sky_solver.md` | The spherical-shell sky solver behind the twilight terms |
 | `geography.md` | The heights above the geoid, the seas and the lakes the lab's surfaces start from |
+| `waterworlds.md` | The low-gravity waterworlds' bodies and isothermal wind, and the printed escape of the study the lab reproduces against its figures |
 | `defect_log.md` | Every defect found: upstream defects, Earth constants and fits, and the project's own |
 | `verification_record.md` | Every check made, what each establishes and what it leaves open, and the checks still missing |

@@ -40,6 +40,11 @@ Their findings are stage 9's comparisons:
 - a snowball whose star brightens generally skips the long-lived habitable state, except at very low ice albedos
   (Figure 5, for a Sun-like star, at g = 2.3 m/s² and ice albedos of 0.25, 0.32 and 0.4).
 
+By the paper's escape equations as printed (eqs. 9 to 11), its worlds keep their water 600 to 310,000 times longer
+than its text and figures report, so that the 10⁹-year lifetime meets 273 K at 1.29 m/s², 0.019 Earth masses; with
+the square of the sound speed taken as 4/3 kT/m, near water vapour's adiabatic value, the computed lifetimes fall
+within 6.4 K of Figure 3's ([../../notes/waterworlds.md](../../notes/waterworlds.md), 2026-10-19).
+
 The authors published no code or data tables with the paper, so stage 9 compares with its stated numbers and the
 curves of its Figures 3 to 5. They set aside carbon dioxide's cycling, ocean chemistry and three-dimensional
 dynamics, treat clouds through the albedo alone and the stars as blackbodies, and name more detailed escape and
@@ -130,7 +135,8 @@ generates CM1's case families into explicit entries (architecture.md, "Specifica
 
 - AD Leonis's temperature, luminosity and mass, which the paper leaves unstated (stage 9); stage 2's seed red dwarf
   takes provisional values until then.
-- The reproduction's tolerances against the paper's numbers and its digitised curves (stage 9).
+- The reproduction's tolerances against the paper's numbers and its digitised curves, and how it compares the
+  lifetimes, given the printed escape's difference from the paper's figures (stage 9).
 - The Gaean air's composition and pressure, such as Earth's at 1 atm or the Open Moon's at 1.2 atm (stage 11).
 - The day of the worlds turning around the Sun, and the anchors themselves (stage 12).
 

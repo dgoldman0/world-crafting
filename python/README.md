@@ -9,6 +9,7 @@ test are modified, below). Import from this folder (`pytest` sets the path; else
 | `atmosphere/radiative_convective/` | The line-by-line clear-sky radiative–convective column (HITRAN2020 lines, MT_CKD 4.3 continuum, collision-induced absorption, Rayleigh scattering; GM/r² hydrostatics; a pseudo-spherical solar beam) and the correlated-k thermal scheme built from the same spectroscopy. Every GCM and CM1 radiation calibration was fitted against it | [../notes/reference_radiation.md](../notes/reference_radiation.md) |
 | `atmosphere/middle_atmosphere/` | `equilibrium.py`, `photolysis.py`, `chemistry.py`: the radiative–photochemical equilibrium column to 0.1 Pa that the surface-light model and the sky's optics build their columns from. Its escape and exobase modules stay in Terluna | Terluna's `METHODS.md`, copied here |
 | `atmosphere/electricity/` (`conductivity.py`, `muons.py`, `charging.py`) | The lunar conductivity column the electrified CM1's leakage and screening read: ion production from the CRAC:CRII tables and MCEq muons, small ions' recombination, mobility and attachment to humidity-swollen aerosol; and the graupel-crystal charging laws integrated over size distributions (Saunders and Peck, Takahashi, with WRF-ELEC's critical rime accretion rates). Terluna's thunder, occurrence and tower scripts are analyses and stay there; the package README is Terluna's and still lists them | [../notes/electrification.md](../notes/electrification.md) |
+| `atmosphere/waterworlds/` (`body.py`, `escape.py`) | The lab's own tools for low-gravity waterworlds after Arnscheidt, Wordsworth and Ding (2019), new on 2026-10-19 for plan stage 9: bodies of the size relation of Sotin et al. (2007), fixed by their surface gravity, and the isothermal transonic wind of steam that carries their water away; the steam column, its radiating surfaces and the energy balance follow | [../notes/waterworlds.md](../notes/waterworlds.md) |
 | `illumination/surface_light/`, `illumination/cloud_light/model.py` | Columns and sunlight for the sky solver and the curved-air ledger | |
 | `illumination/sky/` | The spherical successive-orders sky solver and the solved-column sky | [../notes/sky_solver.md](../notes/sky_solver.md) |
 | `climate/gcm/plasim_shortwave.py`, `plasim_longwave.py` | PlaSim's clear-sky shortwave and longwave arithmetic for one column, and the fitters for its corrections | [../notes/exoplasim.md](../notes/exoplasim.md) |
@@ -21,7 +22,7 @@ test are modified, below). Import from this folder (`pytest` sets the path; else
 ## Running
 
 ```sh
-python -m pytest python               # from the repository root: 158 tests
+python -m pytest python               # from the repository root: 173 tests
 ```
 
 On 2026-10-17, after the electricity tools were added, all 111 passed in the research drive's `optics`
@@ -35,7 +36,8 @@ them three tests skip). `muons.py` needs MCEq, which Terluna keeps in a separate
 are committed. The geography package's 47 tests, on synthetic files, grids and fields, need no inputs; its
 checks on the Moon's own heights and field, which the lab's data store holds, are in `lab/tests/test_geography.py`.
 On 2026-10-18 the system Python (3.13.7, numpy 2.3.3, scipy 1.16.2), lacking numba, collected 124 tests and
-passed 111: the sky solver's 34 stay uncollected, and without the inputs 13 skip.
+passed 111: the sky solver's 34 stay uncollected, and without the inputs 13 skip. The waterworld tools' 15 tests, added on
+2026-10-19, need no inputs (mpmath for one of them); the system Python then collected 139.
 
 ## What still needs Terluna
 
