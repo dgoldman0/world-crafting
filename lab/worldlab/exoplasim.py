@@ -20,18 +20,26 @@ import functools
 import hashlib
 import io
 import math
+import os
+import shutil
 import tarfile
+import tempfile
 from dataclasses import dataclass, fields
 from pathlib import Path
 
+import numpy as np
+
 from . import derive, sunlight
 from .data import DataError
-from .geography import REFERENCE_LEVELS
+from .geography import REFERENCE_LEVELS, ModelSurface
 from .spec import LAB, SpecError
 
 ARCHIVE = LAB.parent / 'upstream' / 'exoplasim-3.4.2.tar.gz'
 PINS = LAB.parent / 'models' / 'pins.sha256'
-TEMPLATES = 'exoplasim-3.4.2/exoplasim/plasim/run/'
+PACKAGE = 'exoplasim-3.4.2/exoplasim/'
+TEMPLATES = 'plasim/run/'            # the namelists, within the package
+SURFACES = 'plasim/dat/T{n}/'        # each resolution's surface files, which ExoPlaSim's compile copies into its run
+                                     # folder (compile.sh:293)
 NAMELISTS = ('plasim_namelist', 'planet_namelist', 'radmod_namelist', 'rainmod_namelist', 'landmod_namelist',
              'oceanmod_namelist', 'icemod_namelist', 'seamod_namelist', 'surfmod_namelist', 'vegmod_namelist',
              'carbonmod_namelist', 'glacier_namelist', 'hurricane_namelist', 'fluxmod_namelist', 'miscmod_namelist',
@@ -42,6 +50,17 @@ EARTH_RADIUS_M = 6371220.0           # ExoPlaSim's unit of radius (world_spec.md
 MOLAR_MASS = {'N2': 28.0134, 'O2': 31.9988, 'Ar': 39.948, 'CO2': 44.01}
 GAS_CONSTANT = 8314.46261815324
 STAR_FILES = ('sun.dat', 'sun_hr.dat')   # in the run's own folder: the namelist holds a file name in 80 characters
+SPEED_OF_LIGHT = 299792458.0         # ExoPlaSim divides its spectrum files' irradiance by it (makestellarspec.py:7, 223-224)
+STAR_HEADER = ' Wavelength    Flux  \n'   # as makestellarspec.writedat writes it (makestellarspec.py:111-133)
+# PlaSim's grid for the spectrum's energy fractions, µm: 1024 points below 0.75 µm and 1024 above, as ExoPlaSim's
+# converter lays them (makestellarspec.py:198); the coarse file takes wvref.txt's 965 wavelengths (radmod.f90:219-230).
+FINE_GRID_UM = np.concatenate([np.geomspace(0.2, 0.75, 1025)[:-1], np.geomspace(0.75, 100.0, 1024)])
+LAND_MASK, GEOPOTENTIAL, ALBEDO_MAP = 172, 129, 174   # PlaSim's codes for its surface files
+SRA_DATE = 20090101                  # the header's date, which PlaSim reads and sets aside (surfmod.f90:129): ExoPlaSim's
+                                     # own land mask carries it, as Terluna's files do
+SRA_WIDTH = 10                       # each value in ten characters with three decimals, a blank before its digits for
+                                     # PlaSim's list-directed read (surfmod.f90:127-131)
+TWILIGHT_ELEVATIONS = (2, 400)       # patch 07 stops PlaSim on a table outside these (NTWLMAX)
 PLASIM_TH2OC = 0.024                 # PlaSim's own water continuum coefficient (radmod.f90:38)
 ICE_BELOW_K = 235.15                 # patch 10's TICEOPT: cloud colder than -38 °C takes ice optics
 SUN_CLOCKS = {'plasim': 0, 'model-day': 1, 'synodic': 2}             # patch 04's NSUNCLOCK
@@ -189,7 +208,7 @@ def _check_top(top: TopOfAir, scenario: dict, calibrations: Calibrations) -> flo
         expected = ('identity', 1.0) if calibrations.first_run else ('calibration', calibrations.sunlight_scale)
     else:
         expected = ('scenario', stated)
-    if (top.basis, top.scale) != expected:
+    if top.basis not in SCALE_BASES or (top.basis, top.scale) != expected:
         raise SpecError(f'{scenario.get("id")}: the sunlight at the top takes scale {top.scale!r} ({top.basis}), '
                         f'where the scenario and the calibrations give {expected[1]!r} ({expected[0]})')
     return _positive(top.w_m2, 'the sunlight at the top')
@@ -198,18 +217,24 @@ def _check_top(top: TopOfAir, scenario: dict, calibrations: Calibrations) -> flo
 # Templates and the namelist format.
 
 def templates(archive: Path = ARCHIVE, pins: Path = PINS) -> dict[str, str]:
-    """The template namelists of the pinned ExoPlaSim archive, by file name, read from the bytes whose sha256
-    matches the archive's pin in models/pins.sha256."""
+    """The template namelists of the pinned ExoPlaSim archive, by file name."""
+    files = archive_files(tuple(TEMPLATES + name for name in NAMELISTS), archive, pins)
+    return {name: files[TEMPLATES + name].decode() for name in NAMELISTS}
+
+
+def archive_files(names: tuple, archive: Path = ARCHIVE, pins: Path = PINS) -> dict[str, bytes]:
+    """Files of the ExoPlaSim package in the pinned archive, by their path within the package, read from the bytes
+    whose sha256 matches the archive's pin in models/pins.sha256. A name ending in "/" stands for the files of that
+    folder."""
     archive = Path(archive)
     try:
         stat = archive.stat()
     except FileNotFoundError:
         raise DataError(f'{archive}: the pinned ExoPlaSim archive is missing (models/pins.sha256)') from None
-    return dict(_templates(str(archive), stat.st_size, stat.st_mtime_ns, str(pins)))
+    return dict(_members(str(archive), stat.st_size, stat.st_mtime_ns, str(pins), tuple(names)))
 
 
-@functools.lru_cache(maxsize=4)
-def _templates(path: str, size: int, mtime_ns: int, pins_path: str) -> tuple:
+def _verified(path: str, pins_path: str) -> bytes:
     pins = {}
     for line in Path(pins_path).read_text().splitlines():
         if line.strip() and not line.lstrip().startswith('#'):
@@ -219,8 +244,22 @@ def _templates(path: str, size: int, mtime_ns: int, pins_path: str) -> tuple:
     digest, name = hashlib.sha256(data).hexdigest(), Path(path).name
     if pins.get(name) != digest:
         raise DataError(f'{path}: sha256 {digest} differs from its pin, {pins.get(name)}')
-    with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as archive:
-        return tuple((name, archive.extractfile(TEMPLATES + name).read().decode()) for name in NAMELISTS)
+    return data
+
+
+@functools.lru_cache(maxsize=16)
+def _members(path: str, size: int, mtime_ns: int, pins_path: str, names: tuple) -> tuple:
+    data = _verified(path, pins_path)
+    with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as tar:
+        members = {m.name[len(PACKAGE):]: m for m in tar.getmembers() if m.isfile() and m.name.startswith(PACKAGE)}
+        wanted = []
+        for name in names:
+            found = sorted(m for m in members if m.startswith(name) and '/' not in m[len(name):]) \
+                if name.endswith('/') else [name]
+            if not found or any(m not in members for m in found):
+                raise DataError(f'{path}: the package holds no {name}')
+            wanted += found
+        return tuple((name, tar.extractfile(members[name]).read()) for name in wanted)
 
 
 def parse(text: str) -> tuple[str, list[tuple[str, str]]]:
@@ -497,20 +536,202 @@ def configure_arguments(world: dict, scenario: dict, run: dict, *, top: TopOfAir
 
 # Writing.
 
-def write_namelists(folder: Path, entries: dict[str, dict], *, archive: Path = ARCHIVE) -> dict[str, str]:
-    """Write every namelist PlaSim reads into `folder`, each its template with the lab's entries, and return each
-    file's sha256."""
-    folder = Path(folder)
-    folder.mkdir(parents=True, exist_ok=True)
+def namelist_texts(entries: dict[str, dict], *, archive: Path = ARCHIVE) -> dict[str, str]:
+    """Every namelist PlaSim reads, by file name, each its template with the lab's entries."""
     unknown = sorted(set(entries) - set(NAMELISTS))
     if unknown:
         raise SpecError(f"entries for files outside ExoPlaSim's namelists: {unknown}")
+    return {name: merged(template, entries.get(name, {})) for name, template in templates(archive).items()}
+
+
+def write_namelists(folder: Path, entries: dict[str, dict], *, archive: Path = ARCHIVE) -> dict[str, str]:
+    """Write every namelist PlaSim reads into `folder` and return each file's sha256."""
+    folder = Path(folder)
+    folder.mkdir(parents=True, exist_ok=True)
     written = {}
-    for name, template in templates(archive).items():
-        content = merged(template, entries.get(name, {}))
+    for name, content in namelist_texts(entries, archive=archive).items():
         (folder / name).write_text(content)
         written[name] = hashlib.sha256(content.encode()).hexdigest()
     return written
+
+
+# The input files.
+
+def star_files(world: dict, scenario: dict, *, archive: Path = ARCHIVE, manifest=None, store=None) -> dict[str, str]:
+    """The star's light at 1 AU through the scenario's filter, in ExoPlaSim's two spectrum files, by name: on
+    PlaSim's fine grid and on wvref.txt's wavelengths, in µm, each irradiance in W m⁻² µm⁻¹ over the speed of light,
+    as ExoPlaSim's own converter writes them. PlaSim takes the files' common shape, dividing both by the fine file's
+    light (radmod.f90:356-368), and GSOL0 the total at the world's distance."""
+    spectrum, _ = sunlight.star_spectrum(world, manifest=manifest, store=store)
+    filt = sunlight.scenario_filter(scenario, manifest=manifest, store=store)
+    coarse = np.loadtxt(io.BytesIO(archive_files(('wvref.txt',), archive)['wvref.txt']))
+    out = {}
+    for name, grid_um in ((STAR_FILES[0], coarse), (STAR_FILES[1], FINE_GRID_UM)):
+        grid_nm = grid_um * 1000.0
+        light = sunlight.through(spectrum, filt, grid_nm)
+        if grid_nm[0] < light.wavelength_nm[0] or grid_nm[-1] > light.wavelength_nm[-1]:
+            raise SpecError(f'{world.get("id")}: the star\'s spectrum spans {light.wavelength_nm[0]:.4g} to '
+                            f'{light.wavelength_nm[-1]:.4g} nm, short of PlaSim\'s grid for {name}')
+        values = np.interp(grid_nm, light.wavelength_nm, light.irradiance) * 1000.0 / SPEED_OF_LIGHT
+        out[name] = STAR_HEADER + ''.join(f'{float(x)!r} {float(y)!r}\n' for x, y in zip(grid_um, values))
+    return out
+
+
+def land_mask(land_fraction: np.ndarray, area: np.ndarray, water_share: float) -> np.ndarray:
+    """PlaSim's binary mask, 1 for land: cells turn to sea in order of least land, until the sea covers
+    `water_share` of the area, the last cell overshooting by less than its own area (Terluna's rule,
+    climate/gcm/exoplasim_run.py:924-931)."""
+    order = np.argsort(land_fraction, axis=None, kind='stable')
+    covered = np.cumsum(area.ravel()[order]) / area.sum()
+    sea = np.zeros(land_fraction.size, dtype=bool)
+    sea[order[:int(np.searchsorted(covered, water_share)) + 1]] = True
+    return (~sea).reshape(land_fraction.shape).astype(float)
+
+
+def sra(code: int, field: np.ndarray) -> str:
+    """A PlaSim surface file: a header of eight integers, then the field from the north and from 0 E, eight values a
+    line, each in ten characters with three decimals, as Terluna's runner wrote them (exoplasim_run.py:914-921).
+    A value whose digits would fill the ten characters is refused, since the read takes the blank before them."""
+    nlat, nlon = field.shape
+    flat = np.asarray(field, dtype=float).ravel()
+    values = [f'{v:{SRA_WIDTH}.3f}' for v in flat]
+    if not np.all(np.isfinite(flat)) or any(v[0] != ' ' for v in values):
+        bad = [v for v in values if v[0] != ' ' or 'nan' in v or 'inf' in v]
+        raise SpecError(f'surface file {code}: each value keeps a blank before its digits in {SRA_WIDTH} characters, '
+                        f'where it is {bad[0].strip()}')
+    lines = [f'{code:10d}{0:10d}{SRA_DATE:10d}{0:10d}{nlon:10d}{nlat:10d}{0:10d}{0:10d}']
+    lines += [''.join(values[i:i + 8]) for i in range(0, len(values), 8)]
+    return '\n'.join(lines) + '\n'
+
+
+def surface_files(surface: ModelSurface, gravity_m_s2: float) -> tuple[dict[str, str], dict]:
+    """PlaSim's land mask and surface geopotential from a scenario's surface on its Gaussian grid, by file name, with
+    the mask's land share. The mask keeps the surface's water share. The geopotential multiplies by the gravity the
+    land's mean height above the water level where a cell is land, and the water's own surface, a lake's above the
+    seas' level, where it is water."""
+    land, area = np.asarray(surface.land_fraction, float), np.asarray(surface.cell_area_fraction, float)
+    nlat = land.shape[0]
+    for name in ('land_fraction', 'land_elevation_m', 'water_surface_m', 'cell_area_fraction'):
+        if np.shape(getattr(surface, name)) != (nlat, 2 * nlat):
+            raise SpecError(f"the surface's {name} spans {np.shape(getattr(surface, name))} cells, where PlaSim's "
+                            f'Gaussian grid of {nlat} latitudes holds {(nlat, 2 * nlat)}')
+    mask = land_mask(land, area, 1.0 - float((land * area).sum() / area.sum()))
+    height = np.where(mask > 0, np.maximum(surface.land_elevation_m, 0.0), np.maximum(surface.water_surface_m, 0.0))
+    files = {f'N{nlat:03d}_surf_{LAND_MASK:04d}.sra': sra(LAND_MASK, mask),
+             f'N{nlat:03d}_surf_{GEOPOTENTIAL:04d}.sra': sra(GEOPOTENTIAL, height * gravity_m_s2)}
+    return files, dict(mask_land_share=float((mask * area).sum() / area.sum()),
+                       surface_land_share=float((land * area).sum() / area.sum()))
+
+
+def twilight_table(ledger: Ledger, levels: int) -> str:
+    """twilight.dat as patch 07 reads it: the number of solar elevations; for each, the elevation in degrees and the
+    sunlight the curved air adds to the ground and to each layer, top first; then the extra infrared each layer and
+    the ground lose to space, W/m², and the temperatures it is given at (models/exoplasim/README.md)."""
+    n = len(ledger.elevation_deg)
+    if not TWILIGHT_ELEVATIONS[0] <= n <= TWILIGHT_ELEVATIONS[1]:
+        raise SpecError(f'patch 07 reads {TWILIGHT_ELEVATIONS[0]} to {TWILIGHT_ELEVATIONS[1]} elevations, where the '
+                        f'ledger holds {n}')
+    values = [ledger.elevation_deg, ledger.ground, *ledger.layers, ledger.escape_w_m2, ledger.escape_temperature_k]
+    if not all(np.all(np.isfinite(np.asarray(v, dtype=float))) for v in values):
+        raise SpecError("the ledger's terms are finite numbers")
+    if len(ledger.ground) != n or len(ledger.layers) != levels or any(len(layer) != n for layer in ledger.layers):
+        raise SpecError(f'the ledger holds the ground and {levels} layers at each of its {n} elevations, where it '
+                        f'holds {len(ledger.ground)} values for the ground and {len(ledger.layers)} layers')
+    if len(ledger.escape_w_m2) != levels + 1 or len(ledger.escape_temperature_k) != levels + 1:
+        raise SpecError(f"the ledger's infrared holds {levels} layers and the ground, {levels + 1} values each")
+    rows = [f'{n}'] + [' '.join(f'{x:.6e}' for x in [el, ledger.ground[i]] + [layer[i] for layer in ledger.layers])
+                       for i, el in enumerate(ledger.elevation_deg)]
+    rows += [' '.join(f'{x:.6e}' for x in values) for values in (ledger.escape_w_m2, ledger.escape_temperature_k)]
+    return '\n'.join(rows) + '\n'
+
+
+def longwave_table(longwave: Longwave, levels: int) -> str:
+    """lwcorr.dat as patch 09 reads it: three rows of the layers, top first, and the ground: the extra escape over
+    land and over sea, W/m², and the temperatures it is given at."""
+    rows = (longwave.land, longwave.sea, longwave.temperature_k)
+    if not all(np.all(np.isfinite(np.asarray(row, dtype=float))) for row in rows):
+        raise SpecError('the longwave correction holds finite numbers')
+    if any(len(row) != levels + 1 for row in rows):
+        raise SpecError(f'the longwave correction holds {levels} layers and the ground, {levels + 1} values a row')
+    return ''.join(' '.join(f'{x:.6e}' for x in row) + '\n' for row in rows)
+
+
+def model_surfaces(resolution: str, *, albedo_map: bool, archive: Path = ARCHIVE) -> dict[str, bytes]:
+    """ExoPlaSim's own surface files at a resolution, Earth's land, seas, heights and soils, for a world whose
+    surface is the model's default; less the albedo map where the scenario states a land albedo, as configure
+    removes it (exoplasim/__init__.py:2797-2799)."""
+    folder = SURFACES.format(n=derive.truncation(resolution))
+    files = archive_files((folder,), archive)
+    out = {name[len(folder):]: data for name, data in files.items() if name.endswith('.sra')}
+    if not albedo_map:
+        out = {name: data for name, data in out.items() if not name.endswith(f'_surf_{ALBEDO_MAP:04d}.sra')}
+    return out
+
+
+def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrations: Calibrations,
+              surface: ModelSurface | None = None, archive: Path = ARCHIVE, manifest=None, store=None) -> dict:
+    """Write a GCM run's input files into `folder`, a new or empty folder: its namelists, the star's two files, its
+    surface files, and the curved air's and the longwave correction's tables where its switches read them. A world
+    of pinned heights takes `surface`, its scenario's surface on the run's grid (worldlab.geography.model_surface),
+    and its scenario states its pressure at the water level, where those heights start; a world of the model's own
+    surface keeps ExoPlaSim's files. Every file is made before any is written, and they reach `folder` together.
+    Returns the run's record: each file's sha256, the switches as resolved, the sunlight at the top with its scale
+    and basis, and the surface's kind and land shares."""
+    folder = Path(folder)
+    if folder.exists() and (not folder.is_dir() or any(folder.iterdir())):
+        raise SpecError(f'{folder}: a run is written into a new or empty folder')
+    geometry, where = world.get('surface', {}).get('geometry'), world.get('id', 'the world')
+    nlat = next(n for n, t in derive.TRUNCATION_BY_LATITUDES.items() if t == derive.truncation(run['resolution']))
+    if geometry == 'model-default':
+        if surface is not None or scenario['water'].get('seas') != 'model-default':
+            raise SpecError(f"{where}: keeps ExoPlaSim's own surface, which takes no surface of the lab's and seas of "
+                            f"the model's own, where the scenario states {scenario['water'].get('seas')!r}")
+    elif geometry == 'ocean':
+        pass                                      # the namelists refuse it until the waterworld's fields are coded
+    elif isinstance(geometry, str) and geometry not in ('unchosen', 'none'):
+        if surface is None or np.shape(surface.land_fraction)[0] != nlat:
+            raise SpecError(f"{where}: its heights need the scenario's surface on the run's grid of {nlat} latitudes "
+                            '(worldlab.geography.model_surface)')
+        if scenario['air'].get('reference_level') != 'water':
+            raise SpecError(f"{scenario.get('id')}: PlaSim's heights start at the water level, where the scenario "
+                            f"states its pressure at {scenario['air'].get('reference_level')!r}")
+    else:
+        raise SpecError(f'{where}: surface.geometry is a pinned surface or model-default, where the world states '
+                        f'{geometry!r}')
+    top = top_of_air(world, scenario, calibrations, manifest=manifest, store=store)
+    entries = namelists(world, scenario, run, top=top, calibrations=calibrations)
+    texts = namelist_texts(entries, archive=archive)
+    texts.update(star_files(world, scenario, archive=archive, manifest=manifest, store=store))
+    radmod, levels = entries['radmod_namelist'], _integer(run['levels'], 'levels')
+    if radmod['NTWILIGHT']:
+        texts['twilight.dat'] = twilight_table(calibrations.ledger, levels)
+    if radmod['NLWCORR']:
+        texts['lwcorr.dat'] = longwave_table(calibrations.longwave, levels)
+    record = dict(files={}, switches=resolve(run, calibrations), first_run=calibrations.first_run,
+                  sunlight=dict(top_w_m2=top.w_m2, scale=top.scale, basis=top.basis))
+    data = {}
+    if geometry == 'model-default':
+        data = model_surfaces(run['resolution'], albedo_map=scenario['land']['albedo'] == 'model-default',
+                              archive=archive)
+        record['surface'] = dict(kind='model-default', files=sorted(data))
+    else:
+        written, shares = surface_files(surface, derive.gravity(world))
+        texts.update(written)
+        record['surface'] = dict(kind='heights', **shares)
+    data.update({name: content.encode() for name, content in texts.items()})
+    folder.parent.mkdir(parents=True, exist_ok=True)
+    partial = Path(tempfile.mkdtemp(prefix=f'.{folder.name}.part-', dir=folder.parent))
+    try:
+        for name, content in data.items():
+            (partial / name).write_bytes(content)
+            record['files'][name] = hashlib.sha256(content).hexdigest()
+        if folder.exists():
+            folder.rmdir()
+        os.replace(partial, folder)
+    except BaseException:
+        shutil.rmtree(partial, ignore_errors=True)
+        raise
+    return record
 
 
 def _switch(value, name: str) -> int:

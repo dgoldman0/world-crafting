@@ -273,7 +273,7 @@ on them (`notes/geography.md`):
   hydrostatics at the reference temperature and the world's surface gravity. Mars's seed states `mean-radius`,
   which the lab refuses until the world has heights and its scenario restates the pressure at the areoid.
 
-`lab/worldlab/exoplasim.py` writes a GCM run's namelists (plan.md, stage 2):
+`lab/worldlab/exoplasim.py` writes a GCM run's input files (plan.md, stage 2), `write_run` all of them:
 
 - **The files.** Every namelist PlaSim reads starts from its template in the pinned ExoPlaSim archive,
   `upstream/exoplasim-3.4.2.tar.gz`, read from the bytes whose sha256 matches `models/pins.sha256`. Each entry is
@@ -308,6 +308,37 @@ on them (`notes/geography.md`):
   and CWSCALE with it), Terluna's radius divided by 6,371,000 m (PLARAD), Earth's eccentricity of 0.0167 where
   Terluna typed 0.016715 (ECCEN), and the sunlight at the top, 0.070% higher since the spectrum's tails pass at the
   shield's own transmission (GSOL0). The entries the lab adds hold PlaSim's and the patches' own values.
+- **The star's files.** `sun.dat` and `sun_hr.dat` hold the star's light at 1 AU through the scenario's filter, on
+  wvref.txt's 965 wavelengths and on PlaSim's fine grid of 2,048, in W m⁻² µm⁻¹ over the speed of light, as
+  ExoPlaSim's own converter writes them. PlaSim takes their common shape, dividing both by the fine file's light,
+  and GSOL0 the total at the world's distance. A blackbody star's fine file splits its light at 0.75 µm as PlaSim's
+  own Planck function does, to 10⁻⁵. Against the design run's files, the wavelengths are Terluna's as written and
+  the light within TSIS-1's measured range, 202.0 to 2729.9 nm, agrees to 10⁻¹¹; beyond it the lab's tail is 0.897
+  of Terluna's, since it holds the rest of the Sun's constant where Terluna's runner matched the blackbody to the
+  last measured value.
+- **The surface's files.** A world of pinned heights takes its scenario's surface on the run's grid
+  (`geography.model_surface`), and its scenario states its pressure at the water level, where the heights start;
+  "sea" waits for a surface that carries the seas' level above the geoid. The binary mask turns cells to sea in order
+  of least land until the sea covers the surface's water share, Terluna's rule. The geopotential multiplies by the
+  gravity the land's mean height above the water level where a cell is land, and the water's own surface, a lake's
+  above the seas' level, where it is water. Each value takes ten characters with three decimals, as Terluna's runner
+  wrote them, and the lab refuses one whose digits would fill the ten, since PlaSim's list-directed read takes the
+  blank before them. From Terluna's own surface of the design run, at Terluna's gravity GM/R², the files are
+  Terluna's byte for byte; the lab's spin term lowers the geopotential by 5 parts in 10⁶. From the lab's own surface,
+  the Open Moon's mask holds 61.65% land where Terluna's held 59.95%, the lab's lakes, routed from run A28_dim5_moon's
+  runoff over its own heights, covering 10.33% of the surface, and those of Terluna's design surface, from run A's
+  runoff over Terluna's heights, 12.02%. Cell by cell the masks part over 111 cells, 7.2% of the surface: 4.45% is
+  land in the lab's mask where Terluna's holds water, and 2.75% the reverse, where the two surfaces' land fractions
+  differ with their lakes. A world of the model's own surface, with seas of the model's own, keeps ExoPlaSim's files
+  of the run's resolution from the archive, less the albedo map where the scenario states a land albedo, as configure
+  removes it; on Earth's control they are configure's files by sha256.
+- **The tables.** Where the switches read them, `twilight.dat` holds the ledger's terms and `lwcorr.dat` the longwave
+  correction, in patches 07 and 09's layout, the ledger at 2 to 400 elevations as patch 07 reads them; from Terluna's
+  products they are the design runs' files byte for byte.
+- **The folder.** `write_run` makes every file before it writes any, into a new or empty folder, and moves them there
+  together, so that a refused run leaves no files and an earlier run's files never mix with a later run's.
+- **The record.** `write_run` returns each file's sha256, the switches as resolved, the sunlight at the top with its
+  scale and basis, and the surface's kind and land shares, for stage 4's product headers to record.
 
 Still to settle, each with the stage whose code first reads it, where stage 1 left them on 2026-10-18: the field
 tables of the defaults, studies, runs and cases, with optional fields and their defaults, as stage 2's and 3's

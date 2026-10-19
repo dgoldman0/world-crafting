@@ -460,3 +460,63 @@ def test_the_model_grid_is_exoplasims_own_t21():
     surface = geography.model_surface(water, topography, 32)
     assert np.allclose(surface.lat_deg, exoplasims['lat'], rtol=0, atol=1e-12)
     assert np.allclose(surface.lon_deg, exoplasims['lon'], rtol=0, atol=1e-12)
+
+
+@pytest.fixture(scope='module')
+def open_moon_run(open_moon_t21, tmp_path_factory):
+    """The Open Moon's first design run, written by the ExoPlaSim adapter over the lab's own surface."""
+    from worldlab import exoplasim as ex
+    if not ex.ARCHIVE.exists():
+        pytest.skip('upstream/ lacks the pinned ExoPlaSim archive')
+    folder = tmp_path_factory.mktemp('open-moon') / 'design'
+    design = LIB.study('open-moon').gcm['design'].settings
+    record = ex.write_run(folder, MOON, OPEN_MOON, design, calibrations=ex.Calibrations.identity(),
+                          surface=open_moon_t21, store=STORE)
+    return folder, record
+
+
+@needs_heights
+@needs_runoff
+@pytest.mark.skipif(STORE is None, reason="the lab's store is unset (lab/local.example.toml)")
+def test_the_open_moons_first_run_takes_its_own_surface(open_moon_run, open_moon_t21):
+    from worldlab import exoplasim as ex
+    folder, record = open_moon_run
+    assert {p.name for p in folder.iterdir()} == \
+        set(ex.NAMELISTS) | {'sun.dat', 'sun_hr.dat', 'N032_surf_0172.sra', 'N032_surf_0129.sra'}
+    assert (record['sunlight']['scale'], record['sunlight']['basis'], record['surface']['kind']) == \
+        (1.0, 'identity', 'heights')
+    shares = record['surface']
+    assert shares['surface_land_share'] == pytest.approx(0.6167, abs=5e-5)
+    assert abs(shares['mask_land_share'] - shares['surface_land_share']) < open_moon_t21.cell_area_fraction.max()
+
+
+def _sra(path) -> np.ndarray:
+    return np.array([float(x) for line in path.read_text().splitlines()[1:] for x in line.split()]).reshape(32, 64)
+
+
+@needs_heights
+@needs_runoff
+@needs_terluna
+@pytest.mark.skipif(STORE is None or root('terluna-drive') is None, reason="the lab's store or Terluna's drive is unset")
+def test_the_open_moons_mask_differs_from_terlunas_where_their_lakes_differ(open_moon_run, open_moon, open_moon_t21):
+    folder, record = open_moon_run
+    ours = _sra(folder / 'N032_surf_0172.sra')
+    theirs = _sra(root('terluna-drive') / 'gcm-runs' / 'A28_corrected_970' / 'inputs' / 'moon_landmask.sra')
+    area = open_moon_t21.cell_area_fraction
+    terluna = _terluna_t21('moon_28pct_water_lakes_gaussian_T21.nc')
+    # Both masks keep their surfaces' land, the 28% seas and their lakes taken away: the lab's lakes are routed from
+    # run A28_dim5_moon's runoff over its own heights, and those of Terluna's design surface from run A's over Terluna's.
+    lab_lakes = open_moon.record['lakes']['share']
+    terluna_lakes = 1.0 - 0.28 - float((terluna['land_fraction'] * terluna['cell_area_fraction']).sum())
+    assert (lab_lakes, terluna_lakes) == (pytest.approx(0.1033, abs=5e-5), pytest.approx(0.1202, abs=5e-5))
+    assert float((theirs * area).sum()) == pytest.approx(0.5995, abs=5e-5)
+    assert record['surface']['mask_land_share'] - float((theirs * area).sum()) == \
+        pytest.approx(terluna_lakes - lab_lakes, abs=1e-3)
+    # Cell by cell the masks part over 111 cells, 7.2% of the surface: 4.45% land in the lab's mask where Terluna's holds
+    # water, and 2.75% the reverse, where the two surfaces' land fractions differ with their lakes.
+    lab_only, terluna_only = (ours > theirs), (theirs > ours)
+    assert int(lab_only.sum() + terluna_only.sum()) == 111
+    assert (float(area[lab_only].sum()), float(area[terluna_only].sum())) == \
+        (pytest.approx(0.0445, abs=5e-4), pytest.approx(0.0275, abs=5e-4))
+    gap = open_moon_t21.land_fraction - terluna['land_fraction']
+    assert float(np.median(gap[lab_only])) > 0 > float(np.median(gap[terluna_only]))

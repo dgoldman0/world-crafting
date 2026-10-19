@@ -1,6 +1,8 @@
 """The namelists of a GCM run, written by the lab's ExoPlaSim adapter: their format, the rules each entry follows,
 Terluna's design run A28_corrected_970 with each difference's cause, and ExoPlaSim's own configure, run in the lab's
 environment."""
+import hashlib
+import io
 import json
 import math
 import re
@@ -9,8 +11,9 @@ import subprocess
 import numpy as np
 import pytest
 
-from worldlab import derive, exoplasim as ex
+from worldlab import derive, exoplasim as ex, sunlight
 from worldlab.data import DataError, Manifest
+from worldlab.geography import ModelSurface
 from worldlab.roots import root
 from worldlab.spec import LAB, Library, SpecError
 
@@ -353,7 +356,7 @@ def test_the_longwave_and_ice_run_switches_on_what_terlunas_pair_switched_on(tmp
 # ExoPlaSim's own configure.
 
 CONFIGURE = r'''
-import json, os, sys, tempfile
+import hashlib, json, os, sys, tempfile
 import exoplasim
 spec = json.loads(sys.argv[1])
 out = []
@@ -366,7 +369,10 @@ for case in spec['cases']:
         model = exoplasim.Model(workdir='run', modelname='run', resolution=spec['resolution'], layers=spec['levels'],
                                 ncpus=spec['ranks'], precision=spec['precision'])
         model.configure(**dict(case, starspec=os.path.join(folder, 'sun.dat')))
-        out.append({name: open(os.path.join('run', name)).read() for name in spec['namelists']})
+        files = {name: open(os.path.join('run', name)).read() for name in spec['namelists']}
+        files['sra'] = {name: hashlib.sha256(open(os.path.join('run', name), 'rb').read()).hexdigest()
+                        for name in sorted(os.listdir('run')) if name.endswith('.sra')}
+        out.append(files)
         os.chdir('/')
 print('worldlab-configure ' + json.dumps(out))
 '''
@@ -404,3 +410,205 @@ def test_configure_writes_the_labs_namelists_but_for_the_departures_and_the_labs
             assert {k.split('(')[0] for k in mine} <= set(ex.ADDITIONS.get(name, ())), (i, name, mine)
             found |= {(name, k) for k in differ}
         assert found == set(ex.departures(scenario)), (i, found)
+        if world['surface']['geometry'] == 'model-default':            # configure leaves ExoPlaSim's own files
+            ours = ex.model_surfaces(DEFAULTS['resolution'], albedo_map=scenario['land']['albedo'] == 'model-default')
+            assert theirs['sra'] == {name: hashlib.sha256(data).hexdigest() for name, data in ours.items()}, i
+
+
+# The input files.
+
+DRIVE = root('terluna-drive')
+DESIGN_INPUTS = DRIVE / 'gcm-runs' / 'A28_corrected_970' / 'inputs' if DRIVE is not None else None
+needs_drive = pytest.mark.skipif(DESIGN_INPUTS is None or not DESIGN_INPUTS.is_dir(),
+                                 reason="Terluna's research drive lacks the design run's inputs")
+
+
+def _star(text: str) -> tuple[list, np.ndarray]:
+    rows = [line.split() for line in text.splitlines()[1:]]
+    return [r[0] for r in rows], np.array([float(r[1]) for r in rows])
+
+
+@needs_archive
+@needs_sunlight
+def test_the_star_files_follow_exoplasims_own_converter():
+    texts = ex.star_files(MOON, OPEN_MOON, store=STORE)
+    coarse = np.loadtxt(io.BytesIO(ex.archive_files(('wvref.txt',))['wvref.txt']))
+    spectrum, _ = sunlight.star_spectrum(MOON, store=STORE)
+    shield = sunlight.scenario_filter(OPEN_MOON, store=STORE)
+    for name, grid in (('sun.dat', coarse), ('sun_hr.dat', ex.FINE_GRID_UM)):
+        assert texts[name].startswith(ex.STAR_HEADER)
+        wavelengths, values = _star(texts[name])
+        assert [float(w) for w in wavelengths] == list(grid) and len(grid) == {'sun.dat': 965, 'sun_hr.dat': 2048}[name]
+        light = sunlight.through(spectrum, shield, grid * 1000.0)
+        assert np.array_equal(values, np.interp(grid * 1000.0, light.wavelength_nm, light.irradiance) * 1000.0 / ex.SPEED_OF_LIGHT)
+
+
+MINWAVEL_M = 316.036116751e-9          # PlaSim takes no light below this (radmod.f90:77, 222-224)
+HC_K = 0.0143877735383                 # PlaSim's hc/k, m K (radmod.f90:173)
+
+
+def _split(w_m: np.ndarray, f: np.ndarray) -> float:
+    """PlaSim's share of the light below 0.75 µm: its trapezoids on each half of a 2048-point spectrum and the step
+    between them (radmod.f90:274-296, 356-368)."""
+    z1 = np.trapezoid(f[:1024], w_m[:1024]) + 0.5 * (f[1023] + f[1024]) * (w_m[1024] - w_m[1023])
+    return float(z1 / (z1 + np.trapezoid(f[1024:], w_m[1024:])))
+
+
+@needs_archive
+@pytest.mark.parametrize('temperature', [5772.0, 3400.0])
+def test_a_blackbody_stars_file_splits_its_light_as_plasims_own_planck(temperature):
+    star = _with(EARTH, star={'spectrum': 'blackbody', 'temperature_k': temperature})
+    w_um, f = (np.array(v, dtype=float) for v in _star(ex.star_files(star, CONTROL)['sun_hr.dat']))
+    w = w_um * 1e-6
+    lab = _split(w, np.where(w < MINWAVEL_M, 0.0, f))
+    lwmin, hinge = np.log10(MINWAVEL_M), np.log10(7.5e-7)            # PlaSim's own grid (radmod.f90:197-208)
+    grid = np.concatenate([10 ** (lwmin + np.arange(1024) * (hinge - lwmin) / 1024),
+                           10 ** (hinge + np.arange(1024) * (-4 - hinge) / 1024)])
+    plasim = _split(grid, (1e6 * grid) ** -5 / np.expm1(HC_K / (temperature * grid)))
+    assert lab == pytest.approx(plasim, abs=1e-5)
+
+
+@needs_archive
+@needs_sunlight
+@pytest.mark.parametrize('world, scenario', [(MOON, OPEN_MOON), (EARTH, CONTROL)])
+def test_the_fine_file_holds_the_filtered_light_of_its_range(world, scenario):
+    w_um, f = (np.array(v, dtype=float) for v in _star(ex.star_files(world, scenario, store=STORE)['sun_hr.dat']))
+    spectrum, _ = sunlight.star_spectrum(world, store=STORE)
+    light = sunlight.through(spectrum, sunlight.scenario_filter(scenario, store=STORE))
+    # Its 2,048 points sample the measured spectrum's lines, which puts the trapezoids 0.45% above the light itself.
+    assert np.trapezoid(f, w_um) * ex.SPEED_OF_LIGHT / light.light(200.0, 1e5) - 1.0 == pytest.approx(0.0045, abs=5e-4)
+
+
+@needs_archive
+@needs_sunlight
+@needs_drive
+def test_the_star_files_are_terlunas_in_the_measured_spectrum_and_differ_in_its_tails_by_their_cause():
+    texts = ex.star_files(MOON, OPEN_MOON, store=STORE)
+    for name, theirs in (('sun.dat', 'sun_titania_stack.dat'), ('sun_hr.dat', 'sun_titania_stack_hr.dat')):
+        (lab_w, lab), (their_w, terluna) = _star(texts[name]), _star((DESIGN_INPUTS / theirs).read_text())
+        assert lab_w == their_w                                   # the same wavelengths, as written
+        w = np.array([float(x) for x in lab_w]) * 1000.0           # nm
+        spectrum, (first, last) = sunlight.star_spectrum(MOON, store=STORE)
+        tail_start = spectrum.wavelength_nm[np.searchsorted(spectrum.wavelength_nm, last, side='right')]
+        measured = (w >= first) & (w <= last)                    # TSIS-1's own points, 202.0-2729.9 nm
+        assert np.array_equal(lab[measured] == 0, terluna[measured] == 0)
+        lit = measured & (terluna > 0)
+        assert np.abs(lab[lit] / terluna[lit] - 1).max() < 1e-11
+        # Past the measured spectrum the lab's tail holds the rest of the Sun's constant (sunlight.py), where Terluna's
+        # runner matched the 5772 K blackbody to the last measured value, 11.45% brighter (exoplasim_run.py:954-963);
+        # a point between the last measured value and the tail's first takes a share between the two.
+        tail = (w >= tail_start) & (terluna > 0)
+        ratio = lab[tail] / terluna[tail]
+        assert ratio.max() - ratio.min() < 1e-7 and ratio.mean() == pytest.approx(0.89725, abs=1e-5)
+        junction = (w > last) & (w < tail_start)
+        assert np.all((lab[junction] / terluna[junction] > ratio.min()) & (lab[junction] / terluna[junction] < 1.0))
+        assert not lab[w < first].any() and not terluna[w < first].any()   # the shield passes nothing there
+
+
+def _terluna_surface(name: str) -> ModelSurface:
+    from scipy.io import netcdf_file
+    with netcdf_file(TERLUNA / 'climate' / 'gcm' / 'products' / name, 'r', mmap=False) as f:
+        v = {k: np.array(x[:], dtype=float) for k, x in f.variables.items()}
+    return ModelSurface(v['lat'], v['lon'], v['land_fraction'], v['land_elevation_m'], v['water_surface_m'],
+                           v['ocean_depth_m'], v['cell_area_fraction'], {})
+
+
+@needs_terluna
+@needs_drive
+def test_the_surface_files_written_from_terlunas_own_surface_are_terlunas_byte_for_byte():
+    files, shares = ex.surface_files(_terluna_surface('moon_28pct_water_lakes_gaussian_T21.nc'),
+                                     derive.gravity(MOON, rule='gm-over-r2'))           # Terluna's gravity, GM/R²
+    assert files['N032_surf_0172.sra'] == (DESIGN_INPUTS / 'moon_landmask.sra').read_text()
+    assert files['N032_surf_0129.sra'] == (DESIGN_INPUTS / 'moon_topography.sra').read_text()
+    assert shares['mask_land_share'] == pytest.approx(0.5995, abs=5e-5)
+
+
+def test_the_surface_files_follow_plasims_format_and_the_masks_rule():
+    field = np.arange(16.0).reshape(2, 8) * 1000.0
+    text = ex.sra(129, field).splitlines()
+    assert text[0] == '       129         0  20090101         0         8         2         0         0'
+    assert text[1].startswith('     0.000  1000.000  2000.000') and len(text) == 3
+    assert ex.sra(129, np.array([[-9999.999, 99999.999]])).splitlines()[1] == ' -9999.999 99999.999'
+    for bad in (1e5, 99999.9996, -10000.0, float('nan'), float('inf')):
+        with pytest.raises(SpecError, match='blank before its digits'):
+            ex.sra(129, np.full((1, 8), bad))
+    square = ModelSurface(None, None, *(np.ones((32, 32)),) * 3, None, np.ones((32, 32)), {})
+    with pytest.raises(SpecError, match='Gaussian grid of 32 latitudes'):
+        ex.surface_files(square, 1.6)
+    land = np.array([[0.9, 0.1], [0.4, 0.6]])
+    area = np.array([[1.0, 1.0], [2.0, 2.0]])
+    mask = ex.land_mask(land, area, 1.0 - float((land * area).sum() / area.sum()))   # 50% water
+    assert mask.tolist() == [[1.0, 0.0], [0.0, 1.0]]                                 # the two least-land cells, 3/6
+
+
+@needs_terluna
+def test_the_curved_air_and_longwave_tables_are_terlunas_byte_for_byte():
+    calibrations = terluna_calibrations()
+    assert ex.twilight_table(calibrations.ledger, 10) == (RECORDED / 'A28_corrected_970' / 'twilight.dat').read_text()
+    assert ex.longwave_table(calibrations.longwave, 10) == \
+        (RECORDED / 'A28_corrected_970_lw_ice' / 'lwcorr.dat').read_text()
+    with pytest.raises(SpecError, match='layers'):
+        ex.twilight_table(calibrations.ledger, 11)
+    with pytest.raises(SpecError, match='values a row'):
+        ex.longwave_table(calibrations.longwave, 9)
+
+
+@needs_archive
+@needs_sunlight
+def test_earths_control_keeps_exoplasims_own_surface_files(tmp_path):
+    record = ex.write_run(tmp_path, EARTH, CONTROL, DEFAULTS, calibrations=ex.Calibrations.identity(), store=STORE)
+    surfaces = sorted(p.name for p in tmp_path.glob('*.sra'))
+    assert len(surfaces) == 15 and 'N032_surf_0174.sra' in surfaces and record['surface']['kind'] == 'model-default'
+    assert set(record['files']) == set(ex.NAMELISTS) | {'sun.dat', 'sun_hr.dat'} | set(surfaces)
+    assert record['sunlight'] == dict(top_w_m2=pytest.approx(1361.0, rel=1e-9), scale=1.0, basis='scenario')
+    assert not (tmp_path / 'twilight.dat').exists() and record['switches']['twilight'] == 'none'
+    whitened = _with(CONTROL, land={'albedo': 0.3})
+    ex.write_run(tmp_path / 'albedo', EARTH, whitened, DEFAULTS, calibrations=ex.Calibrations.identity(), store=STORE)
+    assert 'N032_surf_0174.sra' not in {p.name for p in (tmp_path / 'albedo').glob('*.sra')}   # as configure removes it
+
+
+@needs_archive
+def test_a_run_needs_the_surface_its_world_names(tmp_path):
+    surface = ModelSurface(None, None, np.ones((32, 64)), np.zeros((32, 64)), np.zeros((32, 64)), None,
+                           np.ones((32, 64)), {})
+    with pytest.raises(SpecError, match="keeps ExoPlaSim's own surface"):
+        ex.write_run(tmp_path / 'a', EARTH, CONTROL, DEFAULTS, calibrations=ex.Calibrations.identity(), surface=surface)
+    with pytest.raises(SpecError, match="seas of the model's own"):
+        ex.write_run(tmp_path / 'a', EARTH, _with(CONTROL, water={'seas': 'from-heights'}), DEFAULTS,
+                     calibrations=ex.Calibrations.identity())
+    small = ModelSurface(None, None, np.ones((64, 128)), None, None, None, np.ones((64, 128)), {})
+    for given in (None, small):
+        with pytest.raises(SpecError, match='grid of 32 latitudes'):
+            ex.write_run(tmp_path / 'a', MOON, OPEN_MOON, DESIGN, calibrations=ex.Calibrations.identity(),
+                         surface=given)
+    with pytest.raises(SpecError, match='heights start at the water level'):
+        ex.write_run(tmp_path / 'a', MOON, _with(OPEN_MOON, air={'reference_level': 'sea'}), DESIGN,
+                     calibrations=ex.Calibrations.identity(), surface=surface)
+    with pytest.raises(SpecError, match='surface.geometry'):
+        ex.write_run(tmp_path / 'a', _with(MOON, surface={'geometry': 'unchosen'}), OPEN_MOON, DESIGN,
+                     calibrations=ex.Calibrations.identity(), surface=surface)
+    with pytest.raises(SpecError, match='fields still to add'):
+        ex.write_run(tmp_path / 'a', _with(MOON, surface={'geometry': 'ocean'}), OPEN_MOON, DESIGN,
+                     calibrations=ex.Calibrations.identity())
+    (tmp_path / 'full').mkdir()
+    (tmp_path / 'full' / 'N032_surf_0169.sra').write_text('an earlier run\n')
+    with pytest.raises(SpecError, match='new or empty folder'):
+        ex.write_run(tmp_path / 'full', EARTH, CONTROL, DEFAULTS, calibrations=ex.Calibrations.identity())
+    assert sorted(p.name for p in tmp_path.iterdir()) == ['full']      # a refused run leaves nothing behind
+
+
+@needs_archive
+@needs_terluna
+@needs_sunlight
+def test_the_longwave_and_ice_run_writes_terlunas_tables_and_mask(tmp_path):
+    surface = _terluna_surface('moon_28pct_water_lakes_gaussian_T21.nc')
+    record = ex.write_run(tmp_path / 'run', MOON, OPEN_MOON, LW_ICE, calibrations=terluna_calibrations(),
+                          surface=surface, store=STORE)
+    run = tmp_path / 'run'
+    assert (run / 'twilight.dat').read_text() == (RECORDED / 'A28_corrected_970' / 'twilight.dat').read_text()
+    assert (run / 'lwcorr.dat').read_text() == (RECORDED / 'A28_corrected_970_lw_ice' / 'lwcorr.dat').read_text()
+    assert set(record['files']) == set(ex.NAMELISTS) | {'sun.dat', 'sun_hr.dat', 'twilight.dat', 'lwcorr.dat',
+                                                        'N032_surf_0172.sra', 'N032_surf_0129.sra'}
+    assert record['switches']['ice_weights'] == 'patch-10' and record['sunlight']['basis'] == 'calibration'
+    if DESIGN_INPUTS is not None and DESIGN_INPUTS.is_dir():
+        assert (run / 'N032_surf_0172.sra').read_text() == (DESIGN_INPUTS / 'moon_landmask.sra').read_text()
