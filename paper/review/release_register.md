@@ -62,6 +62,10 @@ font embedded; pages 24–39 and page 1 were inspected. The last page holds one 
 page 3 and close page 24, all left for the final layout; a tighter spacing of the references was tried and
 lengthened the list, so it was dropped. Four round-18 findings on approved wording await the author, and the gates
 stand as before.
+The author then had those four findings applied. Two clean builds from `4cc0ef5c93768306ebb3cce10ac59e0978d938d5` gave the same PDF, 39
+pages, SHA256 `4d12cae30259f8aab1906c280d785e0989a70717737133c5c63646f81dd99403`, with zero overfull boxes and every font embedded;
+page 1 was inspected, the shorter note removes the stranded line on page 3, and the lone reference on the last page
+and the stranded line closing page 24 remain for the final layout. The gates stand as before.
 
 ## The artifact
 
