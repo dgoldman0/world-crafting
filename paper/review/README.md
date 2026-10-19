@@ -115,7 +115,7 @@ and seas beneath the waves, keeping Terluna's new lake results in Terluna, and t
 from the Introduction into a note on terms above it. Round 18 (`editorial_round18.md`) holds the light reading of
 each stage and the dispositions of a closing whole-paper review by two fresh agents
 (`editorial_round18_closing_prose.md`, `editorial_round18_closing_evidence.md`), with four findings on approved
-wording left for the author.
+wording applied once the author had read them.
 
 ## Reviewers
 

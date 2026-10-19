@@ -69,6 +69,8 @@ touched and anything blocking elsewhere.
 
 ### For the author's decision
 
+The author read these four and agreed with each; all four were applied as proposed on 19 October 2026.
+
 | Finding | Wording | The reader's proposal |
 |---|---|---|
 | Prose F1 | `terms.tex`:5–7, the note's closing clause, "so modelling their climate, storms and seas requires adapting both the component models and the fields exchanged within an ensemble" | End the note at "... may differ substantially from Earth's."; the clause states for the third time what the abstract says above it and the Introduction reaches with evidence. Stage 2's reader proposed the same |
