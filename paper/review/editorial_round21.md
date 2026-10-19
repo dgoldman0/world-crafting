@@ -191,3 +191,16 @@ Two clean builds from `67b4786d8b18d5b5e1acdae4a496842668705345` gave the same P
 `76a0c0c90915f11bfd7f171d885bc36683a92ec63b53df05a4945f88cfb70b67`, with zero overfull boxes and every font embedded.
 `paper/tools/check.py` passes with its standing warnings, and a screen of the page breaks found only table cells
 wrapping across pages.
+
+## Release tags (9154a90)
+
+At the author's direction, the paper's state was tagged in both repositories: `paper-v1` here and
+`world-crafting-paper-v1` in Terluna at 186b294, the commit the paper cites, where all 164 Terluna sources in the
+claims register resolve. The author then asked that the paper reference the tags. Code and data had promised that
+this repository "will also hold the paper's release commit"; it now says that this paper's release is tagged
+`paper-v1`, and that Terluna's commit 186b294 is tagged `world-crafting-paper-v1`. Since the paper now names its own
+tag, `paper-v1` moves to the commit that records this section, and Terluna's tag is remade at the same commit with a
+message naming it. The assistant checked the two clauses alone, given their size: the verbs, the rendered text and
+both tags' targets. Two clean builds from `9154a90862f6db9d078764a45ad1f38c47e06ea8` gave the same PDF, 37 pages,
+SHA256 `43cd2fb1eeda9b1fe3bf5d66d3bc12dd4db3593b65ead4aa545daec14cb3dc93`, with zero overfull boxes and every font
+embedded. This is the first released draft.

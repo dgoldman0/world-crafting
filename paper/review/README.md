@@ -149,7 +149,8 @@ each tested every verb in half the paper against its subject (`editorial_round21
 light reading. The author accepted the 21 fixes on approved wording, and then asked that the paper say plainly why the
 ensemble builds on ExoPlaSim when generic planetary GCMs exist; three sentences followed, in Next steps, the
 Introduction and the Conclusion. `editorial_round21.md` records the dispositions, the three light readings and the
-added sentences with their sources.
+added sentences with their sources. Code and data then named the release tags, `paper-v1` here and
+`world-crafting-paper-v1` in Terluna, for the first released draft.
 
 ## Reviewers
 

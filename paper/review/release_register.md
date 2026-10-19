@@ -92,8 +92,12 @@ The gates stand as before.
 At the author's direction, that state was tagged and the tags pushed to GitHub on 19 October 2026: `paper-v1`
 (annotated) in this repository at `c3914dc27e2280eab7766f96dc50dea2c2f480e9`, and `world-crafting-paper-v1`
 (annotated) in Terluna at `186b294fae9a6c04ca386fb8d396a68feea6eedf`, the commit the paper cites, at which every
-Terluna source in the claims register resolves. Each tag's message names the other's commit and the PDF's hash. No
-GitHub release has been made from either tag, so Zenodo has archived neither.
+Terluna source in the claims register resolves. Code and data then named both tags
+(`9154a90862f6db9d078764a45ad1f38c47e06ea8`), so `paper-v1` moves to the commit that adds this entry, and Terluna's
+tag, still at 186b294, is remade with a message naming that commit; GitHub's copies follow on the author's word, before
+any GitHub release. Two clean builds from 9154a90 gave the same PDF, 37 pages, SHA256
+`43cd2fb1eeda9b1fe3bf5d66d3bc12dd4db3593b65ead4aa545daec14cb3dc93`, with zero overfull boxes and every font embedded.
+No GitHub release has been made from either tag, so Zenodo has archived neither.
 
 ## The artifact
 
@@ -128,7 +132,7 @@ These establish record completeness and code integrity; they clear no editorial 
 | G6 Full-document source admission | BLOCKED | Of the 96 cited sources, 49 have no legal local original (admission BLOCKED), 36 of them read at the abstract, 1 at claim locators and 12 unread; 47 have an archived original (DEFERRED), 36 of them read at claim locators, 8 at the abstract, 2 unread and 1, the author's own issue report, in full; none is admitted. The 23 sources cited from the related-work scan on 18 October were read at the abstract or by title | Originals for the 49, and full readings, with appendices and bibliographies, of every cited source; or a substantive revision of each dependent use |
 | G7 Exact-build visual and production review | PASS | `g7_visual_review.md`: every page of the PDF above read in the poppler render, the six figure pages again in MuPDF's; fonts embedded, metadata set, links present; no blocking finding | The author's own inspection; three notes for the author in that record (the title page's date, one loosely set reference line, Table 4's last row alone on page 22) |
 | Whole-manuscript challenge (E4) | DEFERRED | The first draft was challenged (`whole_manuscript.md`, dispositions in `whole_manuscript_dispositions.md`) | A challenge of the third draft as revised |
-| E4 Release integrity | BLOCKED | This register | G6; the paper's release commit in the world-crafting repository, public since 18 October 2026, which the availability statement promises; the author's confirmation of the AI-assistance disclosure's wording on Codex and ChatGPT; the author's final reading; the deferred gates above |
+| E4 Release integrity | BLOCKED | This register | G6; a GitHub release from each tag, `paper-v1` here and `world-crafting-paper-v1` in Terluna, both named in Code and data, for Zenodo to archive; the author's confirmation of the AI-assistance disclosure's wording on Codex and ChatGPT; the author's final reading; the deferred gates above |
 
 Terluna's ensemble audit belongs to its five-paper ensemble, which this paper stands apart from by the repository's
 `AGENTS.md`, so it has no row here.
