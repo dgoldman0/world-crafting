@@ -122,6 +122,14 @@ novelty overclaims. Codex and two fresh reader agents assessed the current manus
 with targeted technical checks, and returned PASS. `final_skim_2026-10-19.md` records the reviewed source
 and PDF, the actual checks and the bounded decision; the manuscript remains as reviewed.
 
+The author then read the paper and judged the review history in its Availability section out of place in a
+standalone paper, together with other accounts of the paper's own making. Following the assistant's proposal, the
+review history left the paper, the account of assistance became a short AI-use statement, Code and data was trimmed
+to where things are, Next steps lost its list of reports and reruns, and AGENTS.md now keeps the review and
+drafting history in this folder. One fresh reader read the change, and its fixes followed;
+`editorial_round19.md` records the round. The manuscript has changed since the final skim, which no longer
+describes it.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
@@ -150,6 +158,7 @@ author, or by a journal, remains pending; the records identify the reviewer and 
 | `conclusion_*_2026-10-18.md`, `terracompatible_*_2026-10-18.md`, `terracompatible_visual_pages*.md` | The records of 18 October 2026: Codex's drafting and revisions, the check of them, their builds and page inspections |
 | `slice_reason_2026-10-18.md` | The author's reason for CM1's slices, the sentence that gives it, its claim, checks and build |
 | `abstract_and_repository_2026-10-18.md` | The author's reading of the abstract, its rewrite, the public repository in Availability, checks and build |
+| `final_skim_2026-10-19.md`, `editorial_round19.md` | Codex's final skim of 19 October and, after it, the removal of the paper's account of its own making |
 | `g7_visual_review.md` | The exact-build page review: renderers, the PDF hash and page-by-page observations |
 | `release_register.md` | PASS / BLOCKED / DEFERRED by gate, with the exact PDF and source hashes |
 

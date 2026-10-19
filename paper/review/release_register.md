@@ -66,6 +66,12 @@ The author then had those four findings applied. Two clean builds from `4cc0ef5c
 pages, SHA256 `4d12cae30259f8aab1906c280d785e0989a70717737133c5c63646f81dd99403`, with zero overfull boxes and every font embedded;
 page 1 was inspected, the shorter note removes the stranded line on page 3, and the lone reference on the last page
 and the stranded line closing page 24 remain for the final layout. The gates stand as before.
+Codex's final skim then passed that manuscript (`final_skim_2026-10-19.md`). After it, at the author's direction,
+the paper's account of its own making left the manuscript (`editorial_round19.md`): the review history, the long
+account of assistance and Next steps' list of reports and reruns. Two clean builds from `c8a17315dfcaa86d61a5c6e612d0ba42d7299dff`
+gave the same PDF, 37 pages, SHA256 `d8df63f4a390bd7a27540f29ea50c3eff14bc1629d40c03894b36676b98bb2ef`, with zero overfull boxes and every
+font embedded; the pages from Next steps to the end were inspected. The AI-use statement's new wording awaits the
+author's confirmation under E4, and the gates stand as before.
 
 ## The artifact
 
