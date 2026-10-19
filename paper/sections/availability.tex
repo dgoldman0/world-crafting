@@ -3,24 +3,26 @@
 \textbf{Code and data.} The patches to ExoPlaSim, CM1 with WRF-ELEC and SWAN, the Fortran written for CM1's
 electrified build, the in-house reference and calibration tools with their tests, the notes on each component's
 correctness and limits, the defect log, the verification record, and this paper's figure scripts, data extracts and
-a register tracing each number in the text to its source are held in the public world-crafting repository,
+a register tracing the work's own numbers to their sources are held in the public world-crafting repository,
 \url{https://github.com/dgoldman0/world-crafting}, which will also hold the paper's release commit. The case comes
 from the Terluna project \autocite{goldman2026terluna}, whose repository at commit 186b294 holds the scenario, the
 runners, the case set-up and the analyses; the model runs themselves are held on the project's research drive, and
 the products derived from them are committed to Terluna with the hashes of their inputs. Work on the ensemble
 itself, by contrast, will continue in the world-crafting repository as a standalone project, if resources allow.
 The patches apply to upstream sources pinned by checksum: ExoPlaSim 3.4.2 from its source distribution, CM1
-release 22.0, SWAN 41.51, SWASH 12.01 and WRF-ELEC at commit \code{e43041b}. As patches to those sources, they
+release 22.0, SWAN 41.51 and WRF-ELEC at commit \code{e43041b}; SWASH 12.01 runs unmodified from its pinned archive.
+As patches to those sources, they
 inherit their licences: the GNU GPL version 3 for ExoPlaSim and version 3 or later for SWAN, CM1's MIT-style
 licence, and the WRF public-domain notice for WRF-ELEC.
 
 \textbf{Author and AI assistance.} Daniel S. Goldman designed the scenario, directed the work and is responsible
 for the content. The code, analyses and manuscript were developed with AI assistance: Claude Opus~5.5 (Anthropic)
-wrote and ran most of the code and analyses and drafted the text, with subagents of the same model checking its
-claims, sources and prose; OpenAI's Codex drafted and reviewed parts of the text, the conclusion among them; and the
+wrote and ran most of the code and analyses\claim{Z01} and drafted most of the text, with subagents of the same
+model checking its claims, sources and prose; OpenAI's Codex drafted the conclusion, revised and reviewed the whole
+text and, in Terluna, reviewed research branches of the code; and the
 scenario's early planning and the style rules applied to the text drew on the author's conversations with ChatGPT
-(OpenAI). The records of this work and
-of the manuscript's reviews are kept in the world-crafting repository.
+(OpenAI). The records of this assistance
+are kept in the Terluna and world-crafting repositories, those of the manuscript's reviews in world-crafting.
 
 \textbf{Competing interests.} The author declares no competing interests. The work is an unfunded personal
 project that brings the author no income, and the author's practice is to make public every part of it that its
