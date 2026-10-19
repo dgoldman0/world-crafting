@@ -994,11 +994,13 @@
   },
   {
    "id": "S14",
-   "text": "ExoPlaSim at T21 runs a lunar model year in about 3.3-4.7 minutes on 4 MPI ranks, 20 years in roughly 70-95 minutes",
+   "text": "ExoPlaSim at T21 runs a lunar model year in about 3.3-4.7 minutes on 4 MPI ranks, 20 years in roughly 70-95 minutes; it was chosen for that speed, the fast first look among Terluna's candidate GCMs, whose plan takes ROCKE-3D or the LMD model to the cases that matter, and the author describes the ensemble as geared, for now, to limited computing resources",
    "source": [
     "terluna:climate/gcm/README.md#L731",
     "terluna:climate/gcm/README.md#L888",
-    "terluna:climate/gcm/README.md#L1044"
+    "terluna:climate/gcm/README.md#L1044",
+    "terluna:climate/gcm/README.md#L70-85",
+    "repo:paper/review/editorial_round21.md"
    ],
    "state": "documented"
   },

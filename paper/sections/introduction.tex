@@ -64,8 +64,7 @@ fixes the horizon air mass at Earth's 35, where the Moon's well-mixed air has ab
 
 The global climate is computed by ExoPlaSim~3.4.2 \autocite{paradise2022exoplasim,paradise2025exoplasim}, PlaSim
 \autocite{fraedrich2005planet} extended for other worlds (the appendix gives each code's configuration), which runs
-decades of the test world's climate in an hour or two on four processor cores,\claim{S14} parameterizes its
-convection with a Kuo-type scheme and diagnoses its clouds from formulas fitted to Earth. Slices of that climate
+decades of the test world's climate in an hour or two on four processor cores, the speed for which it was chosen,\claim{S14} parameterizes its convection with a Kuo-type scheme, computes its radiation with broadband fits to Earth's columns and diagnoses its clouds from formulas fitted to Earth. Slices of that climate
 force CM1 release~22 \autocite{bryan2002benchmark,bryan2026cm1} on two-dimensional rings of columns around latitude
 circles or tilted great circles and in doubly periodic boxes, where it resolves the convection the GCM
 parameterizes and forms its own clouds and rain; with the electrification of WRF-ELEC grafted in
