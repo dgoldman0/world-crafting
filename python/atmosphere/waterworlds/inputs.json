@@ -1,0 +1,16 @@
+{
+  "schema": "world-crafting.external-inputs/1",
+  "status": "external inputs; fetched and hash-checked by fetch_inputs.py; ignored by Git",
+  "input_directory": "inputs",
+  "retrieved": "2026-10-19",
+  "files": [
+    {
+      "name": "arnscheidt2019_arxiv_1906.10561v2.tar.gz",
+      "url": "https://arxiv.org/e-print/1906.10561v2",
+      "sha256": "8d416543b5af49b5e0e32dae21a7ec1b1e022aa9eeefc79a60c37ad39fd5f451",
+      "bytes": 1655716,
+      "credit": "Arnscheidt, C. W., Wordsworth, R. D. & Ding, F. (2019), Atmospheric Evolution on Low-gravity Waterworlds, ApJ 881, 60; the arXiv source of version 2 (1906.10561v2), which arXiv distributes under its non-exclusive distribution licence (arxiv.org/licenses/nonexclusive-distrib/1.0/). Kept outside Git, for reading; its figures' values are read for the comparison and credited to the authors.",
+      "use": "The images of the paper's Figures 2 to 5, which figures.py reads"
+    }
+  ]
+}

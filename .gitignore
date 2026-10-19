@@ -11,6 +11,7 @@ __pycache__/
 /python/atmosphere/radiative_convective/cache
 /python/atmosphere/middle_atmosphere/inputs
 /python/atmosphere/middle_atmosphere/cache
+/python/atmosphere/waterworlds/inputs
 /python/illumination/sky/data
 /python/illumination/sky/work
 

@@ -6,7 +6,9 @@ ApJ 881, 60 ([../lab/design/waterworlds.md](../lab/design/waterworlds.md)), whos
 sha256 8d416543…f451) was read on 2026-10-19; equation numbers here are the arXiv version's. `body.py` sizes the
 worlds, `escape.py` computes their isothermal wind, and `steam.py`, `steam_optics.py` and `radiating.py` compute the
 steam column, its absorption and its radiating surfaces; `balance.py`, `steam_table.py` and `maps.py` compute the
-energy balance, the columns' table over gravity and surface temperature, and the contours over gravity and distance.
+energy balance, the columns' table over gravity and surface temperature, and the contours over gravity and distance;
+`figures.py` reads the paper's figures from the images in its source and `comparison.py` sets the lab's results
+beside them.
 
 ## What the tools compute
 
@@ -64,8 +66,31 @@ energy balance, the columns' table over gravity and surface temperature, and the
   world stands at 273 K, or at the temperature at which its water lasts a given time, interpolating the instellation
   linearly in T_s along the table; a temperature outside the table, or a lifetime no temperature from 150 to 640 K
   gives, yields NaN.
+- **The paper's figures.** `figures.py` reads the curves of the paper's Figures 2 to 5 from its arXiv source, which
+  `fetch_inputs.py` restores by its sha256 into the git-ignored `inputs/`; since arXiv distributes the source under
+  its non-exclusive licence, the lab keeps it outside Git and credits the values read from it to the authors. Each
+  figure is an RGB image in a PDF, which the reader decodes from the PDF's bytes and calibrates axis by axis. A tick
+  is found as the run of dark pixels nearest the middle of its label along the plot box's edge, translucent shading
+  included, and a tick a curve hides is left out of the fit, linear in the labels, or in their square root for
+  Figure 2's factors, which the reader refuses where it misses a tick by more than a pixel. A curve's points are the
+  middles of the runs of its colour, column by column or row by row: the longest run, or the one nearest the last
+  where a label in the line's colour stands beside it, a run that another curve crosses being left out. Figure 5's
+  dotted arrows, where the snowballs thaw and the ocean freezes, are read as the columns their colour fills, and
+  each snowball's last state as its curve extrapolated to its arrow. The reader writes the curves, with its code's
+  hash, its environment and a statement of their evidence, to the store at `products/paper-figures/<key>/figures.json`.
+- **The comparison.** `comparison.py` sets the lab's results beside the paper's figures at the same abscissas, the
+  paper's curves read linearly between their points: Figure 2's factors from columns of 0.12 Earth masses computed
+  directly; Figure 3's instellations with and without the expanding surfaces and its lifetimes; Figure 4's 273 K and
+  10⁹-year contours for both stars, the transition and Ganymede's line; and Figure 5's ocean, the thawing of its
+  snowballs and the ocean's freezing, at the paper's arrows. Each takes the wind's sound speed squared at kT/m, as
+  printed, at 1.2722 kT/m, the value at which the transition falls at the paper's, and at 4/3 kT/m. The paper's AD
+  Leonis takes the flux its own Figure 4 implies, the square of the ratio of the two stars' 273 K distances, 0.0242 of
+  the Sun's, and a temperature of 3,400 K. The comparison goes to the store at
+  `products/steam-comparison/<key>/comparison.json`, its key covering the table and figures it read, the optics' key,
+  the Sun's flux, the red star's temperature and its producer, the code of every module it runs.
 - **Choices the paper leaves open.** The vapour pressure is the column's own, Wagner and Pruß (2002) over liquid
-  water and Wagner et al. (2011) over ice; steam is an ideal gas at every height; a year is a Julian year. The
+  water and Wagner et al. (2011) over ice; steam is an ideal gas at every height; a year is a Julian year; the Sun
+  gives 1,361 W/m² at 1 AU (shared/constants.json), on whose square root every distance from it depends. The
   column's top, its levels, its bands and their steps, the lines' floor, the continuum and the surface's emissivity
   of one are the lab's choices; the paper names its line list, HITEMP2010 truncated for use below 1,000 K, which the
   lab adds when the author has downloaded it. Starlight beyond 25,000 cm⁻¹, where water has no lines, counts at the
@@ -113,6 +138,21 @@ temperatures invert the wind, giving 273 K at the printed transition, 1.29 m/s²
 key follows its inputs and producer; and that the table, computed in one process and in two, holds each column's
 surfaces, a capped column among them, as the column alone gives them, the second computing no cross-section
 anew.
+
+The figure reader's tests (`python/atmosphere/tests/test_paper_figures.py`) check that a PDF's image reads back byte
+for byte and that two images, another colour space, a predictor or a stream of the wrong length are refused; that an
+axis fits its ticks linearly or in the square root of its labels and refuses two ticks or a tick astray; that ticks
+are found beside their labels or on the edge, one under a curve left out; that a curve takes its longest run, tracks
+past a label in its colour and leaves out the runs another curve crosses; that a product reads back with NaN as null
+and its key follows its source and producer; and, with the paper's source restored, that Figure 2 at 300 and 400 K,
+Figure 3's curves at 300 and 400 K, its ticks and shading, Figure 4's contours at three points, its lines and the
+contour's lowest gravity, and Figure 5's ticks, band, arrows, curve ends and the ocean's temperatures at the arrows
+read as recorded here. The comparison's tests (`python/atmosphere/tests/test_comparison.py`) check that the paper's
+curves are read between their points and NaN beyond, that the red star's flux is the square of the ratio of its
+273 K distance to the Sun's, that Figure 3's rows hold the balance at every factor, that Figure 5's snowballs thaw
+where their branch reaches the thawing temperature into the ocean state the same instellation holds, found by
+bisection, and, with the source restored, that the whole comparison runs and the transition, Ganymede's line and the
+red star's flux stand as recorded.
 
 The column's numerical choices were tested once at 2.3 m/s², at 300 and 450 K, against finer settings, with the
 layers' masses at the local gravity. The base settings give an outgoing longwave of 246.77 and 240.95 W/m², emitting
@@ -178,6 +218,56 @@ causes, and rerunning with HITEMP's lines will test the first. Without the conti
 at the surface's, against the paper's flat 248, so the paper's column also holds a continuum, or line wings, of
 comparable strength.
 
+## The comparison with the paper's Figures 2 to 5
+
+`comparison.py` ran on 2026-10-19 on the table `products/steam-table/23c1facbc05b5e7b/table.json` in the store
+(sha256 36b66c6b…, 1,232 columns at 1.1 to 2.6 m/s² and 220 to 600 K, the layers' masses at the surface's gravity,
+computed in 33 minutes on six processes with none failed) and on the figures as read by `figures.py`
+(`products/paper-figures/e3a0471a01b233ca/figures.json`, sha256 7208144e…), and wrote
+`products/steam-comparison/8ef344804c9e1ae0/comparison.json` (sha256 915dfb90…). The Sun gives 1,361 W/m² at 1 AU, a
+value the paper leaves unstated, and the paper's AD Leonis 0.02417 of it, the square of the ratio of the two stars'
+273 K distances in Figure 4, with a temperature of 3,400 K; that flux carries the paper's own ratio of the two stars'
+absorbing factors near 273 K, which the lab's columns put 0.5 to 1.3% apart, so the AD Leonis rows lean on Figure 4
+itself.
+
+The radiation stands where the first look found it. The lab's emitting factors for Figure 2's world run 0.006 to
+0.030 above the paper's from 300 to 598 K and its absorbing factors 0.001 to 0.019. At 2.3 m/s² the lab's
+instellation with the expanding surfaces runs 1.0 to 1.6% above the paper's from 260 to 450 K, the most at 265 K,
+and without them 0.6 to 0.7% above from 280 to 400 K and 1.1 to 1.6% above at 260 to 275 K; at 440 to 450 K the
+paper's curve without expansion already holds its own escape. In the escape, the printed equations and the paper's
+figures part, and a sound speed near the adiabatic one brings the lab within reach of the figures:
+
+| | The paper | Printed, kT/m | 1.2722 kT/m | 4/3 kT/m |
+|---|---|---|---|---|
+| Transition, m/s² (Figure 4) | 1.481 | 1.292 | 1.480 | 1.520 |
+| Widest habitable zone around the Sun, AU, at its gravity | 0.085 at 2.1 | 0.108 at 1.8 | 0.087 at 2.1 | 0.084 at 2.2 |
+| Widest around AD Leonis, AU | 0.0086 at 1.9 | 0.0105 at 1.7 | 0.0086 at 1.9 | 0.0083 at 2.0 |
+| 10⁹-year contour around the Sun at 2.4 and 1.6 m/s², AU | 0.961, 1.004 | 0.945, 0.938 | 0.955, 0.993 | 0.957, 1.006 |
+| Instellation without expansion at 2.3 m/s², 470, 480 and 490 K, W/m² | 1,262, 1,295, 1,365 | 1,247 at each | 1,252, 1,258, 1,271 | 1,267, 1,290, 1,337 |
+| The ocean's temperature after each snowball thaws, ice albedos 0.25, 0.32 and 0.4, K (Figure 5) | 296, 424, 495 | 297, 425, above 600 | 297, 425, 518 | 297, 425, 500 |
+
+The paper's text gives the widest zones as about 0.08 and 0.008 AU. With the square of the sound speed at 4/3 kT/m,
+the lab's 10⁹-year contour lies within 0.0052 AU of the paper's around the Sun from 1.6 to 2.4 m/s² and within
+0.0007 AU around AD Leonis, though below 1.6 m/s² it parts further, 0.024 AU at 1.4 m/s². Its widest zones come
+within 0.002 and 0.0003 AU of the paper's, and its instellation without expansion within 0.4% of the paper's at
+470 and 480 K and 2.1% below it at 490 K, where the paper's escape climbs faster still. By the printed equations
+the transition falls at 1.29 m/s², the zones widen by about a quarter, the instellation stays flat where the
+paper's climbs, and the snowball at an ice albedo of 0.4 thaws into an ocean hotter than the table's 600 K. Below
+1.5 m/s² the paper's 273 K contour turns sunward, to 1.012 AU at 1.3 m/s², as the power its escape carries grows;
+the lab's contour there lies at 1.026 AU by the printed equations and at 1.000 AU at 1.2722 kT/m, so that the paper's
+bend, too, points to an escape stronger than printed.
+
+Figure 5 is compared at the paper's own arrows, whose distances the reader takes from the image, and at the
+temperatures where the paper's snowball curves end beside them, 270.6 to 272.1 K, short of the 273 K at which the
+lab's branches thaw by definition. There, the lab's snowballs thaw 0.005 to 0.006 AU nearer the Sun than the
+paper's, and its ocean freezes 0.007 AU nearer, at the paper's 275.1 K, as the lab's instellation near 273 K, 1.1 to
+1.6% above the paper's, would place them. The ocean the lab's snowballs thaw into is the same on both counts: an
+instellation that both branches share cancels from it, and at 4/3 kT/m it stands within 1 K of the paper's after the
+two warmer snowballs and 6 K above it after the coldest, near 500 K, where the escape sets the curve. At 273 K the
+lab's snowballs thaw 0.010, 0.008 and 0.010 AU nearer and into oceans 7, 10 and 7 K warmer than the paper draws.
+Ganymede's line, at 1.428 m/s² in the paper, lies at 1.436 m/s² for Ganymede's mass, 1.482 × 10²³ kg, on the size
+relation with the lab's Earth.
+
 ## The printed escape against the paper's figures
 
 By the paper's equations 9 to 11 as printed, with its stated inputs, its worlds keep their water far longer than its
@@ -192,7 +282,7 @@ pixels against their ticks before stage 9 digitises them, fall at these surface 
 |---|---|---|---|
 | Figure 3's lifetime axis | 403 K | 445 K | 498 K |
 | Figure 5's lifetime axis | 388 K | 427 K | 476 K |
-| The printed equations | 497 K | 554 K | 628 K |
+| The printed equations | 497 K | 554 K | 627 K |
 | The square of the sound speed taken as 4/3 kT/m | 397 K | 442 K | 500 K |
 
 With the square of the sound speed taken as 4/3 kT/m, the adiabatic value for water molecules whose vibrations stay
@@ -221,7 +311,7 @@ values read from the paper; the author chooses how stage 9's acceptance check tr
   2.4). A wind heated by the star's high-energy light and cooling as it rises is planned for stage 10.
 - In eq. A4 the kinetic term is dropped at every radius, which lowers the speed by the factor exp(−(w/w_c)²/2), 0.92
   at the paper's limit for it, w/w_c = 0.4.
-- Saturated steam's density is 1.07 times an ideal gas's at 450 K, 1.15 at 500 K, 1.32 at 554 K and 2.09 at 628 K
+- Saturated steam's density is 1.07 times an ideal gas's at 450 K, 1.15 at 500 K, 1.32 at 554 K and 2.09 at 627 K
   (Wagner and Pruß 2002). Taken in eq. 9, the real density moves the printed equations' temperatures in the table to
   495, 551 and 617 K, the row at 4/3 kT/m by 2 K at most, and leaves the transition, at 273 K, where it is.
 - Sotin and colleagues gave the relation for ocean planets half water by mass, by their abstract as search indexes
