@@ -18,7 +18,8 @@ solar_day_days = 29.53059            # moon.synodic_month_days, stated with its 
                                      # 1/(1/P_rot - 1/P_year) = 29.5305882 d and records both
 
 [orbit]                              # a moon follows its host planet's orbit about the star
-from_host = "earth"                  # lab/worlds/earth/world.toml: 1 AU, 365.25636 d, eccentricity 0.0167. Terluna's
+from_host = "earth"                  # lab/worlds/earth/world.toml: 1 AU, 365.25636 d, eccentricity 0.0167, perihelion
+                                     # 102.7 deg from Earth's vernal equinox. Terluna's
                                      # runner typed 365.25636 d and 0.016715 (exoplasim_run.py:841-842)
 
 [star]

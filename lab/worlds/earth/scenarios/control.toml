@@ -1,5 +1,5 @@
 # Earth's dry air at sea level, given by mole fraction; the lab derives its partial pressures as it does every
-# scenario's. The ozone, seas and land are ExoPlaSim's own Earth settings.
+# scenario's. The ozone is PlaSim's own synthetic profile, and the seas and land are ExoPlaSim's own Earth settings.
 # The sunlight is the world's TSIS-1 spectrum at 1361 W/m2, where released ExoPlaSim runs Earth at 1367 W/m2 by
 # default (exoplasim/__init__.py:2003), so the released run of the comparison takes the same sunlight and air
 # through ExoPlaSim's own interface. Draft schema 0.
@@ -21,7 +21,8 @@ ar_mole_fraction = 0.00934                   # Earth's dry air (exoplasim_run.py
 balance = "N2"
 reference_temperature_k = 288.0      # Earth's global mean (paper/data/worlds.json, "global means")
 cloud_droplets_per_cm3 = 100.0       # a model choice: the Open Moon's value, held for the comparison
-ozone = "model-default"              # ExoPlaSim's ozone profile, as the released model runs Earth
+ozone = "model-default"              # PlaSim's own synthetic ozone (no3 = 1, radmod.f90:51), which ExoPlaSim's
+                                     # configure turns off unless asked (ozone=True, exoplasim/__init__.py:2879-2880)
 water_vapour = "prognostic"
 
 [water]

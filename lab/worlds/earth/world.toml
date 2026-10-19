@@ -23,6 +23,8 @@ semi_major_axis_au = 1.0             # NASA GSFC Earth Fact Sheet: 149.598 milli
 sidereal_year_days = 365.25636       # NASA GSFC Earth Fact Sheet: 365.256 d; Terluna's runner types 365.25636
 eccentricity = 0.0167                # NASA GSFC Earth Fact Sheet (updated 15 November 2024; read 2026-10-17);
                                      # not in Terluna's constants
+perihelion_longitude_deg = 102.7     # from the vernal equinox: PlaSim's own Earth value, the template's MVELP, which
+                                     # ExoPlaSim's configure keeps unless given lonvernaleq (exoplasim/__init__.py:2185-2187)
 
 [star]
 id = "sun"

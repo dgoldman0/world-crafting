@@ -102,6 +102,7 @@ scenario, and the waterworlds' anchors are illustrative worlds under illustrativ
 | `rotation.obliquity_deg` | ° | The equator's tilt to the orbit |
 | `rotation.solar_day_days` | d | Optional, stated with its basis; otherwise 1/(1/P_rot − 1/P_year) |
 | `orbit.star`, `semi_major_axis_au`, `sidereal_year_days`, `eccentricity` | –, AU, d, – | The orbit about the star |
+| `orbit.perihelion_longitude_deg` | ° | The longitude of perihelion from the vernal equinox, which an eccentric orbit states (PlaSim's MVELP) |
 | `orbit.from_host` | – | For a moon, the host planet whose orbit it follows, in place of the four fields above |
 | `star.id`, `star.spectrum`, `star.spectrum_form`, `star.constant_w_m2`, `star.temperature_k` | –, pinned name or `blackbody`, –, W m⁻², K | The spectrum: a pinned measured or model spectrum, its tails the star's blackbody, or the blackbody alone; `irradiance` for a pinned irradiance at 1 AU, kept as measured with its tails holding the rest of the constant, or `shape` for one scaled whole to the constant; the total at 1 AU; and the effective temperature that sets the blackbody |
 | `host.id`, `host.neglected` | – | A moon's planet, and the forcings from it left out, with their size |
@@ -271,6 +272,42 @@ on them (`notes/geography.md`):
   pressure at the lowest exposed surface, the sea's, a lake's or the dry ground's, follows by isothermal
   hydrostatics at the reference temperature and the world's surface gravity. Mars's seed states `mean-radius`,
   which the lab refuses until the world has heights and its scenario restates the pressure at the areoid.
+
+`lab/worldlab/exoplasim.py` writes a GCM run's namelists (plan.md, stage 2):
+
+- **The files.** Every namelist PlaSim reads starts from its template in the pinned ExoPlaSim archive,
+  `upstream/exoplasim-3.4.2.tar.gz`, read from the bytes whose sha256 matches `models/pins.sha256`. Each entry is
+  written as `NAME = value`, a number as Python writes it, as configure writes its own.
+- **Configure's entries.** The lab writes what ExoPlaSim's own configure writes for the same world, from the lab's
+  derivations: the calendar, the gravity, the radius, the orbit, the air's pressure, CO2 and gas constant, the
+  ocean, sea ice, ozone and land albedo, and configure's own values for the features the lab leaves at its
+  defaults. The test runs configure in the lab's environment, under the arguments `configure_arguments` gives, on
+  the Open Moon's design run, Earth's control, the Moon with other ozone, ocean, albedo, time step, orbit and
+  calendar settings, and Earth with CO2-free air and its own albedo; on each it writes the same entries to 10⁻¹², but
+  for the output steps, `NSTPW`, which follow the lab's rule, the star's files, which the lab names in the run's
+  folder, and the CO2 of CO2-free air, where configure writes its default of 300 ppm. GASCON takes ExoPlaSim's own
+  molar masses (rule 7).
+- **Scenario and world fields.** `air.ozone` "none" turns PlaSim's ozone off, and "model-default" keeps PlaSim's own
+  synthetic ozone (`no3` 1), which configure turns off unless asked; `water.ocean.kind` is "slab";
+  `air.reference_level` is "water" or "sea", the level PlaSim's heights start from; a land albedo of
+  "model-default" keeps ExoPlaSim's albedo map; `forcing.top_infrared_w_m2` gives patch 06's infrared, the glow
+  producer coming with stage 5. An eccentric orbit states `orbit.perihelion_longitude_deg`, PlaSim's MVELP, whose
+  template holds Earth's 102.7°. A world stating rotation locked to its star or a surface all ocean is refused until
+  the waterworld's fields are coded.
+- **The patches and calibrations.** The lab writes the namelist entries of every switch of the series that the
+  defaults name, and `resolve` gives the switches as the build and the calibrations make them, which the run's
+  record carries and the registry tests (rule 7): `from-spectrum` ice weights take patch 10's constant weights while
+  the series stops before patch 11, as registry entry `exoplasim-ice-weights` warns. A first run
+  (`Calibrations.identity()`) takes each calibration at its identity default: RAYSCALE and SWH2OSCALE 1, TH2OC
+  PlaSim's 0.024, the curved air's terms and the gas bands off, and a sunlight scale of 1 where the scenario's
+  follows its reference temperature; a first run that switches the longwave correction on is refused. A later run is
+  refused where a calibration its switches use is missing, and GSOL0's scale must agree with the scenario and the
+  calibrations.
+- **Against Terluna.** At Terluna's calibrations and sunlight scale, the design run's namelists are the seven of
+  A28_corrected_970 that Terluna recorded, but for five entries, each with its cause: the gravity's spin term (GA,
+  and CWSCALE with it), Terluna's radius divided by 6,371,000 m (PLARAD), Earth's eccentricity of 0.0167 where
+  Terluna typed 0.016715 (ECCEN), and the sunlight at the top, 0.070% higher since the spectrum's tails pass at the
+  shield's own transmission (GSOL0). The entries the lab adds hold PlaSim's and the patches' own values.
 
 Still to settle, each with the stage whose code first reads it, where stage 1 left them on 2026-10-18: the field
 tables of the defaults, studies, runs and cases, with optional fields and their defaults, as stage 2's and 3's

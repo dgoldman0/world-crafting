@@ -158,7 +158,7 @@ flowchart TB
 | Derive | `worldlab.derive`, `worldlab.sunlight` | Pure functions from a specification to the quantities the models need: g; Ω; the solar day; the scale height, H/R, the column mass and the Chapman horizon factor; ExoPlaSim's calendar (rotations per year, model day, steps per day, whole-day run steps); the gas mass fractions and gas constant; CM1's domain lengths and Coriolis parameters. `worldlab.sunlight` gives the sunlight at the top and the ice-optics weights from the star's spectrum and the filter | `paper/tools/regime_calc.py`, `boundary.planet()`, arithmetic spread through the runners |
 | Registry and reach | `worldlab.registry`, `lab/registry/` | Earth-assumption entries and calibration envelopes, evaluated for a world, a scenario and a run's settings into a reach report | `notes/defect_log.md`, classes (a) and (b); the paper's table of reach |
 | Stage graph and store | `worldlab.stages`, `worldlab.store` | Stage definitions, product keys and headers, read-set tracking, staleness, priced plans | Terluna's run key, `case.json`'s input hashes, `shared/provenance.py` |
-| Model adapters | `worldlab.models.exoplasim`, `worldlab.models.cm1` | Builds, input files, namelists, runs and guards for each model | `exoplasim_run.py`, `cm1_run.py`, `cm1_elec.py` |
+| Model adapters | `worldlab.exoplasim`; `worldlab.cm1`, planned | Builds, input files, namelists, runs and guards for each model | `exoplasim_run.py`, `cm1_run.py`, `cm1_elec.py` |
 | Coupling | `worldlab.couple` | GCM state to CRM inputs: reference profiles, mean vertical wind, sideways forcing, surfaces along rings and in boxes; a ring's output to a box's day–night forcing | `cm1_run.py:1162-1956`, `ring_crossings.day_night_advection`, `ring_heat_budget.gcm_sideways` |
 | Producers | `worldlab.produce.*`, calling `python/` | The surface grid and sunlight files, reference columns, the curved-air ledger, the gas-band, shortwave, water-continuum and longwave fits, the ice optics; the seas from the heights and the lakes from runoff; the infrared of a glow in space. Each runs on the scenario's own values, where Terluna's tools default to Earth's air and a ground albedo of 0.1 | `boundary.py`, `exoplasim_run.sunlight`, `python/climate/gcm/*`, `python/atmosphere/*`, `python/illumination/sky/*`; Terluna's `geography/atlas.py`, `geography/drainage.py` and `glow.py` |
 | Runner | `worldlab.runner` | A local service that keeps the job queue in the store, orders the stale products by the stage graph, starts each job once its inputs exist and the machine budget allows, and takes start, stop, resume, cancel and reorder from its clients | The shell chains in `session-tools/` |
@@ -260,8 +260,10 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   means (`exoplasim_run.py:98`). The steps per mean come from an interval in days: below a model day, the
   means a model day are the divisor of its steps whose mean lies nearest the interval, 10 means of 143
   steps for the Moon's 3 days; from a model day up, the interval takes whole model days.
-- **Namelists and guards.** The namelist edits of `build_model` (`exoplasim_run.py:1010-1085`) become a
-  function of the resolved inputs. The guards remain: the band split, the run's key against resuming a
+- **Namelists and guards.** The lab writes every namelist from the pinned archive's templates: the entries
+  ExoPlaSim's own configure writes for the same world, from the lab's derivations, then the series' switches and
+  the run's calibrations, where Terluna's `build_model` (`exoplasim_run.py:1010-1085`) called configure and edited
+  its files (world_spec.md, "Settled in code"). The guards remain: the band split, the run's key against resuming a
   changed run, free disk and the output count. A new guard checks the time step, a stated model choice,
   against the advective limit at the world's radius and the truncation with the run's largest wind, each
   model year.

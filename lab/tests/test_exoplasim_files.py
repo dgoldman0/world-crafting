@@ -1,0 +1,406 @@
+"""The namelists of a GCM run, written by the lab's ExoPlaSim adapter: their format, the rules each entry follows,
+Terluna's design run A28_corrected_970 with each difference's cause, and ExoPlaSim's own configure, run in the lab's
+environment."""
+import json
+import math
+import re
+import subprocess
+
+import numpy as np
+import pytest
+
+from worldlab import derive, exoplasim as ex
+from worldlab.data import DataError, Manifest
+from worldlab.roots import root
+from worldlab.spec import LAB, Library, SpecError
+
+LIB = Library()
+MOON, EARTH = LIB.world('moon'), LIB.world('earth')
+OPEN_MOON, CONTROL = LIB.scenario('moon/open-moon'), LIB.scenario('earth/control')
+STUDY = LIB.study('open-moon')
+DESIGN, LW_ICE = STUDY.gcm['design'].settings, STUDY.gcm['design_lw_ice'].settings
+DEFAULTS = LIB.defaults('exoplasim/defaults')
+RECORDED = LAB.parent / 'models' / 'exoplasim' / 'design_case'
+STORE, TERLUNA, ENV = root('store'), root('terluna'), root('env')
+PYTHON = ENV / 'bin' / 'python' if ENV is not None else None
+FIRST = ex.TopOfAir(1236.0, 1.0, 'identity')          # a first run's sunlight on the Open Moon, made up
+LATER = ex.TopOfAir(1199.0, 0.97, 'calibration')      # with the target stage's scale of `_given`
+INTEGER = re.compile(r'[+-]?\d+')
+
+
+def _stored(*pins) -> bool:
+    try:
+        return STORE is not None and all(Manifest().paths(pin, store=STORE) for pin in pins)
+    except DataError:
+        return False
+
+
+needs_archive = pytest.mark.skipif(not ex.ARCHIVE.exists(), reason='upstream/ lacks the pinned ExoPlaSim archive')
+needs_terluna = pytest.mark.skipif(TERLUNA is None, reason="Terluna's repository is unset (lab/local.example.toml)")
+needs_sunlight = pytest.mark.skipif(not _stored(MOON['star']['spectrum'], OPEN_MOON['sunlight']['filter']),
+                                    reason="the store lacks the Sun's spectrum or the shield's transmission")
+needs_env = pytest.mark.skipif(PYTHON is None or not PYTHON.exists(),
+                               reason="the lab's environment is unset (lab/local.example.toml)")
+
+
+def _same(a: str, b: str, rel: float = 1e-12) -> bool:
+    """Two namelist values that agree: equal as written, or each number within `rel` of the other's, an integer
+    matching an integer alone, since Fortran reads an integer entry written as a float as an error."""
+    if a == b:
+        return True
+    xs, ys = a.split(','), b.split(',')
+    if len(xs) != len(ys):
+        return False
+    for x, y in zip(xs, ys):
+        x, y = x.strip(), y.strip()
+        if INTEGER.fullmatch(x) or INTEGER.fullmatch(y):
+            if not (INTEGER.fullmatch(x) and INTEGER.fullmatch(y) and int(x) == int(y)):
+                return False
+            continue
+        try:
+            if not math.isclose(float(x), float(y), rel_tol=rel, abs_tol=0.0):
+                return False
+        except ValueError:
+            return False
+    return True
+
+
+def _entries(text: str) -> dict:
+    return {key.upper(): value for key, value in ex.parse(text)[1]}
+
+
+def _compare(lab: dict, other: dict) -> tuple[dict, dict, dict]:
+    """The entries that differ, those only the lab writes and those only the other writes."""
+    differ = {k: (lab[k], other[k]) for k in lab.keys() & other.keys() if not _same(lab[k], other[k])}
+    return differ, {k: lab[k] for k in lab.keys() - other.keys()}, {k: other[k] for k in other.keys() - lab.keys()}
+
+
+def terluna_calibrations() -> ex.Calibrations:
+    """Terluna's calibrations of its design run A28_corrected_970, read in place: the ledger's full terms
+    (climate/results/gcm/twilight.json, as its runner summed them for its "full" mode, exoplasim_run.py:885-902), the
+    gas bands (shortwave_gases.json) and the longwave correction (longwave_A28_corrected_970_heating.json), with the
+    values its runner typed in (MODEL, exoplasim_run.py:98-145: RAYSCALE 2.237, SWH2OSCALE 1.292, TH2OC 0.004) and
+    its session script's sunlight scale, 0.970."""
+    results = TERLUNA / 'climate' / 'results' / 'gcm'
+    product = json.loads((results / 'twilight.json').read_text())
+    term, cone, longwave = product['gcm_term'], product['gcm_term_cone'], product['longwave']
+    ledger = ex.Ledger(
+        elevation_deg=tuple(term['elevation_deg']), ground=tuple(term['ground']),
+        layers=tuple(tuple(q + c for q, c in zip(lq, lc)) for lq, lc in zip(term['layers'], cone['layers'])),
+        escape_w_m2=tuple(a + b for a, b in zip(longwave['gcm_layers']['curved'], longwave['gcm_layers']['cone']))
+        + (longwave['ground_curved_w_m2'],),
+        escape_temperature_k=tuple(longwave['gcm_layers']['temperature_k']) + (longwave['ground_temperature_k'],),
+        slant=tuple(product['magnification'][k] for k in 'abc'),
+        slant_air=tuple(product['magnification_air'][k] for k in 'abc'))
+    fits = json.loads((results / 'shortwave_gases.json').read_text())['fits']
+    correction = json.loads((results / 'longwave_A28_corrected_970_heating.json').read_text())['correction']
+    return ex.Calibrations(sunlight_scale=0.970, rayleigh_scale=2.237, water_absorption_scale=1.292,
+                           water_continuum=0.004, ledger=ledger,
+                           gas_bands=tuple(tuple(fits[k]) for k in ('co2_nir', 'o2_nir', 'o2_vis')),
+                           longwave=ex.Longwave(tuple(correction['land']), tuple(correction['sea']),
+                                                tuple(correction['tref'])))
+
+
+def _given(**changes) -> ex.Calibrations:
+    """Calibrations with every value the design run reads, made up, and `changes` on top."""
+    ledger = ex.Ledger(elevation_deg=(0.0,), ground=(0.0,), layers=((0.0,),) * 10, escape_w_m2=(0.0,) * 11,
+                       escape_temperature_k=(250.0,) * 11, slant=(0.1, 0.2, 0.3), slant_air=(0.4, 0.5, 0.6))
+    values = dict(sunlight_scale=0.97, rayleigh_scale=2.0, water_absorption_scale=1.3, water_continuum=0.004,
+                  ledger=ledger, gas_bands=((1.0,) * 5,) * 3)
+    return ex.Calibrations(**{**values, **changes})
+
+
+def _with(item: dict, **tables) -> dict:
+    return {**item, **{name: {**item[name], **fields} for name, fields in tables.items()}}
+
+
+# The format.
+
+def test_values_are_written_as_configure_writes_them():
+    assert [ex.text(v) for v in (1, 30.0, 1.6242107, 'sun.dat', (0.4, 0.8), -1.0, np.float64(0.5))] == \
+        ['1', '30.0', '1.6242107', "'sun.dat'", '0.4,0.8', '-1.0', '0.5']
+    for bad in (True, float('nan'), float('inf'), [1.0], None, np.int64(3)):
+        with pytest.raises(SpecError):
+            ex.text(bad)
+
+
+def test_entries_replace_the_templates_own_whatever_their_case_and_the_rest_follow():
+    template = ' &x_nl\n A = 1\n b   =   2\n NSTPW  =  160 \n /END\n'
+    assert ex.merged(template, {'B': 3, 'NSTPW': 143, 'C': 4.0}) == \
+        ' &x_nl\n A = 1\n b = 3\n NSTPW = 143\n C = 4.0\n /END\n'
+    assert ex.parse(ex.merged(template, {})) == ('x_nl', [('A', '1'), ('b', '2'), ('NSTPW', '160')])
+    assert ex.parse(' &x_nl\n A = 1\n &END\n') == ('x_nl', [('A', '1')])
+    with pytest.raises(SpecError, match='repeat a name'):
+        ex.merged(template, {'C': 1, 'c': 2})
+    for broken, match in ((' A = 1\n &x_nl\n /END\n', 'outside its group'), (' &x_nl\n A 1\n /END\n', 'without'),
+                          (' A = 1\n', 'outside its group'), (' &x_nl\n &y_nl\n /END\n', 'second group'),
+                          (' &x_nl\n A = 1 /\n', 'one line'), ('\n', 'without its &group')):
+        with pytest.raises(DataError, match=match):
+            ex.parse(broken)
+    assert _same('143', '143') and not _same('143', '143.0') and _same('0.5', '0.50000000000000001')
+
+
+@needs_archive
+def test_the_templates_come_from_the_pinned_archive_alone(tmp_path):
+    templates = ex.templates()
+    assert set(templates) == set(ex.NAMELISTS)
+    assert ex.parse(templates['planet_namelist'])[1][:2] == [('ECCEN', '0.0'), ('MVELP', '102.7')]
+    pins = tmp_path / 'pins.sha256'
+    pins.write_text('# a comment\n\n' + ex.PINS.read_text())
+    assert ex.templates(ex.ARCHIVE, pins) == templates
+    fake = tmp_path / ex.ARCHIVE.name
+    fake.write_bytes(b'something else')
+    with pytest.raises(DataError, match='differs from its pin'):
+        ex.templates(fake)
+    with pytest.raises(DataError, match='missing'):
+        ex.templates(tmp_path / 'absent' / ex.ARCHIVE.name)
+
+
+# The switches as the build and the calibrations make them.
+
+def test_planned_settings_resolve_to_what_the_build_does():
+    assert ex.series(DESIGN)[-1] == '10-ice-optics.patch' and len(ex.series(DESIGN)) == 10
+    first, later = ex.resolve(DESIGN, ex.Calibrations.identity()), ex.resolve(LW_ICE, _given())
+    assert (first['twilight'], first['gas_bands'], first['ice_weights']) == ('none', False, 'patch-10')
+    assert (later['twilight'], later['gas_bands'], later['ice_weights'], later['ice_optics']) == \
+        ('full', True, 'patch-10', True)
+    with_11 = {**DESIGN, 'patches': list(ex.series(DESIGN)) + ['11-ice-weights.patch']}
+    assert ex.resolve(with_11, _given())['ice_weights'] == 'from-spectrum'
+    assert ex.resolve(_with(DESIGN, switches={'ice_weights': 'patch-10'}), _given())['ice_weights'] == 'patch-10'
+    with pytest.raises(SpecError, match='ice_weights'):
+        ex.resolve(_with(DESIGN, switches={'ice_weights': 'measured'}), _given())
+
+
+# The rules each entry follows.
+
+def test_a_first_run_holds_every_calibration_at_the_released_models_own_value():
+    entries = ex.namelists(MOON, OPEN_MOON, DESIGN, top=FIRST, calibrations=ex.Calibrations.identity())
+    radmod = entries['radmod_namelist']
+    assert {k: radmod[k] for k in ('RAYSCALE', 'SWH2OSCALE', 'TH2OC', 'NTWILIGHT', 'NTWILW', 'NGASBANDS', 'NLWCORR')} \
+        == dict(RAYSCALE=1.0, SWH2OSCALE=1.0, TH2OC=0.024, NTWILIGHT=0, NTWILW=0, NGASBANDS=0, NLWCORR=0)
+    assert not [k for k in radmod if k.startswith(('ZMLUNAR', 'ZGASQ', 'ZGASW', 'ZMAIRLUNAR'))]
+    assert radmod['NSUNCLOCK'] == 2 and radmod['NICEOPT'] == 0 and 'TICEOPT' not in radmod
+    assert entries['planet_namelist']['GSOL0'] == 1236.0
+    with pytest.raises(SpecError, match='first run takes every calibration'):
+        ex.Calibrations(first_run=True, water_continuum=0.004)
+    with pytest.raises(SpecError, match='longwave correction off'):
+        ex.namelists(MOON, OPEN_MOON, LW_ICE, top=FIRST, calibrations=ex.Calibrations.identity())
+
+
+def test_the_sunlights_scale_agrees_with_the_scenario_and_the_calibrations():
+    for top, calibrations in ((LATER, ex.Calibrations.identity()), (FIRST, _given()),
+                              (ex.TopOfAir(1199.0, 0.96, 'calibration'), _given()),
+                              (ex.TopOfAir(1199.0, 0.97, 'scenario'), _given())):
+        with pytest.raises(SpecError, match='takes scale'):
+            ex.namelists(MOON, OPEN_MOON, DESIGN, top=top, calibrations=calibrations)
+    with pytest.raises(SpecError, match='takes scale'):
+        ex.namelists(EARTH, CONTROL, DEFAULTS, top=ex.TopOfAir(1361.0, 1.0, 'identity'),
+                     calibrations=ex.Calibrations.identity())
+    with pytest.raises(SpecError, match="target stage's scale is missing"):
+        ex.top_of_air(MOON, OPEN_MOON, _given(sunlight_scale=None))
+    with pytest.raises(SpecError, match='states its sunlight scale'):
+        ex.top_of_air(EARTH, CONTROL, ex.Calibrations(sunlight_scale=0.97))
+
+
+def test_a_later_run_reads_every_calibration_its_switches_use():
+    entries = ex.namelists(MOON, OPEN_MOON, DESIGN, top=LATER, calibrations=_given())
+    radmod = entries['radmod_namelist']
+    assert [radmod[f'ZMLUNAR({i})'] for i in (1, 2, 3)] == [0.1, 0.2, 0.3]
+    assert [radmod[f'ZMAIRLUNAR({i})'] for i in (1, 2, 3)] == [0.4, 0.5, 0.6]
+    assert len([k for k in radmod if k.startswith('ZGASQ(')]) == 15
+    mass = derive.zgasw(derive.mole_fractions(OPEN_MOON))
+    assert (radmod['ZGASW(1)'], radmod['ZGASW(2)']) == (mass['CO2'], mass['O2'])
+    for missing, run in (('ledger', DESIGN), ('gas_bands', DESIGN), ('water_continuum', DESIGN), ('longwave', LW_ICE)):
+        with pytest.raises(SpecError, match=missing):
+            ex.namelists(MOON, OPEN_MOON, run, top=LATER, calibrations=_given(**{missing: None}))
+    plain = _with(DESIGN, switches={'twilight': 'none', 'gas_bands': False})
+    radmod = ex.namelists(MOON, OPEN_MOON, plain, top=LATER, calibrations=_given(ledger=None))['radmod_namelist']
+    assert radmod['NTWILIGHT'] == 0 and radmod['NGASBANDS'] == 0 and 'ZMLUNAR(1)' not in radmod
+    with pytest.raises(SpecError, match='five coefficients'):
+        _given(gas_bands=((1.0,) * 4,) * 3)
+    with pytest.raises(SpecError, match='positive number'):
+        _given(water_continuum=0.0)
+
+
+def test_the_switches_set_their_patches_entries():
+    switched = _with(LW_ICE, switches={'sun_clock': 'plasim', 'cloud_water': 'full_column', 'surface_cloud_rcrit': 0.9,
+                                       'convective_day_s': 0.0})
+    calibrations = _given(longwave=ex.Longwave((0.0,) * 11, (0.0,) * 11, (250.0,) * 11))
+    entries = ex.namelists(MOON, OPEN_MOON, switched, top=LATER, calibrations=calibrations)
+    rain, radmod, plasim = entries['rainmod_namelist'], entries['radmod_namelist'], entries['plasim_namelist']
+    assert rain == {'CWGREF': 9.80665, 'CWSCALE': 1.0, 'CONVDAY': 0.0, 'RCRIT(10)': 0.9}
+    assert (radmod['NSUNCLOCK'], radmod['NLWCORR'], radmod['NICEOPT'], radmod['TICEOPT']) == (0, 1, 1, 235.15)
+    assert plasim['NDIAGGP'] == 1 and plasim['NDIAGCF'] == 1
+    assert ex.cloud_water('earth_path', 1.6) == (9.80665, 1.6 / 9.80665) and ex.cloud_water('plasim', 1.6) == (0.0, 1.0)
+    glow = _with(OPEN_MOON, forcing={'top_infrared_w_m2': {'day': 10.1718, 'night': 0.5165}})
+    radmod = ex.namelists(MOON, glow, DESIGN, top=LATER, calibrations=_given())['radmod_namelist']
+    assert (radmod['IRTOPDAY'], radmod['IRTOPNIGHT']) == (10.1718, 0.5165)
+
+
+def test_an_eccentric_orbit_states_its_longitude_of_perihelion():
+    planet = ex.namelists(MOON, OPEN_MOON, DESIGN, top=LATER, calibrations=_given())['planet_namelist']
+    assert planet['MVELP'] == 102.7 and MOON['orbit']['perihelion_longitude_deg'] == 102.7   # Earth's, through its host
+    plain = {k: v for k, v in EARTH['orbit'].items() if k != 'perihelion_longitude_deg'}
+    with pytest.raises(SpecError, match='longitude of perihelion'):
+        ex.perihelion_longitude({**EARTH, 'orbit': plain})
+    assert ex.perihelion_longitude({**EARTH, 'orbit': {**plain, 'eccentricity': 0.0}}) is None
+    with pytest.raises(SpecError, match='from 0 to 360'):
+        ex.perihelion_longitude(_with(EARTH, orbit={'perihelion_longitude_deg': 360.0}))
+
+
+@pytest.mark.parametrize('world, run, scenario, match', [
+    (MOON, _with(DESIGN, switches={'twilight': 'curved'}), OPEN_MOON, 'switches.twilight'),
+    (MOON, _with(DESIGN, switches={'sun_clock': 'solar'}), OPEN_MOON, 'switches.sun_clock'),
+    (MOON, _with(DESIGN, switches={'cloud_water': 'wet'}), OPEN_MOON, 'switches.cloud_water'),
+    (MOON, _with(DESIGN, switches={'top_infrared': 'from-glow'}), OPEN_MOON, 'glow producer'),
+    (MOON, _with(DESIGN, switches={'surface_cloud_rcrit': 1.0}), OPEN_MOON, 'surface_cloud_rcrit'),
+    (MOON, _with(DESIGN, switches={'convective_day_s': -1.0}), OPEN_MOON, 'convective_day_s'),
+    (MOON, {**DESIGN, 'clear_sky': 1}, OPEN_MOON, 'clear_sky'),
+    (MOON, {**DESIGN, 'seed': 1.5}, OPEN_MOON, 'seed'),
+    (MOON, DESIGN, _with(OPEN_MOON, air={'reference_level': 'mean-radius'}), 'level its heights start from'),
+    (MOON, DESIGN, _with(OPEN_MOON, air={'ozone': 'terluna:atmosphere/ozone.json'}), 'ozone'),
+    (MOON, DESIGN, _with(OPEN_MOON, air={'water_vapour': 'none'}), 'prognostic'),
+    (MOON, DESIGN, _with(OPEN_MOON, air={'co2_ppm': -1.0}), 'exceed the total'),   # the derivation refuses it first
+    (MOON, DESIGN, _with(OPEN_MOON, water={'ocean': {'kind': 'dynamic', 'mixed_layer_m': 50.0, 'sea_ice': True}}),
+     'slab'),
+    (MOON, DESIGN, _with(OPEN_MOON, land={'albedo': 'unchosen'}), 'land.albedo'),
+    (_with(MOON, rotation={'locked_to': 'star'}), DESIGN, OPEN_MOON, 'fields still to add'),
+    (_with(MOON, surface={'geometry': 'ocean'}), DESIGN, OPEN_MOON, 'fields still to add'),
+])
+def test_settings_the_adapter_cannot_write_are_refused(world, run, scenario, match):
+    with pytest.raises(SpecError, match=match):
+        ex.namelists(world, scenario, run, top=LATER, calibrations=_given())
+
+
+@needs_sunlight
+def test_the_sunlight_at_the_top_is_the_filtered_light_times_its_scale():
+    first = ex.top_of_air(MOON, OPEN_MOON, ex.Calibrations.identity(), store=STORE)
+    later = ex.top_of_air(MOON, OPEN_MOON, _given(), store=STORE)
+    assert (first.scale, first.basis, later.scale, later.basis) == (1.0, 'identity', 0.97, 'calibration')
+    assert first.w_m2 == first.sunlight['filtered_w_m2'] == pytest.approx(1236.12, abs=0.005)
+    assert later.w_m2 == first.w_m2 * 0.97
+
+
+def test_earths_control_keeps_the_released_models_day_ozone_and_surface():
+    top = ex.TopOfAir(1361.0, 1.0, 'scenario')
+    entries = ex.namelists(EARTH, CONTROL, DEFAULTS, top=top, calibrations=ex.Calibrations.identity())
+    plasim, planet, radmod = entries['plasim_namelist'], entries['planet_namelist'], entries['radmod_namelist']
+    assert (plasim['N_DAYS_PER_YEAR'], plasim['NSTPW'], plasim['N_RUN_STEPS'], plasim['PSURF']) == (365, 48, 17520, 101325.0)
+    assert 'ROTSPD' not in planet and planet['GA'] == 9.80665 and planet['PLARAD'] == 6371000.0
+    assert planet['SIDEREAL_YEAR'] == 365.25636 * 86400.0 and (planet['ECCEN'], planet['OBLIQ']) == (0.0167, 23.4393)
+    assert radmod['NO3'] == 1 and radmod['CO2'] == 400.0
+    assert entries['landmod_namelist'] == {'NWETSOIL': 0, 'DSOILZ': (0.4, 0.8, 1.6, 3.2, 6.4)}   # its albedo map stays
+    m = sum(x * ex.MOLAR_MASS[gas] for gas, x in derive.mole_fractions(CONTROL).items())
+    assert planet['GASCON'] == ex.GAS_CONSTANT / m == pytest.approx(287.04, abs=0.01)
+    assert set(ex.departures(CONTROL)) == set(ex.DEPARTURES)
+    assert set(ex.departures(_with(CONTROL, air={'co2_ppm': 0.0}))) == set(ex.DEPARTURES) | {ex.CO2_FREE[0]}
+
+
+# Terluna's design run.
+
+@needs_archive
+@needs_terluna
+@needs_sunlight
+def test_the_design_runs_namelists_are_terlunas_but_for_five_entries_each_with_its_cause(tmp_path):
+    calibrations = terluna_calibrations()
+    top = ex.top_of_air(MOON, OPEN_MOON, calibrations, store=STORE)
+    ex.write_namelists(tmp_path, ex.namelists(MOON, OPEN_MOON, DESIGN, top=top, calibrations=calibrations))
+    found, lab_only, recorded = {}, {}, sorted((RECORDED / 'A28_corrected_970').glob('*_namelist'))
+    assert len(recorded) == 7                          # Terluna recorded seven of the sixteen files
+    for path in recorded:
+        differ, mine, theirs = _compare(_entries((tmp_path / path.name).read_text()), _entries(path.read_text()))
+        assert not theirs, (path.name, theirs)
+        found.update({(path.name, k): v for k, v in differ.items()})
+        lab_only.update({(path.name, k): v for k, v in mine.items()})
+    # The entries the lab adds hold the values PlaSim and the patches take without them.
+    assert lab_only == {('plasim_namelist', 'NDIAGGP'): '0', ('radmod_namelist', 'IRTOPDAY'): '0.0',
+                        ('radmod_namelist', 'IRTOPNIGHT'): '0.0', ('radmod_namelist', 'NICEOPT'): '0',
+                        ('radmod_namelist', 'NLWCORR'): '0'}
+    assert set(found) == {('planet_namelist', k) for k in ('GA', 'PLARAD', 'ECCEN', 'GSOL0')} | \
+        {('rainmod_namelist', 'CWSCALE')}
+    lab, terluna = ({key: float(pair[i]) for key, pair in found.items()} for i in (0, 1))
+    planet = lambda name: ('planet_namelist', name)
+    # Gravity: the lab's has the spin term, Terluna's GM/R² (world_spec.md, the derived quantities).
+    assert lab[planet('GA')] == derive.gravity(MOON) and terluna[planet('GA')] == derive.gravity(MOON, rule='gm-over-r2')
+    # Cloud water: Earth's path at each world's own gravity (patch 02).
+    for side in (lab, terluna):
+        assert side[('rainmod_namelist', 'CWSCALE')] == pytest.approx(side[planet('GA')] / 9.80665, rel=1e-15)
+    # The radius: Terluna's runner divided by 6,371,000 m where ExoPlaSim's unit is 6,371,220 m (rule 7).
+    assert lab[planet('PLARAD')] == 1737400.0
+    assert terluna[planet('PLARAD')] == pytest.approx(1737400.0 / 6371000.0 * 6371220.0, rel=1e-15)
+    # The eccentricity: Earth's 0.0167, where Terluna's runner typed 0.016715 (world_spec.md, the Moon worked through).
+    assert (lab[planet('ECCEN')], terluna[planet('ECCEN')]) == (0.0167, 0.016715)
+    # The sunlight: the spectrum's tails pass at the shield's own transmission, 0.070% more (sunlight.py).
+    assert terluna[planet('GSOL0')] == pytest.approx(1235.2508281698022 * 0.970, rel=1e-12)
+    assert lab[planet('GSOL0')] / terluna[planet('GSOL0')] - 1.0 == pytest.approx(7.0e-4, abs=2e-5)
+
+
+@needs_archive
+@needs_terluna
+@needs_sunlight
+def test_the_longwave_and_ice_run_switches_on_what_terlunas_pair_switched_on(tmp_path):
+    calibrations = terluna_calibrations()
+    top = ex.top_of_air(MOON, OPEN_MOON, calibrations, store=STORE)
+    for name, run in (('design', DESIGN), ('lw_ice', LW_ICE)):
+        ex.write_namelists(tmp_path / name, ex.namelists(MOON, OPEN_MOON, run, top=top, calibrations=calibrations))
+    pair = [_entries((tmp_path / name / 'radmod_namelist').read_text()) for name in ('design', 'lw_ice')]
+    recorded = [_entries((RECORDED / folder / 'radmod_namelist').read_text())
+                for folder in ('A28_corrected_970', 'A28_corrected_970_lw_ice')]
+    changed = lambda a, b: {k: b[k] for k in b if a.get(k) != b[k]}
+    assert changed(*pair) == changed(*recorded) == {'NLWCORR': '1', 'NICEOPT': '1', 'TICEOPT': '235.15'}
+
+
+# ExoPlaSim's own configure.
+
+CONFIGURE = r'''
+import json, os, sys, tempfile
+import exoplasim
+spec = json.loads(sys.argv[1])
+out = []
+for case in spec['cases']:
+    with tempfile.TemporaryDirectory(prefix='worldlab-configure-') as folder:
+        os.chdir(folder)
+        for name in ('sun.dat', 'sun_hr.dat'):
+            with open(name, 'w') as handle:
+                handle.write(' Wavelength    Flux  \n0.5 1.0\n')
+        model = exoplasim.Model(workdir='run', modelname='run', resolution=spec['resolution'], layers=spec['levels'],
+                                ncpus=spec['ranks'], precision=spec['precision'])
+        model.configure(**dict(case, starspec=os.path.join(folder, 'sun.dat')))
+        out.append({name: open(os.path.join('run', name)).read() for name in spec['namelists']})
+        os.chdir('/')
+print('worldlab-configure ' + json.dumps(out))
+'''
+
+
+@needs_env
+@needs_archive
+def test_configure_writes_the_labs_namelists_but_for_the_departures_and_the_labs_additions(tmp_path):
+    other_moon = _with(OPEN_MOON, air={'ozone': 'model-default'}, land={'albedo': 'model-default'},
+                       water={'ocean': {'kind': 'slab', 'mixed_layer_m': 20.0, 'sea_ice': False}})
+    slow_free = {**_with(DESIGN, switches={'sun_clock': 'plasim'}), 'timestep_min': 45.0, 'fixed_orbit': False,
+                 'whole_model_days': False, 'mean_interval_days': 10.0}
+    cases = [(MOON, OPEN_MOON, DESIGN, FIRST),
+             (EARTH, CONTROL, DEFAULTS, ex.TopOfAir(1361.0, 1.0, 'scenario')),
+             (MOON, other_moon, slow_free, FIRST),
+             (EARTH, _with(CONTROL, air={'co2_ppm': 0.0, 'ozone': 'none'}, land={'albedo': 0.3}),
+              DEFAULTS, ex.TopOfAir(1361.0, 1.0, 'scenario'))]
+    arguments, written = [], []
+    for i, (world, scenario, run, top) in enumerate(cases):
+        arguments.append(ex.configure_arguments(world, scenario, run, top=top, starspec='sun.dat'))
+        ex.write_namelists(tmp_path / str(i), ex.namelists(world, scenario, run, top=top,
+                                                           calibrations=ex.Calibrations.identity()))
+        written.append({name: (tmp_path / str(i) / name).read_text() for name in ex.NAMELISTS})
+    spec = dict({k: DEFAULTS[k] for k in ('resolution', 'levels', 'ranks', 'precision')}, cases=arguments,
+                namelists=list(ex.NAMELISTS))
+    done = subprocess.run([PYTHON, '-c', CONFIGURE, json.dumps(spec)], capture_output=True, text=True, timeout=600)
+    assert done.returncode == 0, done.stderr[-3000:]
+    line = next(l for l in reversed(done.stdout.splitlines()) if l.startswith('worldlab-configure '))
+    configured = json.loads(line.removeprefix('worldlab-configure '))
+    for i, ((world, scenario, *_), lab_files, theirs) in enumerate(zip(cases, written, configured, strict=True)):
+        found = set()
+        for name in ex.NAMELISTS:
+            differ, mine, only_configure = _compare(_entries(lab_files[name]), _entries(theirs[name]))
+            assert not only_configure, (i, name, only_configure)
+            assert {k.split('(')[0] for k in mine} <= set(ex.ADDITIONS.get(name, ())), (i, name, mine)
+            found |= {(name, k) for k in differ}
+        assert found == set(ex.departures(scenario)), (i, found)
