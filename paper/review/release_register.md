@@ -89,6 +89,11 @@ beside generic planetary GCMs; three sentences followed in the order of synthesi
 (`editorial_round21.md`). Two clean builds from `67b4786d8b18d5b5e1acdae4a496842668705345` gave the same PDF, 37 pages, SHA256
 `76a0c0c90915f11bfd7f171d885bc36683a92ec63b53df05a4945f88cfb70b67`, with zero overfull boxes and every font embedded.
 The gates stand as before.
+At the author's direction, that state was tagged and the tags pushed to GitHub on 19 October 2026: `paper-v1`
+(annotated) in this repository at `c3914dc27e2280eab7766f96dc50dea2c2f480e9`, and `world-crafting-paper-v1`
+(annotated) in Terluna at `186b294fae9a6c04ca386fb8d396a68feea6eedf`, the commit the paper cites, at which every
+Terluna source in the claims register resolves. Each tag's message names the other's commit and the PDF's hash. No
+GitHub release has been made from either tag, so Zenodo has archived neither.
 
 ## The artifact
 
