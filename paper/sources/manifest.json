@@ -3481,13 +3481,35 @@
       "quote": "This contains some Earth-centric parameterizations, each for a different reason, that are not valid for use in other planetary configurations.",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": null,
+      "location": "p. 5825, abstract",
+      "quote": "Two different radiation schemes are supported, the GISS radiation, valid only for atmospheres similar to that of modern Earth, and SOCRATES, which is more generalized but more computationally expensive.",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": null,
+      "location": "p. 5831",
+      "quote": "A spectral file is a construct native to SOCRATES which contains all aspects of the radiation problem, including the spectral interval and Gauss point grids, gas absorption coefficients for major and minor species",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
      }
     ]
    },
    "admission": "DEFERRED",
    "admission_reason": null,
    "cited_in_paper": true,
-   "paper_use": null,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex; conclusions.tex",
+     "statement": "ROCKE-3D 2.0, with SOCRATES, computes its radiation from k-distributions of the air's own gases, read from a spectral file built for the atmosphere; SOCRATES is the more general and the costlier of its two radiation schemes",
+     "support": "supported",
+     "note": "Locators of 2026-10-19 on pp. 5825 and 5831, read by Claude Opus 5.5 (main session)"
+    }
+   ],
    "notes": "GMD (CC BY) archived. Agent A also reports pp. 5835-5836 (three Earth-specific settings removed, -1.27 W/m2) and p. 5851 (Earth-centric tunings matter less than planet differences)."
   },
   {
@@ -4260,6 +4282,13 @@
      "statement": "The LMD generic model carries correlated-k radiation for other compositions.",
      "support": "supported",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "next.tex; conclusions.tex",
+     "statement": "The LMD generic model computes its radiation by the correlated-k method, from coefficients built for the atmosphere's gases",
+     "support": "supported",
+     "note": "Its locator on arXiv v1 p. 2"
     }
    ],
    "notes": null
