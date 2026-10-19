@@ -137,6 +137,11 @@ temperature gap's attribution to heat transport, and the diagnostic promise of a
 decision and findings returned to the author are in `final_reader_review_2026-10-19.md`; manuscript revisions
 remain pending the author's reading.
 
+Codex's final reader review (`final_reader_review_2026-10-19.md`) then found three inferences beyond their
+evidence. The author had all three narrowed, choosing to class CM1's threaded parting as a fault of uncertain cause,
+which leaves four defects in the released codes; `editorial_round20.md` records the assessment, the changes in the
+order of synthesis and their light readings.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
@@ -165,7 +170,7 @@ author, or by a journal, remains pending; the records identify the reviewer and 
 | `conclusion_*_2026-10-18.md`, `terracompatible_*_2026-10-18.md`, `terracompatible_visual_pages*.md` | The records of 18 October 2026: Codex's drafting and revisions, the check of them, their builds and page inspections |
 | `slice_reason_2026-10-18.md` | The author's reason for CM1's slices, the sentence that gives it, its claim, checks and build |
 | `abstract_and_repository_2026-10-18.md` | The author's reading of the abstract, its rewrite, the public repository in Availability, checks and build |
-| `final_skim_2026-10-19.md`, `editorial_round19.md` | Codex's final skim of 19 October and, after it, the removal of the paper's account of its own making |
+| `final_skim_2026-10-19.md`, `editorial_round19.md`, `final_reader_review_2026-10-19.md`, `editorial_round20.md` | Codex's final skim and final reader review of 19 October, the removal of the paper's account of its own making, and the three inferences narrowed after the second review |
 | `final_reader_review_2026-10-19.md` | The subsequent whole-paper reading, three unresolved inference claims, and checks of the revised declarations |
 | `g7_visual_review.md` | The exact-build page review: renderers, the PDF hash and page-by-page observations |
 | `release_register.md` | PASS / BLOCKED / DEFERRED by gate, with the exact PDF and source hashes |

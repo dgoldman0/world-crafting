@@ -74,6 +74,9 @@ font embedded; the pages from Next steps to the end were inspected. The AI-use s
 author's confirmation under E4, and the gates stand as before.
 Code and data then split the two repositories' roles, with the raw output on request (`1da5034c5cd9342d052222fa665deb4f6af293af`; PDF
 SHA256 `9f6744e43bb561358aaf0b276b8665e78120efdbe9d51d859877ed8cb864be16`, 37 pages, two clean builds identical).
+Codex's final reader review then held three inferences beyond their evidence; after the author's choices
+(`editorial_round20.md`), the source at `96ddac1203dfe3328d43d2c99063398b1ffa93bb` counts four defects and two faults of uncertain cause and
+narrows the two others. Two clean builds gave the same PDF, 37 pages, SHA256 `f6ff147f7fb291d4acf5e80c24185bf8a006a7be3d64bc17c179b7507888623f`.
 
 ## The artifact
 
