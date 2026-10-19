@@ -68,8 +68,8 @@ scenario, and the waterworlds' anchors are illustrative worlds under illustrativ
    - **Planned settings.** A setting whose planned patch the build lacks resolves to what the build does:
      `capillary` to `breakup-only`, the scaled `brkup_db` under Morrison's own 2.8 mm cap; `from-season` to
      the equinox; the day's soil depth to patch 08's 5 cm top layer; and `from-spectrum` to patch 10's
-     weights. The registry tests the resolved settings, so their entries warn wherever their conditions hold
-     until the patches land. On the Moon the soil and equinox entries stay silent, since patch 08's 5 cm lies
+     weights in a build whose series stops before patch 11. The registry tests the resolved settings, so
+     their entries warn wherever their conditions hold until the patches land. On the Moon the soil and equinox entries stay silent, since patch 08's 5 cm lies
      within 10% of the day's 5.4 cm and the obliquity is 1.54°.
 8. **Studies extending studies.** A study may extend another: it inherits that study's runs and cases, adds
    its own and redefines none. An inherited item keeps its settings and their hash, and its product key
@@ -154,7 +154,7 @@ scenario, and the waterworlds' anchors are illustrative worlds under illustrativ
 | CM1's raindrop limits | Morrison's 0.3 mm breakup and 2.8 mm cap on rain's mean diameter × (9.81/g)^½ | × 2.4576: 0.737 mm and 6.88 mm | `brkup_db`; the cap through a planned patch (registry B28) |
 | CM1's soil layers | CM1's 1 cm top layer × (solar day/1 d)^½, the four below doubling | × 5.4342: a 5.4 cm top layer, 5.4 to 86.9 cm | `slab_dzs`, through a planned patch after core 17 (registry `cm1-soil-day`) |
 | CM1's Sun | Declination asin(sin ε · sin L_s), from the obliquity ε and the case's solar longitude L_s | 0 at the equinox the study's cases take | A planned patch after core 17 (registry `cm1-equinox-sun`); the case's sunrise, −acos(−tan φ tan δ) |
-| Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | 0.6295, 0.2276, 0.0752 and 0.0677 through the shield, the fourth 0.0581 were the shield opaque past 5 µm. From the unfiltered TSIS-1, 0.6202, 0.2297, 0.0816 and 0.0685; patch 10's 0.6164, 0.2283, 0.0811 and 0.0742 came from a tail 11% brighter than the rest of the constant, with the whole spectrum scaled to it | The planned ExoPlaSim patch 11; patch 10's constants until it passes, when registry entry `exoplasim-ice-weights` warns |
+| Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | 0.6295, 0.2276, 0.0752 and 0.0677 through the shield, the fourth 0.0581 were the shield opaque past 5 µm. From the unfiltered TSIS-1, 0.6202, 0.2297, 0.0816 and 0.0685; patch 10's 0.6164, 0.2283, 0.0811 and 0.0742 came from a tail 11% brighter than the rest of the constant, with the whole spectrum scaled to it | ExoPlaSim's `ZICEW`, through patch 11; a build without it keeps patch 10's constants, of which registry entry `exoplasim-ice-weights` warns |
 | ExoPlaSim's output steps | `mean_interval_days`: below a model day, the divisor of the steps per model day whose mean lies nearest it; from a model day up, the divisor of the year's model days nearest it, the shorter at a tie, so that whole means fill each year | 10 means of 143 steps, 2.98 d; on Earth, 3 days give daily means | `NSTPW` |
 | ExoPlaSim's time-step limit | The advective limit set by the radius a, the truncation N and the run's largest wind u: u·Δt·N/a below 1 | Checked in stage 1 against the largest winds of Terluna's runs, which ran stable at 30 minutes | The guard on `timestep_min` |
 
@@ -308,8 +308,9 @@ on them (`notes/geography.md`):
   writes the same entries as the lab.
 - **The patches and calibrations.** The lab writes the namelist entries of every switch of the series that the
   defaults name, and `resolve` gives the switches as the build, the calibrations and the world make them, which the
-  run's record carries and the registry tests (rule 7): `from-spectrum` ice weights take patch 10's constant weights while
-  the series stops before patch 11, as registry entry `exoplasim-ice-weights` warns. A first run
+  run's record carries and the registry tests (rule 7): `from-spectrum` ice weights become `ZICEW`, the shares of the
+  light at the top of the air, through patch 11, and patch 10's constants in a build whose series stops before it,
+  as registry entry `exoplasim-ice-weights` warns. A first run
   (`Calibrations.identity()`) takes each calibration at its identity default: RAYSCALE and SWH2OSCALE 1, TH2OC
   PlaSim's 0.024, the curved air's terms and the gas bands off, and a sunlight scale of 1 where the scenario's
   follows its reference temperature; a first run that switches the longwave correction on is refused. A later run is

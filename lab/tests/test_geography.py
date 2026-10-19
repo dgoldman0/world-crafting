@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from geography import atlas, basins as bs, topography as tp
-from worldlab import geography
+from worldlab import derive, geography
 from worldlab.data import DataError, Manifest
 from worldlab.roots import root
 from worldlab.spec import Library, SpecError
@@ -487,6 +487,7 @@ def test_the_open_moons_first_run_takes_its_own_surface(open_moon_run, open_moon
         (1.0, 'identity', 'heights')
     shares = record['surface']
     assert shares['surface_land_share'] == pytest.approx(0.6167, abs=5e-5)
+    assert shares['mask_land_share'] == pytest.approx(0.61647, abs=5e-5)
     assert abs(shares['mask_land_share'] - shares['surface_land_share']) < open_moon_t21.cell_area_fraction.max()
 
 
@@ -520,6 +521,20 @@ def test_the_open_moons_mask_differs_from_terlunas_where_their_lakes_differ(open
         (pytest.approx(0.0445, abs=5e-4), pytest.approx(0.0275, abs=5e-4))
     gap = open_moon_t21.land_fraction - terluna['land_fraction']
     assert float(np.median(gap[lab_only])) > 0 > float(np.median(gap[terluna_only]))
+    # The heights, as geopotential over the gravity: over the cells both masks hold as land the lakes take other parts
+    # of a cell from its land, beside the heights' own differences, 26-28 m rms over the seas alone (above); over the
+    # cells both hold as water the seas stand at the level in both, and the lakes above it at their own surfaces.
+    g = derive.gravity(MOON)
+    heights = [_sra(folder / 'N032_surf_0129.sra') / g,
+               _sra(root('terluna-drive') / 'gcm-runs' / 'A28_corrected_970' / 'inputs' / 'moon_topography.sra') / g]
+    for kind, cells, expected in (('land', (ours > 0) & (theirs > 0), (1247, 0.572, -7.2, 77.8)),
+                                  ('water', (ours == 0) & (theirs == 0), (690, 0.356, -0.2, 15.1))):
+        d, a = (heights[0] - heights[1])[cells], area[cells]
+        found = (int(cells.sum()), float(a.sum()), float((d * a).sum() / a.sum()), float(np.sqrt((d ** 2 * a).sum() / a.sum())))
+        assert found == (expected[0], pytest.approx(expected[1], abs=5e-4), pytest.approx(expected[2], abs=0.05),
+                         pytest.approx(expected[3], abs=0.05)), kind
+    sea = (ours == 0) & (theirs == 0) & (heights[0] == 0) & (heights[1] == 0)
+    assert int(sea.sum()) == 530
 
 
 @needs_heights

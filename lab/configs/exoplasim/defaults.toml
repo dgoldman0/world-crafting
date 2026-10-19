@@ -6,7 +6,8 @@
 schema = "worldlab.defaults.exoplasim/0"
 id = "exoplasim/defaults"
 upstream = "exoplasim-3.4.2"                   # models/pins.sha256
-patches = "models/exoplasim/patches/series"    # all ten applied; each switch below, at its default when omitted
+patches = "models/exoplasim/patches/series"    # all eleven applied, Terluna's ten and the lab's patch 11; each
+                                               # switch below, at its default when omitted
 
 resolution = "T21"
 levels = 10
@@ -42,8 +43,8 @@ twilight = "full"                              # 07: NTWILIGHT, NTWILW, ZMLUNAR,
 gas_bands = true                               # 08: NGASBANDS, ZGASQ, ZGASW, ZMAIRLUNAR
 longwave_correction = false                    # 09: NLWCORR
 ice_optics = false                             # 10: NICEOPT, TICEOPT
-ice_weights = "from-spectrum"                  # the near-infrared weights from the spectrum at the top of the air, through
-                                               # the planned patch 11; without it, patch 10's, from the unfiltered Sun
+ice_weights = "from-spectrum"                  # 11: ZICEW, the near-infrared weights from the spectrum at the top of the
+                                               # air; a build without patch 11 keeps patch 10's, from the unfiltered Sun
 top_infrared = "from-scenario"                 # 06: IRTOPDAY, IRTOPNIGHT
 
 [calibration]                                  # the stages whose products, fitted to the study's scenario, a run reads

@@ -162,14 +162,14 @@ def test_the_templates_come_from_the_pinned_archive_alone(tmp_path):
 
 # The switches as the build and the calibrations make them.
 
-def test_planned_settings_resolve_to_what_the_build_does():
-    assert ex.series(DESIGN)[-1] == '10-ice-optics.patch' and len(ex.series(DESIGN)) == 10
+def test_the_switches_resolve_to_what_the_build_does():
+    assert ex.series(DESIGN)[-1] == '11-ice-weights.patch' and len(ex.series(DESIGN)) == 11
     first, later = ex.resolve(DESIGN, ex.Calibrations.identity()), ex.resolve(LW_ICE, _given())
-    assert (first['twilight'], first['gas_bands'], first['ice_weights']) == ('none', False, 'patch-10')
+    assert (first['twilight'], first['gas_bands'], first['ice_weights']) == ('none', False, 'from-spectrum')
     assert (later['twilight'], later['gas_bands'], later['ice_weights'], later['ice_optics']) == \
-        ('full', True, 'patch-10', True)
-    with_11 = {**DESIGN, 'patches': list(ex.series(DESIGN)) + ['11-ice-weights.patch']}
-    assert ex.resolve(with_11, _given())['ice_weights'] == 'from-spectrum'
+        ('full', True, 'from-spectrum', True)
+    deployed = {**DESIGN, 'patches': list(ex.series(DESIGN))[:10]}      # Terluna's ten patches, before patch 11
+    assert ex.resolve(deployed, _given())['ice_weights'] == 'patch-10'
     assert ex.resolve(_with(DESIGN, switches={'ice_weights': 'patch-10'}), _given())['ice_weights'] == 'patch-10'
     with pytest.raises(SpecError, match='ice_weights'):
         ex.resolve(_with(DESIGN, switches={'ice_weights': 'measured'}), _given())
@@ -230,10 +230,16 @@ def test_the_switches_set_their_patches_entries():
     switched = _with(LW_ICE, switches={'sun_clock': 'plasim', 'cloud_water': 'full_column', 'surface_cloud_rcrit': 0.9,
                                        'convective_day_s': 0.0})
     calibrations = _given(longwave=ex.Longwave((0.0,) * 11, (0.0,) * 11, (250.0,) * 11))
-    entries = ex.namelists(MOON, OPEN_MOON, switched, top=LATER, calibrations=calibrations)
+    lit = ex.TopOfAir(1199.0, 0.97, 'calibration', {'ice_weights': (0.6, 0.2, 0.15, 0.05)})
+    entries = ex.namelists(MOON, OPEN_MOON, switched, top=lit, calibrations=calibrations)
     rain, radmod, plasim = entries['rainmod_namelist'], entries['radmod_namelist'], entries['plasim_namelist']
     assert rain == {'CWGREF': 9.80665, 'CWSCALE': 1.0, 'CONVDAY': 0.0, 'RCRIT(10)': 0.9}
     assert (radmod['NSUNCLOCK'], radmod['NLWCORR'], radmod['NICEOPT'], radmod['TICEOPT']) == (0, 1, 1, 235.15)
+    assert [radmod[f'ZICEW({i})'] for i in (1, 2, 3, 4)] == [0.6, 0.2, 0.15, 0.05]     # patch 11's weights
+    with pytest.raises(SpecError, match='ice weights of the sunlight'):
+        ex.namelists(MOON, OPEN_MOON, switched, top=LATER, calibrations=calibrations)
+    deployed = {**switched, 'patches': list(ex.series(switched))[:10]}
+    assert 'ZICEW(1)' not in ex.namelists(MOON, OPEN_MOON, deployed, top=LATER, calibrations=calibrations)['radmod_namelist']
     assert plasim['NDIAGGP'] == 1 and plasim['NDIAGCF'] == 1
     assert ex.cloud_water('earth_path', 1.6) == (9.80665, 1.6 / 9.80665) and ex.cloud_water('plasim', 1.6) == (0.0, 1.0)
     glow = _with(OPEN_MOON, forcing={'top_infrared_w_m2': {'day': 10.1718, 'night': 0.5165}})
@@ -356,7 +362,13 @@ def test_the_longwave_and_ice_run_switches_on_what_terlunas_pair_switched_on(tmp
     recorded = [_entries((RECORDED / folder / 'radmod_namelist').read_text())
                 for folder in ('A28_corrected_970', 'A28_corrected_970_lw_ice')]
     changed = lambda a, b: {k: b[k] for k in b if a.get(k) != b[k]}
-    assert changed(*pair) == changed(*recorded) == {'NLWCORR': '1', 'NICEOPT': '1', 'TICEOPT': '235.15'}
+    switched = {'NLWCORR': '1', 'NICEOPT': '1', 'TICEOPT': '235.15'}
+    assert changed(*recorded) == switched
+    # Patch 11 adds the ice weights of the light through the shield, where Terluna's patch 10 held the unfiltered
+    # Sun's constants, 0.6164, 0.2283, 0.0811 and 0.0742 (world_spec.md, "Ice-optics weights").
+    weights = {f'ZICEW({i})': ex.text(float(w)) for i, w in enumerate(top.sunlight['ice_weights'], 1)}
+    assert changed(*pair) == switched | weights
+    assert [round(float(weights[f'ZICEW({i})']), 4) for i in (1, 2, 3, 4)] == [0.6295, 0.2276, 0.0752, 0.0677]
 
 
 # ExoPlaSim's own configure.
@@ -617,7 +629,7 @@ def test_the_longwave_and_ice_run_writes_terlunas_tables_and_mask(tmp_path):
     assert (run / 'lwcorr.dat').read_text() == (RECORDED / 'A28_corrected_970_lw_ice' / 'lwcorr.dat').read_text()
     assert set(record['files']) == set(ex.NAMELISTS) | {'sun.dat', 'sun_hr.dat', 'twilight.dat', 'lwcorr.dat',
                                                         'N032_surf_0172.sra', 'N032_surf_0129.sra'}
-    assert record['switches']['ice_weights'] == 'patch-10' and record['sunlight']['basis'] == 'calibration'
+    assert record['switches']['ice_weights'] == 'from-spectrum' and record['sunlight']['basis'] == 'calibration'
     if DESIGN_INPUTS is not None and DESIGN_INPUTS.is_dir():
         assert (run / 'N032_surf_0172.sra').read_text() == (DESIGN_INPUTS / 'moon_landmask.sra').read_text()
 

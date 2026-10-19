@@ -186,12 +186,12 @@ evidence = ["models/cm1/patches/core/05-a-solar-day-of-var19-s.patch:43", "lab/d
 [[entry]]
 id = "exoplasim-ice-weights"
 model = "exoplasim"
-where = "patch 10, zew(4): the near-infrared weights within PlaSim's band 2 (10-ice-optics.patch:70)"
+where = "patch 10, zew(4): the near-infrared weights within PlaSim's band 2 (10-ice-optics.patch:70), which patch 11 reads from the namelist as ZICEW"
 form = "constant"
 assumes = "the unfiltered Sun's spectrum, from which Terluna computed the weights"
 when = [{ config = "exoplasim.switches.ice_optics", eq = true }, { config = "exoplasim.switches.ice_weights", ne = "from-spectrum" }]
 effect = "the ice clouds weight the near infrared by a spectrum other than the one at the top of the air"
-state = "open"
+state = "repaired"
+repair = { patch = "11-ice-weights", switch = "ZICEW", default = "patch 10's constants", setting = "exoplasim.switches.ice_weights" }
 action = "warn"
-planned = { patch = "11: the weights from the namelist, identity default patch 10's constants", setting = "exoplasim.switches.ice_weights" }
-evidence = ["lab/design/regeneration.md, cross-dependency 13"]
+evidence = ["lab/design/regeneration.md, cross-dependency 13", "lab/tests/test_builds.py, patch 11's identity test"]

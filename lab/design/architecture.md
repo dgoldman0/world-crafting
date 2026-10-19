@@ -284,11 +284,12 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   hour angle and, at a rotation equal to the year, holds the star over 0° E whatever `FIXEDLON` states. The star's light files and, through patch 11, the ice-optics weights come from the star's own
   spectrum, which matters most around a red dwarf, whose light lies further into the near infrared than the Sun's.
 - **Patch 10's solar weights.** Patch 10 writes the near-infrared weights of the TSIS-1 Sun into
-  PlaSim as Fortran constants (regeneration.md, cross-dependency 13). A planned patch 11 reads them from
-  the namelist, with patch 10's constants as its identity default, and the adapter computes them from the
-  spectrum at the top of the air, the filter included. Until patch 11 passes its identity test (plan.md,
-  stage 2), runs with ice optics on take patch 10's weights, from the unfiltered Sun, and registry entry
-  `exoplasim-ice-weights` warns of them.
+  PlaSim as Fortran constants (regeneration.md, cross-dependency 13). Patch 11 reads them from the namelist
+  as `ZICEW`, with patch 10's constants as its identity default, and the adapter writes them from the spectrum
+  at the top of the air, the filter included. At that default, the build of the whole series runs Earth's control
+  with ice optics on, over two days, byte for byte as the build of patches 01–10, and the adapter's weights from
+  the Sun's spectrum change its output (`lab/tests/test_builds.py`). A build whose series stops before patch 11
+  keeps patch 10's weights, from the unfiltered Sun, and registry entry `exoplasim-ice-weights` warns of them.
 
 **CM1.**
 

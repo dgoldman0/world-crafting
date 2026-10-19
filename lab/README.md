@@ -11,7 +11,7 @@ Every product records its producer, its inputs and the values it read, from whic
 changed parameter makes stale. A fit also records the states it was fitted on, against which the lab checks
 each run that uses it.
 
-**State (2026-10-19): plan stage 2 under way, after stage 1 passed; the waterworld study planned as stages 9 to 13.**
+**State (2026-10-19): plan stages 1 and 2 passed; the waterworld study planned as stages 9 to 13.**
 
 ## Reading order
 

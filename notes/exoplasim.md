@@ -1,22 +1,25 @@
 # ExoPlaSim on a breathable Moon: correctness, limits and room for improvement
 
-Notes on the ten patches in [../models/exoplasim/](../models/exoplasim/), the settings that carry the
+Notes on the eleven patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten and the lab's patch 11, the settings that carry the
 Moon, the offline copies of PlaSim's radiation in `python/climate/gcm/`, and what in PlaSim stays
 Earth's. References to Terluna are at commit 186b294; to ExoPlaSim, at the 3.4.2 source distribution.
 
 Evidence states used below: **reproduction** (the same code or arithmetic gives the same numbers),
-**identity** (a switch at its default gives the unpatched model's output byte for byte), **calibration**
+**identity** (a switch at its default gives the output of the build without the patch byte for byte, the unpatched
+model's for patches 01–10), **calibration**
 (agreement with the in-house line-by-line model on the GCM's own columns, by construction near the
 fitted columns), **sensitivity** (what the change does to the simulated climate). None of these is a
 physical validation of a lunar climate, which no observation can supply.
 
 ## How the series was checked as a whole
 
-- Applied with GNU patch to pristine ExoPlaSim 3.4.2, the series reproduces the copy every Terluna run
-  imported on 2026-10-17 byte for byte (`models/check_patches.sh`; `models/exoplasim/expected.sha256`).
+- Applied with GNU patch to pristine ExoPlaSim 3.4.2, patches 01–10 reproduce the copy every Terluna run
+  imported on 2026-10-17 byte for byte (`models/check_patches.sh`; `models/exoplasim/expected.sha256`), and the
+  series of eleven gives the sources of `models/exoplasim/expected-series.sha256`.
 - Prefixes of the series reproduce the source hashes 32 Terluna runs recorded, so each reported result
   can be rebuilt from the series (`models/exoplasim/runs.json`). The two exceptions are explained there.
-- The deployed copy compiled and ran (Terluna's runs); this repository compiles nothing itself.
+- The deployed copy compiled and ran in Terluna's runs. The lab compiles each point of the series in its store
+  (`lab/worldlab/builds.py`), and its build of patches 01–10 compiles the deployed sources byte for byte.
 
 ## Defects and Earth values repaired
 
@@ -140,6 +143,19 @@ the top two layers' optics are extrapolated in size. Crystal size has no gravity
 of Earth's gravity crystals can grow larger before they fall, which would reflect less and trap less.
 The threshold is a step at −38 °C with no mixed phase, and the cloud's amount still comes from humidity
 thresholds over liquid water.
+
+**The weights (patch 11, `ZICEW`).** Patch 10 weights its four near-infrared bands within PlaSim's band 2
+by constants Terluna computed from the unfiltered TSIS-1 Sun, with a tail 11% brighter than the rest of
+the Sun's constant: 0.6164, 0.2283, 0.0811 and 0.0742. Patch 11, the world-crafting lab's, reads them from
+the namelist with those constants as its default, and the lab writes the shares of the light at the top of
+the air, the filter included (`lab/worldlab/sunlight.py`): 0.6295, 0.2276, 0.0752 and 0.0677 through the
+Open Moon's shield, and 0.6202, 0.2297, 0.0816 and 0.0685 for the unfiltered Sun. Identity: at its default
+the build of the whole series runs Earth's control with ice optics on, over 96 steps, byte for byte as the
+build of patches 01–10, output and status alike, and the Sun's own weights change the output
+(`lab/tests/test_builds.py`), where the two run folders differ in the four weights alone, which shows the ice
+path ran. The broadcast of the weights
+to every rank is correct by reading, since a run whose root alone held them would pass the test as well. The weights stay one set for the whole planet, from the light at the top;
+the light that reaches a cloud below other absorbers is redder.
 
 ### Flat, sunlit-only radiation and Earth's slant path (patch 07)
 

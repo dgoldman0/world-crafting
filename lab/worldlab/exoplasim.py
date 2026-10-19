@@ -66,7 +66,8 @@ ICE_BELOW_K = 235.15                 # patch 10's TICEOPT: cloud colder than -38
 SUN_CLOCKS = {'plasim': 0, 'model-day': 1, 'synodic': 2}             # patch 04's NSUNCLOCK
 CLOUD_WATER = ('plasim', 'earth_path', 'full_column')                 # patch 02
 TWILIGHT = ('none', 'full')                                           # patch 07: off, or the ledger's full terms
-ICE_WEIGHTS = ('from-spectrum', 'patch-10')    # the planned patch 11's weights from the spectrum, or patch 10's own
+ICE_WEIGHTS = ('from-spectrum', 'patch-10')    # patch 11's weights from the spectrum, or patch 10's own
+PATCH_11 = '11-ice-weights.patch'
 GAS_BANDS = ('CO2 near infrared', 'O2 near infrared', 'O2 visible')   # patch 08's ZGASQ columns, in order
 OZONE = {'none': 0, 'model-default': 1}                               # NO3: PlaSim's synthetic ozone is its own default
 SCALE_BASES = ('identity', 'calibration', 'scenario')
@@ -104,7 +105,7 @@ ADDITIONS = {
     'plasim_namelist': ('SEED', 'NDIAGCF', 'NDIAGGP'),
     'radmod_namelist': ('TH2OC', 'RAYSCALE', 'NSUNCLOCK', 'SWH2OSCALE', 'IRTOPDAY', 'IRTOPNIGHT', 'NTWILIGHT',
                         'NTWILW', 'ZMLUNAR', 'NGASBANDS', 'ZGASQ', 'ZGASW', 'ZMAIRLUNAR', 'NLWCORR', 'NICEOPT',
-                        'TICEOPT'),
+                        'TICEOPT', 'ZICEW'),
     'rainmod_namelist': ('CWGREF', 'CWSCALE', 'CONVDAY', 'RCRIT'),
 }
 
@@ -348,7 +349,7 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     if switches.get('ice_weights') not in ICE_WEIGHTS:
         raise SpecError(f'switches.ice_weights is one of {ICE_WEIGHTS}, where the run states '
                         f'{switches.get("ice_weights")!r}')
-    if switches['ice_weights'] == 'from-spectrum' and not any(p.startswith('11-') for p in series(run)):
+    if switches['ice_weights'] == 'from-spectrum' and PATCH_11 not in series(run):
         switches['ice_weights'] = 'patch-10'
     if calibrations.first_run:
         switches.update(twilight='none', gas_bands=False)
@@ -424,7 +425,7 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
     radmod.update(CO2=_nonnegative(air['co2_ppm'], f'{where}: air.co2_ppm'),
                   NRADICE=_switch(ocean['sea_ice'], 'water.ocean.sea_ice'), NO3=OZONE[air['ozone']], NSTARFILE=1,
                   STARFILE=STAR_FILES[0], STARFILEHR=STAR_FILES[1])
-    radmod.update(_radiation_switches(scenario, switches, calibrations, where))
+    radmod.update(_radiation_switches(scenario, switches, calibrations, where, top))
     if locked(world):                                 # configure's synchronous mode (exoplasim/__init__.py:2628-2630)
         if rotation['obliquity_deg'] != 0.0 or orbit['eccentricity'] != 0.0:
             raise SpecError(f'{world["id"]}: ExoPlaSim\'s synchronous mode holds the star at the latitude of the '
@@ -457,8 +458,8 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
     return {name: values for name, values in entries.items() if values}
 
 
-def _radiation_switches(scenario: dict, switches: dict, cal: Calibrations, where: str) -> dict:
-    """The radiation's patch switches and calibrations: patches 01 and 04 to 10, and PlaSim's water continuum."""
+def _radiation_switches(scenario: dict, switches: dict, cal: Calibrations, where: str, top: TopOfAir) -> dict:
+    """The radiation's patch switches and calibrations: patches 01 and 04 to 11, and PlaSim's water continuum."""
     out = {}
     if switches['sun_clock'] not in SUN_CLOCKS:
         raise SpecError(f'{where}: switches.sun_clock is one of {tuple(SUN_CLOCKS)}, where the run states '
@@ -501,6 +502,15 @@ def _radiation_switches(scenario: dict, switches: dict, cal: Calibrations, where
     out['NICEOPT'] = ice
     if ice:
         out['TICEOPT'] = ICE_BELOW_K
+        if switches['ice_weights'] == 'from-spectrum':          # patch 11: the shares of the light at the top of the air
+            weights = (top.sunlight or {}).get('ice_weights')
+            if weights is None or len(weights) != 4:
+                raise SpecError(f'{where}: patch 11 takes the ice weights of the sunlight at the top of the air '
+                                '(top_of_air), which the run lacks')
+            if min(weights) < 0.0 or abs(sum(weights) - 1.0) > 1e-9:
+                raise SpecError(f'{where}: the ice weights are shares of band 2, from 0 up and summing to 1, where '
+                                f'they are {tuple(weights)}')
+            out.update({f'ZICEW({i})': float(w) for i, w in enumerate(weights, 1)})
     return out
 
 

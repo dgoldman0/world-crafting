@@ -220,9 +220,10 @@ The product groups that head the columns:
     0.0742 (`models/exoplasim/patches/10-ice-optics.patch:70`). Terluna computed them from the unshielded
     TSIS-1 spectrum, where the clouds see the light after the shield; the lab computes them from the
     spectrum at the top of the air.
-    - With ice optics on, another star or shield needs new weights, which the planned patch 11 reads from
-      the namelist as GCM inputs. Until it passes, runs take patch 10's weights from the unfiltered Sun,
-      and registry entry `exoplasim-ice-weights` warns.
+    - With ice optics on, another star or shield needs new weights, which patch 11 reads from the namelist as
+      `ZICEW`, GCM inputs the adapter computes from the spectrum at the top of the air. A build whose series
+      stops before patch 11 keeps patch 10's weights from the unfiltered Sun, and registry entry
+      `exoplasim-ice-weights` warns.
 
 14. **Gravity carries the spin term.** The lab takes g as GM/R² less (2/3)Ω²R, so a change of rotation
     reaches every consumer of g, by 5 parts per million on the Moon and 0.3% on Mars; a stated gravity,

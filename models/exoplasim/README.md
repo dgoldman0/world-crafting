@@ -1,8 +1,9 @@
 # ExoPlaSim 3.4.2 for a breathable Moon
 
-Ten patches to PlaSim's radiation and cloud code inside ExoPlaSim 3.4.2, the settings that carry the
-Moon's orbit and calendar, and the design case's namelists and input tables. Each patch adds a
-namelist switch whose default reproduces ExoPlaSim as released. Correctness, limits and room for
+Eleven patches to PlaSim's radiation and cloud code inside ExoPlaSim 3.4.2, the first ten Terluna's and
+the eleventh the world-crafting lab's, the settings that carry the Moon's orbit and calendar, and the
+design case's namelists and input tables. Each patch adds a namelist switch whose default reproduces
+ExoPlaSim as released, and patch 11's reproduces the build of patches 01–10. Correctness, limits and room for
 improvement are in [../../notes/exoplasim.md](../../notes/exoplasim.md).
 
 ## Upstream pin
@@ -29,8 +30,10 @@ rm -f plasim/run/most_plasim_*.x      # ExoPlaSim recompiles PlaSim at the next 
 
 Terluna applied patches 01–06 to its shared installation and 07–10 to a separate copy that every run
 imports first since 2026-10-14, so earlier runs kept their source. Applied in order to a pristine
-3.4.2, the series gives `radmod.f90` sha256 `a49791572fa8f5b2…` and `rainmod.f90` `44c0668de3e8f7db…`,
-the copy deployed on 2026-10-17 byte for byte.
+3.4.2, patches 01–10 give `radmod.f90` sha256 `a49791572fa8f5b2…` and `rainmod.f90` `44c0668de3e8f7db…`,
+the copy deployed on 2026-10-17 byte for byte (`expected.sha256`); patch 11 follows them, and the whole
+series gives `radmod.f90` `50e3df63c3d9872e…` (`expected-series.sha256`). The lab compiles each point of
+the series as a build of its own (`lab/worldlab/builds.py`).
 
 ## The patches
 
@@ -46,6 +49,7 @@ the copy deployed on 2026-10-17 byte for byte.
 | 08 | `gas-bands` | `NGASBANDS`, `ZGASQ(5,3)`, `ZGASW(2)`, `ZMAIRLUNAR(3)` (radmod) | 0 | CO2 and O2 absorption in PlaSim's two solar bands, along a slant path for well-mixed air | Calibration (its structure general, its coefficients lunar fits) |
 | 09 | `longwave-by-height` | `NLWCORR` (radmod); `lwcorr.dat` | 0 | Adds a fitted extra escape to space for each layer and the ground, over land and over sea, scaled with temperature to the fourth power | Calibration |
 | 10 | `ice-optics` | `NICEOPT`, `TICEOPT` (radmod) | 0, 235.15 K | Gives cloud colder than `TICEOPT` Ebert and Curry's ice optics (CAM3's, as RRTMG carries them) through a delta-scaled PIFM two-stream, with the Kristjánsson–Mitchell effective radius | General repair, within the parameterization's range (crystals of 10 µm and more, which the radius table reaches above 190 K) |
+| 11 | `ice-weights` | `ZICEW(4)` (radmod) | patch 10's 0.6164, 0.2283, 0.0811, 0.0742 | Reads the shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2 from the namelist, where patch 10 held them as constants from the unfiltered TSIS-1 Sun; the lab writes the shares of the light at the top of the air | General repair (the world-crafting lab's) |
 
 ## Settings that carry the Moon (no source change)
 

@@ -15,6 +15,7 @@ from worldlab.spec import LAB, Library, SpecError
 
 LIB = Library()
 DEFAULTS = LIB.defaults('exoplasim/defaults')
+EARTH, CONTROL = LIB.world('earth'), LIB.scenario('earth/control')
 STORE, ENV = root('store'), root('env')
 DEPLOYED = LAB.parent / 'models' / 'exoplasim' / 'expected.sha256'
 needs_build = pytest.mark.skipif(STORE is None or ENV is None or not ex.ARCHIVE.exists() or shutil.which('mpif90') is None,
@@ -129,3 +130,33 @@ def test_plasim_compiled_by_the_lab_runs_on_the_files_the_lab_writes(deployed_po
     assert float(_diagnostic(tmp_path / 'run', 'Solar    day')) == pytest.approx(calendar['model_day_s'], abs=0.0501)
     assert int(_diagnostic(tmp_path / 'run', 'Timesteps / day')) == calendar['steps_per_model_day']
     assert int(_diagnostic(tmp_path / 'run', 'Days / Year')) == calendar['n_days_per_year']
+
+
+@needs_build
+def test_patch_11_at_its_default_runs_byte_for_byte_as_the_build_without_it(deployed_point, tmp_path):
+    """Earth's control with ice optics on, two days: the folder the adapter writes for the build of patches 01-10,
+    without ZICEW, gives the same output under the build of the whole series, where patch 11 holds patch 10's
+    constants; the weights the adapter writes for the whole series, from the Sun's spectrum, change it."""
+    ten, ten_build = deployed_point
+    ice = {**DEFAULTS, 'switches': {**DEFAULTS['switches'], 'ice_optics': True}}
+    whole_build = builds.build(ice, store=STORE, env=ENV)
+    executables = {name: build / 'exoplasim' / 'plasim' / 'run' / builds.executable_name(ice)
+                   for name, build in (('ten', ten_build), ('whole', whole_build))}
+    ex.write_run(tmp_path / 'ten', EARTH, CONTROL, {**ice, 'patches': ten['patches']},
+                 calibrations=ex.Calibrations.identity(), store=STORE)
+    shutil.copytree(tmp_path / 'ten', tmp_path / 'default')
+    ex.write_run(tmp_path / 'spectrum', EARTH, CONTROL, ice, calibrations=ex.Calibrations.identity(), store=STORE)
+    assert 'ZICEW' not in (tmp_path / 'ten' / 'radmod_namelist').read_text()
+    # The two folders differ in the four ZICEW lines alone, so that a change of output comes from the ice optics.
+    differ = {p.name for p in (tmp_path / 'ten').iterdir() if p.read_bytes() != (tmp_path / 'spectrum' / p.name).read_bytes()}
+    assert differ == {'radmod_namelist'}
+    lines = lambda name: (tmp_path / name / 'radmod_namelist').read_text().splitlines()
+    assert [l for l in lines('spectrum') if 'ZICEW' not in l] == lines('ten')
+    assert len([l for l in lines('spectrum') if 'ZICEW' in l]) == 4
+    out = {}
+    for name, executable in (('ten', executables['ten']), ('default', executables['whole']),
+                             ('spectrum', executables['whole'])):
+        _run_plasim(tmp_path / name, executable, 96)
+        out[name] = {f: _sha256(tmp_path / name / f) for f in ('plasim_output', 'plasim_status')}
+    assert out['default'] == out['ten']
+    assert out['spectrum']['plasim_output'] != out['default']['plasim_output']
