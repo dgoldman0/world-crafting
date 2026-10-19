@@ -1,23 +1,19 @@
-"""IAU lunar feature names from the USGS Gazetteer of Planetary Nomenclature.
+"""IAU feature names from the USGS Gazetteer of Planetary Nomenclature.
 
-The gazetteer's centre-point archive (a zipped shapefile) carries a dBase table
-with each feature's name, type code, diameter and centre. Only that table is read,
-with a small dBase III reader, so no shapefile library is needed.
+The gazetteer's centre-point archive for a body (a zipped shapefile, such as
+MOON_nomenclature_center_pts.zip) carries a dBase table with each feature's name,
+type code, diameter and centre. The table alone is read, with a small dBase III
+reader, which leaves shapefile libraries out.
 
-    features()           # adopted names: name, code, diameter_km, lat, lon (east, -180..180)
+    features(archive)    # adopted names: name, code, diameter_km, lat, lon (east, -180..180)
 
 Type codes used here: ME mare, OC oceanus, SI sinus, LC lacus, PA palus (water
 names); MO mons or montes; AA crater; LF landing-site name; AL albedo feature.
 """
 from __future__ import annotations
-import io
 import struct
 import zipfile
-from pathlib import Path
 
-from geography import fetch_inputs
-
-ARCHIVE = 'MOON_nomenclature_center_pts.zip'
 WATER_CODES = {'ME': 'Mare', 'OC': 'Oceanus', 'SI': 'Sinus', 'LC': 'Lacus', 'PA': 'Palus'}
 
 
@@ -50,9 +46,8 @@ def read_dbf(data: bytes, encoding: str = 'utf-8') -> list[dict]:
     return rows
 
 
-def features(path: Path | None = None, adopted_only: bool = True) -> list[dict]:
-    """Lunar features from the gazetteer archive, with east longitudes in -180..180."""
-    path = Path(path) if path else fetch_inputs.path(ARCHIVE)
+def features(path, adopted_only: bool = True) -> list[dict]:
+    """A body's features from its gazetteer archive, with east longitudes in -180..180."""
     with zipfile.ZipFile(path) as archive:
         name = next(n for n in archive.namelist() if n.lower().endswith('.dbf'))
         cpg = next((n for n in archive.namelist() if n.lower().endswith('.cpg')), None)

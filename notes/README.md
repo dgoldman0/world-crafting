@@ -12,5 +12,6 @@ drive.
 | `waves.md` | The SWAN patches, SWASH's lunar settings and the wave tools left in Terluna |
 | `reference_radiation.md` | The line-by-line and correlated-k reference models every calibration was fitted to |
 | `sky_solver.md` | The spherical-shell sky solver behind the twilight terms |
+| `geography.md` | The heights above the geoid, the seas and the lakes the lab's surfaces start from |
 | `defect_log.md` | Every defect found: upstream defects, Earth constants and fits, and the project's own |
 | `verification_record.md` | Every check made, what each establishes and what it leaves open, and the checks still missing |

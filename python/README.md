@@ -1,8 +1,8 @@
 # In-house reference and calibration tools
 
 The tools the ExoPlaSim and CM1 adaptations rest on, copied byte for byte from Terluna at 186b294 under
-their Terluna package paths (`provenance.json` lists every file with its sha256; one test is modified,
-below). Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
+their Terluna package paths (`provenance.json` lists every file with its sha256; the geography package and one
+test are modified, below). Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
 
 | Package | Holds | Notes |
 |---|---|---|
@@ -15,13 +15,13 @@ below). Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=p
 | `climate/gcm/plasim_ice_optics.py` | The ice optics of the `ice-optics` patch, in Python, with its PIFM two-stream | the same |
 | `climate/gcm/twilight.py` | The curved-air ledger: what the Moon's tall, curved air does to sunlight and infrared against flat columns, and the terms the GCM and CM1 patches read | [../notes/reference_radiation.md](../notes/reference_radiation.md) |
 | `climate/gcm/sun_check.py` | PlaSim's solar-position arithmetic, upstream and corrected, against a run's sunlight | [../notes/exoplasim.md](../notes/exoplasim.md) |
-| `geography/` (`topography.py`, `basins.py`, `atlas.py`, `drainage.py`, `nomenclature.py`) | The Moon's heights above the GRAIL geoid from LOLA's grids; the common water level that floods a given share of the surface, and the connected seas below it; the atlas of seas, islands and flooded maria at that level; the steady routing of a GCM run's runoff into rivers and fill-and-spill lakes; and the IAU gazetteer's names. Terluna's other geography tools (tides, groundwater, shores and coasts, the water inventory, the calendar) stay there | |
+| `geography/` (`topography.py`, `basins.py`, `atlas.py`, `drainage.py`, `nomenclature.py`) | A body's heights above its geoid, from a PDS3 height image and a SHADR gravity field read through their labels, with the body's spin and the permanent tide of a host fixed in its sky; the common water level that floods a given share of the surface, and the connected seas below it; the atlas of seas, islands and flooded maria at that level; the steady routing of a GCM run's runoff into rivers and fill-and-spill lakes; and the IAU gazetteer's names. The lab's general versions of Terluna's lunar tools; Terluna's other geography tools (tides, groundwater, shores and coasts, the water inventory, the calendar) stay there | [../notes/geography.md](../notes/geography.md) |
 | `climate/results/gcm/`, `atmosphere/*/results/`, `illumination/*/results/`, `protection/` | The committed products these tools wrote or read: the ledger (`twilight.json`), the gas-band fits, the longwave correction, the ice optics, the calibration and Sun checks, the middle-atmosphere cases the light models use, the shield's transmission | Data, with their producers' hashes inside |
 
 ## Running
 
 ```sh
-python -m pytest python               # from the repository root: 129 tests
+python -m pytest python               # from the repository root: 158 tests
 ```
 
 On 2026-10-17, after the electricity tools were added, all 111 passed in the research drive's `optics`
@@ -32,11 +32,10 @@ spectroscopic inputs restored (176 MB for the radiative–convective model, fetc
 added the same day passed with their inputs restored (`python -m atmosphere.electricity.fetch_inputs
 --download`: Takahashi's table, the CRAC:CRII tables and the PDG muon table, 0.7 MB, git-ignored; without
 them three tests skip). `muons.py` needs MCEq, which Terluna keeps in a separate environment; its products
-are committed. The 18 geography tests added on 2026-10-18 passed under the system Python (3.13.7, numpy
-2.3.3, scipy 1.16.2) with their inputs restored from Terluna's checkout and hash-checked (`python -m
-geography.fetch_inputs --source <Terluna>/geography/inputs`: LOLA's 4 and 16 pixel-per-degree grids, the GRAIL
-field and the gazetteer, 70 MB, git-ignored); without them four skip. That Python, lacking numba, now collects
-95 tests: the sky solver's 34 stay uncollected, and without the inputs 17 skip.
+are committed. The geography package's 47 tests, on synthetic files, grids and fields, need no inputs; its
+checks on the Moon's own heights and field, which the lab's data store holds, are in `lab/tests/test_geography.py`.
+On 2026-10-18 the system Python (3.13.7, numpy 2.3.3, scipy 1.16.2), lacking numba, collected 124 tests and
+passed 111: the sky solver's 34 stay uncollected, and without the inputs 13 skip.
 
 ## What still needs Terluna
 
@@ -53,10 +52,6 @@ provenance stays exact:
   and optics and scattering caches on the research drive; a full regeneration takes about 40 minutes of
   scattering on six threads).
 
-`geography/drainage.py`'s `compute` and command also read Terluna's output: a climatology of one of its GCM
-runs (`--climatology`; the default, `climate/gcm/products/climatology_A.npz`, is a Terluna product), with the
-atlas's `results/atlas.json`, which `python -m geography.atlas` writes here once the inputs are restored.
-
 A port to another world replaces those imports with a small configuration module.
 
 ## Changed from Terluna
@@ -64,4 +59,13 @@ A port to another world replaces those imports with a small configuration module
 `climate/tests/test_plasim_ice_optics.py::test_the_fortran_patch_matches_its_python_copy` compiles the ice
 routines taken from the committed patch `models/exoplasim/patches/10-ice-optics.patch` where Terluna's test
 took them from the runner's Python string; it checks the patch this repository distributes against the
-Python copy, to nine figures. No other file differs from Terluna.
+Python copy, to nine figures.
+
+The geography package is the lab's general version of Terluna's, and `provenance.json` notes each file's changes.
+Its tools take a body's grid, gravity field, rotation, tide and share as arguments, read PDS3 images and SHADR
+tables through their labels, average the permanent tide over the host's eccentric orbit and its tilt to the
+equator, and synthesise the geoid on the heights' own grid, which on LOLA's 16 pixels per degree removes the
+0.17 m area-weighted rms, and 2.4 m at most, by which Terluna's interpolation from 4 pixels per degree erred.
+The drainage summary lists lakes from label 1, where Terluna's reached label 0, the dry land, whenever fewer
+than twelve lakes formed, and raised an OverflowError on its level of minus infinity. Terluna's input restorer, its manifest, the level table and the
+water scenario gave way to the lab's data manifest and specifications. No other file differs from Terluna.

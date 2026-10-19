@@ -48,11 +48,14 @@ drive. Upstream source code is never committed whole.
 ## Python tools
 
 The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna at
-186b294, under their Terluna package paths; `python/provenance.json` lists all 124 files with their sha256
-(98 brought first; the electricity package's conductivity column, muon ionization and charging laws, with
+186b294, under their Terluna package paths; `python/provenance.json` lists the 120 files they hold with their
+sha256 (98 brought first; the electricity package's conductivity column, muon ionization and charging laws, with
 their three tests and committed products, added on 2026-10-17; and on 2026-10-18 the geography package's
-heights above the geoid, storage levels, atlas, drainage and gazetteer reader, with their input restorer and its
-manifest, their three tests, the level table one test reads, the package's `.gitignore` and Terluna's water
-scenario, which the atlas reads).
-One file differs: `python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
+heights above the geoid, storage levels, atlas, drainage and gazetteer reader, with their three tests and the
+package's `.gitignore`).
+`python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
 `models/exoplasim/patches/10-ice-optics.patch` in place of the runner's Python string (both hashes recorded).
+The geography package came over byte for byte (82b4b59), with its input restorer and manifest, the level table
+one test read and Terluna's water scenario, and was then generalised for any world: its five tools and three
+tests hold both hashes and a note of each change, `tests/test_topography.py` is the lab's own, and the lab's
+data manifest and specifications took over from the four files the generalisation removed.

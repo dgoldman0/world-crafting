@@ -105,7 +105,10 @@ scenario.
 | `orbit.from_host` | – | For a moon, the host planet whose orbit it follows, in place of the four fields above |
 | `star.id`, `star.spectrum`, `star.spectrum_form`, `star.constant_w_m2`, `star.temperature_k` | –, pinned name or `blackbody`, –, W m⁻², K | The spectrum: a pinned measured or model spectrum, its tails the star's blackbody, or the blackbody alone; `irradiance` for a pinned irradiance at 1 AU, kept as measured with its tails holding the rest of the constant, or `shape` for one scaled whole to the constant; the total at 1 AU; and the effective temperature that sets the blackbody |
 | `host.id`, `host.neglected` | – | A moon's planet, and the forcings from it left out, with their size |
-| `surface.geometry` | pinned name | Heights over the geoid from a pinned source, `model-default` or `unchosen` |
+| `host.semi_major_axis_m`, `host.eccentricity`, `host.inclination_to_equator_deg` | m, –, ° | The moon's orbit about its host, and its tilt to the moon's equator, over which a host's permanent tide is averaged |
+| `surface.geometry` | pinned name | Heights over the geoid from a pinned source, `model-default` or `unchosen`: a height image and a gravity field, each with its PDS3 label |
+| `surface.geoid_degree` | – | The gravity field's last degree in the geoid, stated with its basis |
+| `surface.tide.from`, `surface.tide.love_k2`, `surface.tide.sub_longitude_deg` | –, –, ° | The permanent tide of a body fixed in the sky, for a field whose degree-2 terms leave it out: `host`, the k2 that scales it by 1 + k2, and the east longitude of the mean sub-host point, on the equator |
 
 ## Scenario fields
 
@@ -229,6 +232,24 @@ spectrum and the scenario's filter through the manifest:
 - **Comparisons** read Terluna's records in place, under the Terluna roots, and skip without them; their
   files enter neither the manifest nor the store.
 
+`lab/worldlab/geography.py` gives a world's heights above its geoid, reading the files of `surface.geometry`
+through the manifest with the readers of `python/geography/topography.py` (`notes/geography.md`):
+
+- **The files.** Among the pin's files, each PDS3 label names the file it describes: one a global
+  simple-cylindrical height image, whose samples times its scaling factor, in its unit, are radii less its
+  reference sphere, of radius OFFSET, and one a SHADR gravity table. The sphere's radius lies within 1% of
+  `body.radius_m`, and the field's GM within one part in 10⁶ of `body.gm_m3_s2`.
+- **The geoid** takes the field to `surface.geoid_degree` and the centrifugal potential of the sidereal
+  rotation, synthesised on the heights' own grid. Where the world states `surface.tide`, it adds the host's
+  permanent tide, (1 + k2) GM r²/a³ [A₀ P₂(sin φ) + A₂₂ cos²φ cos 2(λ − λ₀)] over the field's GM/r², with the
+  host's GM from its own world: A₀ and A₂₂ are the time means of (a/d)³ P₂(sin β) and ¾ (a/d)³ cos²β cos 2λ' for the
+  host at distance d and direction (β, λ') in the world's frame, over the mean anomaly and the perigee's angle from
+  the node, and a circular orbit in the equator gives −½ and ¾, the host held over the sub-point. A host stays
+  fixed in the sky only for a rotation synchronous with its orbit, so the world's rotation lies within 1% of the
+  orbit's two-body period, which the Sun's pull lengthens by 0.14% on the Moon.
+- **The record** gives the files read, the label's target, frame and product, the degree, the rotation rate,
+  the field's GM and reference radius, and the tide's terms.
+
 Still to settle, each with the stage whose code first reads it, where stage 1 left them on 2026-10-18: the field
 tables of the defaults, studies, runs and cases, with optional fields and their defaults, as stage 2's and 3's
 adapters read them; the `water` and `sea` reference levels, with the pressure at the surface's lowest point, in
@@ -267,7 +288,8 @@ while builds compile the air in.
   Sun.
 - Stellar spectra in formats beyond the comma-separated wavelength and irradiance the lab reads, such as
   model-atmosphere grids, and systems of more than one star.
-- Surface geometry beyond Terluna's atlas: aquaplanets, idealized continents, other bodies' heights.
+- Surface geometry beyond a height image over a gravity field: heights measured from an equipotential already,
+  as MOLA's MEGDR topography is, aquaplanets, idealized continents and designed height fields.
 - Vertical grids chosen for the world, where today PlaSim's σ levels are Earth's and the ledger's GCM terms
   are computed on them.
 - Scenarios that change in time, such as a shield dimming over years.

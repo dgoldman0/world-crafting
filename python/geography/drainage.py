@@ -1,49 +1,36 @@
-"""Rivers and lakes on the Open Moon at the scenario water share.
+"""Rivers and lakes on a body's topography at a common sea level.
 
-    python -m geography.drainage      # results/drainage.json and products/drainage_<pct>pct_16ppd.npz
-
-Water is routed over LOLA at 16 pixels per degree (1.9 km) above the GRAIL geoid, with the atlas
-product's sea level. Every cell below that level is sea or a lake at the common level, as the atlas
-fills them; these are the outlets. Above it:
+Water is routed over a global grid of heights above the geoid. Every cell below the sea level is sea or a
+lake at the common level, as the atlas fills them; these are the outlets. Above it:
 
 1. Each cell drains to the steepest of its eight neighbours.
 2. Cells that drain nowhere are the floors of closed depressions. A priority flood over the graph of
    catchments and their lowest shared passes gives each depression its spill level, the lowest pass on
    its way to an outlet, and the pass it spills through.
-3. Runoff is the climate run's precipitation less evaporation over land, where positive. It accumulates
+3. Runoff is a climate run's precipitation less evaporation over land, where positive. It accumulates
    downstream. A depression fills to its spill level and overflows when its inflow and the rain on its
    lake exceed the lake's open-water evaporation (the run's evaporation over sea at that latitude);
    otherwise it holds the smaller lake whose evaporation balances its inflow and passes nothing on.
 
-The balance is a steady annual mean at the climate model's resolution (T21, about 170 km). Groundwater,
-infiltration losses and travel time come later.
+The balance is a steady annual mean at the climate model's resolution. Groundwater, infiltration losses and
+travel time come later.
 """
 from __future__ import annotations
-import hashlib
 import heapq
-import json
-import sys
-from pathlib import Path
 import numpy as np
 
-HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent
-SCHEMA = 'terluna.geography.drainage/1'
-PPD = 16
-CLIMATOLOGY = ROOT / 'climate' / 'gcm' / 'products' / 'climatology_A.npz'
-CLIMATOLOGY_SCHEMA = 'terluna.climate.gcm-climatology/1'
 CHANNEL_M3S = 1.0                         # discharge kept in the product
 MM_DAY = 1.0 / 1000.0 / 86400.0           # mm/day to m/s
 DIRECTIONS = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-EVIDENCE = ('Steady annual routing of the climate run\'s runoff (precipitation less evaporation over land, T21) '
-            'over LOLA 16 pixel/degree heights above the GRAIL geoid, with fill-and-spill lakes decided by each '
-            'depression\'s water balance against the run\'s open-water evaporation. A first estimate of where '
-            'rivers run and which closed depressions hold lakes; channels are grid-resolved (1.9 km), and '
-            'groundwater, infiltration and travel time come later.')
-READING_RULE = ('Cells index rows from 90 N and columns from 0 E, 16 per degree, as LOLA: cell = row * 5760 + '
-                'column. channel_discharge_m3s[k] is the mean discharge through cell channel_cell[k]. lake_cell '
-                'lists land cells under rain-fed lakes above sea level, with lake_level_m their surface above the '
-                'geoid and lake_spills whether that lake overflows.')
+EVIDENCE = ('Steady annual routing of a climate run\'s runoff (precipitation less evaporation over land) over '
+            'heights above the geoid, with fill-and-spill lakes decided by each depression\'s water balance '
+            'against the run\'s open-water evaporation. A first estimate of where rivers run and which closed '
+            'depressions hold lakes; channels are grid-resolved, and groundwater, infiltration and travel time '
+            'come later.')
+READING_RULE = ('Cells index rows from 90 N and columns from 0 E: cell = row * columns + column. '
+                'channel_discharge_m3s[k] is the mean discharge through cell channel_cell[k]. lake_cell lists land '
+                'cells under rain-fed lakes above sea level, with lake_level_m their surface above the geoid and '
+                'lake_spills whether that lake overflows.')
 
 
 def shifted(a, dr, dc, fill):
@@ -225,18 +212,17 @@ def route(h, outlet, lat_deg, cell_km, runoff_mm_day, lake_net_mm_day):
 def lake_evaporation(clim, lat_deg):
     """Open-water evaporation (mm/day) at each latitude: the run's zonal mean over sea cells."""
     sea = clim['lsm'] < 0.5
-    ev = np.where(sea, clim['evap_mm_day'], np.nan)
-    zonal = np.nanmean(ev, axis=1)
+    count = sea.sum(axis=1)
+    zonal = np.where(count > 0, np.where(sea, clim['evap_mm_day'], 0.0).sum(axis=1) / np.maximum(count, 1), np.nan)
     lat = clim['lat']
     ok = np.isfinite(zonal)
     order = np.argsort(lat[ok])
     return np.interp(lat_deg, lat[ok][order], zonal[ok][order])
 
 
-def climate_on_grid(clim, name, rows, cols):
-    """A climatology field on the 16 pixel/degree grid (rows from 90 N, columns from 0 E), bilinear."""
-    lat = 90.0 - (np.arange(rows) + 0.5) / PPD
-    lon = (np.arange(cols) + 0.5) / PPD
+def climate_on_grid(clim, name, grid):
+    """A climatology field on the grid's cells (rows from 90 N, columns from 0 E), bilinear."""
+    lat, lon = grid.lat_deg, grid.lon_deg
     f = clim[name]
     order = np.argsort(clim['lat'])
     ls, fs = clim['lat'][order], f[order]
@@ -251,47 +237,41 @@ def climate_on_grid(clim, name, rows, cols):
     return top * (1 - ty) + bottom * ty
 
 
-def digest(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
-def compute(climatology=CLIMATOLOGY):
-    from geography import atlas as ga
-    from geography import topography as tp
-    from shared.constants import MOON_RADIUS
-    atlas_path = HERE / 'results' / 'atlas.json'
-    atlas = json.loads(atlas_path.read_text())
-    if atlas.get('schema') != ga.SCHEMA:
-        raise SystemExit(f'Expected {ga.SCHEMA} in {atlas_path}; run python -m geography.atlas')
-    clim = dict(np.load(climatology))
-    clim_meta = json.loads(str(clim.pop('metadata')))
-    if clim_meta.get('schema') != CLIMATOLOGY_SCHEMA:
-        raise SystemExit(f'Expected {CLIMATOLOGY_SCHEMA} in {climatology}')
-    level = float(atlas['sea_level_m'])
-    h, _, grid = tp.height_above_geoid(PPD, atlas['grid']['geoid_degree'])
-    h = h.astype(np.float32)
-    rows, cols = h.shape
-    lat = 90.0 - (np.arange(rows) + 0.5) / PPD
-    cell_km = MOON_RADIUS / 1000.0 * np.radians(1.0 / PPD)
-    outlet = h < level
-    precip = climate_on_grid(clim, 'pr_mm_day', rows, cols)
-    runoff = np.maximum(precip - climate_on_grid(clim, 'evap_mm_day', rows, cols), 0.0)
-    lake_net = precip - lake_evaporation(clim, lat)[:, None].astype(np.float32)
+def compute(height, grid, sea_level_m, clim):
+    """Route a climatology's runoff over heights above the geoid (m) on a global grid, the sea standing below
+    `sea_level_m`. `clim` holds the climate run's grid (`lat`, `lon` in degrees), its land-sea mask `lsm` and
+    its means `pr_mm_day` and `evap_mm_day` there. Returns the runoff on the grid (mm/day) and the routing."""
+    h = height.astype(np.float32)
+    cell_km = grid.radius_m / 1000.0 * np.radians(1.0 / grid.pixels_per_degree)
+    outlet = h < sea_level_m
+    precip = climate_on_grid(clim, 'pr_mm_day', grid)
+    runoff = np.maximum(precip - climate_on_grid(clim, 'evap_mm_day', grid), 0.0)
+    lake_net = precip - lake_evaporation(clim, grid.lat_deg)[:, None].astype(np.float32)
     del precip
-    r = route(h, outlet, lat, cell_km, runoff, lake_net)
-    return atlas, atlas_path, clim_meta, level, h, lat, cell_km, runoff, r
+    return runoff, route(h, outlet, grid.lat_deg, cell_km, runoff, lake_net)
 
 
-def summarise(atlas, level, h, lat, r, top=12):
+def lake_arrays(r):
+    """The routing's product arrays: the channels carrying CHANNEL_M3S or more, and the rain-fed lakes."""
+    q = r['discharge']
+    keep = np.flatnonzero((q >= CHANNEL_M3S) & ~r['outlet'] & ~r['lake']).astype(np.int32)
+    lake_cells = np.flatnonzero(r['lake']).astype(np.int32)
+    return dict(channel_cell=keep, channel_discharge_m3s=q[keep].astype(np.float32), lake_cell=lake_cells,
+                lake_level_m=r['lake_level'][lake_cells].astype(np.float32),
+                lake_spills=~r['closed'][r['label'][lake_cells]])
+
+
+def summarise(level, h, grid, r, top=12):
     """Totals, the largest rivers by discharge at the mouth and the largest lakes as connected water bodies."""
     from scipy import ndimage
     rows, cols = h.shape
+    ppd = grid.pixels_per_degree
     area = r['area']
     total = float(area.sum())
     q = r['discharge']
     lake = r['lake']
-    place = lambda row, col: (round(float(90.0 - (row + 0.5) / PPD), 2),
-                              round(float(((col + 0.5) / PPD + 180.0) % 360.0 - 180.0), 2))
+    place = lambda row, col: (round(float(90.0 - (row + 0.5) / ppd), 2),
+                              round(float(((col + 0.5) / ppd + 180.0) % 360.0 - 180.0), 2))
     mouths = np.flatnonzero(r['outlet'] & (q > 0))
     order = mouths[np.argsort(q[mouths])[::-1]]
     rivers = [dict(mouth=place(c // cols, c % cols), discharge_m3s=round(float(q[c]), 1),
@@ -309,7 +289,7 @@ def summarise(atlas, level, h, lat, r, top=12):
     b_row = np.bincount(body[wet], weights=area[wet] * (wet // cols), minlength=n_bodies + 1)
     b_closed = np.bincount(body[wet], weights=r['closed'][r['label'][wet]].astype(float), minlength=n_bodies + 1)
     lakes = []
-    for k in np.argsort(b_area)[::-1][:top]:
+    for k in np.argsort(b_area[1:])[::-1][:top] + 1:          # the lakes, label 0 being the dry land
         cells = wet[body[wet] == k]
         col = np.angle(np.exp(1j * 2 * np.pi * (cells % cols) / cols).mean()) % (2 * np.pi) / (2 * np.pi) * cols
         lakes.append(dict(centre=place(b_row[k] / b_area[k], col), area_km2=round(float(b_area[k]) / 1e6),
@@ -317,48 +297,12 @@ def summarise(atlas, level, h, lat, r, top=12):
                           level_above_sea_m=round(float(b_level[k] - level)), spills=bool(b_closed[k] == 0)))
     closed_bodies = int(np.count_nonzero(b_closed[1:] > 0))
     return dict(
-        schema=SCHEMA, share=atlas['share'], sea_level_m=level, grid=dict(pixels_per_degree=PPD, rows=rows, cols=cols),
+        sea_level_m=level, grid=dict(pixels_per_degree=ppd, rows=rows, cols=cols),
         depressions=int(r['level'].size - 1),
         lakes=dict(bodies=int(n_bodies), closed_bodies=closed_bodies, area_share=round(float(area[lake].sum()) / total, 4),
-                   volume_km3=round(float(b_volume.sum()) / 1e9), median_depth_m=round(float(np.median(depth))),
+                   volume_km3=round(float(b_volume.sum()) / 1e9),
+                   median_depth_m=round(float(np.median(depth))) if wet.size else None,
                    largest=lakes),
         rivers=dict(discharge_to_sea_m3s=round(float(q[r['outlet']].sum())), channels_over_100_m3s_km=round(
             float((q[~r['outlet'] & ~lake] >= 100.0).sum()) * float(np.sqrt(area.mean())) / 1000.0), largest=rivers),
         evidence=EVIDENCE, reading_rule=READING_RULE)
-
-
-def main(argv=None) -> int:
-    import argparse
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument('--climatology', type=Path, default=CLIMATOLOGY,
-                        help='climate product to take runoff and lake evaporation from (default: run A)')
-    parser.add_argument('--out', type=Path, default=HERE, help='folder for results/ and products/ (default: geography)')
-    args = parser.parse_args(argv)
-    climatology = args.climatology.resolve()
-    atlas, atlas_path, clim_meta, level, h, lat, cell_km, runoff, r = compute(climatology)
-    summary = summarise(atlas, level, h, lat, r)
-    producer = dict(domain='geography', files={f'geography/{p.name}': digest(p)[:16] for p in
-                                              (Path(__file__), HERE / 'topography.py', HERE / 'atlas.py')})
-    label = str(climatology.relative_to(ROOT)) if climatology.is_relative_to(ROOT) else str(climatology)
-    sources = {str(atlas_path.relative_to(ROOT)): digest(atlas_path), label: digest(climatology)}
-    summary.update(producer=producer, sources=sources, climatology=dict(run=clim_meta['run'], years=clim_meta['years']))
-    q = r['discharge']
-    keep = np.flatnonzero((q >= CHANNEL_M3S) & ~r['outlet'] & ~r['lake']).astype(np.int32)
-    lake_cells = np.flatnonzero(r['lake']).astype(np.int32)
-    out = args.out / 'products' / f"drainage_{round(100 * atlas['share'])}pct_{PPD}ppd.npz"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    meta = {k: summary[k] for k in ('schema', 'share', 'sea_level_m', 'grid', 'evidence', 'reading_rule', 'producer', 'sources')}
-    np.savez_compressed(out, metadata=json.dumps(meta), channel_cell=keep, channel_discharge_m3s=q[keep].astype(np.float32),
-                        lake_cell=lake_cells, lake_level_m=r['lake_level'][lake_cells].astype(np.float32),
-                        lake_spills=~r['closed'][r['label'][lake_cells]])
-    (args.out / 'results').mkdir(parents=True, exist_ok=True)
-    (args.out / 'results' / 'drainage.json').write_text(json.dumps(summary, indent=2) + '\n')
-    lk = summary['lakes']
-    print(f"{summary['depressions']:,} closed depressions; {lk['bodies']:,} rain-fed lakes ({lk['closed_bodies']:,} without "
-          f"an outlet) over {lk['area_share']:.2%} of the surface, {lk['volume_km3']:,} km3; "
-          f"{summary['rivers']['discharge_to_sea_m3s']:,} m3/s reaches the sea -> {out.name}")
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())

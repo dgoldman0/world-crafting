@@ -62,3 +62,32 @@ def test_a_dry_depression_keeps_a_smaller_closed_lake():
     evaporation = float((20.0 * dr.MM_DAY * r['area'])[kept].sum())
     assert evaporation <= r['inflow'][k] + 1e-12
     assert evaporation + float((20.0 * dr.MM_DAY * r['area'])[full & ~kept].min()) > r['inflow'][k]
+
+
+def test_a_climatology_routes_over_a_global_grid_to_the_sea():
+    from geography import topography as tp
+    grid = tp.Grid.globe(1, 1737400.0)
+    lat = np.repeat(grid.lat_deg[:, None], grid.lon_deg.size, axis=1)
+    h = np.where(lat < -30.0, -100.0, 10.0 * (lat + 30.0))       # a southern sea, the land rising to the north
+    clim = dict(lat=np.linspace(-87.5, 87.5, 36), lon=np.arange(0.0, 360.0, 10.0))
+    land = np.repeat((clim['lat'] >= -30.0)[:, None], 36, axis=1).astype(float)
+    clim.update(lsm=land, pr_mm_day=np.full((36, 36), 2.0), evap_mm_day=np.where(land > 0.5, 1.0, 3.0))
+    runoff, r = dr.compute(h, grid, -50.0, clim)
+    assert np.allclose(runoff[lat > -20.0], 1.0) and not r['lake'].any()
+    assert np.isclose(r['discharge'][r['outlet']].sum(), total(r, np.where(h < -50.0, 0.0, runoff) * dr.MM_DAY), rtol=1e-9)
+    arrays = dr.lake_arrays(r)
+    assert arrays['lake_cell'].size == 0 and (arrays['channel_discharge_m3s'] >= dr.CHANNEL_M3S).all()
+    summary = dr.summarise(-50.0, h, grid, r)
+    assert summary['grid'] == dict(pixels_per_degree=1, rows=180, cols=360) and summary['lakes']['bodies'] == 0
+    assert summary['rivers']['discharge_to_sea_m3s'] == round(float(r['discharge'][r['outlet']].sum()))
+
+
+def test_the_summary_lists_one_lake_and_its_level():
+    from geography import topography as tp
+    h, outlet = slope_to_sea(bowl_depth=80.0)
+    r = dr.route(h, outlet, LAT, CELL_KM, np.ones_like(h), np.full_like(h, 0.5))
+    grid = tp.Grid(LAT, np.arange(COLS) * 360.0 / COLS, 1, 1737400.0)
+    summary = dr.summarise(-50.0, h, grid, r)
+    lakes = summary['lakes']
+    assert lakes['bodies'] == 1 and len(lakes['largest']) == 1 and lakes['closed_bodies'] == 0
+    assert lakes['largest'][0]['spills'] and lakes['largest'][0]['level_above_sea_m'] == round(float(r['level'][r['label'][12 * COLS + 20]]) + 50.0)

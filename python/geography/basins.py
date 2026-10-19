@@ -1,6 +1,6 @@
-"""Static water storage on lunar topography: level curves and the depression tree.
+"""Static water storage on a body's topography: level curves and the depression tree.
 
-Two views of how much water the Moon can hold before it floods:
+Two views of how much water a body can hold before it floods:
 
 - Level curve ("bathtub"): for a common equipotential water level, the area below
   it and the water needed to fill it. It describes water standing at one level
@@ -10,8 +10,8 @@ Two views of how much water the Moon can hold before it floods:
   cells in order of height (a union-find merge tree). The major merges show which
   basins join into one sea as water rises, and what each stage holds.
 
-Heights are above the geoid (topography.height_above_geoid). Volumes are exact
-sums over spherical grid cells. This is hydrostatics only: rainfall, runoff,
+Heights are above the geoid (topography.height_above_geoid), on a global grid whose cell areas sum to the
+body's surface. Volumes are exact sums over spherical grid cells. This is hydrostatics only: rainfall, runoff,
 evaporation, groundwater, erosion and crustal loading are outside it.
 """
 from __future__ import annotations
@@ -19,14 +19,11 @@ from dataclasses import dataclass
 import math
 import numpy as np
 
-from shared.constants import MOON_RADIUS
-
-AREA = 4 * math.pi * MOON_RADIUS**2
 WATER_DENSITY = 1000.0
 
-# Approximate centres of large named basins (IAU/USGS nomenclature), used only to
-# label computed depressions; the computed geometry does not depend on them.
-NAMED_BASINS = {
+# Approximate centres of the Moon's large named basins (IAU/USGS nomenclature), used only to label computed
+# depressions on the Moon; the computed geometry depends on none of them.
+MOON_BASINS = {
     'South Pole-Aitken': (-53.0, 191.0), 'Imbrium': (33.0, 342.0), 'Serenitatis': (27.0, 18.0),
     'Crisium': (17.0, 59.0), 'Tranquillitatis': (8.5, 31.0), 'Nectaris': (-15.0, 35.0),
     'Fecunditatis': (-8.0, 51.0), 'Nubium': (-21.0, 343.0), 'Humorum': (-24.0, 321.0),
@@ -54,8 +51,8 @@ def level_curve(height, area, levels):
 
 
 def level_for_area(height, area, fraction):
-    """Common water level whose flooded area is the given fraction of the Moon (the height of
-    the cell at which the cumulative area, in order of height, reaches that fraction)."""
+    """Common water level whose flooded area is the given fraction of the surface (the height of the cell at
+    which the cumulative area, in order of height, reaches that fraction)."""
     h = height.ravel()
     order = np.argsort(h)
     cum = np.cumsum(area.ravel()[order])
@@ -86,17 +83,18 @@ class Depression:
     floor_lat: float
     floor_lon: float
     children: list
+    surface_m2: float        # the whole body's surface
     names: tuple = ()        # named basin centres inside it
     event: int = -1          # merge event at which it spilled
 
     @property
     def gel_m(self):
-        """Global equivalent layer: volume spread over the whole Moon."""
-        return self.volume_m3 / AREA
+        """Global equivalent layer: volume spread over the whole body."""
+        return self.volume_m3 / self.surface_m2
 
     @property
     def area_fraction(self):
-        return self.area_m2 / AREA
+        return self.area_m2 / self.surface_m2
 
 
 def _neighbours(i, j, nlat, nlon):
@@ -112,19 +110,20 @@ def _neighbours(i, j, nlat, nlon):
         yield i * nlon + (j + nlon // 2) % nlon
 
 
-def depression_tree(height, area, lat, lon):
+def depression_tree(height, area, lat, lon, named=None):
     """All closed depressions and their spill levels (union-find merge tree).
 
     Cells are added from the lowest up. A cell touching no processed cell starts a
     depression; a cell joining two or more depressions is their spill point, and
     each joining depression is recorded with its capacity at that level. The merged
     depression continues and is recorded in turn when it spills. Returns the list
-    of recorded depressions and, per cell, the id of the depression it first
-    belonged to (for maps).
+    of recorded depressions, each with the names of `named` (name: (lat, lon)) whose
+    centres lie inside it.
     """
     nlat, nlon = height.shape
     h = height.ravel()
     a = area.ravel()
+    surface = float(a.sum())
     n = h.size
     order = np.argsort(h, kind='stable')
     parent = np.full(n, -1, dtype=np.int64)
@@ -135,7 +134,7 @@ def depression_tree(height, area, lat, lon):
     records = []
     events = []
     centres = {}
-    for name, (la, lo) in NAMED_BASINS.items():
+    for name, (la, lo) in (named or {}).items():
         ii = int(np.argmin(np.abs(lat - la)))
         jj = int(np.argmin(np.abs(((lon - lo) + 180) % 360 - 180)))
         centres[name] = ii * nlon + jj
@@ -169,7 +168,7 @@ def depression_tree(height, area, lat, lon):
                 inside = tuple(nm for nm, cell in centres.items() if parent[cell] >= 0 and find(cell) == r)
                 records.append(Depression(len(records), float(level), float(h[f]), float(comp_area[r]),
                                           float(vol), float(lat[f // nlon]), float(lon[f % nlon]),
-                                          comp_node.pop(r), inside, event))
+                                          comp_node.pop(r), surface, inside, event))
                 events[event].append(records[-1])
         roots = sorted(roots, key=lambda r: comp_area[r], reverse=True)
         keep = roots[0]
@@ -205,7 +204,7 @@ def major_merges(records, min_area_fraction=2e-3):
 
 
 def seas(height, area, level, min_area_fraction=1e-3):
-    """Separate water bodies below a common level (8-connected, wrapping in longitude)."""
+    """Separate water bodies below a common level (8-connected, wrapping in longitude), as shares of the surface."""
     from scipy import ndimage
     wet = height < level
     lab, count = ndimage.label(wet, structure=np.ones((3, 3), bool))
@@ -228,17 +227,18 @@ def seas(height, area, level, min_area_fraction=1e-3):
                     uf[ry] = rx
     roots = np.array([root(x) for x in range(count + 1)])
     merged = roots[lab]
+    surface = float(area.sum())
     sizes = np.bincount(merged.ravel(), weights=area.ravel(), minlength=count + 1)
     sizes[0] = 0.0
-    big = np.sort(sizes[sizes > min_area_fraction * AREA])[::-1]
-    return big / AREA, merged
+    big = np.sort(sizes[sizes > min_area_fraction * surface])[::-1]
+    return big / surface, merged
 
 
-def label(dep: Depression, radius_deg=25.0):
-    """Nearest named basin within radius_deg of the depression's floor, else coordinates."""
+def label(dep: Depression, named, radius_deg=25.0):
+    """Nearest of `named` (name: (lat, lon)) within radius_deg of the depression's floor, else coordinates."""
     best, best_d = None, radius_deg
     la1, lo1 = math.radians(dep.floor_lat), math.radians(dep.floor_lon)
-    for name, (la, lo) in NAMED_BASINS.items():
+    for name, (la, lo) in named.items():
         la2, lo2 = math.radians(la), math.radians(lo)
         d = math.degrees(math.acos(max(-1.0, min(1.0, math.sin(la1) * math.sin(la2)
                                                  + math.cos(la1) * math.cos(la2) * math.cos(lo1 - lo2)))))

@@ -30,8 +30,22 @@ spectrum_form = "irradiance"         # TSIS-1 is the Sun's irradiance at 1 AU; t
 
 [host]                               # Earth stays fixed in the near-side sky
 id = "earth"
+semi_major_axis_m = 384400000.0      # the Moon's orbit about Earth: shared/constants.json earth.moon_mean_distance_m
+eccentricity = 0.0549                # moon.orbit_eccentricity, from NASA GSFC's Moon fact sheet
+inclination_to_equator_deg = 6.6874  # the orbit's 5.145 deg to the ecliptic (moon.orbit_inclination_to_ecliptic_deg) and
+                                     # the equator's 1.5424 deg on the far side of the ecliptic's pole, as Cassini's laws
+                                     # set them
 neglected = ["earthshine, under 0.1 W/m2", "lunar eclipses, a few hours about twice a year"]   # climate/gcm/boundary.py:171-172
 
 [surface]
 geometry = "lola-ldem16-grail-jggrx0420a"  # LOLA's 16 ppd heights over the GRAIL geoid, from the PDS by pinned hash,
                                             # as Terluna's geography/fetch_inputs.py takes them
+geoid_degree = 330                   # GL0420A's coefficients up to 330, beyond which a Kaula constraint shapes them (its
+                                     # label); degrees 201-330 add 1.9 m rms and up to 31 m to Terluna's degree-200 geoid
+
+[surface.tide]                       # Earth's permanent tide on the equipotential the seas follow, which GL0420A's
+                                     # degree-2 coefficients leave out (its label)
+from = "host"                        # Earth's GM from lab/worlds/earth, its potential's time mean over the orbit in [host]
+love_k2 = 0.0248                     # the k2 GL0420A held fixed (its label), so that the tide it removed returns whole
+sub_longitude_deg = 0.0              # the mean sub-Earth point, on the equator at 0 E, which sets the mean-Earth/polar-axis
+                                     # frame of LOLA's heights

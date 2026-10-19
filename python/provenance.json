@@ -416,58 +416,59 @@
   },
   {
    "path": "geography/atlas.py",
-   "sha256": "e5ce62df01c940976901f0308620116fbce3657c4945098a70ce0f301f4ee14b",
-   "bytes": 13715
+   "sha256": "cf198d6963d254e335b9fe013a0193f0a28523b149422e27fcf407e3e1082feb",
+   "bytes": 7027,
+   "terluna_sha256": "e5ce62df01c940976901f0308620116fbce3657c4945098a70ce0f301f4ee14b",
+   "modified": "atlas(height, grid, share, features) in place of the command, the scenario file and the readers; the radius from the grid; the level and the layer kept at full precision, where Terluna rounded them to 0.1 m; the share comparison, polar caps and point heights, which served Terluna's choice of share and its maps, stay in Terluna"
   },
   {
    "path": "geography/basins.py",
-   "sha256": "038c3675d532fde0a07b106d679726cf7f384f703a119bb75bf9a57ce5af0cb4",
-   "bytes": 9855
+   "sha256": "f92be9412812563a59dbbc03fd44ac18be64cf22350365ef2a97453aff6cbfb9",
+   "bytes": 10082,
+   "terluna_sha256": "038c3675d532fde0a07b106d679726cf7f384f703a119bb75bf9a57ce5af0cb4",
+   "modified": "the body's surface taken from the cell areas in place of the Moon's radius; the named basins passed in, the Moon's kept as MOON_BASINS"
   },
   {
    "path": "geography/drainage.py",
-   "sha256": "a1b8d163c2ee340c1e58d218772278f3b229fddc96b8cc051757ab4051094c68",
-   "bytes": 18855
-  },
-  {
-   "path": "geography/fetch_inputs.py",
-   "sha256": "eadef4f9b0d45b5bcb30c06143e538aca1c3aca93d347bf7d1b2062bebc66b6d",
-   "bytes": 637
-  },
-  {
-   "path": "geography/inputs.json",
-   "sha256": "d5021efa860a3b0ad625c058dd16de993763c3fb5b90638ab3aca7790751922c",
-   "bytes": 4884
+   "sha256": "99fead3d18b2c3c1196e4d0f48f9f49ecd73d42f7e29a8e8563e8fbc005d5c02",
+   "bytes": 15929,
+   "terluna_sha256": "a1b8d163c2ee340c1e58d218772278f3b229fddc96b8cc051757ab4051094c68",
+   "modified": "compute(height, grid, sea_level, climatology) and lake_arrays in place of the command and Terluna's product paths; the grid's resolution and radius from the grid; summarise lists lakes from label 1, where Terluna's reached label 0, the dry land, whenever fewer than twelve lakes formed, and raised OverflowError on its level of minus infinity; the evaporation's zonal mean leaves out nanmean and its warning on latitudes without sea"
   },
   {
    "path": "geography/nomenclature.py",
-   "sha256": "b0cb3bbfcadc12b85c506cb1ebf9175548db31ddc37eaa4c8f0ffaf061705ea7",
-   "bytes": 2963
-  },
-  {
-   "path": "geography/results/water_levels.csv",
-   "sha256": "399fa32ecee56df2ff4fb4be5156095e54dacb97f91d862025ea781c45595623",
-   "bytes": 636
+   "sha256": "c3d6433e0a6d19822cc21b56d132e7f818a7ba41c6d14fe8f062b9057891a3ca",
+   "bytes": 2818,
+   "terluna_sha256": "b0cb3bbfcadc12b85c506cb1ebf9175548db31ddc37eaa4c8f0ffaf061705ea7",
+   "modified": "features(archive) takes the archive's path, the input restorer and the unused io import gone"
   },
   {
    "path": "geography/tests/test_atlas.py",
-   "sha256": "b42256bcfc7b8b0f4a4e0900e36a507519733b489fae9c0448840eee34d6d5ea",
-   "bytes": 7157
+   "sha256": "fd55512a2fcb180a69db49ce0e09e042a1e4e64503f918e1cea219b36535cb2a",
+   "bytes": 6511,
+   "terluna_sha256": "b42256bcfc7b8b0f4a4e0900e36a507519733b489fae9c0448840eee34d6d5ea",
+   "modified": "the grid built with its radius; the real-data tests moved to lab/tests/test_geography.py, which reads the heights through the lab's data manifest; a test of atlas() on two bodies added"
   },
   {
    "path": "geography/tests/test_drainage.py",
-   "sha256": "1a4d98dd1e23b0b6027fec7da721994fae4d583f468cd8d37bc41a89a31b2dcb",
-   "bytes": 2808
+   "sha256": "0b89fed3e36302c549db9283d3fc57cc36c43a35667ebcc2a1b473aca51f50c3",
+   "bytes": 4660,
+   "terluna_sha256": "1a4d98dd1e23b0b6027fec7da721994fae4d583f468cd8d37bc41a89a31b2dcb",
+   "modified": "tests added of compute(), lake_arrays() and summarise() on a global grid, and of summarise() on one lake, which Terluna's raised OverflowError on"
   },
   {
    "path": "geography/tests/test_water.py",
-   "sha256": "65dd66e108384d77ff147f6b4fb50e75463ed2c85b018acfdee1d2e4a432b8ee",
-   "bytes": 4215
+   "sha256": "ce515fe8e3234186e5b5866036719c835eedeb17d880f1052082f2f16058a449",
+   "bytes": 3533,
+   "terluna_sha256": "65dd66e108384d77ff147f6b4fb50e75463ed2c85b018acfdee1d2e4a432b8ee",
+   "modified": "the grid built with its radius; the real-data test moved to lab/tests/test_geography.py; the depression names passed in"
   },
   {
    "path": "geography/topography.py",
-   "sha256": "228e08f79efca868b49bcae0687c7f80a239b18234629c4390c147075b3f5c29",
-   "bytes": 6717
+   "sha256": "2d9127e15b24f0336c81f579f22511305401d9d20f6663695fbd1cf86deda1ae",
+   "bytes": 20795,
+   "terluna_sha256": "228e08f79efca868b49bcae0687c7f80a239b18234629c4390c147075b3f5c29",
+   "modified": "generalised for any body: the grid carries its sphere's radius; PDS3 labels drive the readers of a global simple-cylindrical height image, in metres or kilometres above the sphere of radius OFFSET, and of a SHADR gravity table, every coefficient to the degree asked present; the geoid takes the field, degree, rotation rate and an optional permanent tide as arguments, the tide averaged over the host's eccentric orbit and its tilt to the equator, and is synthesised on the heights' own grid in place of an interpolation from 4 pixels per degree"
   },
   {
    "path": "illumination/cloud_light/model.py",
@@ -618,12 +619,7 @@
    "path": "shared/provenance.py",
    "sha256": "c59d32186d453a80992eb02203b644fe759aca869dc892d91af9aa74fd65c7f8",
    "bytes": 3275
-  },
-  {
-   "path": "shared/scenarios/water.json",
-   "sha256": "a9d4d60ef3bf20b52454fdc07f2e05de107ebdd896b03288e9117af0c87e46a0",
-   "bytes": 1378
   }
  ],
- "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography tools and their scenario file, brought from 186b294, byte-identical to it, and unchanged in Terluna since"
+ "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography package brought from 186b294 byte for byte (82b4b59), then generalised, its modified files holding both hashes"
 }
