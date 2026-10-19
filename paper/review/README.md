@@ -107,8 +107,15 @@ followed by a light reading by one fresh Claude Opus 5.5 subagent. Those seven r
 `editorial_round16_light.md`, with their dispositions. Round 17 then read the whole paper with two fresh agents,
 one for prose and the author's direction and one for evidence and scope (`editorial_round17_prose.md`,
 `editorial_round17_evidence.md`); nothing was blocking, five findings were MAJOR, and
-`editorial_round17_dispositions.md` records what was done with each, five findings on wording the author had
-approved left for the author.
+`editorial_round17_dispositions.md` records what was done with each; the five findings on wording the author had
+approved were applied once the author had read them (51ea569).
+
+On 19 October, at the author's direction, a sentence in Next steps and a clause in the Conclusion took up the lakes
+and seas beneath the waves, keeping Terluna's new lake results in Terluna, and the definition of Gaean worlds moved
+from the Introduction into a note on terms above it. Round 18 (`editorial_round18.md`) holds the light reading of
+each stage and the dispositions of a closing whole-paper review by two fresh agents
+(`editorial_round18_closing_prose.md`, `editorial_round18_closing_evidence.md`), with four findings on approved
+wording left for the author.
 
 ## Reviewers
 

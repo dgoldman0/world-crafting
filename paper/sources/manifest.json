@@ -16,8 +16,8 @@
   "deferred": 87,
   "passed": 0,
   "depth": {
-   "claim-locators": 70,
-   "abstract-only": 75,
+   "claim-locators": 71,
+   "abstract-only": 74,
    "not read": 21,
    "full": 1
   },
@@ -3748,7 +3748,7 @@
    },
    "additional_files": null,
    "reading": {
-    "depth": "abstract-only",
+    "depth": "claim-locators",
     "reader": "this agent",
     "locators": [
      {
@@ -3764,13 +3764,28 @@
       "quote": "the maximum atmospheric pressure at the lunar surface could have reached ∼1 kPa",
       "read_in": "abstract via OpenAlex record",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": null,
+      "location": "archived original, Sect. on the atmosphere's dissipation",
+      "quote": "This lunar atmosphere may have taken ∼70 million years to fully dissipate. ... The actual duration of the atmosphere may exceed this estimate",
+      "read_in": "archived original (pdftotext), 2026-10-19",
+      "quote_check": "quote found in text"
      }
     ]
    },
    "admission": "DEFERRED",
    "admission_reason": "Legal local original archived on 2026-10-17 (found by the legal-copies helper, fetched by the main session); not yet read in full",
    "cited_in_paper": true,
-   "paper_use": null,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The Moon held its volcanic air, at most about 1 kPa, for an estimated 70 million years or more.",
+     "support": "supported (archived original)",
+     "note": "Added in round 18's closing dispositions."
+    }
+   ],
    "notes": "CC BY-NC-ND at ScienceDirect but scripted access refused; the USRA repository handle returned HTTP 500. Archived 2026-10-17: publisher version of record (CC BY-NC-ND), via the Wayback copy of the USRA repository; title found on the first pages."
   },
   {

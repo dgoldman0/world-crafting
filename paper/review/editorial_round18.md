@@ -59,3 +59,40 @@ condition once.
 
 No change: the abstract's account of the ensemble and its prospect already covers the seas, and the note on terms
 leaves the abstract's own definition of Gaean worlds in place.
+
+## Closing review (ffdedfe)
+
+Two fresh Claude Opus 5.5 subagents read the whole paper, one for prose and the author's direction
+(`editorial_round18_closing_prose.md`: 0 BLOCKING, 0 MAJOR, 6 MINOR) and one for evidence and scope
+(`editorial_round18_closing_evidence.md`: 0 BLOCKING, 0 MAJOR, 7 MINOR), each reporting what the revision caused or
+touched and anything blocking elsewhere.
+
+### For the author's decision
+
+| Finding | Wording | The reader's proposal |
+|---|---|---|
+| Prose F1 | `terms.tex`:5–7, the note's closing clause, "so modelling their climate, storms and seas requires adapting both the component models and the fields exchanged within an ensemble" | End the note at "... may differ substantially from Earth's."; the clause states for the third time what the abstract says above it and the Introduction reaches with evidence. Stage 2's reader proposed the same |
+| Prose F2 | `terms.tex`:3, "We use \emph{Gaean} for worlds ..." | The paper's only first person; elsewhere the author is "the author", and "we" could be read to include the AI assistants: "Worlds with ... are named \emph{Gaean}." |
+| Evidence 4 | `conclusions.tex`:12–14, "Run together, the global and resolved calculations could follow a change ..." | Every coupling in the body is one-way and offline, so "Run together" can read as two-way coupling: "Chained through their forcing, ..." |
+| Evidence 5 | `conclusions.tex`:27–29, "its radius and atmospheric column determine a new curved-air table, while its spectrum and columns determine the targets for the radiation fits" | The table's sunlight terms were computed with the shield-filtered spectrum, so another star needs its own table: "its radius, atmospheric column and starlight determine a new curved-air table, ..." The same gap in the body was closed (below) |
+
+### Prose (`editorial_round18_closing_prose.md`)
+
+| Finding | Disposition |
+|---|---|
+| F1, F2 | For the author (above) |
+| F3 | Applied: Next steps' overview now names "the lakes and seas beneath the waves" among the approximations its experiments test |
+| F4 | Applied with evidence 1–3: "one-dimensional models of the lakes and seas, which would compute their mixing and their exchange of gases with the air", and "the gas-transfer and mixing laws such models take" |
+| F5 | Applied with evidence 1: the exchange of oxygen has a sentence of its own, "Mixing the lakes and seas, the same winds and the waves they raise would drive the exchange of oxygen between the waters and the air", and the accepted "and its spectra would determine the waves reaching a particular shore" returns |
+| F6 | Applied with evidence 6: the review history in Availability and `README.md` records that round 17's five findings were applied once the author had read them, and records this round |
+
+### Evidence (`editorial_round18_closing_evidence.md`)
+
+| Finding | Disposition |
+|---|---|
+| 1 | Applied: the lake and sea models are forced by "the GCM's winds and surface heat fluxes, with SWAN's sea states over the seas"; in the Conclusion the lakes take "the waves they raise", their own |
+| 2 | Applied: "fitted on Earth's lakes and seas" |
+| 3 | Applied: "and so would the one-dimensional form itself", since weaker stratification gives basin-scale motions more weight; the paper's fourth form of Earth value covers such a simplification |
+| 4, 5 | For the author (above); for 5, the body's two statements now recompute the curved-air table "from that world's own column and starlight" (`repairs.tex`:113, `reach.tex`:6), checked against `python/climate/gcm/twilight.py`, which builds the table's sunlight from the shielded spectrum |
+| 6 | Applied with prose F6 |
+| 7 | Applied: "for an estimated 70 million years or more", from Needham and Kring's "may have taken ∼70 million years to fully dissipate" and "The actual duration of the atmosphere may exceed this estimate", read in the archived original and recorded as a locator and use in the manifest |
