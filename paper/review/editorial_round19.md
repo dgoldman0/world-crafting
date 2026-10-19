@@ -44,3 +44,16 @@ Two clean builds from `c8a17315dfcaa86d61a5c6e612d0ba42d7299dff` gave the same P
 every font embedded. The paper is two pages shorter than at the final skim, and its last page now carries several
 references. The closing whole-paper review that the order of synthesis calls for is held until the author has
 finished reading the paper, so that one review covers this pass and whatever the author finds next.
+
+## Code and data split between the repositories (1da5034)
+
+The author asked whether the Code and data statement had confused the two repositories, since most of the data is
+in Terluna. The list was accurate for this repository (`PROVENANCE.md` records each file brought from Terluna on
+17 October), and the statement already placed the runs in Terluna, but the evidence behind the numbers lies mostly
+outside it: the claims register cites 161 sources in Terluna and 24 on the research drive against 186 here, and
+the drive is private. The author agreed to a split, and said readers would have to reach out for the raw runs, with
+no archive planned. Code and data now gives world-crafting the ensemble's code and records, gives Terluna's public
+repository at 186b294 the scenario, runners, case set-up, analyses and run products, and makes the raw model output
+"available from the author on reasonable request". Both repositories answered publicly on 19 October. This
+one-paragraph change is left to the held closing review. Two clean builds from `1da5034c5cd9342d052222fa665deb4f6af293af` gave the same PDF,
+37 pages, SHA256 `9f6744e43bb561358aaf0b276b8665e78120efdbe9d51d859877ed8cb864be16`, with zero overfull boxes.

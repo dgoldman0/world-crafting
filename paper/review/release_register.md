@@ -72,6 +72,8 @@ account of assistance and Next steps' list of reports and reruns. Two clean buil
 gave the same PDF, 37 pages, SHA256 `d8df63f4a390bd7a27540f29ea50c3eff14bc1629d40c03894b36676b98bb2ef`, with zero overfull boxes and every
 font embedded; the pages from Next steps to the end were inspected. The AI-use statement's new wording awaits the
 author's confirmation under E4, and the gates stand as before.
+Code and data then split the two repositories' roles, with the raw output on request (`1da5034c5cd9342d052222fa665deb4f6af293af`; PDF
+SHA256 `9f6744e43bb561358aaf0b276b8665e78120efdbe9d51d859877ed8cb864be16`, 37 pages, two clean builds identical).
 
 ## The artifact
 
