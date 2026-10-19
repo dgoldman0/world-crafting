@@ -101,6 +101,10 @@ No GitHub release has been made from either tag, so Zenodo has archived neither.
 The author then confirmed the AI-use statement's wording, with "The author" in place of the author's name, as in the
 competing-interests statement (`d8dfc0a56d11211daad6807ee67e1282b1298be3`). The tags move once more, to the state the author's review leaves, when
 that review ends.
+The author's final reading ended on 19 October 2026 with that one change. Two clean builds from `d8dfc0a56d11211daad6807ee67e1282b1298be3` gave the
+same PDF, 37 pages, SHA256 `1ce697ac7a9b55496dac6cc787dcef3ed784a3ea0d7ce68f75ffff851ea3f871`, with zero overfull boxes and every font embedded; this is
+the PDF of the first released draft. `paper-v1` moves to the commit that adds this entry, and Terluna's tag, still at
+186b294, is remade with a message naming it, both updated on GitHub as before.
 
 ## The artifact
 
@@ -135,7 +139,7 @@ These establish record completeness and code integrity; they clear no editorial 
 | G6 Full-document source admission | BLOCKED | Of the 96 cited sources, 49 have no legal local original (admission BLOCKED), 36 of them read at the abstract, 1 at claim locators and 12 unread; 47 have an archived original (DEFERRED), 36 of them read at claim locators, 8 at the abstract, 2 unread and 1, the author's own issue report, in full; none is admitted. The 23 sources cited from the related-work scan on 18 October were read at the abstract or by title | Originals for the 49, and full readings, with appendices and bibliographies, of every cited source; or a substantive revision of each dependent use |
 | G7 Exact-build visual and production review | PASS | `g7_visual_review.md`: every page of the PDF above read in the poppler render, the six figure pages again in MuPDF's; fonts embedded, metadata set, links present; no blocking finding | The author's own inspection; three notes for the author in that record (the title page's date, one loosely set reference line, Table 4's last row alone on page 22) |
 | Whole-manuscript challenge (E4) | DEFERRED | The first draft was challenged (`whole_manuscript.md`, dispositions in `whole_manuscript_dispositions.md`) | A challenge of the third draft as revised |
-| E4 Release integrity | BLOCKED | This register | G6; a GitHub release from each tag, `paper-v1` here and `world-crafting-paper-v1` in Terluna, both named in Code and data, for Zenodo to archive; the tags moved to the state the author's final reading leaves; the author's final reading; the deferred gates above |
+| E4 Release integrity | BLOCKED | This register | G6; a GitHub release from each tag, `paper-v1` here and `world-crafting-paper-v1` in Terluna, both named in Code and data, for Zenodo to archive;  the deferred gates above |
 
 Terluna's ensemble audit belongs to its five-paper ensemble, which this paper stands apart from by the repository's
 `AGENTS.md`, so it has no row here.

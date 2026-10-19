@@ -211,3 +211,11 @@ Reading the statement of AI assistance in Availability for the release register'
 confirmed its wording with one change: the statement opens "The author designed the scenario, ..." in place of the
 author's name, as the competing-interests statement does. The tags `paper-v1` and `world-crafting-paper-v1` move to
 the reviewed state once, when the author's review of the paper ends.
+
+## Final build
+
+The author's final reading of the paper ended on 19 October 2026 with the change to the AI-use statement above. Two
+clean builds from `d8dfc0a56d11211daad6807ee67e1282b1298be3` gave the same PDF, 37 pages, SHA256
+`1ce697ac7a9b55496dac6cc787dcef3ed784a3ea0d7ce68f75ffff851ea3f871`, with zero overfull boxes and every font embedded, and
+`paper/tools/check.py` passes with its standing warnings. This is the PDF of the first released draft; `paper-v1`
+marks the commit that records it.
