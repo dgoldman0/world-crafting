@@ -245,10 +245,19 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
 
 **ExoPlaSim.**
 
-- **Builds.** A build is an installed copy of ExoPlaSim 3.4.2 at a named point in the patch series. It is
-  compiled for its resolution, levels and ranks, and kept in the store under its key. Terluna patched its
-  shared installation with patches 01–06 and kept a second copy for 07–10 (inventory.md); in the lab each
-  state of the series has a copy of its own.
+- **Builds** (`lab/worldlab/builds.py`). A build extracts the ExoPlaSim 3.4.2 package from the pinned archive,
+  takes from the lab's environment the compile files ExoPlaSim's configure wrote there for this machine, applies a
+  point of the patch series and compiles PlaSim for the run's resolution, levels, ranks and precision with
+  ExoPlaSim's own compile script, in an environment of PATH, home, temporary folder and the C locale alone, since the
+  script's `make -e` would let any other variable override the makefile. Each input is read once, so the bytes the
+  key hashes are the bytes the build uses: the archive, those compile files, the patches in order, the grid, the
+  compile flags and the toolchain, each compiler's, mpirun's and make's path and version and the MPI wrapper's
+  compile line. The lab files the build in the store at `builds/exoplasim-<the key's first 16 hex digits>/`,
+  read-only, its record written last, and checks the executable against the record before it reuses a build.
+  Terluna patched its shared installation with patches 01–06 and kept a second copy for 07–10 (inventory.md); in the
+  lab each state of the series has a copy of its own. The build at patches 01–10 compiles Terluna's deployed sources
+  byte for byte, in 25 s at T21. Run four steps on the adapter's files for Earth's control, the Open Moon and the
+  seed waterworld, PlaSim compiled so reports the model day, steps per model day and days per year the lab derives.
 - **The calendar** follows ExoPlaSim's own rule (`exoplasim/__init__.py:2609-2619`;
   `plasim.f90:1287-1302`):
   - `N_DAYS_PER_YEAR` is the year in whole days, 365 for Earth, when `rotationperiod` is 1, and otherwise

@@ -520,3 +520,38 @@ def test_the_open_moons_mask_differs_from_terlunas_where_their_lakes_differ(open
         (pytest.approx(0.0445, abs=5e-4), pytest.approx(0.0275, abs=5e-4))
     gap = open_moon_t21.land_fraction - terluna['land_fraction']
     assert float(np.median(gap[lab_only])) > 0 > float(np.median(gap[terluna_only]))
+
+
+@needs_heights
+@needs_runoff
+@pytest.mark.skipif(STORE is None or ENV is None, reason="the lab's store or environment is unset (lab/local.example.toml)")
+def test_plasim_compiled_by_the_lab_runs_the_open_moons_first_run(open_moon_run, tmp_path):
+    import re
+    import shutil
+    import subprocess
+    from worldlab import builds, derive, exoplasim as ex
+    if shutil.which('mpif90') is None or not ex.ARCHIVE.exists():
+        pytest.skip('a build needs MPI and the pinned archive')
+    design = LIB.study('open-moon').gcm['design'].settings
+    folder, _ = open_moon_run
+    run = tmp_path / 'design'
+    shutil.copytree(folder, run)
+    executable = builds.build(design, store=STORE, env=ENV) / 'exoplasim' / 'plasim' / 'run' / builds.executable_name(design)
+    shutil.copy2(executable, run / executable.name)
+    text = (run / 'plasim_namelist').read_text()
+    for name, value in (('N_RUN_YEARS', 0), ('N_RUN_MONTHS', 0), ('N_RUN_DAYS', 0), ('N_RUN_STEPS', 4)):
+        text, count = re.subn(rf'^ {name} = .*$', f' {name} = {value}', text, flags=re.M)
+        assert count == 1, name
+    (run / 'plasim_namelist').write_text(text)
+    done = subprocess.run(['nice', '-n', '10', 'mpirun', '-np', str(design['ranks']), './' + executable.name], cwd=run,
+                          capture_output=True, text=True, timeout=900)
+    # PlaSim aborts through MPI_ABORT with an error code of 0, which mpirun reports as success (mpimod.f90:385).
+    assert done.returncode == 0 and 'MPI_ABORT' not in done.stdout + done.stderr, done.stderr[-2000:]
+    assert not (run / 'Abort_Message').exists() and (run / 'plasim_status').is_file()
+    diag = (run / 'plasim_diag').read_text()
+    found = {label: float(re.search(r'\* ' + re.escape(label) + r'[^:]*:\s*([-0-9.]+)', diag).group(1))
+             for label in ('Solar    day', 'Timesteps / day', 'Days / Year')}
+    calendar = derive.calendar(MOON, design)
+    assert found['Solar    day'] == pytest.approx(calendar['model_day_s'], abs=0.0501)
+    assert (found['Timesteps / day'], found['Days / Year']) == (calendar['steps_per_model_day'], calendar['n_days_per_year'])
+    assert (run / 'plasim_output').stat().st_size > 0
