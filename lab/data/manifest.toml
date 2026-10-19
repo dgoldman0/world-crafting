@@ -3,7 +3,8 @@
 # bytes. Each entry also records the terms its licence review found (AGENTS.md, "File and evidence practice"),
 # the credit and the review's date. The lab keeps its copy of each file in the store, as data/<first 16 hex
 # digits of its sha256>/<name> (lab/worldlab/data.py). Retrieval and hash checks are separate from reading the
-# publications the credits name.
+# publications the credits name. The store also keeps one file outside this manifest, stage 1's copy of Terluna's
+# lakes file, which no stage reads (lab/design/world_spec.md, "Settled in code").
 
 schema = "worldlab.manifest/0"
 

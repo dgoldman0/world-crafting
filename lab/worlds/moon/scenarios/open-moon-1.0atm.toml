@@ -1,6 +1,6 @@
 # The Open Moon at 1.0 atm: the design case with Earth's sea-level pressure, as Terluna's experiment C was for
-# the 25% seas (exoplasim_run.py:88). Draft schema 0. The first new scenario after the 1.2 atm design
-# (lab/design/architecture.md, "Decisions"), worked through as regeneration.md's example (b).
+# the 25% seas (exoplasim_run.py:88). Draft schema 0. A possible later addition since 2026-10-19, after the
+# waterworlds (lab/design/architecture.md, "Decisions"); worked through as regeneration.md's example (b).
 
 schema = "worldlab.scenario/0"
 id = "moon/open-moon-1.0atm"

@@ -118,5 +118,12 @@ Heights and geoids below compare on LOLA's 16-pixel grid, their rms weighted by 
 ## Room for improvement
 
 - A reader for MOLA's MEGDR heights and a gravity field for Mars (GMM-3 or JGMRO_120F, both SHADR tables), and a
-  format for designed height fields.
+  format for designed height fields. Designed heights can be drawn above their geoid directly, needing no gravity
+  field, and a world all ocean, as the waterworlds are, needs no geoid for its climate runs, its surface being the
+  sea's own equipotential.
+- k2 for other worlds, which the author noted on 2026-10-19 is still to settle, GL0420A's value serving the Moon
+  alone. One way: a measured world takes its gravity field's own k2, where the field leaves the permanent tide out,
+  and a designed world with a tide takes k2 from a stated model of its interior.
 - The Sun's permanent tide, should a case need the geoid to centimetres.
+- The permanent tide of a star on a planet locked to it (`surface.tide.from = "star"`), with the star's mass and
+  the planet's orbit, for the first such world with land.

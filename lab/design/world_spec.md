@@ -15,8 +15,8 @@ plan.md writes to read the seeds takes those derivations over.
 | Study | One scenario's whole chain: its GCM runs and the CM1 cases forced from them, each extending its model's defaults | `open-moon` | `lab/studies/<study>.toml` |
 
 World and scenario kinds combine freely. The Open Moon and its 1.0 atm extension (`moon/open-moon-1.0atm`)
-are crafted scenarios of a found world, and an exoplanet study pairs a found world with an illustrative
-scenario.
+are crafted scenarios of a found world, an exoplanet study pairs a found world with an illustrative
+scenario, and the waterworlds' anchors are illustrative worlds under illustrative scenarios.
 
 ## Rules
 
@@ -229,7 +229,10 @@ spectrum and the scenario's filter through the manifest:
   its entry.
 - **The store** keeps each file at `data/<digest>/<name>`, read-only. A fetch copies from Terluna's roots and
   downloads only when asked, writing through a temporary file and keeping only bytes of the recorded size
-  and hash; each read checks both again.
+  and hash; each read checks both again. One file sits in the store outside the manifest: the copy of
+  Terluna's `geography/products/drainage_28pct_16ppd.npz` (sha256 98842fc2…) that stage 1 took and stage 2's
+  routed lakes replaced. The author kept it on 2026-10-19; Terluna's Git ignores its products folder, so the copy
+  there may be overwritten. No stage reads it.
 - **Comparisons** read Terluna's records in place, under the Terluna roots, and skip without them; their
   files enter neither the manifest nor the store.
 
@@ -302,12 +305,27 @@ while builds compile the air in.
 
 ## Fields still to add
 
-- Rotation locked to the star: ExoPlaSim's synchronous mode and substellar longitude, and CM1 with a fixed
-  Sun.
+The waterworlds ([waterworlds.md](waterworlds.md)) need five first, each settled with the stage whose code first
+reads it; the names are proposals:
+
+- **The water's share of the body's mass** (`body.water_mass_fraction`), from which the steam column takes the
+  water's lifetime (stage 9).
+- **The star's mass** (`star.gm_m3_s2`), from which the lab derives a planet's year by Kepler's third law where the
+  world leaves it unstated (stage 2).
+- **Rotation locked to the star** (`rotation.locked_to = "star"`, with the substellar longitude): ExoPlaSim's
+  synchronous mode, the rotation's period the orbit's (stage 2), and CM1 under a star fixed in the sky (stage 12).
+- **A surface all ocean** (`surface.geometry = "ocean"`): no land and no heights, the sea's surface the geoid,
+  which ExoPlaSim's aquaplanet switch takes (stage 2).
+- **Air of steam alone** (`air.kind = "steam"`), whose pressure follows the vapour curve at the surface
+  temperature, and for which the registry refuses ExoPlaSim and CM1 (stage 9).
+
+Later:
+
 - Stellar spectra in formats beyond the comma-separated wavelength and irradiance the lab reads, such as
-  model-atmosphere grids, and systems of more than one star.
-- Surface geometry beyond a height image over a gravity field: heights measured from an equipotential already,
-  as MOLA's MEGDR topography is, aquaplanets, idealized continents and designed height fields.
+  model-atmosphere grids, with a star's X-ray and extreme-ultraviolet history (stage 10), and systems of more than
+  one star.
+- Surface geometry beyond a height image over a gravity field and a global ocean: heights measured from an
+  equipotential already, as MOLA's MEGDR topography is, idealized continents and designed height fields.
 - Vertical grids chosen for the world, where today PlaSim's σ levels are Earth's and the ledger's GCM terms
   are computed on them.
 - Scenarios that change in time, such as a shield dimming over years.

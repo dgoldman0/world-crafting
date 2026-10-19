@@ -1,7 +1,8 @@
 # The lab: architecture
 
 The lab's design on the `lab` branch, closed for coding on 2026-10-18 with the author's answers of
-2026-10-17 and 18. Each part described here stays a proposal until the code that builds it lands;
+2026-10-17 and 18, to which the author added the flagship study on 2026-10-19 ([waterworlds.md](waterworlds.md)).
+Each part described here stays a proposal until the code that builds it lands;
 [inventory.md](inventory.md) describes what exists today, [regeneration.md](regeneration.md) what depends on
 what.
 
@@ -19,11 +20,15 @@ become the lab's routine work:
 3. **Evidence.** Every product records its producer, its inputs and the parameter values it read, and the
    kind of evidence it is; a fit records the range of states it was fitted on as well.
 
-The first studies, beginning with the Open Moon and with Earth beside it as the Earth control, have
-Earth-like air, nitrogen and oxygen with water and modest carbon dioxide, under gravity, rotation, sunlight,
-column mass and scale height far from Earth's. The adapted models exclude scenarios whose air is dominated by
-CO2 or CH4, whose surface pressure reaches several bar, or whose condensables are other than water, and the
-registry refuses them until a model that handles them is adapted.
+The Open Moon, compared with Terluna's results, is the lab's test case, with Earth beside it as the Earth
+control; both have Earth-like air, nitrogen and oxygen with water and modest carbon dioxide, the Moon's under
+gravity, rotation, sunlight, column mass and scale height far from Earth's. The flagship study, a family of
+low-gravity waterworlds after Arnscheidt, Wordsworth and Ding (2019), models each of its worlds under steam alone
+and under such air ([waterworlds.md](waterworlds.md)). A scenario of steam alone, an air whose main gas condenses,
+runs in a one-dimensional column of the lab's own, and the adapted three-dimensional models exclude it, as they
+exclude scenarios whose air is dominated by CO2 or CH4, whose surface pressure reaches several bar, or whose
+condensables are other than water; the registry refuses each of these for the three-dimensional models until one
+that handles it is adapted.
 
 The lab runs from the command line on one shared machine. Its stages are plain Python functions, which the
 lab's runner, a small local service, calls in the order the stage graph sets; the command line is the
@@ -47,6 +52,14 @@ runner's first client, and a user interface can be a second.
   sunlight scale may follow its reference temperature, which the target stage meets over GCM runs. A world may
   state such a value with its basis, as Earth's seed states the standard gravity of 9.80665 m/s², and the lab
   records it beside its derivation (world_spec.md, rule 2).
+- **Internal forms, converted on import.** Where a form of the lab's own serves its computation better than the
+  forms its sources use, each kind of quantity keeps that one form inside the lab: heights above the geoid on a
+  global grid, a pressure at an equipotential, a spectrum as wavelength and irradiance, a climatology as fields on
+  its grid. A reader converts outside data into that form as it imports them, from the Planetary Data System's
+  images and tables, Terluna's products or a published model's output, and records the conversion with the
+  product (the author's direction of 2026-10-19). A value stated another way is converted on import as well:
+  Mars's seed states its pressure at the mean radius, which the lab will convert to a pressure at the areoid once
+  Mars has heights, and refuses until then.
 - **One register for the world and its scenario.** The Open Moon charter requires one versioned register of
   pressure and composition, water, gravity, rotation and the filtered spectrum (Terluna
   `ensemble/planning/Open_Moon_Editorial_Charter_control-01.md`, E3). In Terluna these values are typed into
@@ -252,6 +265,12 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   changed run, free disk and the output count. A new guard checks the time step, a stated model choice,
   against the advective limit at the world's radius and the truncation with the run's largest wind, each
   model year.
+- **Worlds all ocean and worlds locked to their star.** For an all-ocean world the writer sets ExoPlaSim's
+  aquaplanet switch, `NAQUA`, and leaves the land mask and heights unwritten (`exoplasim/__init__.py:2858-2860`).
+  For a world locked to its star it sets the synchronous mode, `NFIXED`, with the substellar longitude in
+  `FIXEDLON` (`:2628-2630`), and gives the orbit's period as the rotation period, from which `ROTSPD` follows
+  (`:2616-2617`). The star's light files and, through patch 11, the ice-optics weights come from the star's own
+  spectrum, which matters most around a red dwarf, whose light lies further into the near infrared than the Sun's.
 - **Patch 10's solar weights.** Patch 10 writes the near-infrared weights of the TSIS-1 Sun into
   PlaSim as Fortran constants (regeneration.md, cross-dependency 13). A planned patch 11 reads them from
   the namelist, with patch 10's constants as its identity default, and the adapter computes them from the
@@ -311,6 +330,8 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
     starts at its own sunrise, at an hour angle of −acos(−tan φ tan δ), and the GCM reference it is forced
     from averages a window of solar longitude around its season, where Terluna's rings averaged whole
     model years.
+  - For a world locked to its star, a further planned patch holds the star fixed in the sky over the case,
+    with the moving Sun as its identity default (plan.md, stage 12).
 - **Refused schemes.** At a gravity more than 0.5% from 9.81 m/s², the registry refuses the schemes that
   hard-code Earth's gravity (`notes/cm1.md`): MYNN, the GFS EDMF and GFDL layers, P3, WSM6, Jensen–Ishmael,
   LFO and Goddard radiation. The tolerance is proposed; it passes the Earth control's 9.80665 m/s².
@@ -494,7 +515,7 @@ lab stop open-moon-0.960:design                  # the runner writes the job's s
 
 ## Decisions
 
-**Taken by the author on 2026-10-17 and 18:**
+**Taken by the author on 2026-10-17, 18 and 19:**
 
 | Decision | Choice |
 |---|---|
@@ -505,7 +526,9 @@ lab stop open-moon-0.960:design                  # the runner writes the job's s
 | Format | TOML specifications, with sources as comments beside values; JSON products and records, in the form of Terluna's products |
 | Runs | The lab's own runs begin once stages 2–3 have checked its inputs and builds and stage 7's runner holds them to the machine budget, and they are filed in its store; Terluna's runs stay in Terluna's folders, where the comparisons read them |
 | CM1 compiled once | Planned patches read gravity, CO2 and O2 from the namelist; once they pass plan stage 3, one build of each patch set serves every world (Model adapters) |
-| After the 1.2 atm Open Moon | The Moon at 1.0 atm, the same body with every calibration refitted; then Mars at 1 bar, a new column and ledger inside RRTMG's range; then a slowly rotating Earth-like planet, which needs the general repairs alone |
+| The flagship | A family of low-gravity waterworlds after Arnscheidt, Wordsworth and Ding (2019): their steam worlds first, to evaluate the ensemble against the paper, then Gaean air over the same bodies, then protection where that air lasts too briefly ([waterworlds.md](waterworlds.md)); the Open Moon, compared with Terluna's results, is the lab's test case (2026-10-19) |
+| Later additions | The Moon at 1.0 atm, the same body with every calibration refitted; Mars at 1 bar, a new column and ledger inside RRTMG's range; and a slowly rotating Earth-like planet, which needs the general repairs alone. The decision of 2026-10-17 placed them after the Open Moon, and since 2026-10-19 they wait as possible additions after the waterworlds |
+| Internal forms | Where a form of the lab's own serves its computation better, each kind of quantity keeps that one form, and readers convert outside data into it on import, recording the conversion (2026-10-19; Principles) |
 | Outside an envelope | The lab refuses the run unless explicitly overridden, warns clearly even then, and records the override (Principles) |
 | The Earth control's test | Global means within two standard deviations of the released run's yearly means (Principles) |
 | The longwave correction | Refitted with ice optics on, since it was fitted with them off (regeneration.md, example d) |
