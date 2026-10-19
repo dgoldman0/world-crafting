@@ -117,6 +117,11 @@ each stage and the dispositions of a closing whole-paper review by two fresh age
 (`editorial_round18_closing_prose.md`, `editorial_round18_closing_evidence.md`), with four findings on approved
 wording applied once the author had read them.
 
+On 19 October 2026, the author requested a final skim for substantial errors, missed central points and
+novelty overclaims. Codex and two fresh reader agents assessed the current manuscript at that threshold,
+with targeted technical checks, and returned PASS. `final_skim_2026-10-19.md` records the reviewed source
+and PDF, the actual checks and the bounded decision; the manuscript remains as reviewed.
+
 ## Reviewers
 
 | Reviewer | Role | Records |
