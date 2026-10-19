@@ -32,7 +32,7 @@ A reduced radiation scheme built from the reference spectroscopy would replace t
 Earth's columns \autocite{hogan2022tool,hogan2020evaluating}, so the reference model would supply them with
 absorption spectra computed on other worlds' columns. With the spectroscopy checked against an independent code
 and its reduction checked by layer, the two atmospheric models could compute heating over the tested
-gases, pressures and temperatures under the starlight for which the scheme was built. The spectral calculation would then take a different stellar spectrum as an input, with the spectrum's effects followed into circulation and cloud. A modeller using the reduced scheme could still explore climates quickly, with the radiation computed from a physical reference that can be recomputed for the worlds being explored.
+gases, pressures and temperatures under the starlight for which the scheme was built. The spectral calculation would then take a different stellar spectrum as an input, with the spectrum's effects followed into circulation and cloud. A modeller using the reduced scheme could still explore climates quickly, with the radiation computed from a physical reference that can be recomputed for the worlds being explored. CM1 and the wave models take only the GCM's fields, so a GCM that computes its radiation from each atmosphere's gases, such as ROCKE-3D with SOCRATES or the LMD generic model \autocite{tsigaridis2025rocke3d,wordsworth2011gliese}, could force them as well.
 
 Calibrating cloud requires a further exchange between the models. CM1 already receives the GCM's circulation, with
 custom forcing for the transport that its rings and boxes omit, while its boundary layer and convection
