@@ -35,7 +35,16 @@ On the Moon (`lab/tests/test_geography.py`, LOLA's 16 pixels per degree, GL0420A
 - at 28% water the centres of Oceanus Procellarum and Maria Imbrium, Serenitatis, Crisium and Nectaris stand in
   one sea;
 - the 28% level, −1,653.84 m, lies 0.36 m above Terluna's atlas (−1,654.2 m), and the 25% and 35% levels within
-  Terluna's 10 m of its finer level table.
+  Terluna's 10 m of its finer level table;
+- the runoff of Terluna's run A28_dim5_moon, routed over the lab's heights, fills lakes over 10.33% of the
+  surface, where Terluna's routing of the same runoff over its own heights filled 10.34%: 99.6% of Terluna's lake
+  area is lake in the lab's routing, and the lakes' count, their closed count and volume and the rivers' discharge
+  to the sea agree within 0.2% (27,916 lakes against 27,865, 2,500 closed against 2,495, 3.10 against 3.11
+  million km³, 229,469 against 229,410 m³/s), within the test's 1%. On the lake cells both routings share, the
+  lab's lake surfaces lie within 10 m of Terluna's over 99.2% of the area, by 0.3 m at the median; where a pass
+  between depressions moves with the heights, a lake spills at another level, by up to 2.6 km over 0.05% of that
+  area. Run over Terluna's own heights at Terluna's level, the lab's drainage gives Terluna's lake cells, levels,
+  spills and channels byte for byte, and its channels' discharges within 0.004 m³/s (2026-10-18).
 
 With Terluna's choices, degree 200 and Earth fixed over the sub-Earth point at the mean distance, the general
 code's geoid on Terluna's 4-pixel grid agrees with Terluna's to 1 × 10⁻¹³ m (2026-10-18), and its readers return
@@ -61,6 +70,12 @@ Heights and geoids below compare on LOLA's 16-pixel grid, their rms weighted by 
   by 1.9%, moving the geoid by −0.26 m at the sub-Earth and far points, +0.12 m on the limbs and +0.14 m at the
   poles, and the 28% level by 5 mm. Against Terluna's tide, Earth held over the sub-Earth point at the mean
   distance, the changes are −0.20 m, +0.09 m and +0.11 m.
+- **The first lakes.** The Open Moon's first lakes are routed by the lab from a pinned runoff, Terluna's
+  climatology of run A28_dim5_moon, where Terluna's lakes from that runoff were routed over Terluna's own heights,
+  1.9 m rms and up to 31 m from the lab's; set on the lab's heights, 0.36% of Terluna's lake area would have its
+  surface below the ground. That run's runoff has Terluna's routing to compare with; the design run
+  A28_corrected_970's own runoff gives lakes over 10.44% of the surface in 24,481 bodies, and the chain's later
+  links come from the lab's own runs. The routing takes 15 s and 2.1 GB on LOLA's 16-pixel grid.
 - **k2.** The tide takes GL0420A's own k2 of 0.0248, which its solution held fixed when it left the permanent
   tide out of the degree-2 coefficients, so that the tide returns as the field removed it; GRAIL's estimate,
   0.02405 (`shared/constants.json`), would change the geoid by under 1 cm.

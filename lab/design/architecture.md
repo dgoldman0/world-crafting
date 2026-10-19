@@ -372,9 +372,10 @@ run is kept as the stage's record. Terluna took the same steps by hand (regenera
   stage 7's runner like any others.
 
 **Lakes from runoff.** A run's surface takes the lakes routed from the runoff of a named earlier run of its
-study (`lakes_from`), and the first run of a chain takes pinned lakes, so that each link is keyed and the
-chain holds no cycle. A fixpoint step repeats the chain on request, until the lake area moves less than a
-stated tolerance or a pass limit stops it.
+study (`lakes_from`), and the first run of a chain takes the lakes routed from the runoff of a pinned
+climatology (`water.lakes_start`), so that each link is keyed, every link's lakes are routed over the lab's own
+heights, and the chain holds no cycle. A fixpoint step repeats the chain on request, until the lake area moves
+less than a stated tolerance or a pass limit stops it.
 
 ## The registry of Earth assumptions and the reach report
 

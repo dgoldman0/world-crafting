@@ -121,7 +121,7 @@ scenario.
 | `air.reference_temperature_k` | K | The surface temperature the scenario is stated at, observed for a found scenario and designed or supposed otherwise, with its basis, or `settled`, the GCM's settled global mean, which the fixpoint finds: the design column, the ledger and the gas fits are computed at it, and the scale height and horizon factor take it as their reference |
 | `air.cloud_droplets_per_cm3` | cm⁻³ | The cloud droplets the air's aerosol supports, which CM1's two-moment schemes take |
 | `air.ozone`, `air.water_vapour` | – | `none`, `model-default` or a pinned profile; `prognostic` |
-| `water.seas_share`, `water.seas`, `water.lakes` | –, pinned names | The standing water: the seas `from-heights`, the world's heights flooded to the share, and the lakes `from-runoff`, a GCM run's runoff routed over the heights; either may be pinned instead. `water.lakes_start` pins the first link of the runoff chain, and a study's GCM run names `lakes_from`, an earlier run whose runoff fills its lakes; a run derived from another keeps its parent's lakes unless its delta sets `lakes_from` |
+| `water.seas_share`, `water.seas`, `water.lakes` | –, pinned names | The standing water: the seas `from-heights`, the world's heights flooded to the share, and the lakes `from-runoff`, a GCM run's runoff routed over the heights; either may be pinned instead. `water.lakes_start` pins the first link of the runoff chain, a climatology whose runoff the lab routes over the world's heights, and a study's GCM run names `lakes_from`, an earlier run whose runoff fills its lakes; a run derived from another keeps its parent's lakes unless its delta sets `lakes_from` |
 | `water.ocean` | – | `kind` (`slab`), `mixed_layer_m`, `sea_ice` |
 | `land.albedo` | – | One value marked as a placeholder until a surface map exists |
 | `sunlight.filter`, `sunlight.scale` | pinned name, – | A transmission spectrum or `none`; a multiplier the same at every wavelength, stated or `to-reference-temperature`, which the target stage finds from the GCM's global-mean surface temperature |
@@ -233,7 +233,8 @@ spectrum and the scenario's filter through the manifest:
   files enter neither the manifest nor the store.
 
 `lab/worldlab/geography.py` gives a world's heights above its geoid, reading the files of `surface.geometry`
-through the manifest with the readers of `python/geography/topography.py` (`notes/geography.md`):
+through the manifest with the readers of `python/geography/topography.py`, and a scenario's seas and first lakes
+on them (`notes/geography.md`):
 
 - **The files.** Among the pin's files, each PDS3 label names the file it describes: one a global
   simple-cylindrical height image, whose samples times its scaling factor, in its unit, are radii less its
@@ -249,6 +250,14 @@ through the manifest with the readers of `python/geography/topography.py` (`note
   orbit's two-body period, which the Sun's pull lengthens by 0.14% on the Moon.
 - **The record** gives the files read, the label's target, frame and product, the degree, the rotation rate,
   the field's GM and reference radius, and the tide's terms.
+- **The water.** A scenario's seas, `from-heights`, flood the heights to `water.seas_share` at one common level,
+  every cell below it counting as sea. Its first lakes, `from-runoff`, are routed by
+  `python/geography/drainage.py` over the heights, the seas their outlets, from the precipitation less
+  evaporation of the climatology `water.lakes_start` pins: a GCM climatology of Terluna's schema, holding its grid
+  of ascending east longitudes, its land-sea mask and its means of precipitation and evaporation on that grid,
+  taken as the scenario's own runoff. A scenario of `lakes = "none"` has its seas alone. The record gives the
+  level, the shares of seas and lakes, the lakes' and rivers' totals, and the climatology's pin, sha256, run and
+  years.
 
 Still to settle, each with the stage whose code first reads it, where stage 1 left them on 2026-10-18: the field
 tables of the defaults, studies, runs and cases, with optional fields and their defaults, as stage 2's and 3's

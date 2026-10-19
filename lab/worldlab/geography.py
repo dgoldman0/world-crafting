@@ -1,7 +1,7 @@
-"""A world's heights above its geoid, from the files its `surface.geometry` pins (lab/design/world_spec.md, the
-surface fields). python/geography/topography.py reads the files and synthesises the geoid; this module takes from
-the world's specification what that needs, finds each file by what its PDS3 label describes, and checks the
-files against the world:
+"""A world's heights above its geoid, from the files its `surface.geometry` pins, and a scenario's seas and first
+lakes on them (lab/design/world_spec.md, the surface and water fields). python/geography/ reads the files,
+synthesises the geoid and routes the runoff; this module takes from the specifications what those need, finds
+each file by what its PDS3 label describes, and checks the files against the world:
 
 - **The files.** The pin's manifest entry holds a height image and a gravity table, each with its PDS3 label, and
   each label points at its own file by name. The heights are radii less a reference sphere, as LOLA's LDEM labels
@@ -11,16 +11,22 @@ files against the world:
   own world, and the time mean of its degree-2 potential over the orbit that `host.semi_major_axis_m`,
   `host.eccentricity` and `host.inclination_to_equator_deg` describe. A host stays fixed in the sky only for a
   rotation synchronous with the orbit, so the module checks the rotation against the orbit's two-body period.
+- **The water.** A scenario's seas flood the heights to `water.seas_share` at one common level, every cell below it
+  counting as sea; its first lakes are routed by python/geography/drainage.py from the runoff of the climatology
+  `water.lakes_start` pins, over the heights with the seas as outlets, or there are none. The climatology is taken
+  as the scenario's own runoff; the module checks its schema, fields and grid.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 
-from geography import topography as tp
+from geography import basins, drainage, topography as tp
 
 from .data import Manifest, parse_pin
 from .derive import DAY_S, rotation_rate
@@ -30,6 +36,21 @@ GM_AGREEMENT = 1e-6            # the gravity field's GM against the world's body
 RADIUS_AGREEMENT = 1e-2        # the heights' reference sphere against the world's mean radius, relative
 SYNCHRONOUS = 1e-2             # the rotation against the two-body period about a host fixed in the sky, relative:
                                # the Sun's pull lengthens the Moon's month by 0.14% beyond the two-body period
+CLIMATOLOGY_SCHEMAS = ('terluna.climate.gcm-climatology/1',)    # Terluna's, until the lab's diagnostics write their own
+CLIMATOLOGY_FIELDS = ('lat', 'lon', 'lsm', 'pr_mm_day', 'evap_mm_day')
+
+
+@dataclass(frozen=True)
+class Water:
+    """A scenario's standing water on its world's heights: the seas' common level above the geoid (m), the cells
+    below it, the lakes' cells above it as flat indices into the heights' grid, each with its surface above the
+    geoid and whether its lake spills, and the record of the routing."""
+    level_m: float
+    sea: np.ndarray
+    lake_cell: np.ndarray
+    lake_level_m: np.ndarray
+    lake_spills: np.ndarray
+    record: dict
 
 
 @dataclass(frozen=True)
@@ -131,6 +152,78 @@ def heights(world: dict, library: Library | None = None, *, manifest: Manifest |
                       inclination_deg=tide.inclination_deg, love_k2=tide.love_k2, sub_longitude_deg=tide.sub_lon_deg,
                       coefficients=list(tp.tide_coefficients(tide.eccentricity, tide.inclination_deg))))
     return Heights(topography, geoid, grid, record)
+
+
+def climatology(pin, *, manifest: Manifest | None = None, store: Path | None = None) -> tuple[dict, dict, str]:
+    """The fields of a pinned GCM climatology that a routing reads: its grid's latitudes and ascending east
+    longitudes (degrees), its land-sea mask and its means of precipitation and evaporation (mm/day) on that grid,
+    with its metadata and its sha256."""
+    path = (manifest or Manifest()).path(pin, store=store)
+    with np.load(path) as data:
+        meta = json.loads(str(data['metadata'])) if 'metadata' in data.files else {}
+        if meta.get('schema') not in CLIMATOLOGY_SCHEMAS:
+            raise SpecError(f'{pin}: a climatology of schema {meta.get("schema")!r}, where the lab reads {CLIMATOLOGY_SCHEMAS}')
+        missing = [name for name in CLIMATOLOGY_FIELDS if name not in data.files]
+        if missing:
+            raise SpecError(f'{pin}: a climatology without {missing}')
+        fields = {name: np.asarray(data[name], dtype=float) for name in CLIMATOLOGY_FIELDS}
+    lat, lon = fields['lat'], fields['lon']
+    shape = (lat.size, lon.size)
+    if lat.ndim != 1 or lon.ndim != 1 or any(fields[k].shape != shape for k in ('lsm', 'pr_mm_day', 'evap_mm_day')):
+        raise SpecError(f'{pin}: fields of shapes {[fields[k].shape for k in CLIMATOLOGY_FIELDS]} on a {shape} grid')
+    ordered = np.all(np.diff(lat) > 0) or np.all(np.diff(lat) < 0)
+    if not (np.all(np.diff(lon) > 0) and lon[0] >= 0.0 and lon[-1] < 360.0) or not ordered:
+        raise SpecError(f'{pin}: a grid of longitudes {lon[0]}..{lon[-1]}, where the routing takes them ascending from '
+                        '0 E and the latitudes in order')
+    return fields, meta, hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def water(world: dict, scenario: dict, topography: Heights | None = None, library: Library | None = None, *,
+          manifest: Manifest | None = None, store: Path | None = None) -> Water:
+    """The scenario's seas, from the world's heights flooded to `water.seas_share`, and its first lakes, routed from
+    the runoff of the climatology `water.lakes_start` pins over the heights with the seas as outlets, or none where
+    `water.lakes` is "none". This function floods the heights and routes runoff; the other forms world_spec.md
+    allows the seas and lakes, pinned files among them, take functions of their own."""
+    where = f'{scenario.get("id", "the scenario")}: water'
+    if scenario.get('world') != world.get('id'):
+        raise SpecError(f'{where}: a scenario of the world {scenario.get("world")!r} on the world {world.get("id")!r}')
+    spec = scenario.get('water', {})
+    share = _number(spec.get('seas_share'), f'{where}.seas_share', below=1.0)
+    if spec.get('seas') != 'from-heights':
+        raise SpecError(f'{where}.seas: this function floods the heights ("from-heights"), where the scenario states '
+                        f'{spec.get("seas")!r}')
+    lakes = spec.get('lakes')
+    if lakes not in ('from-runoff', 'none'):
+        raise SpecError(f'{where}.lakes: this function routes runoff ("from-runoff") or makes none ("none"), where the '
+                        f'scenario states {lakes!r}')
+    if lakes == 'from-runoff':
+        start = spec.get('lakes_start')
+        if not isinstance(start, str) or start in ('unchosen', 'model-default', 'none'):
+            raise SpecError(f'{where}.lakes_start is a pinned climatology, where the scenario states {start!r}')
+        pin = parse_pin(start)
+        if pin.entry is not None:
+            raise SpecError(f'{where}.lakes_start: a climatology takes no # entry, where the scenario names {pin.entry!r}')
+    found = topography or heights(world, library, manifest=manifest, store=store)
+    area = found.grid.cell_area_m2
+    flat = area.ravel()
+    level = basins.level_for_area(found.height_m, area, share)
+    if lakes == 'none':
+        sea = found.height_m.astype(np.float32) < level         # the drainage's outlets, as it compares them
+        record = dict(seas=dict(stated_share=share, level_m=level, share=float(flat[sea.ravel()].sum() / flat.sum())),
+                      lakes=None)
+        return Water(level, sea, np.zeros(0, np.int32), np.zeros(0, np.float32), np.zeros(0, bool), record)
+    fields, meta, sha256 = climatology(pin, manifest=manifest, store=store)
+    _, routing = drainage.compute(found.height_m, found.grid, level, fields)
+    sea = routing['outlet'].reshape(found.height_m.shape)
+    arrays = drainage.lake_arrays(routing)
+    summary = drainage.summarise(level, found.height_m, found.grid, routing)
+    record = dict(
+        seas=dict(stated_share=share, level_m=level, share=float(flat[sea.ravel()].sum() / flat.sum())),
+        lakes=dict(share=float(flat[arrays['lake_cell']].sum() / flat.sum()), cells=int(arrays['lake_cell'].size),
+                   **{k: summary['lakes'][k] for k in ('bodies', 'closed_bodies', 'volume_km3', 'median_depth_m')}),
+        rivers={k: v for k, v in summary['rivers'].items() if k != 'largest'}, depressions=summary['depressions'],
+        runoff=dict(pin=start, sha256=sha256, run=meta.get('run'), years=meta.get('years')))
+    return Water(level, sea, arrays['lake_cell'], arrays['lake_level_m'], arrays['lake_spills'], record)
 
 
 def _number(value, where: str, *, low: float | None = 0.0, strict: bool = True, below: float | None = None) -> float:

@@ -1,6 +1,7 @@
 """A world's heights above its geoid through the data manifest: the Moon's LOLA heights over GRAIL's geoid, against
 the shape its gravity field gives, published landing heights and Terluna's levels, and the tide the world states."""
 import csv
+import hashlib
 import json
 import math
 
@@ -15,6 +16,7 @@ from worldlab.spec import Library, SpecError
 
 LIB = Library()
 MOON = LIB.world('moon')
+OPEN_MOON = LIB.scenario('moon/open-moon')
 STORE, TERLUNA = root('store'), root('terluna')
 # Five near-side maria's centres in the IAU gazetteer (MOON_nomenclature_center_pts.zip, sha256 404a951d51482159, as
 # Terluna retrieved it on 2026-09-25), as latitude and east longitude.
@@ -22,20 +24,28 @@ MARIA = {'Oceanus Procellarum': (20.6714, -56.6774), 'Mare Imbrium': (34.7244, -
          'Mare Serenitatis': (27.2879, 18.3596), 'Mare Crisium': (16.1774, 59.1037), 'Mare Nectaris': (-15.1852, 34.6021)}
 
 
-def _stored() -> bool:
+def _stored(pin) -> bool:
     try:
-        return STORE is not None and bool(Manifest().paths(MOON['surface']['geometry'], store=STORE))
+        return STORE is not None and bool(Manifest().paths(pin, store=STORE))
     except DataError:
         return False
 
 
-needs_heights = pytest.mark.skipif(not _stored(), reason="the store lacks the Moon's heights (lab/worldlab/data.py)")
+needs_heights = pytest.mark.skipif(not _stored(MOON['surface']['geometry']),
+                                   reason="the store lacks the Moon's heights (lab/worldlab/data.py)")
+needs_runoff = pytest.mark.skipif(not _stored(OPEN_MOON['water']['lakes_start']),
+                                  reason="the store lacks the Open Moon's first runoff (lab/worldlab/data.py)")
 needs_terluna = pytest.mark.skipif(TERLUNA is None, reason="Terluna's repository is unset (lab/local.example.toml)")
 
 
 @pytest.fixture(scope='module')
 def moon():
     return geography.heights(MOON, LIB, store=STORE)
+
+
+@pytest.fixture(scope='module')
+def open_moon(moon):
+    return geography.water(MOON, OPEN_MOON, moon, LIB, store=STORE)
 
 
 def _with(**tables):
@@ -173,3 +183,99 @@ def test_the_files_are_refused_where_their_labels_misdescribe_them(tmp_path, lab
         paths[name] = tmp_path / name
     with pytest.raises(SpecError, match=message):
         geography.surface_files(MOON, manifest=_Files(paths))
+
+
+@needs_heights
+@needs_runoff
+def test_the_open_moons_seas_cover_their_share_and_its_lakes_stand_above_them(open_moon):
+    assert open_moon.record['seas']['share'] == pytest.approx(0.28, abs=1e-6)
+    assert open_moon.level_m == pytest.approx(-1653.84, abs=0.01)
+    assert not open_moon.sea.ravel()[open_moon.lake_cell].any()
+    assert (open_moon.lake_level_m >= np.float32(open_moon.level_m)).all()
+    runoff = open_moon.record['runoff']
+    assert (runoff['run'], runoff['years']) == ('A28_dim5_moon', [20, 29])
+    assert runoff['sha256'] == Manifest().files(OPEN_MOON['water']['lakes_start'])[0].sha256
+
+
+@needs_heights
+def test_a_scenario_without_lakes_takes_its_seas_alone(moon):
+    scenario = {**OPEN_MOON, 'water': {**OPEN_MOON['water'], 'lakes': 'none', 'lakes_start': 'unchosen'}}
+    seas = geography.water(MOON, scenario, moon, LIB, store=STORE)
+    assert seas.lake_cell.size == 0 and seas.record['lakes'] is None
+    assert seas.record['seas']['share'] == pytest.approx(0.28, abs=1e-6)
+
+
+@needs_heights
+@needs_runoff
+@needs_terluna
+def test_the_lakes_agree_with_terlunas_routing_of_the_same_runoff(open_moon, moon):
+    terluna = json.loads((TERLUNA / 'geography' / 'results' / 'drainage.json').read_text())
+    sha256 = Manifest().files(OPEN_MOON['water']['lakes_start'])[0].sha256
+    if terluna['sources'].get('climate/gcm/products/climatology_A28_dim5_moon.npz') != sha256:
+        pytest.skip("Terluna's lakes now come from other runoff than the pinned climatology")
+    with np.load(TERLUNA / 'geography' / 'products' / 'drainage_28pct_16ppd.npz') as products:
+        assert json.loads(str(products['metadata']))['sources'] == terluna['sources']
+        cells, levels = products['lake_cell'], products['lake_level_m']
+    # Within 1%, the causes being the lab's heights (the geoid to degree 330 on LOLA's own grid, the tide averaged
+    # over the orbit), 1.9 m rms from Terluna's, and its sea level, 0.36 m above Terluna's.
+    flat = moon.grid.cell_area_m2.ravel()
+    shared, terlunas, labs = np.intersect1d(cells, open_moon.lake_cell, return_indices=True)
+    assert flat[shared].sum() / flat[cells].sum() > 0.99
+    assert open_moon.record['lakes']['share'] == pytest.approx(flat[cells].sum() / flat.sum(), rel=0.01)
+    for table, key in (('lakes', 'bodies'), ('lakes', 'closed_bodies'), ('lakes', 'volume_km3'),
+                       ('rivers', 'discharge_to_sea_m3s')):
+        assert open_moon.record[table][key] == pytest.approx(terluna[table][key], rel=0.01), key
+    # The lakes' surfaces move with the heights, by metres; where a pass between depressions moves, a lake spills
+    # at another level, by up to kilometres over 0.05% of the shared area.
+    near = np.abs(open_moon.lake_level_m[labs].astype(float) - levels[terlunas]) <= 10.0
+    assert flat[shared][near].sum() / flat[shared].sum() > 0.99
+
+
+@pytest.mark.parametrize('scenario, message', [
+    (dict(water=dict(seas='model-default')), 'floods the heights'),
+    (dict(water=dict(lakes='terluna:lakes.npz')), 'routes runoff'),
+    (dict(water=dict(seas_share='unchosen')), 'seas_share is a number'),
+    (dict(water=dict(seas_share=1.0)), 'seas_share is a number below 1.0'),
+    (dict(water=dict(lakes_start='unchosen')), 'lakes_start is a pinned climatology'),
+    (dict(water=dict(lakes_start='terluna:climate.npz#runoff')), 'takes no # entry'),
+    (dict(world='mars'), "a scenario of the world 'mars' on the world 'moon'"),
+])
+def test_the_water_refuses_what_this_function_leaves_unflooded_or_unrouted(scenario, message):
+    changed = {**OPEN_MOON, **{k: ({**OPEN_MOON[k], **v} if isinstance(v, dict) else v) for k, v in scenario.items()}}
+    with pytest.raises(SpecError, match=message):
+        geography.water(MOON, changed, object(), LIB, store=STORE)
+
+
+class _One:
+    """A stand-in for the manifest, holding one pin's file."""
+    def __init__(self, path):
+        self.found = path
+
+    def path(self, pin, store=None):
+        return self.found
+
+
+def _climate(lat=(-45.0, 45.0), lon=(0.0, 180.0), shape=(2, 2)):
+    return dict(lat=np.array(lat), lon=np.array(lon), **{k: np.zeros(shape) for k in ('lsm', 'pr_mm_day', 'evap_mm_day')})
+
+
+@pytest.mark.parametrize('schema, fields, message', [
+    ('other/1', _climate(), 'of schema'),
+    (geography.CLIMATOLOGY_SCHEMAS[0], {k: v for k, v in _climate().items() if k != 'evap_mm_day'}, 'without'),
+    (geography.CLIMATOLOGY_SCHEMAS[0], _climate(shape=(2, 3)), 'fields of shapes'),
+    (geography.CLIMATOLOGY_SCHEMAS[0], _climate(lon=(180.0, 0.0)), 'ascending from 0 E'),
+    (geography.CLIMATOLOGY_SCHEMAS[0], _climate(lat=(45.0, 45.0)), 'latitudes in order'),
+])
+def test_a_climatology_is_refused_where_its_schema_fields_or_grid_differ(tmp_path, schema, fields, message):
+    path = tmp_path / 'climatology.npz'
+    np.savez(path, metadata=json.dumps(dict(schema=schema)), **fields)
+    with pytest.raises(SpecError, match=message):
+        geography.climatology('x.npz', manifest=_One(path))
+
+
+def test_a_climatology_reads_its_fields_and_its_hash(tmp_path):
+    path = tmp_path / 'climatology.npz'
+    np.savez(path, metadata=json.dumps(dict(schema=geography.CLIMATOLOGY_SCHEMAS[0], run='R')), **_climate())
+    fields, meta, sha256 = geography.climatology('x.npz', manifest=_One(path))
+    assert set(fields) == set(geography.CLIMATOLOGY_FIELDS) and meta['run'] == 'R'
+    assert sha256 == hashlib.sha256(path.read_bytes()).hexdigest()

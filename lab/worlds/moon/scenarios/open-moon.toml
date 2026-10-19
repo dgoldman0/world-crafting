@@ -25,9 +25,12 @@ water_vapour = "prognostic"
 [water]
 seas_share = 0.28                    # shared/scenarios/water.json, chosen 2026-09-25
 seas = "from-heights"                # the world's heights flooded to the seas share (Terluna: geography/atlas.py)
-lakes_start = "terluna:geography/products/drainage_28pct_16ppd.npz"   # the runoff chain's first link: Terluna's lakes
-                                     # from run A28_dim5_moon's runoff (lab/data/manifest.toml). The design run's surface
-                                     # holds earlier ones, from run A's (Terluna:
+lakes_start = "terluna:climate/gcm/products/climatology_A28_dim5_moon.npz"   # the runoff chain's first link: the
+                                     # runoff of Terluna's run A28_dim5_moon, which the lab routes over its own heights,
+                                     # as Terluna routed it over Terluna's into geography/products/drainage_28pct_16ppd.npz,
+                                     # the routing the lab's lakes are compared with; the chain's later links come from
+                                     # the lab's own runs. The design run A28_corrected_970, whose climatology Terluna
+                                     # also holds, has a surface with earlier lakes, from run A's runoff (Terluna:
                                      # climate/gcm/products/moon_28pct_water_lakes_gaussian_T21.nc)
 lakes = "from-runoff"                # rain-fed lakes at their own levels, from a GCM run's runoff (geography/drainage.py);
                                      # with them the GCM's mask holds about 40% water (land share 0.5995 in A28_corrected_970)

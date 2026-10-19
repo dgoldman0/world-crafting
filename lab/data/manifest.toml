@@ -75,18 +75,18 @@ retrieved = 2026-10-18
 bytes = 579457
 sha256 = "0d05194e82f3e99f4d1c45e4f8ad549052b19d9c2e06a0cbefafa249d78f4886"
 
-[data."terluna:geography/products/drainage_28pct_16ppd.npz"]
-title = "Terluna's rain-fed lakes and rivers beside the 28% seas, at 16 pixels/degree"
-use = "The first link of the Open Moon's lakes chain (moon/open-moon, water.lakes_start)"
+[data."terluna:climate/gcm/products/climatology_A28_dim5_moon.npz"]
+title = "The climatology of Terluna's run A28_dim5_moon, model years 20-29, on its T21 grid"
+use = "The runoff the lab routes over its own heights into the Open Moon's first lakes (moon/open-moon, water.lakes_start): the run's means of precipitation and evaporation and its land-sea mask"
 licence = "The author's own work, in Terluna, whose repository states no licence. The lab keeps its copy in the store, outside Git."
-credit = "Terluna's geography domain: geography/drainage.py's routing of the runoff of run A28_dim5_moon over LOLA's heights"
+credit = "Terluna's climate domain: climate/gcm/climatology.py's means of ExoPlaSim run A28_dim5_moon"
 reviewed = 2026-10-18
-note = "These lakes replaced, under the same name, the lakes of run A's runoff (060219b12f480619) on 2026-09-29; the surface of the design run A28_corrected_970 was built from those earlier ones. Terluna's plan regenerates its lakes once more at the resort target of 301 K, set on 2026-10-18 (research/plan.md on domain/climate); the store keeps these bytes under their digest."
+note = "The runoff Terluna's geography/drainage.py routed over Terluna's heights on 2026-09-29 into geography/products/drainage_28pct_16ppd.npz (98842fc2a648f889), the lakes the lab's comparisons read in place. Terluna's plan has its lakes routed again from the design case at the resort target of 301 K, set on 2026-10-18 (research/plan.md on domain/climate); the store keeps these bytes under their digest."
 
-[[data."terluna:geography/products/drainage_28pct_16ppd.npz".files]]
-name = "drainage_28pct_16ppd.npz"
-source = "terluna:geography/products/drainage_28pct_16ppd.npz"
-made = "By Terluna's geography/drainage.py (a1b8d163c2ee340c), topography.py (228e08f79efca868) and atlas.py (e5ce62df01c94097), from climate/gcm/products/climatology_A28_dim5_moon.npz (3fb185c8087ea9b5) and geography/results/atlas.json (78cfbf2f469eb339), as the file's own metadata records; Terluna's Git ignores its products folder, so no commit holds the file"
+[[data."terluna:climate/gcm/products/climatology_A28_dim5_moon.npz".files]]
+name = "climatology_A28_dim5_moon.npz"
+source = "terluna:climate/gcm/products/climatology_A28_dim5_moon.npz"
+made = "By Terluna's climate/gcm/climatology.py (bf2b93928b020464), from run A28_dim5_moon's model years 20-29, as the file's own metadata records; Terluna's Git ignores its products folder, so no commit holds the file"
 retrieved = 2026-10-18
-bytes = 2697170
-sha256 = "98842fc2a648f8899bd4f5d712445f78c8882c85a1bc30bf631ac9dd14ab1c03"
+bytes = 85721
+sha256 = "3fb185c8087ea9b5bffdfbfb191cfed5cc3f4397a9a7d0eb52269f925ee6f05c"

@@ -120,7 +120,7 @@ def test_the_manifest_holds_the_seeds_pins_alone():
     seeds = {p.name for p in _seed_pins()}
     assert seeds == set(MANIFEST.entries) == {'tsis1-hsrs-stride100', 'lola-ldem16-grail-jggrx0420a',
                      'terluna:protection/spectra/shield_transmission.json',
-                     'terluna:geography/products/drainage_28pct_16ppd.npz'}
+                     'terluna:climate/gcm/products/climatology_A28_dim5_moon.npz'}
     for pin in _seed_pins():
         assert MANIFEST.files(pin)
 
