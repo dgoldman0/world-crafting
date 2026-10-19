@@ -22,6 +22,12 @@ from its specification.
   depression's spill level by a priority flood, and fills a depression to its spill level where its inflow and
   the rain on its lake exceed the lake's open-water evaporation, or to the smaller lake whose evaporation
   balances its inflow.
+- **The model's grid.** `lab/worldlab/geography.py` averages the water and the land, area for area, from the
+  heights' cells onto a GCM's Gaussian grid: the land's share of each cell, its mean height above the water level,
+  and the wet part's mean water surface above that level and its depth.
+- **The lowest point.** The air's pressure at the lowest exposed surface follows from the scenario's pressure at
+  its reference level, the seas' common level or the geoid, by isothermal hydrostatics at its reference
+  temperature.
 
 ## Checks
 
@@ -44,7 +50,19 @@ On the Moon (`lab/tests/test_geography.py`, LOLA's 16 pixels per degree, GL0420A
   lab's lake surfaces lie within 10 m of Terluna's over 99.2% of the area, by 0.3 m at the median; where a pass
   between depressions moves with the heights, a lake spills at another level, by up to 2.6 km over 0.05% of that
   area. Run over Terluna's own heights at Terluna's level, the lab's drainage gives Terluna's lake cells, levels,
-  spills and channels byte for byte, and its channels' discharges within 0.004 m³/s (2026-10-18).
+  spills and channels byte for byte, and its channels' discharges within 0.004 m³/s (2026-10-18);
+- on ExoPlaSim's T21 grid, whose latitudes and longitudes match ExoPlaSim's own T21.nc to 10⁻¹² degrees, the
+  seas alone at 25% and 35% give Terluna's surfaces of those shares on the same grid and cell areas: the land's
+  share within 6 × 10⁻⁷, each cell's land fraction within 0.006 and 0.007 rms and 0.050 and 0.044 at most, and,
+  where both hold a twentieth of a cell or more, the land's height and the water's depth by 2 to 3 m on average and
+  26–28 m rms, where Terluna's average its 1-degree land-sea products of LOLA's 4-pixel heights over its degree-200
+  geoid and the lab's LOLA's 16-pixel heights over its degree-330 geoid;
+- at 28% the lab's seas, taken 16 cells at a time, and Terluna's atlas on LOLA's own 4-pixel grid disagree over
+  0.6% of the surface, along the coasts;
+- the Open Moon's land covers 61.67% of the T21 grid, the 28% seas and the 10.33% lakes taken away, where Terluna's
+  surface for the design run, with lakes from run A's runoff over 12.0%, gives 59.98%, and that run's binary mask
+  59.95%; the pressure at its lowest point is the stated 1,215.9 hPa, since the lowest exposed surface is the seas'
+  own.
 
 With Terluna's choices, degree 200 and Earth fixed over the sub-Earth point at the mean distance, the general
 code's geoid on Terluna's 4-pixel grid agrees with Terluna's to 1 × 10⁻¹³ m (2026-10-18), and its readers return
@@ -94,6 +112,8 @@ Heights and geoids below compare on LOLA's 16-pixel grid, their rms weighted by 
   constructed worlds take a format of their own.
 - The drainage is a steady annual balance at the climate model's resolution; channels follow the grid, and
   groundwater, infiltration and travel time are absent.
+- The lowest point's pressure takes the air isothermal at the reference temperature and gravity constant over
+  the height between the reference level and the lowest surface; on the Open Moon that height is zero.
 
 ## Room for improvement
 

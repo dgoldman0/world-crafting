@@ -115,7 +115,7 @@ scenario.
 | Field | Unit | Meaning |
 |---|---|---|
 | `kind` | – | `found`, `crafted` or `illustrative` |
-| `air.reference_level` | – | The level at which the stated pressure holds: `water`, `sea` or `mean-radius` |
+| `air.reference_level` | – | The equipotential at which the stated pressure holds: `water`, the seas' common level, or `sea`, the geoid; `mean-radius`, in Mars's seed, is refused where a stage reads the pressure's height, since a sphere of the mean radius crosses the equipotentials of a flattened world |
 | `air.surface_pressure_pa` | Pa | Total pressure at that level |
 | `air.o2_partial_pressure_pa` or `o2_mole_fraction`, `co2_ppm`, `ar_per_n2` or `ar_mole_fraction`, `balance` | Pa or –, ppm of the total, –, gas | The air: O2 by partial pressure or mole fraction, CO2 in ppm of the total, Ar by its ratio to N2 or its mole fraction, and N2 the balance; the lab derives the mole fractions, and from them the partial pressures |
 | `air.reference_temperature_k` | K | The surface temperature the scenario is stated at, observed for a found scenario and designed or supposed otherwise, with its basis, or `settled`, the GCM's settled global mean, which the fixpoint finds: the design column, the ledger and the gas fits are computed at it, and the scale height and horizon factor take it as their reference |
@@ -145,6 +145,7 @@ scenario.
 | The stepped model day | The steps per model day times PlaSim's step | 1,430 × 1,800 s, 29.7917 d | The calendar the outputs follow, the paper's `model_day_days` |
 | Sunlight at the top | ∫ S_λ T_λ dλ × (1 AU/a)² × the scale, on the union of the spectrum's points and the filter's: S_λ the star's spectrum, holding its stated constant, and T_λ the filter's transmission, held at its end values beyond its range | 1,236.12 W/m² through the shield. TSIS-1 stands as measured, 1,326.23 W/m², and its tails hold the rest: 0.16 W/m² below 202 nm, where the Sun has about 0.1, and 34.61 W/m² past 2,730 nm. Terluna's 1,235.25 passed all 34.77 W/m² at the shield's 0.904 at 2,730 nm, and the lab's tails pass at the shield's own transmission along them, 0.070% more. Of the total, 6.21 W/m² passes beyond the shield file's 5 µm end at its held 0.934, where the file's model leaves out silica's absorption | ExoPlaSim `flux` (`GSOL0`) and its spectrum files; CM1 `var17` |
 | Scale height, H/R, column mass, horizon factor | RT/(Mg), H/R, p/g and √(πR/2H), at `air.reference_temperature_k` | At 295 K: 52.4 km, 0.03015, 74,861 kg/m², 7.2 (`paper/data/worlds.json`) | The reach report; deciding whether a column needs a ledger of its own |
+| The lowest point's pressure | The pressure at the reference level times exp(M g Δz/(R T)), with M the dry air's molar mass and Δz from the reference level down to the lowest exposed surface (sea, lake or dry ground) on the heights' grid, isothermal at `air.reference_temperature_k` | 1,215.9 hPa: the lowest exposed surface is the seas' own, the reference level | Registry entry B22, against RRTMG's 1,053.63 hPa (`lowest_level_pressure_hpa`) |
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
 | CM1 lengths, times and rates | Lengths × H/H_ref, times × (H/c)/(H/c)_ref, rates × (c/H)/(c/H)_ref (rule 9) | A factor of 1 at the reference state, and 1 + 5.05 × 10⁻⁶ on the Moon with the spin term: 6 km columns, a 150 km top, nudging from 8 to 16 km, a 40 s step | CM1's grid, top, nudging heights, `dtl`, `l_inf` and `rdalpha` (`cm1_run.py:1979-2035`) |
 | CM1's raindrop limits | Morrison's 0.3 mm breakup and 2.8 mm cap on rain's mean diameter × (9.81/g)^½ | × 2.4576: 0.737 mm and 6.88 mm | `brkup_db`; the cap through a planned patch (registry B28) |
@@ -258,11 +259,19 @@ on them (`notes/geography.md`):
   taken as the scenario's own runoff. A scenario of `lakes = "none"` has its seas alone. The record gives the
   level, the shares of seas and lakes, the lakes' and rivers' totals, and the climatology's pin, sha256, run and
   years.
+- **The model's grid.** The water and the land are averaged, area for area, from the heights' cells onto a GCM's
+  Gaussian grid, laid out as ExoPlaSim's own T21.nc lays PlaSim's: its rows at the Gauss–Legendre latitudes,
+  their edges in sin(latitude) the running sums of the weights from the north, and its columns centred on 0 E.
+  Each cell holds its land fraction, the land's mean height above the water level, and the wet part's mean water
+  surface above that level and its mean depth, 0 where the cell holds no land or no water.
+- **The lowest point.** `water` sets the reference level at the seas' common level and `sea` at the geoid; the
+  pressure at the lowest exposed surface, the sea's, a lake's or the dry ground's, follows by isothermal
+  hydrostatics at the reference temperature and the world's surface gravity. Mars's seed states `mean-radius`,
+  which the lab refuses until the world has heights and its scenario restates the pressure at the areoid.
 
 Still to settle, each with the stage whose code first reads it, where stage 1 left them on 2026-10-18: the field
 tables of the defaults, studies, runs and cases, with optional fields and their defaults, as stage 2's and 3's
-adapters read them; the `water` and `sea` reference levels, with the pressure at the surface's lowest point, in
-stage 2; and whether sources stay as comments, with stage 4's product headers.
+adapters read them; and whether sources stay as comments, with stage 4's product headers.
 
 ## The Moon worked through
 

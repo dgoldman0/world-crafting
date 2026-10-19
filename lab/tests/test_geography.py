@@ -17,7 +17,8 @@ from worldlab.spec import Library, SpecError
 LIB = Library()
 MOON = LIB.world('moon')
 OPEN_MOON = LIB.scenario('moon/open-moon')
-STORE, TERLUNA = root('store'), root('terluna')
+STORE, TERLUNA, ENV = root('store'), root('terluna'), root('env')
+PYTHON = ENV / 'bin' / 'python' if ENV is not None else None
 # Five near-side maria's centres in the IAU gazetteer (MOON_nomenclature_center_pts.zip, sha256 404a951d51482159, as
 # Terluna retrieved it on 2026-09-25), as latitude and east longitude.
 MARIA = {'Oceanus Procellarum': (20.6714, -56.6774), 'Mare Imbrium': (34.7244, -14.9086),
@@ -36,6 +37,8 @@ needs_heights = pytest.mark.skipif(not _stored(MOON['surface']['geometry']),
 needs_runoff = pytest.mark.skipif(not _stored(OPEN_MOON['water']['lakes_start']),
                                   reason="the store lacks the Open Moon's first runoff (lab/worldlab/data.py)")
 needs_terluna = pytest.mark.skipif(TERLUNA is None, reason="Terluna's repository is unset (lab/local.example.toml)")
+needs_env = pytest.mark.skipif(PYTHON is None or not PYTHON.exists(),
+                               reason="the lab's environment is unset (lab/local.example.toml)")
 
 
 @pytest.fixture(scope='module')
@@ -279,3 +282,181 @@ def test_a_climatology_reads_its_fields_and_its_hash(tmp_path):
     fields, meta, sha256 = geography.climatology('x.npz', manifest=_One(path))
     assert set(fields) == set(geography.CLIMATOLOGY_FIELDS) and meta['run'] == 'R'
     assert sha256 == hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+@pytest.fixture(scope='module')
+def open_moon_t21(open_moon, moon):
+    return geography.model_surface(open_moon, moon, 32)
+
+
+def test_a_gaussian_grid_splits_the_sphere_by_its_weights():
+    lat, edges = geography.gaussian_latitudes(32)
+    weights = np.polynomial.legendre.leggauss(32)[1]
+    assert edges[0] == 1.0 and edges[-1] == pytest.approx(-1.0, abs=1e-14) and np.all(np.diff(edges) < 0)
+    assert np.allclose(-np.diff(edges), weights, atol=1e-15)          # symmetric, so in either order
+    assert np.allclose(lat, -lat[::-1], atol=1e-12) and np.all((np.sin(np.radians(lat)) < edges[:-1]) & (np.sin(np.radians(lat)) > edges[1:]))
+
+
+@needs_heights
+@needs_runoff
+def test_the_model_grid_keeps_the_shares_of_water_and_land(open_moon_t21, open_moon):
+    wet = open_moon.record['seas']['share'] + open_moon.record['lakes']['share']
+    assert open_moon_t21.record['land_share'] == pytest.approx(1.0 - wet, abs=1e-12)
+    assert open_moon_t21.cell_area_fraction.sum() == pytest.approx(1.0, abs=1e-12)
+    assert (open_moon_t21.land_elevation_m >= 0).all() and (open_moon_t21.water_surface_m >= 0).all()
+    assert (open_moon_t21.water_depth_m >= 0).all() and ((open_moon_t21.land_fraction >= 0) & (open_moon_t21.land_fraction <= 1)).all()
+
+
+def _terluna_t21(name):
+    from scipy.io import netcdf_file
+    with netcdf_file(TERLUNA / 'climate' / 'gcm' / 'products' / name, 'r', mmap=False) as f:
+        return {k: np.array(v[:], dtype=float) for k, v in f.variables.items()}
+
+
+@needs_heights
+@needs_terluna
+@pytest.mark.parametrize('percent', [25, 35])
+def test_the_seas_alone_match_terlunas_surfaces_on_its_t21_grid(moon, percent):
+    scenario = {**OPEN_MOON, 'water': {**OPEN_MOON['water'], 'seas_share': percent / 100, 'lakes': 'none'}}
+    surface = geography.model_surface(geography.water(MOON, scenario, moon, LIB, store=STORE), moon, 32)
+    terluna = _terluna_t21(f'moon_{percent}pct_water_gaussian_T21.nc')
+    assert np.allclose(surface.lat_deg, terluna['lat'], atol=1e-4) and np.allclose(surface.lon_deg, terluna['lon'], atol=1e-9)
+    assert np.allclose(surface.cell_area_fraction, terluna['cell_area_fraction'], atol=1e-9)
+    # Terluna's surfaces average its 1-degree land-sea products of LOLA's 4-pixel heights over its degree-200 geoid;
+    # the lab's, LOLA's 16-pixel heights over its degree-330 geoid.
+    weights = surface.cell_area_fraction
+    difference = surface.land_fraction - terluna['land_fraction']
+    assert abs((difference * weights).sum()) < 1e-3
+    assert np.sqrt((difference**2 * weights).sum()) < 0.01 and np.abs(difference).max() < 0.06
+    for labs, terlunas, share in ((surface.land_elevation_m, terluna['land_elevation_m'], surface.land_fraction),
+                                  (surface.water_depth_m, terluna['ocean_depth_m'], 1.0 - surface.land_fraction)):
+        terluna_share = terluna['land_fraction'] if share is surface.land_fraction else 1.0 - terluna['land_fraction']
+        both = (share > 0.05) & (terluna_share > 0.05)            # where each holds a twentieth of its cell or more
+        part = weights[both] / weights[both].sum()
+        offset = (labs - terlunas)[both]
+        assert abs((offset * part).sum()) < 10.0 and np.sqrt((offset**2 * part).sum()) < 50.0
+
+
+@needs_heights
+@needs_runoff
+@needs_terluna
+def test_the_seas_agree_with_terlunas_atlas(open_moon):
+    with np.load(TERLUNA / 'geography' / 'products' / 'atlas_28pct_4ppd.npz') as products:
+        meta, terlunas = json.loads(str(products['metadata'])), products['water_label'] > 0
+    if meta['share'] != OPEN_MOON['water']['seas_share']:
+        pytest.skip("Terluna's atlas now floods another share")
+    # Within 1% of the surface, the cause being LOLA's 4-pixel grid under Terluna's atlas, a gridding of its own,
+    # where the lab floods the 16-pixel heights, here taken a block of 16 cells at a time.
+    labs = open_moon.sea.reshape(720, 4, 1440, 4).mean(axis=(1, 3)) > 0.5
+    weights = np.cos(np.radians(90.0 - (np.arange(720) + 0.5) / 4))[:, None] * np.ones((1, 1440))
+    assert (weights * (labs != terlunas)).sum() / weights.sum() < 0.01
+
+
+@needs_heights
+@needs_runoff
+def test_the_open_moons_lowest_point_is_its_sea(open_moon, moon):
+    lowest = geography.lowest_level_pressure(MOON, OPEN_MOON, open_moon, moon)
+    assert lowest['lowest_level_pressure_hpa'] == 1215.9 and lowest['lowest_surface_m'] == open_moon.level_m
+
+
+def _dry(depth_m, lake=None):
+    """A globe at 1 pixel per degree, flat at 0 m but for one hollow of `depth_m`, without seas; `lake` (surface, bed)
+    floods a second hollow."""
+    grid = tp.Grid.globe(1, MOON['body']['radius_m'])
+    height = np.zeros((180, 360))
+    height[90, 180] = -depth_m
+    cells, levels = np.zeros(0, np.int32), np.zeros(0, np.float32)
+    if lake is not None:
+        height[45, 90] = lake[1]
+        cells, levels = np.array([45 * 360 + 90], np.int32), np.array([lake[0]], np.float32)
+    return (geography.Heights(height, np.zeros_like(height), grid, {}),
+            geography.Water(10.0, np.zeros(height.shape, bool), cells, levels, np.zeros(cells.size, bool), {}))
+
+
+# The Open Moon's gravity and its air's molar mass, as world_spec.md's table gives them.
+G_MOON, M_AIR = 1.6242107, 0.0288319
+
+
+def test_the_pressure_at_a_dry_hollow_follows_isothermal_hydrostatics():
+    topography, water = _dry(500.0)
+    scenario = {**OPEN_MOON, 'air': {**OPEN_MOON['air'], 'reference_level': 'sea'}}
+    lowest = geography.lowest_level_pressure(MOON, scenario, water, topography)
+    expected = 1215.9 * math.exp(M_AIR * G_MOON * 500.0 / (8.314462618 * 295.0))
+    assert lowest['lowest_level_pressure_hpa'] == pytest.approx(expected, rel=1e-6) and lowest['lowest_surface_m'] == -500.0
+
+
+def test_a_lakes_bed_stays_under_its_water():
+    topography, water = _dry(50.0, lake=(-100.0, -500.0))
+    scenario = {**OPEN_MOON, 'air': {**OPEN_MOON['air'], 'reference_level': 'sea'}}
+    lowest = geography.lowest_level_pressure(MOON, scenario, water, topography)
+    expected = 1215.9 * math.exp(M_AIR * G_MOON * 100.0 / (8.314462618 * 295.0))
+    assert lowest['lowest_surface_m'] == -100.0 and lowest['lowest_level_pressure_hpa'] == pytest.approx(expected, rel=1e-6)
+
+
+@pytest.mark.parametrize('level, message', [('mean-radius', 'names a sphere'), ('unchosen', 'is "water"')])
+def test_the_pressure_takes_its_reference_at_an_equipotential(level, message):
+    topography, water = _dry(500.0)
+    scenario = {**OPEN_MOON, 'air': {**OPEN_MOON['air'], 'reference_level': level}}
+    with pytest.raises(SpecError, match=message):
+        geography.lowest_level_pressure(MOON, scenario, water, topography)
+
+
+def _strip_and_lake():
+    """A globe at 1 pixel per degree: land 1,000 m above a water level of -1,000 m; a sea strip 1,000 m deep from
+    359 to 360 E; and a lake whose surface stands 900 m above that level, over a bed 400 m below its surface."""
+    grid = tp.Grid.globe(1, MOON['body']['radius_m'])
+    height = np.zeros((180, 360))
+    sea = np.zeros(height.shape, bool)
+    sea[:, 359] = True
+    height[sea] = -2000.0
+    lake = (np.arange(85, 90)[:, None] * 360 + np.arange(100, 104)[None, :]).ravel().astype(np.int32)
+    height.ravel()[lake] = -500.0
+    water = geography.Water(-1000.0, sea, lake, np.full(lake.size, -100.0, np.float32), np.ones(lake.size, bool), {})
+    return geography.Heights(height, np.zeros_like(height), grid, {}), water
+
+
+def test_the_model_grid_averages_a_strip_across_the_seam_and_a_lake_exactly():
+    topography, water = _strip_and_lake()
+    surface = geography.model_surface(water, topography, 32)
+    # Column 0 spans 2.8125 degrees either side of 0 E, so the strip from 359 to 360 E is 1/5.625 of its width.
+    assert np.allclose(1.0 - surface.land_fraction[:, 0], 1.0 / 5.625, rtol=0, atol=1e-12)
+    assert np.allclose(surface.water_depth_m[:, 0], 1000.0, atol=1e-9) and np.allclose(surface.water_surface_m[:, 0], 0.0)
+    assert np.allclose(surface.land_elevation_m, 1000.0, atol=1e-9)
+    row = int(np.argmin(np.abs(surface.lat_deg - 2.5)))
+    column = int(np.argmin(np.abs(surface.lon_deg - 102.0)))
+    assert surface.water_surface_m[row, column] == pytest.approx(900.0, abs=1e-6)
+    assert surface.water_depth_m[row, column] == pytest.approx(400.0, abs=1e-6)
+    land = topography.grid.cell_area_m2.ravel()
+    wet = water.sea.ravel().copy()
+    wet[water.lake_cell] = True
+    assert surface.record['land_share'] == pytest.approx(land[~wet].sum() / land.sum(), abs=1e-12)
+
+
+def test_the_model_grid_refuses_other_row_counts_and_grids():
+    topography, water = _strip_and_lake()
+    with pytest.raises(SpecError, match='a Gaussian grid of 21 rows'):
+        geography.model_surface(water, topography, 21)
+    half = geography.Heights(topography.height_m[:90], topography.geoid_m[:90], topography.grid, {})
+    with pytest.raises(SpecError, match='takes a global grid'):
+        geography.model_surface(water, half, 32)
+
+
+EXOPLASIM_GRID = r'''
+import json, os, sys
+import netCDF4, numpy as np
+import exoplasim
+with netCDF4.Dataset(os.path.join(os.path.dirname(exoplasim.__file__), 'T21.nc')) as grid:
+    print(json.dumps(dict(lat=np.asarray(grid['lat'][:]).tolist(), lon=np.asarray(grid['lon'][:]).tolist())))
+'''
+
+
+@needs_env
+def test_the_model_grid_is_exoplasims_own_t21():
+    import subprocess
+    done = subprocess.run([PYTHON, '-c', EXOPLASIM_GRID], capture_output=True, text=True, timeout=120)
+    assert done.returncode == 0, done.stderr[-2000:]
+    exoplasims = json.loads(done.stdout)
+    topography, water = _strip_and_lake()
+    surface = geography.model_surface(water, topography, 32)
+    assert np.allclose(surface.lat_deg, exoplasims['lat'], rtol=0, atol=1e-12)
+    assert np.allclose(surface.lon_deg, exoplasims['lon'], rtol=0, atol=1e-12)
