@@ -8,7 +8,7 @@ ExoPlaSim's developers had already extended PlaSim to other planets, retaining t
 modeller can explore possible climates. Connecting that global calculation to CM1 and the wave models
 makes selected climates accessible at the scales of a storm or a shore. The GCM can then be used to explore a
 range of illumination or rotation, with resolved calculations concentrated on states where cloud, rain or
-surface conditions change. With the global and resolved calculations chained through their forcing, a change in a planet's climate could be followed down to the water arriving in a basin and the waves arriving at its coast, through the circulation that
+surface conditions change. Because the global and resolved calculations are chained through their forcing, a change in a planet's climate could be followed down to the water arriving in a basin and the waves arriving at its coast, through the circulation that
 determines both.
 
 For those calculations to describe the same world, its physical parameters have to be used consistently
@@ -26,13 +26,13 @@ another world: its radius, atmospheric column and starlight determine a new curv
 columns determine the targets for the radiation fits. The existing offline calculations can recompute these
 quantities and compare the atmospheric models on the same layers. Agreement in total outgoing radiation
 can coexist with different cooling profiles, so matching the layers matters before a GCM climate is used
-to force resolved convection. Otherwise the response of the convection schemes is confounded in the comparison with a change in where the air gains and loses heat.
+to force resolved convection. Otherwise, in the comparison, the response of the convection schemes is confounded with a change in where the air gains and loses heat.
 
 A reduced radiation scheme built from the reference spectroscopy would replace the inherited broadband fits and their successive adjustments. Free tools for the reduction and its check exist, built around
 Earth's columns \autocite{hogan2022tool,hogan2020evaluating}, so the reference model would supply them with
 absorption spectra computed on other worlds' columns. With the spectroscopy checked against an independent code
 and its reduction checked by layer, the two atmospheric models could compute heating over the tested
-gases, pressures and temperatures under the starlight for which the scheme was built. The spectral calculation would then take a different stellar spectrum as an input, with the spectrum's effects followed into circulation and cloud. With that development, a modeller could still explore climates quickly, with the radiation computed from a physical reference that can be recomputed for the worlds being explored.
+gases, pressures and temperatures under the starlight for which the scheme was built. The spectral calculation would then take a different stellar spectrum as an input, with the spectrum's effects followed into circulation and cloud. A modeller using the reduced scheme could still explore climates quickly, with the radiation computed from a physical reference that can be recomputed for the worlds being explored.
 
 Calibrating cloud requires a further exchange between the models. CM1 already receives the GCM's circulation, with
 custom forcing for the transport that its rings and boxes omit, while its boundary layer and convection
@@ -48,10 +48,10 @@ Those limits also define physical questions worth pursuing across worlds. Lower 
 dry convection in height and time, while droplets, rain and graupel change their fall speeds by different
 powers. The resulting storm has different ratios of ascent, sedimentation and evaporation times, so the
 rain reaching its ground can depart from a geometrically stretched terrestrial storm. The scaled wave tests are a complementary case, in which dimensionless sea states agree closely along the tested paths,
-with Earth's empirical coefficients retained. With an ensemble that computes both, a modeller can examine which properties of an environment follow a similarity law and which emerge from competing processes whose
+with Earth's empirical coefficients retained. Since the ensemble computes both, a modeller can examine which properties of an environment follow a similarity law and which emerge from competing processes whose
 relative rates change.
 
-On constructed worlds, these comparisons can be made over combinations of parameters that atmospheric escape
+These comparisons can be made on constructed worlds over combinations of parameters that atmospheric escape
 would exclude from a natural temperate planet. On a small body with a massive atmosphere, the consequences of low gravity can be separated from those of thin air, and varying the atmosphere's pressure then changes the column mass while
 leaving gravity fixed. Alongside planets with different rotation rates or stellar spectra, like those the
 THAI and SAMOSA intercomparisons define \autocite{sergeev2022thai,haqqmisra2022samosa}, such cases would test the
@@ -65,7 +65,7 @@ A modeller can also choose those cases to direct terrestrial experiments. In the
 instance, the electrification graft computes charge separation in ice-particle collisions, where alternative
 laboratory fits can predict different charge arrangements. Comparing runs under each law locates the
 collision speeds, water contents and temperatures at which further measurements would discriminate between the
-laws. A storm simulated at planetary scale can thus be combined with experiments on the particles composing it,
+laws. A storm simulated in its planetary setting can thus be combined with experiments on the particles composing it,
 and the revised particle physics tested in the climates where its consequences are largest. Comparing worlds, modellers could select the experiments as well as use their results.
 
 For a natural planet, the models so developed would refine the climate predicted under its prescribed starlight. For a constructed world, the illumination chosen to sustain a desired climate could change with them, as the dimming of the lunar design changed with the radiation corrections. Holding a target
@@ -74,7 +74,7 @@ then be compared through the rain on their land and the winds over their seas.
 The same ensemble could be used to interpret a world found around another star and to design an environment whose boundary conditions people could choose.
 
 \needspace{3\baselineskip}
-Developed in this way, the ensemble could be used to explore where those environments admit persistent
+Developed in this way, the ensemble could be run to explore where those environments admit persistent
 surface water and what weather accompanies it. Simulated rain would constrain the water budgets of
 prescribed lakes; the winds transporting moisture would force the sea, and its spectra would determine
 the waves reaching a particular shore. Mixing the lakes and seas, the same winds and the waves they raise would
