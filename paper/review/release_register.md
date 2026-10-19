@@ -77,6 +77,13 @@ SHA256 `9f6744e43bb561358aaf0b276b8665e78120efdbe9d51d859877ed8cb864be16`, 37 pa
 Codex's final reader review then held three inferences beyond their evidence; after the author's choices
 (`editorial_round20.md`), the source at `96ddac1203dfe3328d43d2c99063398b1ffa93bb` counts four defects and two faults of uncertain cause and
 narrows the two others. Two clean builds gave the same PDF, 37 pages, SHA256 `f6ff147f7fb291d4acf5e80c24185bf8a006a7be3d64bc17c179b7507888623f`.
+Having read the paper whole, the author named one remaining weakness, verbs that give a subject an act it cannot
+perform; round 21's closing review tested every verb against its subject (`editorial_round21.md`), and its fixes
+outside the abstract and the Conclusion were applied with a light reading's corrections. Two clean builds from
+`be4a1d5153ad1804fb1eeb2028538321f8ba22d0` gave the same PDF, 37 pages, SHA256
+`3b1514a37391e0637db0f8856222a48fa31b944d0bdd612a4cbc0948953742c9`, with zero overfull boxes and every font embedded.
+The 21 fixes on approved wording, in the abstract and the Conclusion, are held for the author, and the gates stand
+as before.
 
 ## The artifact
 
