@@ -19,7 +19,9 @@ from dataclasses import dataclass
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
+import uuid
 
 import numpy as np
 from scipy.special import voigt_profile
@@ -128,7 +130,7 @@ class SteamOptics:
         sigma = sigma.astype(np.float32)
         if path is not None:
             path.parent.mkdir(parents=True, exist_ok=True)
-            part = path.with_suffix(f'.part{np.random.randint(1 << 30)}.npy')
+            part = path.with_suffix(f'.part{os.getpid()}-{uuid.uuid4().hex}.npy')   # forked workers share numpy's seed
             np.save(part, sigma)
             part.replace(path)
         return sigma

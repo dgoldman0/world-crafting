@@ -5,7 +5,8 @@ the reproduction of Arnscheidt, Wordsworth and Ding (2019), "Atmospheric Evoluti
 ApJ 881, 60 ([../lab/design/waterworlds.md](../lab/design/waterworlds.md)), whose arXiv source (1906.10561v2,
 sha256 8d416543…f451) was read on 2026-10-19; equation numbers here are the arXiv version's. `body.py` sizes the
 worlds, `escape.py` computes their isothermal wind, and `steam.py`, `steam_optics.py` and `radiating.py` compute the
-steam column, its absorption and its radiating surfaces; the energy balance follows.
+steam column, its absorption and its radiating surfaces; `balance.py`, `steam_table.py` and `maps.py` compute the
+energy balance, the columns' table over gravity and surface temperature, and the contours over gravity and distance.
 
 ## What the tools compute
 
@@ -48,13 +49,33 @@ steam column, its absorption and its radiating surfaces; the energy balance foll
   radiative–convective column's longwave solver, four Gauss angles and a source linear in optical depth, over a black
   surface. Each mean is reported with the share of its weight whose depth reaches one within the top layer, where the
   absorber above the column's top would raise the height further.
+- **The energy balance, the table and the contours.** `balance.py` gives the instellation that holds a surface at
+  T_s (eq. 12): the emitting surface's factor times the outgoing longwave, plus the power the wind carries away,
+  (g_s r_s + L) Φ, over the absorbing surface's factor times (1 − A)/4, with A = 0.2; the steady temperatures at an
+  instellation, every crossing of that curve; and for the paper's step to an ice albedo below 273 K (eq. 13) the
+  steady temperatures of two branches, the water's curve at 0.2 holding at and above 273 K and the ice's at its own
+  albedo below, so that no interpolation runs across the jump. `steam_table.py` computes the columns' outgoing
+  longwave and factors once over a grid of gravity and surface temperature, as the paper does (section 3), for
+  several stars' temperatures: it fills the optics' cache with each layer state once, runs each column in a worker
+  of its own with a line of progress as it ends, records a failed column with its error, and writes the table to the
+  store at `products/steam-table/<key>/table.json`, its key covering its inputs and its producer, the code of every
+  module that makes it and the versions of Python, numpy and scipy, and its header stating its evidence. `maps.py`
+  computes, gravity by gravity and for a star given by its temperature and its flux at 1 AU, the distance at which a
+  world stands at 273 K, or at the temperature at which its water lasts a given time, interpolating the instellation
+  linearly in T_s along the table; a temperature outside the table, or a lifetime no temperature from 150 to 640 K
+  gives, yields NaN.
 - **Choices the paper leaves open.** The vapour pressure is the column's own, Wagner and Pruß (2002) over liquid
   water and Wagner et al. (2011) over ice; steam is an ideal gas at every height; a year is a Julian year. The
   column's top, its levels, its bands and their steps, the lines' floor, the continuum and the surface's emissivity
   of one are the lab's choices; the paper names its line list, HITEMP2010 truncated for use below 1,000 K, which the
   lab adds when the author has downloaded it. Starlight beyond 25,000 cm⁻¹, where water has no lines, counts at the
   surface's height: it is 12.2% of a 5,772 K Planck curve and 0.6% of a 3,400 K one, and averaging over the computed
-  range alone would raise the Sun's absorbing height by 14%.
+  range alone would raise the Sun's absorbing height by 14%. The paper names the heat of vaporisation in its escape
+  term and leaves its value unstated; over liquid water L is the heat of vaporisation by the Clapeyron equation with
+  the saturated liquid's and vapour's densities of Wagner and Pruß (2002), within 0.1% of the steam tables from 373
+  to 600 K, where the ideal gas's Clausius–Clapeyron slope runs 1.6% high at 373 K, 17% at 500 K and 84% at 600 K,
+  which would raise the wind's power at 1.1 m/s² and 600 K by 28%; over ice, below 273.16 K, L is the heat of
+  sublimation, which adds about 7%, near 1 W/m², to the wind's power at 1.1 m/s² and 270 K.
 
 ## How they were checked
 
@@ -80,6 +101,18 @@ lines' absorption the multi-mesh sum loses; below 2 bar the optics give the mult
 the cache's key follows the continuum. Once, on 2026-10-19, the direct sum was also compared with a brute-force Voigt
 sum over 1,200 to 1,260 cm⁻¹, and again by the change's reviewer: it agrees to 1.4 × 10⁻⁵ at 2 bar and to
 9 × 10⁻⁸ at 26 bar, where the multi-mesh sum's points err by up to 100%.
+
+The energy balance's tests (`python/atmosphere/tests/test_balance_and_maps.py`) check that the instellation holds
+eq. 2 with the wind's power; that the heat of vaporisation meets the steam tables at 373, 500 and 600 K to 0.1% and
+over ice is the ice curve's heat of sublimation; that the steady temperatures are every crossing of a table's curve,
+an exact meeting counted once, and that the hysteresis's branches keep their states on their sides of 273 K; that
+the instellation takes each star's own absorbing factor and refuses a star the table lacks; that the 273 K contour
+of blackbody worlds meets its closed form to 10⁻⁴ and a temperature outside the table yields NaN; that the lifetime
+temperatures invert the wind, giving 273 K at the printed transition, 1.29 m/s², and NaN where no temperature from
+150 to 640 K gives the lifetime; that a grid stops at or below its end; that a table reads back as written and its
+key follows its inputs and producer; and that the table, computed in one process and in two, holds each column's
+surfaces, a capped column among them, as the column alone gives them, the second computing no cross-section
+anew.
 
 The column's numerical choices were tested once at 2.3 m/s², at 300 and 450 K, against finer settings, with the
 layers' masses at the local gravity. The base settings give an outgoing longwave of 246.77 and 240.95 W/m², emitting
