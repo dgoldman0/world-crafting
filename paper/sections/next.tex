@@ -15,12 +15,11 @@ design case by 11.5~K, a joint effect in which the ice optics' share is unmeasur
 at 295~K and is used near 307~K with twice the water vapour. Refitting the correction on the settled state's
 cloud-free columns, and iterating to a consistent pair of fit and climate, determines whether the warm state holds: if the consistent state returns near 295~K, the design's dimming is kept, and if it stays near 307~K, the dimming chosen to hold the design temperature must grow, and the rain and cloud change with it. Beyond the refit, a correction with
 humidity among its predictors would extend the fit, and a reduced correlated-$k$ scheme built from the reference
-model's own spectroscopy would replace the correction and the fits of Sasamori and of Lacis and Hansen. PlaSim would then compute its radiation as ROCKE-3D with SOCRATES and the LMD generic model do, from k-distributions of the air's own gases \autocite{tsigaridis2025rocke3d,wordsworth2011gliese}, at its own speed. Once that spectroscopy is checked, and the reduction checked against it layer by layer, such a scheme would
+model's own spectroscopy would replace the correction and the fits of Sasamori and of Lacis and Hansen. Once that spectroscopy is checked, and the reduction checked against it layer by layer, such a scheme would
 hold on columns within the gases, pressures and temperatures of the checks, under the starlight its shortwave would
 be built for, on another world as on the test world. Free tools exist for the reduction and for its check: ecCKD divides a spectrum into $k$-terms within an error tolerance the
 user sets \autocite{hogan2022tool}, and CKDMIP evaluates such schemes against benchmark line-by-line calculations
-\autocite{hogan2020evaluating}; both were built around Earth's columns, so the reference model would supply the
-spectra of the test world's columns.
+\autocite{hogan2020evaluating}; both were built around Earth's columns, so the reference model would supply the spectra of the test world's columns. PlaSim would then compute its radiation as ROCKE-3D with SOCRATES and the LMD generic model do, from $k$-distributions of the air's own gases \autocite{tsigaridis2025rocke3d,wordsworth2011gliese}.
 
 \textbf{Cloud from the cloud-resolving model.} Varied in the tests, PlaSim's cloud amount and cloud water changed the test world's temperature by several kelvin, and both remain uncalibrated for that world. The cloud cover and water by pressure of CM1 runs forced from the
 consistent state of the first step, with the transport across each ring imposed, become the target to which
