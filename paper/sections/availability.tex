@@ -1,18 +1,17 @@
 \section{Availability and declarations}
 
-\textbf{Code and data.} The patches to ExoPlaSim, CM1 with WRF-ELEC and SWAN, the Fortran written for CM1's
-electrified build, the in-house reference and calibration tools with their tests, the notes on each component's
-correctness and limits, the defect log, the verification record, and this paper's figure scripts, data extracts and
-a register tracing the work's own numbers to their sources are held in the public world-crafting repository,
-\url{https://github.com/dgoldman0/world-crafting}, which will also hold the paper's release commit. The case comes
-from the Terluna project \autocite{goldman2026terluna}, whose repository at commit 186b294 holds the scenario, the
-runners, the case set-up and the analyses; the model runs themselves are held on the project's research drive, and
-the products derived from them are committed to Terluna with the hashes of their inputs. Work on the ensemble
-itself, by contrast, will continue in the world-crafting repository as a standalone project, if resources allow.
-The patches apply to upstream sources pinned by checksum: ExoPlaSim 3.4.2 from its source distribution, CM1
-release 22.0, SWAN 41.51 and WRF-ELEC at commit \code{e43041b}; SWASH 12.01 runs unmodified from its pinned archive.
-As patches to those sources, they
-inherit their licences: the GNU GPL version 3 for ExoPlaSim and version 3 or later for SWAN, CM1's MIT-style
+\textbf{Code and data.} The ensemble's code and records are held in the public world-crafting repository,
+\url{https://github.com/dgoldman0/world-crafting}, where work on the ensemble will continue as a standalone
+project, if resources allow, and which will also hold the paper's release commit. It holds the patches to
+ExoPlaSim, CM1 with WRF-ELEC and SWAN, the Fortran written for CM1's electrified build, the in-house reference and
+calibration tools with their tests, the notes on each component's correctness and limits, the defect log and the
+verification record, with this paper's figure scripts, data extracts and a register tracing the work's own numbers
+to their sources. The runs and their analyses belong to the Terluna project \autocite{goldman2026terluna}, whose
+public repository at commit 186b294 holds the scenario, the runners that build and run the models, the case
+set-up, the analyses, and the products derived from the runs with the hashes of their inputs; the raw model output
+is available from the author on reasonable request. The patches apply to upstream sources pinned by checksum:
+ExoPlaSim 3.4.2 from its source distribution, CM1 release 22.0, SWAN 41.51 and WRF-ELEC at commit \code{e43041b};
+SWASH 12.01 runs unmodified from its pinned archive. As patches to those sources, they inherit their licences: the GNU GPL version 3 for ExoPlaSim and version 3 or later for SWAN, CM1's MIT-style
 licence, and the WRF public-domain notice for WRF-ELEC.
 
 \textbf{Author and AI assistance.} Daniel S. Goldman designed the scenario, directed the work and is responsible
