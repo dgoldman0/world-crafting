@@ -4,37 +4,28 @@ Developing the ensemble across worlds requires consistent heating and cloud betw
 calculations, followed by tests of the general repairs across planetary parameters. In the LMD's models the
 global and resolved calculations share their physics: the Mars GCM's parameterizations run in a mesoscale model on
 WRF's core, which the GCM drives at its boundaries \autocite{spiga2009new}, and the generic model's radiation and
-cloud have run on the same core over Proxima~b, where the resolved cloud feedback came out much weaker than the
-GCMs' \autocite{lefevre2021convection}. Codes built separately, as here, are brought toward that consistency by
-calibration. The first experiments take up the two Earth fits whose
-tests moved the test world's climate most: PlaSim's longwave by height, under its correction, and its cloud, still
+cloud have run on the same core over Proxima~b, where the resolved cloud feedback was much weaker than the GCMs' \autocite{lefevre2021convection}. Codes built separately, as here, are brought toward that consistency by
+calibration. In the first experiments, the two Earth fits with the largest effects on the test world's climate in the tests are refitted: PlaSim's longwave by height, under its correction, and its cloud, still
 uncalibrated. Their accuracy depends on an independent check of the
 shared radiation reference, after which comparisons on worlds modelled in other studies would test the reach
-proposed in Table~\ref{tab:reach}. The remaining experiments use the lunar departures from Earth to test
-specific approximations in the dynamics, the microphysics, the wave physics and the lakes and seas beneath the
-waves.
+proposed in Table~\ref{tab:reach}. The remaining experiments compare the present models with an independent GCM and use the lunar departures from Earth to test specific approximations in the dynamics, CM1's radiation, the microphysics and the wave physics, and in the models of the lakes and seas beneath the waves.
 
 \textbf{The longwave at the settled state.} The longwave correction, switched on with the ice optics, warmed the
 design case by 11.5~K, a joint effect in which the ice optics' share is unmeasured, yet the correction was fitted
 at 295~K and is used near 307~K with twice the water vapour. Refitting the correction on the settled state's
-cloud-free columns, and iterating to a consistent pair of fit and climate, decides whether the warm state holds: if
-the consistent state returns near 295~K, the design's dimming stands, and if it stays near 307~K, the dimming that
-holds the design temperature must grow, and the rain and cloud change with it. Beyond the refit, a correction with
+cloud-free columns, and iterating to a consistent pair of fit and climate, determines whether the warm state holds: if the consistent state returns near 295~K, the design's dimming is kept, and if it stays near 307~K, the dimming chosen to hold the design temperature must grow, and the rain and cloud change with it. Beyond the refit, a correction with
 humidity among its predictors would extend the fit, and a reduced correlated-$k$ scheme built from the reference
-model's own spectroscopy would go further, replacing the correction and the fits of Sasamori and of Lacis and
-Hansen. Once that spectroscopy is checked, and the reduction checked against it layer by layer, such a scheme would
+model's own spectroscopy would replace the correction and the fits of Sasamori and of Lacis and Hansen. Once that spectroscopy is checked, and the reduction checked against it layer by layer, such a scheme would
 hold on columns within the gases, pressures and temperatures of the checks, under the starlight its shortwave would
 be built for, on another world as on the test world. Free tools exist for the reduction and for its check: ecCKD divides a spectrum into $k$-terms within an error tolerance the
 user sets \autocite{hogan2022tool}, and CKDMIP evaluates such schemes against benchmark line-by-line calculations
 \autocite{hogan2020evaluating}; both were built around Earth's columns, so the reference model would supply the
 spectra of the test world's columns.
 
-\textbf{Cloud from the cloud-resolving model.} PlaSim's cloud amount and cloud water move the test world by
-several kelvin and remain uncalibrated for it. The cloud cover and water by pressure of CM1 runs forced from the
+\textbf{Cloud from the cloud-resolving model.} PlaSim's cloud amount and cloud water change the test world's temperature by several kelvin and remain uncalibrated for it. The cloud cover and water by pressure of CM1 runs forced from the
 consistent state of the first step, with the transport across each ring imposed, become the target to which
 PlaSim's humidity thresholds and its cloud-water profile are fitted, and the same runs test whether the corrected
-longwave closes the 3.7~K by which CM1's lowest 1.8~km at 45\textdegree\,N stays warmer than the GCM's. Refitted cloud
-could move the test world as far as the cloud settings do, up to about 6~K, and the design's dimming with it.
+longwave removes the 3.7~K by which CM1's lowest 1.8~km at 45\textdegree\,N stays warmer than the GCM's. Refitted cloud could change the test world's temperature as much as the cloud settings do, up to about 6~K, and the design's dimming would be reset with it.
 Cloud fitted this way remains a calibration, refitted for each other world from cloud-resolving runs of that
 world. On Titan a GCM's convection has been tuned by the same route: \textcite{rafkin2022interaction}
 started a cloud-resolving model from dozens of the GCM's unstable profiles, and \textcite{battalio2022interaction}
@@ -47,7 +38,7 @@ longwave and a solver built on DISORT \autocite{stamnes1988numerically} for the 
 identical layers, tests the reference itself. Layer heating or a split of sunlight departing from the reference by
 more than the calibration's residual by layer, 0.97~W\,m$^{-2}$ rms, or the split's 0.6 points rms on columns
 outside its fit, would require the
-multipliers and the gas bands to be refitted against a corrected reference before it serves further worlds;
+multipliers and the gas bands to be refitted against a corrected reference before it is used for further worlds;
 the lunar design's dimming would then be reset against the revised climate.
 
 \textbf{A test of the reach.} Released and repaired ExoPlaSim would be run on ozone-free planets of 1~bar
@@ -66,15 +57,14 @@ narrow with it.
 
 \textbf{An independent GCM.} ROCKE-3D or the LMD generic model on the test world's scenario
 \autocite{way2017resolving,wordsworth2011gliese} would indicate which of the two present models departs near the
-ground: an independent GCM's air as warm as CM1's would point to PlaSim's boundary layer and longwave as the next
-repairs, and air as cool as PlaSim's to the slices' forcing and CM1's microphysics, each then to be tested
+ground: an independent GCM's air as warm as CM1's would suggest PlaSim's boundary layer and longwave as the next repairs, and air as cool as PlaSim's would suggest the slices' forcing and CM1's microphysics, each then to be tested
 directly.
 
 \textbf{The tall air's dynamics.} Both dynamical cores hold gravity constant, PlaSim's in a thin shell and CM1's in
 a flat slab, while lunar gravity falls 5\% by the air's mass-mean height and the air in spherical shells holds
 11.5\% more over each square metre of ground than $p_s/g_s$. The consistent deep-atmosphere equations
 \autocite{white2005consistent} and the deep forms of global models \autocite{mayne2014unified} include both
-effects, and before they are adopted, a first step would correct the GCM's column mass and heights, while a test of
+effects, and before they are adopted, the GCM's column mass and heights would first be corrected, while a test of
 the circulation's sensitivity would show whether the full equations are needed. A change in the GCM's poleward heat transport larger than the
 design case's spread from year to year would make a deep core a requirement for air as tall against its world's
 radius.
@@ -84,45 +74,34 @@ Sun's unfiltered spectrum, and cools the lowest 1.8~km 4.5~W\,m$^{-2}$ more than
 tables past 1,053.63~hPa, with every other input held, would separate the table's edge from the other causes: if
 the extended tables remove most of the 4.5~W\,m$^{-2}$, the extrapolation was the cause, and CM1's lowest air
 warms by about a kelvin, so that, with PlaSim's longwave correction warming the GCM as well, the near-ground range
-that remains would test the boundary-layer explanation, beside the ice above 107~km and the dry ground at
-45\textdegree\,N; if they remove little, the cause lies in RRTMG's other
-approximations, and replacing RRTMG with the in-house correlated-$k$ scheme becomes the step. Separately, giving
+that remains would test the boundary-layer explanation against the two candidates still open, the ice above 107~km and the dry ground at 45\textdegree\,N; if they remove little, the cause is among RRTMG's other approximations, and replacing RRTMG with the in-house correlated-$k$ scheme becomes the step. Separately, giving
 RRTMG the shield's spectrum, in a run of its own, would correct the difference of about 5~W\,m$^{-2}$ in the air's absorbed
-sunlight that the Sun's unfiltered spectrum brings.
+sunlight that results from the Sun's unfiltered spectrum.
 
 \textbf{Microphysics at lunar gravity.} Morrison's limits on the size of rain, its breakup and the size of ice
 crystals stay Earth's, and snow falls with the drops' gravity exponent where its own mass and area laws give a
 larger one; with these limits, 85\% of the falling water evaporates in the boxes and 57--73\% in the rings. A gravity-similarity pair
-under prescribed radiative cooling would measure how far the scaled microphysics departs from similarity, and
-limits scaled with the capillary length would show how much of the evaporation the small drops cause,
-testing whether the drop-size treatment needs a gravity dependence as well as the fall speeds.\claim{N03}
-If larger drops bring CM1's surface rain toward the GCM's, the rain gap closes on the GCM's side and the rain-fed
-lakes of the design keep their source; if CM1's rain stays near a quarter of the forcing GCM's, the lakes' water
-budget has to be drawn from the cloud-resolving rain.
+under prescribed radiative cooling would measure how far the scaled microphysics departs from similarity, and runs with limits scaled with the capillary length would show how much of the evaporation the small drops cause, testing whether the drop-size treatment, like the fall speeds, has to depend on gravity.\claim{N03}
+If larger drops raise CM1's surface rain toward the GCM's, the two models agree near the GCM's rain and the rain-fed lakes receive the rain the design assumed; if CM1's rain stays near a quarter of the forcing GCM's, the lakes' water budget has to be computed from the cloud-resolving rain.
 
 \textbf{The arrangement of the lunar storms' charge.} The lunar storms' arrangement of charge turns over with the
 laboratory charging law chosen, since the laws disagree on the charge rimed ice takes in the storms' little cloud
 water: in the two windows that Results describes, the storms held an inverted dipole under Takahashi's law and the
 normal arrangement under Saunders and Peck's in most of the second window's outputs and about half of the
-first's.\claim{G11} Under Saunders and Peck's law, hail, striking ice and snow at 4--8~m\,s$^{-1}$, carried most of
-the charge, and under Takahashi's, hail carried 37--43\% and graupel, striking at about 1--4~m\,s$^{-1}$, most of
+first's.\claim{G11} Under Saunders and Peck's law, hail, striking ice and snow at 4--8~m\,s$^{-1}$, did most of the non-inductive charging, and under Takahashi's, hail did 37--43\% and graupel, striking at about 1--4~m\,s$^{-1}$, most of
 the rest. Measured in a laboratory at hail's
-speeds in 0.02--0.2~g\,m$^{-3}$ of cloud water at $-5$ to $-16$\,\textdegree C, the sign of that charge would
-decide between the two laws for hail, and graupel's sign at its own speeds would complete the measurements that
-decide the arrangement the model's lunar storms take.\claim{N01} The sign of the ground strikes under Takahashi's law also
-stays open in the windows: the first window ran under a rule that let no lunar channel reach the ground, and the
+speeds in 0.02--0.2~g\,m$^{-3}$ of cloud water at $-5$ to $-16$\,\textdegree C, the sign of that charge would determine which of the two laws holds for hail, and graupel's sign at its own speeds would complete the measurements that determine the arrangement the model's lunar storms take.\claim{N01} The sign of the ground strikes under Takahashi's law is also undetermined in the windows: the first window ran under a rule that let no lunar channel reach the ground, and the
 second window's strikes, 21 under Saunders and Peck's law and 10 under Takahashi's, all negative, carried charge
 left over from a run with leakage off. For their number, a leader model of the descent from the $-7$\,\textdegree C level, 27--34~km
 up, to the ground would replace the bound on ground strikes, now between none and a fifth of flashes, with a rate of
 strikes, each lowering a median 149~C.
 
 \textbf{The seas' Earth laws.} Wind input and breaking checked against theory at the lunar ratio of air to water
-density, and the spread between source-term packages, Komen's against Janssen's and ST6, would decide whether the
-similarity image of an Earth sea holds on the test world; a wide spread would make the lunar wave heights a
+density, and the spread between source-term packages, Komen's against Janssen's and ST6, would test whether the similarity image of an Earth sea holds on the test world; a wide spread would make the lunar wave heights a
 range. Beyond the source terms, the air's density as a field and a wider frequency band for the small seas whose
 spectra reach its upper edge are numerical needs, and swell decay over the long fetches, where swell carries a third
 to two thirds of the wave energy, a physical one that ST6 includes.\claim{N04} Beneath the waves, the GCM's winds and
 surface heat fluxes, with SWAN's sea states over the seas, could force one-dimensional models of the lakes and seas,
 which would compute their mixing and their exchange of gases with the air; since at lower gravity a given contrast
-of temperature resists the wind's mixing more weakly, the gas-transfer and mixing laws such models take, fitted on
+of temperature resists the wind's mixing more weakly, the gas-transfer and mixing laws such models apply, fitted on
 Earth's lakes and seas, would be among the Earth values to test, and so would the one-dimensional form itself.

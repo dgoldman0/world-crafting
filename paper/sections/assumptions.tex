@@ -1,20 +1,15 @@
 \section{Earth values and defects in the released codes}
 
-ExoPlaSim's default orbit is one of the Earth values and defects met on the paths the lunar runs take through
+ExoPlaSim's default orbit is one of the Earth values and defects found on the paths the lunar runs take through
 the four codes (Table~\ref{tab:inventory}). For each entry, the defect log in the code repository records its
-discovery and evidence, with its repair and measured effect where these exist, and the log adds the entries found
-off the lunar runs' paths and the adaptation's own defects. Each Earth value in the table is right at Earth's
+discovery and evidence, with its repair and measured effect where these exist, and the log also lists the entries found off the lunar runs' paths and the adaptation's own defects. Each Earth value in the table is right at Earth's
 ratios and errs as a world departs from them along the ratio it depends on, some steadily and some past a
-threshold, so the inventory reads as well as a list of what to check on another world. What a repair of an Earth
-value needs, however, follows from its form: a dimensional constant needs the world's own value or a law that
-gives it, a unit of time the world's own unit, a geometry a method computed for the world's own air, and a fit or
-simplification a refit or a scheme that holds over the world's range.
+threshold, so the inventory is also a list of what to check on another world. How an Earth value is repaired, however, follows from its form: a dimensional constant is repaired with the world's own value or a law that gives it, a unit of time with the world's own unit, a geometry with a method computed for the world's own air, and a fit or simplification with a refit or a scheme that holds over the world's range.
 
-Gravity, the commonest constant, enters the codes as a number, a length and a frequency. As a number it is
+Gravity, the commonest constant, is written into the codes as a number, a length and a frequency. As a number it is
 9.81~m\,s$^{-2}$ in four places on the lunar paths of CM1 release 22, its dynamics, the conversion of pressure to
 layer mass in RRTMG \autocite{iacono2008radiative}, its CAPE diagnostic and the Morrison microphysics, as well as
-in schemes those paths leave unselected, and 9.8, set twice, in WRF-ELEC's NSSL scheme, which also ties the
-ventilation of evaporating rain and depositing ice to Earth's fall speeds.\claim{H01}\claim{H02} As a length it
+in schemes off those paths, and 9.8, set twice, in WRF-ELEC's NSSL scheme, which also computes the ventilation of evaporating rain and depositing ice from Earth's fall speeds.\claim{H01}\claim{H02} As a length it
 sets the decay of CCM3's profile of cloud water \autocite{kiehl1996description}, from which PlaSim diagnoses its
 clouds' water, on a geometric height scale of $700\ln(1+\mathrm{PW})$~m written for Earth's gravity: with every
 pressure level six times higher, clouds above about 20~km, most of the lunar cover, were left nearly dry, and under
@@ -23,7 +18,7 @@ it is written into SWAN as the 1~Hz knee above which the code reduces its linear
 comments call mostly arbitrary, and because the knee stays at 1~Hz while gravity changes, stock SWAN misses a
 sixfold gravity-similarity test by up to 5.44\% in significant wave height; with that linear input switched on, SWAN's
 sea at any gravity other than Earth's departs through that constant from the
-scaled image of an Earth sea wherever its frequency band reaches past the lower of two knees, the code's 1~Hz and
+scaled image of an Earth sea wherever its frequency band includes frequencies above the lower of two knees, the code's 1~Hz and
 the $g/g_\mathrm{E}$~Hz that similarity would give, which is $g/g_\mathrm{E}$~Hz under weaker gravity and 1~Hz
 under stronger.\claim{H04}
 
@@ -34,15 +29,12 @@ storms, WRF-ELEC caps at 180~kV\,m$^{-1}$ a breakdown field scaled with the air'
 but in lunar air below about 36~km, where it lowers the field by 44\% at the ground. Its rule for ground strikes was
 drawn from Earth's storms: the code declares a ground strike when a channel reaches air warmer than
 $-7$\,\textdegree C, about 5~km above Earth's ground but 27--34~km above the Moon's.\claim{H03} Composition and rotation, finally, stay Earth's in CM1:
-RRTMG takes carbon dioxide from the calendar year, with Earth's trace gases and ozone, while CM1's beta plane
+RRTMG computes carbon dioxide from the calendar year and uses Earth's trace gases and ozone, while CM1's beta plane
 derives its gradient from Earth's rotation and radius.\claim{H06}
 
-Earth's day enters as a unit of time in the calendars. ExoPlaSim's year of 360 days in 17,280 half-hour steps
+In their calendars, ExoPlaSim and CM1 count Earth days. ExoPlaSim's year of 360 days in 17,280 half-hour steps
 holds 12.08 lunar model days of 1,430 steps, so output kept by model time slips 120 steps a year against the
-model day, and with it against the released code's Sun.\claim{H08} CM1 keeps Earth's day in its Sun and its soil: its Sun
-follows Earth's 24-hour day, Earth's calendar and an obliquity of 23.5\textdegree, and its five soil layers, 1--16~cm thick, resolve Earth's
-diurnal thermal wave, which under the month-long day reaches about 0.6~m, below the deepest of
-them.\claim{H09}
+model day, and with it against the released code's Sun.\claim{H08} In CM1, the solar routine computes the Sun's position from Earth's 24-hour day, Earth's calendar and an obliquity of 23.5\textdegree, and the five soil layers, 1--16~cm thick, are sized for Earth's diurnal thermal wave, whereas under the month-long day the wave reaches about 0.6~m, below the deepest of them.\claim{H09}
 
 PlaSim and RRTMG treat each column as a stack of flat layers lit only while the Sun stands above that column's
 horizon, a geometry made for air a tenth of a percent of the radius tall. The test world's air is far taller.
@@ -58,12 +50,10 @@ for well-mixed air (Figure~\ref{fig:slant}).\claim{H12} The dynamical cores use 
 PlaSim's a thin shell and CM1's a flat slab, both with gravity constant with height, while the reference models
 compute with $g = GM/r^2$, by which lunar gravity is 5.4\% lower at the air's mass-mean height and 15.3\% lower
 at CM1's 150~km top.\claim{H13} PlaSim's vertical grid was laid out for Earth: its ten $\sigma$ levels are set at
-fractions of the surface pressure chosen for Earth's air, and in the design case they put the top three layers above 107~km, at 81--107~km and at 63--81~km,
-each spanning about 25~K, with ice saturation changing 55-fold across the second, and leave two layers for the
-lowest 6.5~km, too few to resolve the boundary layer's day--night shape.\claim{H33}
+fractions of the surface pressure chosen for Earth's air, and in the design case the top three layers are above 107~km, at 81--107~km and at 63--81~km, each spanning about 25~K, with ice saturation changing 55-fold across the second, while the lowest 6.5~km holds two layers, too few to resolve the boundary layer's day--night shape.\claim{H33}
 
 The radiation schemes were fitted to Earth's columns and Earth's Sun, and the test world's columns and filtered
-sunlight lie far from both. PlaSim's fits erred first in the column's totals, then in its split of sunlight, then in the
+sunlight are far from both. PlaSim's fits were found to err first in the column's totals, then in its split of sunlight, then in the
 heights at which it absorbs and cools. In the totals, ExoPlaSim normalises its Rayleigh coefficient to the
 ultraviolet of a 5772~K blackbody, which for the shield-filtered Sun gives a coefficient too low, and PlaSim's
 water continuum over-absorbs at long paths, so that, uncalibrated, the first design run, with 25\% seas under the
@@ -73,34 +63,30 @@ and Hansen's near-infrared water absorptivity, fitted to Earth's water paths ove
 test world's paths, from 17~cm upward, it left the air absorbing 7.7--8.2 percentage points too little of the
 arriving sunlight on eleven columns.\claim{H14}\claim{S08} By height, PlaSim's two shortwave bands omit carbon
 dioxide and oxygen, whose lines absorb sunlight high in a column 7.25 times Earth's, so once a water multiplier
-was calibrated on the column's total, the water absorbed their share lower down. PlaSim's longwave errs by height
-as well: Sasamori's broadband absorptivities \autocite{sasamori1968radiative}, with a water continuum that the first
-calibration fitted to the outgoing flux, cool the lowest two layers 9.7--11.9~W\,m$^{-2}$ too much against the
+was calibrated on the column's total, the water absorbed their share lower down. PlaSim's longwave errs by height as well: with Sasamori's broadband absorptivities \autocite{sasamori1968radiative} and a water continuum that the first calibration fitted to the outgoing flux, it cools the lowest two layers 9.7--11.9~W\,m$^{-2}$ too much against the
 reference model's correlated-$k$ emulation and the air aloft up to 12~W\,m$^{-2}$ too little.\claim{H16}\claim{H17}
 Beyond the gases, PlaSim treats all cloud as liquid, giving it liquid water's optics and reckoning saturation over
 liquid at every temperature, so in the design case the high cloud in its second layer from the top, at
 180--204~K, forms only at 136--149\% of ice saturation. Moreover, the relative-humidity threshold above which it
 forms cloud in each layer was set for Earth, 0.983 in the lowest layer.\claim{H19}\claim{G16}
 
-CM1's RRTMG meets the same columns at the edges of its tables: its reference pressures begin at 1,053.63~hPa, and
+In CM1, RRTMG computes the radiation of the same columns at the edges of its tables: its reference pressures begin at 1,053.63~hPa, and
 the lowest 7.5~km of air over the lunar sea, at up to 1,216~hPa, lie beyond them and are extrapolated in
 $\ln p$; its ice optics end at 140~\textmu m, a size that slowly falling lunar ice outgrows, and the electrified
 box stopped at day 6.45 when its microphysics passed 157~\textmu m to the radiation.\claim{H20}
 
 Beyond radiation and cloud, the laws of particles, seas and charge were fitted to Earth's data. The fall-speed laws $V =
 aD^b$ of the Morrison and NSSL schemes, and their caps, were fitted at Earth's gravity; since gravity's part in
-each fall speed follows from the balance of weight and drag, a scaling law extends them to another
-gravity.\claim{H01} Morrison's scheme as implemented in CM1 \autocite{morrison2005new} also bounds the mean
+each fall speed follows from the balance of weight and drag, they can be extended to another gravity by a scaling law.\claim{H01} Morrison's scheme as implemented in CM1 \autocite{morrison2005new} also bounds the mean
 diameter of rain at 2.8~mm and begins breakup in rain's self-collection above a mean of 0.3~mm, after
 \textcite{verlinde1993fitting}, values set for Earth's rain, while the largest drop that survives its own fall
-scales with the capillary length $\sqrt{\sigma/\rho_w g}$, 2.46 times longer at lunar gravity.\claim{H21} The wave
-and storm laws come from Earth's calibrations: Wu's drag \autocite{wu1982wind}, Komen's growth and whitecapping
+scales with the capillary length $\sqrt{\sigma/\rho_w g}$, 2.46 times longer at lunar gravity.\claim{H21} The wave and storm laws were calibrated on Earth: Wu's drag \autocite{wu1982wind}, Komen's growth and whitecapping
 \autocite{komen1984existence}, the AGROW coefficient \autocite{cavaleri1981wind}, a breaker index of 0.73
 \autocite{battjes1985calibration}, SWASH's breaking thresholds of 0.6 and 0.3, and WRF-ELEC's laboratory charging
 laws \autocite{saunders1998laboratory,takahashi1978riming}, between which the lunar storms' arrangement of charge
 turned over in two windows of an earlier run.\claim{H22} One simplification holds for storms of a few hours:
 WRF-ELEC conducts no charge through clear air, its screening option acting only at cloud edges, but in a month-long
-lunar run the charge that evaporating cloud handed to the small ions persisted for weeks and held the field at the
+lunar run the charge that evaporating cloud transferred to the small ions persisted for weeks and held the field at the
 ground near 20~kV\,m$^{-1}$ across the whole domain.\claim{H10}
 
 Four defects in the released codes contradict their own inputs, units or intent. Three of them, all in
@@ -112,26 +98,22 @@ ExoPlaSim's default rotation of one day, about 1\textdegree\ for a rotation near
 day, 10\textdegree\ for a ten-day rotation, 16\textdegree\ from 12 to 20 days and 33\textdegree\ for any slower
 rotation, for which ExoPlaSim's wrapper sets twelve model days to the year. On the Moon the skip of
 32.5\textdegree\ left sunlight along the equator 8.3\% short from 270\textdegree\ to 57\textdegree~E and up to
-17\% over near 164\textdegree~E (Figure~\ref{fig:sunclock}).\claim{H23} The second lies in Slingo's convective
-cover, $0.245 + 0.125\ln P$ in the form PlaSim's manual gives it \autocite{slingo1991response,lunkeit2012plasim},
+17\% over near 164\textdegree~E (Figure~\ref{fig:sunclock}).\claim{H23} The second is in Slingo's convective cover, $0.245 + 0.125\ln P$ in the form PlaSim's manual gives it \autocite{slingo1991response,lunkeit2012plasim},
 with $P$ the convective rain in millimetres per day, which converts the rain with the model's solar day, a
 conversion ExoPlaSim's developers left in place when they replaced the solar day by 86,400~s in its unit
 conversions \autocite{paradise2022exoplasim}. With a model day of 29.8 Earth days, the formula therefore reads
 lunar rain as about 30 times heavier than it is and adds $0.125\ln 29.8 = 0.42$ to the cover, up to its cap of
 0.8; on any world it adds $0.125\ln(\text{day}/1\,\text{d})$.\claim{H07} The third
-puts an Earth constant in place of a configured value: ExoPlaSim's default orbit setting silently replaces the
-configured obliquity with that of Earth's orbit for the model's starting year from Berger's series
+puts an Earth constant in place of a configured value: under ExoPlaSim's default orbit setting, PlaSim silently replaces the configured obliquity with that of Earth's orbit for the model's starting year from Berger's series
 \autocite{berger1978long}, 23.7\textdegree, which on the Moon put 149~W\,m$^{-2}$ of sunlight at 86\textdegree\
 latitude against the Moon's 29 and brought Earth's seasons and summer rain to 60\textdegree, while on Earth it
 moves the tilt by a fraction of a degree.\claim{H24} The Moon's slow rotation and small tilt made all three
 large, whereas the fourth's error is independent of the world. SWAN reads its breaker parameter
 uninitialised whenever depth-induced breaking is off, and divides by its square root in the fraction that sets the
-spectrum's limiter, so repeated Earth runs differed by about 2.5\% in wave height, although its usual
-configuration, with breaking on, assigns the parameter before the read.\claim{H25} Two further faults have uncertain causes. In the lunar
+spectrum's limiter, so repeated Earth runs differed by about 2.5\% in wave height, although SWAN, in its usual configuration, with breaking on, assigns the parameter before the read.\claim{H25} Two further faults have uncertain causes. In the lunar
 boxes, runs of CM1 on several threads part from one another after 3,000--7,400~s, first in the domain's total
 vertical momentum, in the plain Morrison build as in the electrified one; since every patch in a threaded region
-writes only its own points, the fault most likely lies in CM1's own threaded loops, where it remains unlocated; a
-threaded run of stock CM1 with these boxes' options would test whether it lies there.\claim{H26} PlaSim's lowest model level, for its part, reads up
+writes only its own points, the fault is most likely in CM1's own threaded loops, where it remains unlocated; a threaded run of stock CM1 with these boxes' options would test whether it is there.\claim{H26} PlaSim's lowest model level, for its part, reads up
 to 20~K too cold in 0.8\% of three-day windows, most likely through the spectral
 transform over steep terrain.\claim{H27}
 
@@ -177,14 +159,14 @@ Calendar & 360-day year of 17,280 steps & Output slips 120 steps a year & Time &
 Cloud water & CCM3 height scale in metres & Cloud above 20~km nearly dry & Constant & L & General \\
 Vertical grid & Earth's $\sigma$ levels & Top layers above 63~km; two in the lowest 6.5~km & Geometry & L & Open \\
 Slant path & Horizon factor 35 & 13.5 for water, 7.1 for air & Geometry & L & Method, lunar table \\
-Columns & Flat, lit with the Sun up & Miss a net 5.8~W\,m$^{-2}$ loss & Geometry & L & Method, lunar table \\
+Columns & Flat, lit with the Sun up & Omit a net 5.8~W\,m$^{-2}$ loss & Geometry & L & Method, lunar table \\
 Dynamics & Thin shell, constant $g$ & $g$ 5.4\% lower at 48.6~km & Geometry & L & Open \\
-Shortwave gases & Omit CO$_2$ and O$_2$ & Their share taken by water & Fit & L & Calibration \\
+Shortwave gases & Omit CO$_2$ and O$_2$ & Their share absorbed by water & Fit & L & Calibration \\
 Rayleigh, continuum & 5772~K normalisation; continuum 0.024 & First design run past 310~K & Fit & L & Calibration \\
 Water absorptivity & Lacis--Hansen, Earth's paths & Air 7.7--8.2 points short & Fit & L & Calibration \\
 Longwave by height & Sasamori's absorptivities & Lowest layers overcooled 10--12~W\,m$^{-2}$ & Fit & L & Calibration, opt-in \\
 Cloud phase & Liquid optics for all cloud & High cloud at 180--204~K reflects as liquid & Fit & L & General, opt-in \\
-Cloud thresholds & Relative humidity, 0.983 in the lowest layer & Moved the climate up to about 6~K in tests & Fit & L & Open \\
+Cloud thresholds & Relative humidity, 0.983 in the lowest layer & Up to about 6~K in the global mean in tests & Fit & L & Open \\
 Convective cover, fit & Slingo's fit to Earth's convection & Near its floor in a test, $+2.2$~K & Fit & L & Open \\
 Saturation & Over liquid at every temperature & Cloud at 136--149\% of ice saturation & Fit & L & Open \\
 Lowest level & Cause uncertain, probably the spectral transform & Up to 20~K cold in 0.8\% of windows & --- & ? & Open, screened \\
@@ -204,12 +186,12 @@ Beta plane & Earth's rotation and radius & Earth's $\beta$ & Constant & L & Bypa
 Threads & Cause uncertain, most likely CM1's own threaded loops & Runs on several threads part & --- & ? & Open \\
 \midrule
 \multicolumn{6}{@{}l}{\textit{WRF-ELEC, grafted into CM1}} \\
-Gravity, ventilation & 9.8 twice; ventilation tied to Earth's fall speeds & Fall speeds and ventilation at Earth's $g$ & Constant & L & General \\
+Gravity, ventilation & 9.8 twice; ventilation from Earth's fall speeds & Fall speeds and ventilation at Earth's $g$ & Constant & L & General \\
 Breakdown cap & 180~kV\,m$^{-1}$ & Binds below 36~km & Constant & L & General \\
 Ground-strike rule & $-7$\,\textdegree C level; stopping field 0.15 & Level 27--34~km up & Constant & L & Bound \\
 Other thresholds & 50~MV; 10~kV\,m$^{-1}$ & Set for Earth's storms & Constant & L & Open \\
 Sub-step & 0.75~s for 500~m layers & 2~km layers, slow graupel & Constant & L & General \\
-Flash reach & Logged above a charge threshold & Weak flashes high in thin air logged no reach & Constant & L & General \\
+Flash reach & Logged above a charge threshold & No reach logged for weak flashes high in thin air & Constant & L & General \\
 Conduction & None in clear air & Charge persists for weeks & Fit & L & Capability \\
 Charging laws & Laboratory laws & Arrangement of charge turned with the law in two windows & Fit & L & Open \\
 \midrule

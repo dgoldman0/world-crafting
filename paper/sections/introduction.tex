@@ -6,7 +6,7 @@ air and followed their cloud and temperature as the day lengthened, \textcite{th
 gravity of a terrestrial planet in moist and dry general circulation models, and \textcite{boutle2017exploring}
 placed a nitrogen--oxygen atmosphere on Proxima Centauri~b, under a cooler star. For such work, by the account of
 THOR's developers, most general circulation model (GCM) studies of exoplanet atmospheres adapt codes developed for
-Earth or for solar-system planets \autocite{deitrick2020thor}: ROCKE-3D descends from the GISS ModelE2, ExoCAM
+Earth or for solar-system planets \autocite{deitrick2020thor}: ROCKE-3D was developed from the GISS ModelE2, ExoCAM
 from NCAR's Community Atmosphere Model, and ExoPlaSim from the Planet Simulator, PlaSim
 \autocite{way2017resolving,wolf2022exocam,paradise2022exoplasim}. Convection and wave models built for Earth have
 been run off Earth as well: SAM in cloud-permitting runs on tidally locked planets, CM1 in pure-steam air, and the
@@ -35,17 +35,16 @@ Modelling such worlds means adapting codes like those named above, in which the 
 models to other planets found values fixed for Earth. PlanetWRF's developers, finding WRF written to apply to
 Earth alone, redefined its second as 1/86,400 of the planet's rotation period and removed hard-wired Earth
 settings from its physics, and built TitanWRF on the result
-\autocite{richardson2007planetwrf,newman2011stratospheric}. ROCKE-3D's developers found constants tied to the
-lengths of Earth's day and year in its first release and, in its second, removed or generalised a set of
+\autocite{richardson2007planetwrf,newman2011stratospheric}. ROCKE-3D's developers found constants set for the lengths of Earth's day and year in its first release and, in its second, removed or generalised a set of
 Earth-centric options, measuring their effects in a sequence of runs
 \autocite{way2017resolving,tsigaridis2025rocke3d}; ExoPlaSim's description records that PlaSim's solar day had
 to be taken out of its unit conversions before slow rotators could be run, and that its near-infrared water
 absorptivity is tuned to a solar spectrum \autocite{paradise2022exoplasim}. Each team removed Earth values
 that mattered for the worlds it set out to model, but others could stay: ROCKE-3D's developers report that the
-changes their first release made from the Earth configuration went without systematic study \autocite{tsigaridis2025rocke3d},
+changes from the Earth configuration in their first release went without systematic study \autocite{tsigaridis2025rocke3d},
 and THOR's developers, who wrote their model for other planets from the start, describe planet-specific tunings
 as often built into adapted codes and hard to find \autocite{deitrick2020thor}. On a Gaean world, then, a run can
-compute the familiar phases of water in nitrogen--oxygen air while retaining a constant set for Earth's gravity,
+compute the familiar phases of water in nitrogen--oxygen air while its code still contains a constant set for Earth's gravity,
 or a formula that counts rain per Earth day, and because its output is plausible, the retained value can be hard
 to detect. Plausible results can still disagree: four GCMs given the same moist cases of TRAPPIST-1e all simulate a
 temperate climate, yet differ in global-mean surface temperature by 14~K with nitrogen-dominated air and 24~K with carbon
@@ -53,19 +52,17 @@ dioxide, a spread their authors relate to the models' parameterization choices \
 ensemble linking global climate to resolved storms and coastal waves, moreover, models built separately and tuned
 to Earth in different ways pass forcing to one another, so the retained Earth values affect both the individual
 calculations and the fields exchanged between them. Developing such an ensemble for Gaean exoplanets
-and constructed worlds therefore requires identifying which changes follow from general laws and which need
-calculations or calibrations for each world.
+and constructed worlds therefore requires identifying which changes follow from general laws and which must be calculated or calibrated for each world.
 
 Toward such an ensemble, the adaptations and couplings described here began with the Open Moon as their test
 world. Its air is close to Earth's in composition and surface pressure, while four ratios on which the models'
-Earth values depend lie far from Earth's at once: each square metre holds 7.25 times Earth's air,\claim{S02} the
+Earth values depend are far from Earth's at once: the column over each square metre holds 7.25 times Earth's air,\claim{S02} the
 scale height of about 52~km is 23 times Earth's in proportion to the radius,\claim{S03} gravity is a sixth of
-Earth's, and the solar day lasts 29.53 Earth days. A run of a natural planet that departs from Earth along one of
-these ratios, a slow rotator or a smaller world, meets the Earth values that depend on that ratio alone, whereas
+Earth's, and the solar day lasts 29.53 Earth days. In a run of a natural planet that departs from Earth along one of these ratios, a slow rotator or a smaller world, only the Earth values that depend on that ratio err, whereas
 on the test world the values of all four err together, by amounts large enough to measure. PlaSim, for example,
 fixes the horizon air mass at Earth's 35, where the Moon's well-mixed air has about 7.
 
-The global climate comes from ExoPlaSim~3.4.2 \autocite{paradise2022exoplasim,paradise2025exoplasim}, PlaSim
+The global climate is computed by ExoPlaSim~3.4.2 \autocite{paradise2022exoplasim,paradise2025exoplasim}, PlaSim
 \autocite{fraedrich2005planet} extended for other worlds (the appendix gives each code's configuration), which runs
 decades of the test world's climate in an hour or two on four processor cores,\claim{S14} parameterizes its
 convection with a Kuo-type scheme and diagnoses its clouds from formulas fitted to Earth. Slices of that climate
@@ -84,20 +81,19 @@ was calibrated to it, and CM1's checked against it.
 
 Adapting these codes to the test world meant finding two things in them: Earth values, each a value or form in
 a model that agrees with Earth because it was set or fitted there, and defects, code that contradicts its own
-inputs, units or intent. In the four codes the Earth values take four forms: dimensional constants written into
+inputs, units or intent. In the four codes the Earth values have four forms: dimensional constants written into
 the code, units of time, geometry, and empirical fits and simplifications used beyond the range they were made
 for. On the paths the lunar runs take, the released codes also contain four defects, three of which produce
 little or no error at Earth's values yet, by ExoPlaSim's own arithmetic, bias its runs that meet their
 conditions, runs of slowly rotating and tidally locked planets among them. Of the repairs made to these values
-and defects, most fall into three classes, which differ in the worlds they hold for. A general repair, which
+and defects, most belong to three classes, which differ in the worlds they hold for. A general repair, which
 corrects a unit, applies a scaling law or a parameterization fitted over a wider range, or removes a defect,
 contains no coefficient fitted to the test world and is built to hold on another world within the limits of its
 laws; a general method holds wherever its table is computed from that world's own column, as for the curved
 geometry of a tall atmosphere; and a calibration, fitted to the reference model on columns of the test world,
 holds near those columns and must be refitted for another world. Settings, added capabilities, couplings, a
 bound, a mitigation and avoidances by configuration make up the remaining changes. The class of a repair followed
-largely from the form of the Earth value it removed. Of the four forms, moreover, the fits moved the test world's
-climate furthest, by amounts of the order of the spreads measured among exoplanet GCMs, and every lunar climate number is therefore a conditional model result, holding given the
+largely from the form of the Earth value it removed. Of the four forms, moreover, the fits had the largest effects on the test world's climate, of the order of the spreads measured among exoplanet GCMs, and every lunar climate number is therefore a conditional model result, holding given the
 scenario and the Earth values that remain. Replacing those fits
 comes first in the ensemble's further development, with a radiation scheme reduced with existing tools from the
 reference model's spectroscopy \autocite{hogan2022tool,hogan2020evaluating} and cloud calibrated against

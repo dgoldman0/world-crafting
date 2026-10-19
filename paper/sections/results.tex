@@ -25,7 +25,7 @@ Cloud water by pressure\newline\run{A\_\allowbreak earth\_\allowbreak path\_\all
 Cover per Earth day\newline\run{A\_\allowbreak corrected\_\allowbreak clouds} & 25\%; 1,235 & Convective cover per 86,400~s & 10--14; 299.6~K & --- \\
 Earth orbit\newline\run{A28\_\allowbreak dim5} & 28\% with lakes; 1,173.5 & Both cloud repairs & 15--24; 294.3~K & Boxes at 0\textdegree~E, the electrified box among them \\
 Sun and tilt\newline\run{A28\_\allowbreak dim5\_\allowbreak moon} & 28\% with lakes; 1,173.5 & Synodic clock; whole model days; fixed orbit; recalibrated split of sunlight & 20--29; 294.9~K & Equatorial and tilted rings; SWAN; cloud-setting tests \\
-Curved air\newline\run{A28\_\allowbreak dim5\_\allowbreak moon\_\allowbreak geometry} & As above & Curved-air terms on the table's first channels, which put near-infrared sunlight too high & 10--19; 294.2~K & --- \\
+Curved air\newline\run{A28\_\allowbreak dim5\_\allowbreak moon\_\allowbreak geometry} & As above & Curved-air terms on the table's first channels, which absorbed near-infrared sunlight too high in the air & 10--19; 294.2~K & --- \\
 Gas bands\newline\run{A28\_\allowbreak dim5\_\allowbreak moon\_\allowbreak geometry\_\allowbreak gases} & As above & Carbon dioxide and oxygen bands, on the first channels & 10--19; 292.0~K & --- \\
 Design case\newline\run{A28\_\allowbreak corrected\_\allowbreak 970} & 28\% with lakes; 1,198 & Curved air on the corrected channels; gas bands; dimming eased to 3.0\% & 10--19; 295.0~K & 45\textdegree\ rings \\
 Longwave test\newline\run{A28\_\allowbreak corrected\_\allowbreak 970\_\allowbreak lw\_\allowbreak ice} & 28\% with lakes; 1,198 & Longwave by height; ice optics & 10--19; 306.5~K & --- \\
@@ -33,7 +33,7 @@ Longwave test\newline\run{A28\_\allowbreak corrected\_\allowbreak 970\_\allowbre
 \end{tabularx}
 \end{table}
 
-\textbf{What each repair changed.} Fitting the first calibration cooled the climate more than any later change. In
+\textbf{What each repair changed.} The first calibration cooled the climate more than any later change. In
 the first design runs, with 25\% seas under the undimmed shield and with PlaSim's Sun clock and Earth's orbit, the
 calibrated configuration settled at 295.5~K, at least 20~K below the uncalibrated run, which was still warming at
 315.5~K in model year 12.\claim{H15}\claim{G14} The later repairs' effects on the
@@ -41,7 +41,7 @@ global-mean surface temperature are plotted beside the sensitivity tests in Figu
 runs averaged over the years of Table~\ref{tab:states}, several of them still drifting. On the first calibrated
 run, still in Earth's seasons, counting cloud water by pressure warmed the test world by 2.3~K over the years
 averaged and about 2.5~K as the run settled, and counting convective rain per Earth day warmed it by a further
-1.8~K, about 1.6~K settled.\claim{G01} From the Earth-orbit state, which holds both cloud repairs, four changes
+1.8~K, about 1.6~K settled.\claim{G01} From the Earth-orbit state, run with both cloud repairs, four changes
 were made in one step: the synodic
 clock, a general repair; a year of whole model days, an avoidance in the output's bookkeeping; the Moon's own tilt,
 an avoidance by configuration; and the recalibrated split of sunlight, a calibration. Together they warmed the test
@@ -54,10 +54,9 @@ world ran 0.9~K warmer over the two years while still gaining 1.9~W\,m$^{-2}$ at
 From the Sun-and-tilt state, the curved air, on the table's first channels, cooled it by 0.65~K, its clouds
 offsetting in the first year 3.5 of the clear sky's 5.4~W\,m$^{-2}$ loss under those terms. On the same channels
 the carbon dioxide and oxygen bands cooled it by a further 2.2~K over years 10--19, still cooling 0.3~K a decade,
-mostly through PlaSim's high cloud: computed cloud-free, the column's ground moves 0.57~K with the bands, while the
+mostly through PlaSim's high cloud: computed cloud-free, the column's ground temperature changes by 0.57~K with the bands, while the
 high deck fell from 16 to 12\% of the sky and the top layer's cirrus from 2.0 to 0.05\% as that layer warmed by
-7~K.\claim{G03} The corrected terms have run only together with the bands and the eased dimming, in the design
-case: holding the design temperature on them took easing the dimming from 5.0 to 3.0\%, and at that dimming the
+7~K.\claim{G03} The corrected terms have been run only together with the bands and the eased dimming, in the design case: to hold the design temperature on them, the dimming was eased from 5.0 to 3.0\%, and at that dimming the
 design case settles at 295.0~K, with 2.31~mm of rain a day.\claim{G04}
 
 \begin{figure}[tbp]
@@ -70,8 +69,7 @@ cloud-water run for the convective cover; the Earth-orbit state for the Sun, the
 Sun-and-tilt run for the curved air and the two cloud settings; the curved-air run for the gas bands; and the
 design case for the longwave test. The curved-air and gas-band runs used the first channels of the curved-air
 table. Bars are means over the years in Table~\ref{tab:states} and the accompanying data, against each
-baseline's own years; several runs were still drifting, and the longwave test extrapolates to balance at
-306.8--307.1~K.\claim{G13}}
+baseline's own years; several runs were still drifting, and the longwave test, extrapolated to balance, would settle at 306.8--307.1~K.\claim{G13}}
 \label{fig:repairs}
 \end{figure}
 
@@ -80,12 +78,10 @@ explanation of the gap between the models, moves the global mean as far as the g
 counting convective cover per 2,400~s, which holds the convective cloud near its floor, warms the test world by
 1.7~K over the years averaged and about 2.2~K as the run settles, and lowering the lowest layer's cloud threshold
 from 0.983 to 0.6 cools it by 5.0~K and about 5.9~K, while cloud water at its full-column bound cools the first
-calibrated run by 3.2~K and about 3.5~K.\claim{G05}\claim{G16} Ranked by form, then, the largest effects on the
-test world came from the fits: the first calibration of the radiation's fits, used beyond the range they were
+calibrated run by 3.2~K and about 3.5~K.\claim{G05}\claim{G16} Ranked by form, then, the largest effects on the test world were those of the fits: the first calibration of the radiation's fits, used beyond the range they were
 fitted over, moved the global mean by at least 20~K, and the cloud's Earth-tuned settings, pushed to the ends of
 these tests, by up to about 6~K, while the two general repairs of units and constants measured singly moved it by
-1.6--2.5~K and the geometry's curved-air terms, on the table's first channels, by 0.65~K. A test of the cooling
-by height moves the global mean more than any cloud setting: the longwave correction with the ice optics, a
+1.6--2.5~K and the geometry's curved-air terms, on the table's first channels, by 0.65~K. A change to the cooling by height moves the global mean more than any cloud setting: the longwave correction with the ice optics, a
 calibration and a general repair switched on together and the one change fitted to the cooling by height, warms
 the design case by 11.5~K over years 10--19, toward a balance near 307~K, a sensitivity reached with a correction
 fitted at 295~K, with the warmer run's water vapour over years 15--19 twice the design case's, 348 against
@@ -98,17 +94,16 @@ The fits' effects are of the order of the spreads measured in intercomparisons o
 codes themselves disagree on moist air: five band codes used in GCMs and two line-by-line codes, on clear-sky
 moist adiabats with surface temperatures of 250--360~K, differ by up to 60~W\,m$^{-2}$ in the shortwave and, in
 outgoing longwave, by amounts that grow with the surface temperature to 10--20~W\,m$^{-2}$
-\autocite{yang2016differences}. Among whole GCMs the spread widens as water and cloud enter: four GCMs on the same
+\autocite{yang2016differences}. Among whole GCMs the spread widens when the cases include water and cloud: four GCMs on the same
 cases of TRAPPIST-1e spread in global-mean surface temperature by 7 and 6~K in dry air dominated by nitrogen and by
 carbon dioxide \autocite{turbet2022thai}, and by 14 and 24~K with water and cloud \autocite{sergeev2022thai},
 while standard GCMs diverge by 20--30~K on a tidally locked planet under an M star, against 8~K or less on a
 rapidly rotating one under a G star, differences their authors trace to cloud, radiative transfer and their
 interplay with the dynamics \autocite{yang2019simulations}. Parameterized and resolved cloud have been set side by
 side on other worlds. \textcite{yang2023cloud} compared the cover of two GCMs that parameterize it, as PlaSim does,
-with resolved cloud on two tidally locked planets, TRAPPIST-1e and K2-72e: CAM3 covered 94.8 and 81.7\% of the sky
-and ExoCAM 90.4 and 97.4\%, their cover following relative humidity, stability and large-scale ascent, against
+with resolved cloud on two tidally locked planets, TRAPPIST-1e and K2-72e: CAM3's cloud covered 94.8 and 81.7\% of the sky and ExoCAM's 90.4 and 97.4\%, their cover computed from relative humidity, stability and large-scale ascent, against
 26.9 and 41.1\% in a quasi-global cloud-permitting model, which counts cloud by a condensate threshold and ran over
-sea surfaces fixed from a coarser run of the same model. The planetary albedos lay closer, however, 22.1--29.1 and
+sea surfaces fixed from a coarser run of the same model. The planetary albedos were closer, however, 22.1--29.1 and
 39.0--47.0\% in the GCMs against 18.1 and 37.4\%, and the authors judged the three models' climates broadly
 similar.
 
@@ -120,22 +115,19 @@ the circle, about 15~W\,m$^{-2}$ of heat carried out of the air below 8~km, cut 
 longwave cools its lowest layer 10.6~W\,m$^{-2}$ too much on cloud-free columns at 47\textdegree\,N, and RRTMG
 cools CM1's lowest 1.8~km 4.5~W\,m$^{-2}$ too much on the ring, so the GCM sheds about 6~W\,m$^{-2}$ more than
 CM1, worth about 1.5~K of the remaining 3.7~K at the ring's estimated sensitivity of 4~W\,m$^{-2}$ per kelvin.
-The second radiative term, from the ice that the ring's starting sounding left above 107~km, remains
+The second radiative term, from the ice that formed above 107~km out of the vapour of the ring's starting sounding, remains
 unquantified. Three other
 explanations were tested at the site where the rings cross the equator at 0\textdegree~E, in boxes forced from
-the Earth-orbit state, which brought 12\% too little sunlight there, and run on several threads, so each pair
-compares two realisations: the ring's two dimensions, since a three-dimensional box ran warmer still; the land
-surface, which moved the air by at most 0.3~\textdegree C; and the slow fall of lunar rain, since rain falling at
+the Earth-orbit state, in which the site received 12\% too little sunlight, and run on several threads, so each comparison is between two realisations: the ring's two dimensions, since a three-dimensional box ran warmer still; the land surface, which changed the air's temperature by at most 0.3~\textdegree C; and the slow fall of lunar rain, since rain falling at
 Earth's speeds warmed the air by a further 1.0~\textdegree C. At 45\textdegree\,N, however, the dry-ground land
-test has yet to run.\claim{G07} The remainder, a degree or two, plausibly comes from the two models' upward
-transport of the ground's heat: CM1 mixes its lower air 14--19~km deep by day, where the GCM, with two layers in
+test has yet to run.\claim{G07} The remainder, a degree or two, plausibly results from the two models' upward transport of the ground's heat: CM1 mixes its lower air 14--19~km deep by day, where the GCM, with two layers in
 its lowest 6.5~km, stays stable. Under the design-case forcing, with the longwave correction off, the two models
 bracket the warmth of the air where people and plants would live, the lowest 1.8~km at 45\textdegree\,N, within
 3.7~K once the transport is imposed; about 1.5~K of the bracket is the GCM's over-cooling beyond CM1's, so the bracket
 measures the models' disagreement in that one GCM state.
 
 Beyond the temperature near the ground, the models differ on rain, by a factor of about four. A small box forced
-from the Earth-orbit state brought 34~mm to the ground per lunar day, where the GCM that forced it rained 129~mm and
+from the Earth-orbit state rained 34~mm onto the ground per lunar day, where the GCM that forced it rained 129~mm and
 the Sun-and-tilt run 180~mm, with 85\% of the water falling from the box's clouds evaporating on the way down at
 lunar gravity, against 64\% when the same drops fell at Earth's speeds.\claim{G08} Each model, moreover, computes
 its rain from Earth fits of its own, a convection scheme in the GCM and Morrison's Earth-fitted limits on raindrop
@@ -167,10 +159,7 @@ the lunar graupel, does 87\% of the non-inductive charging. Its 530 flashes come
 year over the box, about a hundredth of Earth's average, 44 flashes a second \autocite{christian2003global} or about 2.7 per square
 kilometre per year;
 in-cloud flashes neutralised a median 108~C, and the ground strikes, all negative and at most a fifth of the
-flashes under the condition for ground strikes, lowered a median 149~C. Part of the difference from Earth may come
-from the grid, since the box's 6~km columns correspond to about 1~km at Earth's scale and on the Earth benchmark a
-coarser grid gave fewer, larger flashes.\claim{G10} Where the lunar runs separate charge and compute each flash, two
-exoplanet estimates of lightning use laws fitted to Earth's storms, whose tops stand far below the lunar runs' 55--80~km: the flash-rate laws with which
+flashes under the condition for ground strikes, lowered a median 149~C. Part of the difference from Earth may result from the grid, since the box's 6~km columns correspond to about 1~km at Earth's scale and on the Earth benchmark the storm made fewer, larger flashes on a coarser grid.\claim{G10} Where the lunar runs separate charge and compute each flash, two exoplanet studies estimate lightning with laws fitted to Earth's storms, whose tops stand far below the lunar runs' 55--80~km: the flash-rate laws with which
 \textcite{braam2022lightning} estimated lightning on Proxima Centauri~b with nitrogen--oxygen air, and
 \textcite{sergeev2025lightning} on TRAPPIST-1e with oxygen-free nitrogen air at 0.25--10~bar, set the rate from the
 cloud-top height \autocite{price1992simple} or, in Sergeev et al.'s storm-resolving runs, from the upward flux of
@@ -191,12 +180,11 @@ place of 56\%, so the lunar night fog depends on the microphysics by about a fac
 
 \textbf{Seas.} The GCM's surface stress over the seas corresponds to light winds, 2.6~m\,s$^{-1}$ at 10~m at the
 median over the equatorial seas. Light as these winds are, under Earth's laws for wind input, whitecapping and
-breaking, scaled to lunar gravity by similarity, and with Wu's drag law at both gravities, the same 10~m wind,
-fetch and duration build waves 4--5 times as high as on Earth, with periods five times as long, whereas with
+breaking, scaled to lunar gravity by similarity, and with Wu's drag law at both gravities, the same 10~m wind, blowing over the same fetch for the same duration, builds waves 4--5 times as high as on Earth, with periods five times as long, whereas with
 Charnock's roughness at each gravity the lunar drag would be larger and the ratio higher, by about a tenth to a
 half. Forced by sixty days of the
 Sun-and-tilt run's surface stress, the first lunar cycle a spin-up and the second measured, SWAN computes a mean
 significant wave height of 1.39~m over the nearside sea, 5.29 million~km$^2$, with 68\% of its area and time at or
-above 1~m, and its largest sea reaches 4.9~m with a 19.3~s mean period. The waves keep Earth's steepness. At the
+above 1~m, and its largest sea reaches 4.9~m with a 19.3~s mean period. The waves are as steep as Earth's. At the
 shore, computed by SWASH from SWAN's spectra, they run up today's steep slopes to a 98th-percentile run-up of 2.1~m on
 the exposed western face of the eastern Smythii headland.\claim{G12}

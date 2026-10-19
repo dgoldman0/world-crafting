@@ -4,13 +4,11 @@ The lunar runs' configurations, the changes with their switches and lunar settin
 record by kind of check, condensed from the code repository's record, are in Tables~\ref{tab:config},
 \ref{tab:repairs} and \ref{tab:verification}.
 
-\textbf{The curved-air table's channels.} The channels of the curved-air table group the design column's
-wavenumbers within bands 10--40~nm wide up to 1,250~nm and 50~cm$^{-1}$ wide beyond. Within each band the
-wavenumbers are sorted by whole-column absorption and bisected by energy until each group's energy-weighted mean
-optical depths absorb a direct beam, on slant columns of 0.03 to 13 vertical columns, within 1\% of the group's
-sunlight of what its members absorb; beyond 1,250~nm a group must also keep, within the same 1\%, the beam's loss
+\textbf{The curved-air table's channels.} Each channel is a group of the design column's wavenumbers within bands 10--40~nm wide up to 1,250~nm and 50~cm$^{-1}$ wide beyond. Within each band the
+wavenumbers are sorted by whole-column absorption and bisected by energy until each group, at its energy-weighted mean optical depths, absorbs a direct beam, on slant columns of 0.03 to 13 vertical columns, within 1\% of the group's
+sunlight of what its members absorb; beyond 1,250~nm a group must also reproduce, within the same 1\%, the beam's loss
 above the bottom of every layer, while below 500~nm each band is one channel. Of the 10,697 channels, the 282 below
-1,250~nm whose whole-column absorption depth is under 3 take spherical successive orders of scattering, continued
+1,250~nm whose whole-column absorption depth is under 3 are solved by spherical successive orders of scattering, continued
 until the newest order adds less than $2\times10^{-5}$, with a cap of 100.\claim{R05}
 
 \Needspace{0.45\textheight}
@@ -42,12 +40,11 @@ SWASH 12.01 & One-dimensional profiles on today's slopes, 0.25--1~m apart & --- 
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.08}
 \begin{xltabular}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}L>{\raggedright\arraybackslash}p{0.13\textwidth}@{}}
-\caption{The changes, their switches and the settings of the lunar runs. A default in parentheses reproduces
-the released code unless the row says otherwise; changes marked unconditional act in every build that has them.
+\caption{The changes, their switches and the settings of the lunar runs. At a default in parentheses, the patched code reproduces the released code unless the row says otherwise; changes marked unconditional act in every build that has them.
 Class: general; a general method with a lunar table; a calibration to the lunar design case, or a calibration of
 general structure whose coefficients are lunar fits; a setting of the scenario; a capability the released code
 lacks; a coupling, one model's fields used to force another; an avoidance by configuration; a bound; a
-mitigation. Where a general repair takes a lunar value, the value is its setting. In the ExoPlaSim rows the lunar
+mitigation. Where a lunar value is entered in a general repair, the value is its setting. In the ExoPlaSim rows the lunar
 setting is the design case's; the longwave correction and ice optics are on in its longwave test.}\label{tab:repairs}\\
 \toprule
 Change & Switch (default) & Lunar setting & Class \\
@@ -127,7 +124,7 @@ Check & Result & Leaves open \\
 \bottomrule
 \endlastfoot
 \multicolumn{3}{@{}l}{\textit{Identity and reproduction}} \\
-ExoPlaSim patches at neutral settings, five runs & Restart identical to the build before the patch; the chain to the release closes for patches 01--03 & Patches 04, 05 and 07--09 off, at runtime \\
+ExoPlaSim patches at neutral settings, five runs & Restart identical to the build before the patch; identity with the release established for patches 01--03 & Patches 04, 05 and 07--09 off, at runtime \\
 Kill and resume, one model year & Restart identical; output identical in all 39 variables & 12 header bytes differ \\
 CM1 tilted rings, local-time advection & First model day bit for bit, in Terluna's written record & Runs on several threads \\
 Electrified supercell restarted on 4 and 2 threads & Fields and 41 flashes bit for bit & The lunar boxes' parting on threads \\
@@ -144,7 +141,7 @@ Arithmetic: field solver & One part in $10^5$ against a direct solve & Terrain u
 Arithmetic: curved-air channels & Within 0.9~W\,m$^{-2}$ per layer of the fine grid, Sun overhead & One channel's orders at the cap \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{Calibration against the reference}} \\
-Clear-sky split of sunlight & 0.6 points rms on 11 unseen columns & Clouds; states far from the fit; an independent check of the reference \\
+Clear-sky split of sunlight & 0.6 points rms on 11 columns outside the fit & Clouds; states far from the fit; an independent check of the reference \\
 Gas bands and layers & Within 0.13\% of band energy; 0.97~W\,m$^{-2}$ rms & 0.19~K of ground from water's lines\claim{V15} \\
 Longwave by height & Layer means removed; 1--5~W\,m$^{-2}$ by column & The 307~K state; CM1 forced from the corrected GCM \\
 RRTMG (checked) & Within 2.5 points; cools 4.5--10.2~W\,m$^{-2}$ more & Its extrapolation past 1,053.63~hPa \\
