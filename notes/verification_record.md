@@ -67,7 +67,7 @@ Each of these identity runs covers one model year, from one restart, on one rank
 | Gravity scaling at Earth's g | Code test that fall-speed scaling is skipped at 9.81 and where a particle is absent, and that no rain ventilation is left on Earth's coefficients | Passes | `climate/tests/test_cm1_elec.py:116` | 2026-10-04, 2026-10-06 | R |
 | Inputs of paired cases | `ring_45n_corrected_sideways`, `ring_45n_corrected_gcm_land` and `box_highland_own_height` against their reference cases | Byte-identical except the intended files and switches | `climate/crm/README.md:1136-1137, 1213-1214, 1338-1339`; `climate/tests/test_cm1_run.py:567, 581` | 2026-10-02, 2026-10-16 | R |
 | One thread | Repeated single-thread runs | Bit for bit | `climate/crm/README.md:80-81` | 2026-10-04 | R |
-| Several threads | `moon_omp` and the electrified build from `box_0e`'s day-10.5 restart on 4 threads | Do not always repeat: an unlocated race (defect log A6) | `climate/crm/README.md:80-110` | 2026-10-04, 2026-10-06 | R |
+| Several threads | `moon_omp` and the electrified build from `box_0e`'s day-10.5 restart on 4 threads | Do not always repeat: an unlocated fault of uncertain cause (defect log A6) | `climate/crm/README.md:80-110` | 2026-10-04, 2026-10-06 | R |
 | Compiler rebuilds | `-O3 -march=native` and a strict variant against `moon_omp` (`-O2`) and two last-bit nudges of it, one model day of `ring_equator` on one thread | Neither rebuild is bit for bit. Every field differs by 0.69–0.97 (strict variant 0.82–0.99) of the larger nudge's difference. 2-m air differs by 0.28–0.32 °C rms; domain means within 0.04 °C | `climate/crm/README.md:49-78`; `climate/results/crm/build_check_ring_equator.json`; `crm-runs/build_check/` | 2026-09-30, 27cde9a | R |
 
 No retained artefact of the two `ring_80n_lsw` checks was found in `crm-runs/` or `session-tools/cm1_smoke/` (V). No
@@ -237,7 +237,7 @@ All of these are in Terluna's record except the last two, which are this pass's 
 - **ExoPlaSim runtime identity** of `SUN_EDITS`, `SHORTWAVE_EDITS`, and the twilight copy with its patches off
   (section 1).
 - **CM1 MPI builds** remain at `-O2` and are untested against the OpenMP builds (`climate/crm/README.md:76-78`).
-- **The CM1 thread race** is not located (`climate/crm/README.md:96-110`).
+- **The source of CM1's threaded parting** remains unlocated (`climate/crm/README.md:96-110`).
 - **CM1 microphysics similarity.** The gravity pair never convected, and its next design, a prescribed radiative
   cooling, was not built.
 - **RRTMG below 1053.63 hPa.** Its extrapolation over the lowest ~7 km over the sea is not tested on its own (defect

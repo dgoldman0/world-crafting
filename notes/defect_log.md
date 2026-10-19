@@ -49,7 +49,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | A3 | ExoPlaSim | 360-day year of 17,280 steps is not a whole number of 1,430-step model days | 09-29, be50d8b | `whole_lunar_days` (1), 74fed6c | Output means slipped 120 steps a year against the Sun | Fixed | R |
 | A4 | PlaSim | Lowest model level reads up to ~20 K too cold in 0.8% of 3-day windows | 09-25, 86bfb63 | None; screen in analyses | Lowest-level analyses only; surface fields unaffected | Open | R |
 | A5 | SWAN 41.51 | `KTETA` read uninitialised when depth breaking is off | 10-02, 8785f7e | Always `BREAKING CONSTANT 1.0 0.73` | Repeated Earth runs differed by ~2.5% in Hs; outputs excluded | Avoided, not patched | R |
-| A6 | CM1 r22.0 | Thread race: runs on several threads do not always repeat | 10-04, b85eb5c | None; one thread repeats | Paired multithread runs are separate realizations | Open | R |
+| A6 | CM1 r22.0 | Threaded runs part from one another; cause uncertain, most likely CM1's own threaded loops | 10-04, b85eb5c | None; one thread repeats | Paired multithread runs are separate realizations | Open | R |
 | A7 | WRF-ELEC | No conduction by default; ion charge persists for weeks in month-long runs | 10-05, e09aa30 | `leakage` (lunar 1), 4499e35 | ~20 kV/m at the ground over the whole box; lightning unchanged | Fixed for lunar runs | R |
 | A8 | WRF-ELEC `lightmsz` | Channel reach marked only above threshold `scth` | 10-05, a5205d2 | Flash log takes reach from charge handed to ions | 13 flashes logged no reach | Fixed (logging) | R |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant; fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
@@ -103,10 +103,11 @@ corrected there. The companion note `verification_record.md` describes the check
 
 The paper (third draft, 2026-10-17) classes these items as follows. A3 (the 360-day calendar) is a limitation in
 units of time, avoided by configuration; A7 (WRF-ELEC's missing clear-air conduction) a simplification that holds for
-runs of hours; A8 (the flash log's reach threshold) a constant on the lunar path. Its five defects in the released
+runs of hours; A8 (the flash log's reach threshold) a constant on the lunar path. Its four defects in the released
 codes are A1, A2 and B11 (ExoPlaSim's convective-cover unit, classed here under (b)), which produce little or no error
-at Earth's values; A5, hidden by SWAN's usual configuration; and A6, CM1's thread race, independent of the world. A4,
-PlaSim's cold lowest level, is a fault of uncertain cause.
+at Earth's values, and A5, hidden by SWAN's usual configuration. A6, the parting of CM1's threaded runs, most likely
+in CM1's own threaded loops, and A4, PlaSim's cold lowest level, are faults of uncertain cause (reclassified on
+2026-10-19, since no run of stock CM1 on these cases has located A6 in the released code).
 
 ### A1. ExoPlaSim: `solang`'s Sun clock (R)
 
@@ -211,7 +212,7 @@ PlaSim's cold lowest level, is a fault of uncertain cause.
   day-10.5 restart once matched and once parted about 85 steps in; the electrified build parted from itself about
   50 steps in (`climate/crm/README.md:80-95`; b85eb5c, 2026-10-04).
 - **Search.** On 2026-10-06 (3e85df8, corrected in 0e9642f), runs parted at random 3,000–7,400 s in, always first in
-  the domain's total vertical momentum. The plain Morrison box parts too, so at least one race lies outside the
+  the domain's total vertical momentum. The plain Morrison box parts too, so at least one source of the parting lies outside the
   electrification. The search could not pin it to radiation or large-scale forcing: with about half the runs
   parting, three runs agree by chance about one time in eight (`README:96-110`).
 - **Effect.** Paired runs that differ in one setting compare as realizations. For example, the uncapped rerun

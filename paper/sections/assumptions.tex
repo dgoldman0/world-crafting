@@ -103,7 +103,7 @@ WRF-ELEC conducts no charge through clear air, its screening option acting only 
 lunar run the charge that evaporating cloud handed to the small ions persisted for weeks and held the field at the
 ground near 20~kV\,m$^{-1}$ across the whole domain.\claim{H10}
 
-Five defects in the released codes contradict their own inputs, units or intent. Three of them, all in
+Four defects in the released codes contradict their own inputs, units or intent. Three of them, all in
 ExoPlaSim, produce little or no error at Earth's values and an error that grows as a world departs from them,
 two through units of time and one through a constant. The first is the Sun clock: in a non-synchronous run on
 its default solar geometry, PlaSim's solar-position routine turns the Sun at the planet's rotation rate and restarts its clock every model
@@ -124,15 +124,15 @@ configured obliquity with that of Earth's orbit for the model's starting year fr
 \autocite{berger1978long}, 23.7\textdegree, which on the Moon put 149~W\,m$^{-2}$ of sunlight at 86\textdegree\
 latitude against the Moon's 29 and brought Earth's seasons and summer rain to 60\textdegree, while on Earth it
 moves the tilt by a fraction of a degree.\claim{H24} The Moon's slow rotation and small tilt made all three
-large, whereas the errors of the other two are independent of the world. SWAN reads its breaker parameter
+large, whereas the fourth's error is independent of the world. SWAN reads its breaker parameter
 uninitialised whenever depth-induced breaking is off, and divides by its square root in the fraction that sets the
 spectrum's limiter, so repeated Earth runs differed by about 2.5\% in wave height, although its usual
-configuration, with breaking on, assigns the parameter before the read.\claim{H25} CM1's defect is a race between
-threads: in the lunar boxes, runs on several threads part from one another after 3,000--7,400~s, first in the
-domain's total vertical momentum, in the plain Morrison build as in the electrified one, and since every patch in a
-threaded region writes only its own points, the race lies in CM1's own threaded loops, where it remains
-unlocated.\claim{H26} A sixth fault, of uncertain cause, makes PlaSim's
-lowest model level read up to 20~K too cold in 0.8\% of three-day windows, most likely through the spectral
+configuration, with breaking on, assigns the parameter before the read.\claim{H25} Two further faults have uncertain causes. In the lunar
+boxes, runs of CM1 on several threads part from one another after 3,000--7,400~s, first in the domain's total
+vertical momentum, in the plain Morrison build as in the electrified one; since every patch in a threaded region
+writes only its own points, the fault most likely lies in CM1's own threaded loops, where it remains unlocated, and
+a run of stock CM1 on these cases would test that.\claim{H26} PlaSim's lowest model level, for its part, reads up
+to 20~K too cold in 0.8\% of three-day windows, most likely through the spectral
 transform over steep terrain.\claim{H27}
 
 \begin{figure}[tbp]
@@ -201,7 +201,7 @@ Sun and soil & Earth's day, calendar and tilt; soil 1--16~cm & Thermal wave 0.6~
 Damping, mixing length & 300~s; 75~m & Each a sixth of its lunar equivalent & Constant & L & General \\
 Dynamics & Flat slab, constant $g$ & $g$ 15.3\% lower at the 150~km top & Geometry & L & Open \\
 Beta plane & Earth's rotation and radius & Earth's $\beta$ & Constant & L & Bypassed \\
-Threads & Unlocated race & Runs on several threads part & --- & D & Open \\
+Threads & Cause uncertain, most likely CM1's own threaded loops & Runs on several threads part & --- & ? & Open \\
 \midrule
 \multicolumn{6}{@{}l}{\textit{WRF-ELEC, grafted into CM1}} \\
 Gravity, ventilation & 9.8 twice; ventilation tied to Earth's fall speeds & Fall speeds and ventilation at Earth's $g$ & Constant & L & General \\

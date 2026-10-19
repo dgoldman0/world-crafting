@@ -394,7 +394,7 @@
   },
   {
    "id": "H26",
-   "text": "CM1 on several threads parts at 3,000-7,400 s, first in total vertical momentum, in the plain Morrison box too; since every patch in a threaded region writes only its own points, the race lies in CM1's own threaded loops; unlocated",
+   "text": "CM1 on several threads parts at 3,000-7,400 s, first in total vertical momentum, in the plain Morrison box too; since every patch in a threaded region writes only its own points, the fault most likely lies in CM1's own threaded loops; cause uncertain and unlocated; no run of stock CM1 on these cases",
    "source": [
     "repo:notes/defect_log.md#A6",
     "terluna:climate/crm/README.md#L80-110",
