@@ -1,94 +1,30 @@
-\section{Availability, authorship and review}
+\section{Availability and declarations}
 
-\textbf{Code and data.} The patch series for ExoPlaSim, CM1 with WRF-ELEC and SWAN, the Fortran written for
-CM1's electrified build, the in-house reference and calibration tools with their tests, the notes on each
-component's correctness and limits, the defect log, the verification record, and this manuscript's figure
-scripts, data extracts and claims register are held in the public world-crafting repository,
-\url{https://github.com/dgoldman0/world-crafting}, which will also hold the paper's release commit. Each claim marker in the source names a register entry that traces the claim to a
-file in one of the two repositories, a run on the research drive, a web record or a stated calculation, and the
-paper's check script confirms that every marker resolves and that every listed file exists, and lists the web
-records it leaves unchecked; numbers repeated in the
-conclusion and the next steps refer to the same entries without markers. The case comes from the Terluna project
-\autocite{goldman2026terluna}, whose repository at commit 186b294 holds the scenario, the runners, the case set-up
-and the analyses; the model runs themselves are held on the project's research drive, and the products derived
-from them are committed to Terluna with the hashes of their inputs. Work on the ensemble itself, by contrast, will
-continue in the world-crafting repository as a standalone project, if resources allow. The patches apply to
-upstream sources pinned
-by checksum: ExoPlaSim 3.4.2 from its source distribution, CM1 release 22.0, SWAN 41.51, SWASH 12.01 and WRF-ELEC
-at commit \code{e43041b}. As patches to those sources, they inherit their licences: the GNU GPL version 3 for
-ExoPlaSim and version 3 or later for SWAN, CM1's MIT-style licence, and the WRF public-domain notice for WRF-ELEC.
+\textbf{Code and data.} The patches to ExoPlaSim, CM1 with WRF-ELEC and SWAN, the Fortran written for CM1's
+electrified build, the in-house reference and calibration tools with their tests, the notes on each component's
+correctness and limits, the defect log, the verification record, and this paper's figure scripts, data extracts and
+a register tracing each number in the text to its source are held in the public world-crafting repository,
+\url{https://github.com/dgoldman0/world-crafting}, which will also hold the paper's release commit. The case comes
+from the Terluna project \autocite{goldman2026terluna}, whose repository at commit 186b294 holds the scenario, the
+runners, the case set-up and the analyses; the model runs themselves are held on the project's research drive, and
+the products derived from them are committed to Terluna with the hashes of their inputs. Work on the ensemble
+itself, by contrast, will continue in the world-crafting repository as a standalone project, if resources allow.
+The patches apply to upstream sources pinned by checksum: ExoPlaSim 3.4.2 from its source distribution, CM1
+release 22.0, SWAN 41.51, SWASH 12.01 and WRF-ELEC at commit \code{e43041b}. As patches to those sources, they
+inherit their licences: the GNU GPL version 3 for ExoPlaSim and version 3 or later for SWAN, CM1's MIT-style
+licence, and the WRF public-domain notice for WRF-ELEC.
 
-\textbf{Author and assistance.} Daniel S. Goldman set the scenario and its questions, made the decisions
-recorded in Terluna's decisions register and is responsible for the content. The adaptations, analyses and
-this manuscript were developed with AI assistance. Claude Opus~5.5 (Anthropic), working under the author's
-direction, wrote and ran most of the code, patches and analyses in Terluna, where 374 of the 487 commits to
-186b294 name it as co-author,\claim{Z01} assembled the world-crafting repository and drafted this text;
-subagents of the same model compiled the defect log and the verification record, checked the bibliography and
-gathered the sources, refereed the claims, challenged the whole manuscript and reviewed the prose. In Terluna,
-OpenAI's Codex reviewed the solar-shield, atmospheric-electricity and three other research branches on
-8 October 2026 and planned their merge, an order the author accepted, and wrote notes outside this paper's
-subject; by Terluna's records, the July 2026 knowledge bundle from which the scenario's earlier decisions were
-recovered, and the editorial controls behind the paper's writing rules, came from the author's conversations
-with ChatGPT. On 18 October 2026, Codex wrote a fresh conclusion at the author's request; fresh Codex agents
-reviewed its prose and evidence in two rounds, followed by Codex's revisions. The author then rejected its lunar
-framing, and Codex rewrote it around the model ensemble for exoplanets and constructed worlds, with a third round
-of fresh prose and evidence readings and corresponding revisions to the abstract and introduction's purpose
-statements. The author accepted the ensemble-centred conclusion, chose \emph{terracompatible}, since renamed
-\emph{Gaean}, for the intended class of worlds and requested a terminology and framing check across the
-manuscript, with one sentence in the conclusion on the ensemble's prospective extension beyond that class.
+\textbf{Author and AI assistance.} Daniel S. Goldman designed the scenario, directed the work and is responsible
+for the content. The code, analyses and manuscript were developed with AI assistance: Claude Opus~5.5 (Anthropic)
+wrote and ran most of the code and analyses and drafted the text, with subagents of the same model checking its
+claims, sources and prose; OpenAI's Codex drafted and reviewed parts of the text, the conclusion among them; and the
+scenario's early planning and the style rules applied to the text drew on the author's conversations with ChatGPT
+(OpenAI). The records of this work and
+of the manuscript's reviews are kept in the world-crafting repository.
 
 \textbf{Competing interests.} The author declares no competing interests. The work is an unfunded personal
 project that brings the author no income, and the author's practice is to make public every part of it that its
 licences and sources allow.
-
-\textbf{Review history.} A first draft, written section by section on 17 October 2026, received the drafting
-assistant's own silent prose passes; two subagents acting as technical referees checked every claim and table row
-against its sources and found 94 statements to correct or qualify; and a third, as whole-manuscript challenger,
-raised 5 blocking, 11 major and 21 minor findings. The author then read the draft in a stream-of-thought review,
-which the author counts as its cadence review, and rejected its framing and much of its prose. Claude Opus~5.5,
-under the author's direction, wrote a second draft in answer to that review and to the challenge, and five fresh
-reviewer agents read it in a first editorial round, four by section and one across the whole paper, raising 172
-findings, 20 of them blocking. The author, reading the second draft during that round, found it still centred on
-the test world, so the third draft, written by the same assistant, reframes the paper on the field and acts on the
-round's findings. The author read the third draft, judged the rest of the paper to stand for now and rejected its
-conclusions as a summary that implied reach to untested worlds. The closing section was rewritten as discussion and
-conclusions and read, with the passages revised beside it, in seven further rounds, each by two fresh reviewer
-agents, one for prose and the author's direction and one for evidence and scope, with a revision after each; the
-sixth of these found that the next steps gave one charging law positive ground strikes where the runs made negative
-ones, an error the earlier rounds had passed, and the seventh found nothing blocking, its remaining findings acted
-on in the last revision. When the author read the resulting conclusion on 18 October 2026 and rejected it as a
-summary of the work, Claude Opus~5.5 rewrote it, and two fresh reviewer agents read the rewrite in a ninth round
-before a tenth checked the evidence of its revision. Reading the revision, the author judged it still a summary
-and so asked Codex to write the conclusion afresh. The Codex rewrite received prose and evidence reviews in rounds
-11 and 12; both evidence reviews found no blocking issue, while the prose reviews prompted a structural revision
-followed by local revisions to the opening, paragraph endings and final prospect. Because the author, reading that
-revision, judged it still centred on the Moon, Codex replaced it with one that develops the broader model
-ensemble. In round 13, the prose review found the conclusion ready for the author's reading and required
-alignment of the introduction, while the evidence review required a local qualification of the cloud-calibration
-claim. Both findings were acted on. The author read and accepted the revised conclusion, requesting the
-terracompatible terminology and the single prospective sentence; Codex then revised the terminology and framing
-across the manuscript. Two fresh agents read the whole manuscript in round 14 for prose and physical scope,
-including source checks of the revised composition descriptions; both found the requested revision ready for the
-author's reading, with one article correction, which was made. Claude Opus~5.5 then checked the revision against
-its build, its records and the body of the paper, and corrected three sentences and this account of the review.
-The author then judged the statement of where the repaired codes had run, repeated through the paper, to be
-defensive, and it was recast as one statement of fact in the section on reach. At the author's direction, three
-fresh agents then read the whole paper for its flow alone in a fifteenth round, and its findings were acted on
-section by section. The author then read the abstract and judged everything after its opening a summary of the
-paper, whereas an abstract should draw the reader in; Claude Opus~5.5 rewrote that part, and the author approved
-the rewrite with one clarification. Five Claude subagents then scanned the literature and software for the ensemble's
-nearest precedents and the field's measured spreads; at the author's direction, the scan's findings entered the body
-in four steps and then the introduction, the conclusion and the abstract, in that order, each step read by a fresh
-agent in a sixteenth round of light readings, and two fresh agents, one for prose and the author's direction and one
-for evidence and scope, read the whole paper in a seventeenth round, whose findings were acted on, those on wording the
-author had approved once the author had read them. At the author's direction, a sentence in the next steps and a
-clause in the conclusion then took up the lakes and seas beneath the waves, and the definition of Gaean worlds moved
-from the introduction into a note on terms; each stage was read lightly by a fresh agent, and two fresh agents read
-the whole paper again in an eighteenth round, whose findings were acted on, four on wording the author had approved
-once the author had read them. In every round the agents read for cadence silently, and each round's findings and
-dispositions, with the referees' reports and the challenge, are recorded in the repository's review folder, with
-the page-by-page inspection of the built PDF, identified by its hash. Review by people other than the author, or
-by a journal, is still to come.
 
 \textbf{Acknowledgements.} The work used models and data that their developers make freely available: ExoPlaSim
 and the Planet Simulator, CM1, WRF-ELEC, SWAN and SWASH, the HITRAN database, the MT\_CKD continuum and the

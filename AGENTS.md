@@ -66,8 +66,11 @@ and evidence states (G5), full-document source admission (G6), exact-build visua
 (G7) and release integrity (E4). Each section is drafted and reviewed with its neighbours, its reviews are
 recorded in `paper/review/`, and the release register uses PASS, BLOCKED and DEFERRED with exact
 artifact hashes; nothing is prefilled. Author metadata: Daniel S. Goldman, ORCID 0000-0003-2835-3521,
-no affiliation label. Final releases carry an accurate AI-assistance disclosure and the actual review
-history, in which each of the author's own readings is recorded as the author's review.
+no affiliation label. The paper is a standalone paper and carries what a journal paper carries: a short,
+accurate statement of AI assistance, naming the tools and what they did, and statements of code and data
+availability and competing interests. The story of its own making stays in the repository: the actual review
+history, in which each of the author's own readings is recorded as the author's review, the drafting history,
+the agents' roles and the release work are kept in `paper/review/` and the release register.
 
 ## Writing
 
