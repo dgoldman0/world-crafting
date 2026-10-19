@@ -29,3 +29,16 @@ sentence in keeping with the paragraph, and the lake results kept out.
 |---|---|---|---|
 | 1 | `next.tex`:123 | "And" joined the gravity point to its consequence as equals, leaving the reason for testing the laws unwritten | Applied: "since at lower gravity a given contrast of temperature resists the wind's mixing more weakly, the transfer and mixing laws ... would be ..." |
 | 2 | `next.tex`:124 | "Would join the Earth values" gave the laws an action | Applied: "would be among the Earth values to test" |
+
+## Stage 2: the note on terms (bce55ed)
+
+The Introduction's opening paragraph moved, word for word, into `paper/sections/terms.tex`, set between the abstract
+and the Introduction as a small, indented "Note on terms." Verdict: ready. The reader confirmed the wording identical
+to the removed paragraph, the note set like the abstract with a run-in head like the paper's others, the Introduction
+opening on the field as `AGENTS.md`'s table of repairs directs, "Gaean" in the body used only after the note, nothing
+pointing back to the removed paragraph, and the check script covering the new file.
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1 | `terms.tex`:5–7 | The note's closing clause, "so modelling their climate, storms and seas requires adapting both the component models and the fields exchanged within an ensemble", is argument more than a term, and echoes the abstract printed above it | For the author: the note could end at "... may differ substantially from Earth's."; it stands as the author moved it |
+| 2 | `paper/Makefile`:10–13 | A build made before a commit keeps the earlier commit's date, and latexmk then skips the rebuild | Noted for the records: every recorded hash comes from `make -C paper clean` followed by `make -C paper pdf` |
