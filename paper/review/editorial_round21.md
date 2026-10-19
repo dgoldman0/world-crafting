@@ -204,3 +204,10 @@ message naming it. The assistant checked the two clauses alone, given their size
 both tags' targets. Two clean builds from `9154a90862f6db9d078764a45ad1f38c47e06ea8` gave the same PDF, 37 pages,
 SHA256 `43cd2fb1eeda9b1fe3bf5d66d3bc12dd4db3593b65ead4aa545daec14cb3dc93`, with zero overfull boxes and every font
 embedded. This is the first released draft.
+
+## The AI-use statement (d8dfc0a)
+
+Reading the statement of AI assistance in Availability for the release register's E4 confirmation, the author
+confirmed its wording with one change: the statement opens "The author designed the scenario, ..." in place of the
+author's name, as the competing-interests statement does. The tags `paper-v1` and `world-crafting-paper-v1` move to
+the reviewed state once, when the author's review of the paper ends.
