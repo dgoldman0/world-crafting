@@ -111,7 +111,7 @@ outside the groups the sentence named; the namelist sentence now ends "the elect
 terms". In Results, the list after "two realisations:" holds the three explanations tested, so it can first be read
 as the realisations; it stands for a later reading.
 
-## Build
+## Build (be4a1d5)
 
 Two clean builds from `be4a1d5153ad1804fb1eeb2028538321f8ba22d0` gave the same PDF, 37 pages, SHA256
 `3b1514a37391e0637db0f8856222a48fa31b944d0bdd612a4cbc0948953742c9`, with zero overfull boxes and every font embedded.
@@ -119,3 +119,75 @@ The reflow removed the stranded line that closed page 24; a screen of every page
 table cells wrapping across pages 8–9 and 30–31. `paper/tools/check.py` passes with its standing warnings (96 cited
 keys of 167; 107 of 109 claims cited; S01 and V14 uncited; the web source of H23 and N02 unchecked offline). The 21
 fixes on approved wording are held for the author's decision.
+
+## The Conclusion and the abstract (1df6379, 2fbc500)
+
+The author accepted all 21 fixes on approved wording, and they were applied as listed above (1df6379). For "follow
+the consequences", the author kept the verb and moved the action to a user of the ensemble: the abstract and the
+Conclusion's first sentence now have a modeller follow the consequences, and the Conclusion's second paragraph, whose
+first sentence already has a modeller, has the change in a planet's climate followed, in the passive.
+
+One fresh Claude Opus 5.5 subagent read the two sections as revised. It found the numbers and conditions intact (V69
+against H07, V83 against G04), every pronoun pointing where it should, and no new figure; its six findings, one
+MAJOR, touched approved wording and went to the author, who approved all six (2fbc500).
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1, MAJOR | `conclusions.tex`:11, 35, 51 | Sentences opening on "With" went from three to seven, and three paragraphs now ended "With ..., a modeller could ...", each after a sentence closing on a ", with ..." clause | Applied: "Because the global and resolved calculations are chained through their forcing, ..."; "A modeller using the reduced scheme could still explore climates quickly, ..."; "Since the ensemble computes both, a modeller can examine ..." |
+| 2 | `conclusions.tex`:54–55 | Two sentences in a row had the frame "On X, Y can be ...", so the example read as a second item | Applied: "These comparisons can be made on constructed worlds over combinations of parameters ..." |
+| 3 | `conclusions.tex`:74, 77 | "could be used to" twice in a row | Applied: "Developed in this way, the ensemble could be run to explore ..." |
+| 4 | `conclusions.tex`:29 | "confounded in the comparison with a change" first attached "with a change" to the comparison | Applied: "Otherwise, in the comparison, the response of the convection schemes is confounded with a change ..." |
+| 5 | `conclusions.tex`:68 | "A storm simulated at planetary scale" read as a planet-wide storm-resolving run, where the electrified storms ran in 385 km boxes | Applied: "A storm simulated in its planetary setting" |
+| 6 | `abstract.tex`:24–26 | The abstract's last two sentences both opened "With ..." | Applied: "A modeller running the ensemble could then follow the consequences ..." |
+
+## Generic planetary models (a1dce83, 79db976, 88e2efe)
+
+The author asked whether the paper makes plain why the ensemble builds on ExoPlaSim when generic planetary GCMs
+exist, and whether the ensemble is of use to groups with more computing than one laptop. The assistant's reading: the
+paper gave the pieces (most exoplanet GCMs are adapted Earth codes; the THAI models differ by 14 and 24 K; the works
+it cites join two links of the chain at most) without the reason for the choice, and the sharpest form of the question
+went unanswered, since ROCKE-3D with SOCRATES and the LMD generic model already compute their radiation from each
+atmosphere's gases, the step Next steps proposes for PlaSim. The author described the ensemble as geared, for now, to
+limited resources, and asked for the answer in plain statements, free of defensive phrasing. The assistant's first
+summary called the calibrations "a stopgap that measured the problem", which the author rejected as itself a verb of
+the kind round 21 removed; the calibration framing was dropped, since the paper already states what the calibrations
+did.
+
+Three sentences were added in the order of synthesis, as the author approved them, with two precisions: ROCKE-3D
+computes radiation from the air's own gases in its SOCRATES configuration, one of its two radiation schemes, and the
+paper's existing name, "the LMD generic model", is kept.
+
+| Commit | Section | Addition |
+|---|---|---|
+| a1dce83 | Next steps | After the reduced scheme: "PlaSim would then compute its radiation as ROCKE-3D with SOCRATES and the LMD generic model do, from k-distributions of the air's own gases, at its own speed." |
+| 79db976 | Introduction | Where ExoPlaSim enters: "..., the speed for which it was chosen, ..., computes its radiation with broadband fits to Earth's columns and ..." |
+| 88e2efe | Conclusion | After the reduced scheme's prospect: "CM1 and the wave models take only the GCM's fields, so a GCM that computes its radiation from each atmosphere's gases, such as ROCKE-3D with SOCRATES or the LMD generic model, could force them as well." |
+
+The sources were read for the purpose in their archived originals: Tsigaridis et al. (2025), p. 5825, "Two different
+radiation schemes are supported, the GISS radiation, valid only for atmospheres similar to that of modern Earth, and
+SOCRATES, which is more generalized but more computationally expensive", and p. 5831, on the spectral file that holds
+"gas absorption coefficients for major and minor species"; Wordsworth et al. (2011), p. 2, on the correlated-k
+coefficients. The manifest records the locators and both sources' new uses. Claim S14 now records the reason for the
+choice: Terluna's table of candidate GCMs at 186b294 (`climate/gcm/README.md`, lines 70–85), which takes ExoPlaSim as
+the fast first look and plans ROCKE-3D or the LMD model for the cases that matter, and the author's account above.
+The abstract needs no change for this direction.
+
+One fresh Claude Opus 5.5 subagent read the four commits from 2fbc500 to 88e2efe. It found the statements about
+ROCKE-3D and the LMD generic model within their sources, with all three locators correct, the Introduction's clause
+supported by S14 and by the body's own account of PlaSim's radiation, no statement answering an objection or hedging,
+and the six approved fixes clean in their paragraphs. Verdict: one MAJOR and four MINOR findings, applied in 67b4786.
+
+| # | Location | Finding | Disposition |
+|---|---|---|---|
+| 1, MAJOR | `next.tex`:18 | "at its own speed" claimed a speed that no run has timed, and the ROCKE-3D paper it cites calls SOCRATES the costlier of its two schemes | Applied: the phrase is dropped. The reader also asked the author about the Conclusion's approved "could still explore climates quickly", which rests on the same untimed premise; it stands, as a prospect for a reduced scheme made with a tool built for "fast $k$-distribution gas-optics models", in the title of Hogan and Matricardi (2022) |
+| 2 | `next.tex`:18 | "k-distributions" set the k in text, where the paper sets it as math | Applied: "$k$-distributions" |
+| 3 | `next.tex`:18–20 | The new sentence parted "that spectroscopy" and "such a scheme" from the phrases they point back to | Applied: the sentence moves, unchanged otherwise, to the end of its paragraph, after the reduction and its check |
+| 4 | `conclusions.tex`:35 | "take only the GCM's fields" left out the slice's geometry and SWAN's spectra, which Repairs names | Applied: "take from the GCM only its fields" |
+| 5 | `claims.json`, S14 | The record S14 cites was missing the author's account when read | Applied: the section above records it |
+
+## Build
+
+Two clean builds from `67b4786d8b18d5b5e1acdae4a496842668705345` gave the same PDF, 37 pages, SHA256
+`76a0c0c90915f11bfd7f171d885bc36683a92ec63b53df05a4945f88cfb70b67`, with zero overfull boxes and every font embedded.
+`paper/tools/check.py` passes with its standing warnings, and a screen of the page breaks found only table cells
+wrapping across pages.

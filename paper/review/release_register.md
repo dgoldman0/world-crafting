@@ -84,6 +84,11 @@ outside the abstract and the Conclusion were applied with a light reading's corr
 `3b1514a37391e0637db0f8856222a48fa31b944d0bdd612a4cbc0948953742c9`, with zero overfull boxes and every font embedded.
 The 21 fixes on approved wording, in the abstract and the Conclusion, are held for the author, and the gates stand
 as before.
+The author then accepted those 21 fixes and asked that the paper state plainly why the ensemble builds on ExoPlaSim
+beside generic planetary GCMs; three sentences followed in the order of synthesis, each given a light reading
+(`editorial_round21.md`). Two clean builds from `67b4786d8b18d5b5e1acdae4a496842668705345` gave the same PDF, 37 pages, SHA256
+`76a0c0c90915f11bfd7f171d885bc36683a92ec63b53df05a4945f88cfb70b67`, with zero overfull boxes and every font embedded.
+The gates stand as before.
 
 ## The artifact
 

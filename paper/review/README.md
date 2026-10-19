@@ -146,8 +146,10 @@ Having read the paper whole, the author judged it good overall and named one rem
 subject an act it cannot perform. The closing review, held until that reading, became round 21. Two fresh agents
 each tested every verb in half the paper against its subject (`editorial_round21_closing_front.md`,
 `editorial_round21_closing_back.md`); the fixes outside the abstract and the Conclusion were applied and given a
-light reading, and `editorial_round21.md` records the dispositions and the 21 fixes on approved wording held for the
-author.
+light reading. The author accepted the 21 fixes on approved wording, and then asked that the paper say plainly why the
+ensemble builds on ExoPlaSim when generic planetary GCMs exist; three sentences followed, in Next steps, the
+Introduction and the Conclusion. `editorial_round21.md` records the dispositions, the three light readings and the
+added sentences with their sources.
 
 ## Reviewers
 
