@@ -20,6 +20,7 @@ from worldlab.spec import LAB, Library, SpecError
 LIB = Library()
 MOON, EARTH = LIB.world('moon'), LIB.world('earth')
 OPEN_MOON, CONTROL = LIB.scenario('moon/open-moon'), LIB.scenario('earth/control')
+SEED, SEED_AIR = LIB.world('waterworld-seed'), LIB.scenario('waterworld-seed/gaean-1bar')
 STUDY = LIB.study('open-moon')
 DESIGN, LW_ICE = STUDY.gcm['design'].settings, STUDY.gcm['design_lw_ice'].settings
 DEFAULTS = LIB.defaults('exoplasim/defaults')
@@ -267,12 +268,17 @@ def test_an_eccentric_orbit_states_its_longitude_of_perihelion():
     (MOON, DESIGN, _with(OPEN_MOON, water={'ocean': {'kind': 'dynamic', 'mixed_layer_m': 50.0, 'sea_ice': True}}),
      'slab'),
     (MOON, DESIGN, _with(OPEN_MOON, land={'albedo': 'unchosen'}), 'land.albedo'),
-    (_with(MOON, rotation={'locked_to': 'star'}), DESIGN, OPEN_MOON, 'fields still to add'),
-    (_with(MOON, surface={'geometry': 'ocean'}), DESIGN, OPEN_MOON, 'fields still to add'),
+    (_with(SEED, rotation={'substellar_longitude_deg': None}), DESIGN, SEED_AIR, 'substellar_longitude_deg'),
+    (_with(SEED, rotation={'locked_to': 'host'}), DESIGN, SEED_AIR, 'locked_to is "star"'),
+    (_with(SEED, rotation={'obliquity_deg': 1.0}), DESIGN, SEED_AIR, 'obliquity 0 and eccentricity 0'),
+    (_with(SEED, orbit={'eccentricity': 0.01, 'perihelion_longitude_deg': 0.0}), DESIGN, SEED_AIR,
+     'obliquity 0 and eccentricity 0'),
 ])
 def test_settings_the_adapter_cannot_write_are_refused(world, run, scenario, match):
+    top = LATER if scenario is not SEED_AIR else ex.TopOfAir(1275.9, 1.0, 'scenario')
+    calibrations = _given() if scenario is not SEED_AIR else _given(sunlight_scale=None)
     with pytest.raises(SpecError, match=match):
-        ex.namelists(world, scenario, run, top=LATER, calibrations=_given())
+        ex.namelists(world, scenario, run, top=top, calibrations=calibrations)
 
 
 @needs_sunlight
@@ -389,7 +395,8 @@ def test_configure_writes_the_labs_namelists_but_for_the_departures_and_the_labs
              (EARTH, CONTROL, DEFAULTS, ex.TopOfAir(1361.0, 1.0, 'scenario')),
              (MOON, other_moon, slow_free, FIRST),
              (EARTH, _with(CONTROL, air={'co2_ppm': 0.0, 'ozone': 'none'}, land={'albedo': 0.3}),
-              DEFAULTS, ex.TopOfAir(1361.0, 1.0, 'scenario'))]
+              DEFAULTS, ex.TopOfAir(1361.0, 1.0, 'scenario')),
+             (SEED, SEED_AIR, DEFAULTS, ex.TopOfAir(1275.9375, 1.0, 'scenario'))]
     arguments, written = [], []
     for i, (world, scenario, run, top) in enumerate(cases):
         arguments.append(ex.configure_arguments(world, scenario, run, top=top, starspec='sun.dat'))
@@ -413,6 +420,8 @@ def test_configure_writes_the_labs_namelists_but_for_the_departures_and_the_labs
         if world['surface']['geometry'] == 'model-default':            # configure leaves ExoPlaSim's own files
             ours = ex.model_surfaces(DEFAULTS['resolution'], albedo_map=scenario['land']['albedo'] == 'model-default')
             assert theirs['sra'] == {name: hashlib.sha256(data).hexdigest() for name, data in ours.items()}, i
+        if world['surface']['geometry'] == 'ocean':                    # configure's aquaplanet removes every one
+            assert theirs['sra'] == {}, i
 
 
 # The input files.
@@ -587,9 +596,8 @@ def test_a_run_needs_the_surface_its_world_names(tmp_path):
     with pytest.raises(SpecError, match='surface.geometry'):
         ex.write_run(tmp_path / 'a', _with(MOON, surface={'geometry': 'unchosen'}), OPEN_MOON, DESIGN,
                      calibrations=ex.Calibrations.identity(), surface=surface)
-    with pytest.raises(SpecError, match='fields still to add'):
-        ex.write_run(tmp_path / 'a', _with(MOON, surface={'geometry': 'ocean'}), OPEN_MOON, DESIGN,
-                     calibrations=ex.Calibrations.identity())
+    with pytest.raises(SpecError, match='all ocean takes no surface'):
+        ex.write_run(tmp_path / 'a', SEED, SEED_AIR, DEFAULTS, calibrations=ex.Calibrations.identity(), surface=surface)
     (tmp_path / 'full').mkdir()
     (tmp_path / 'full' / 'N032_surf_0169.sra').write_text('an earlier run\n')
     with pytest.raises(SpecError, match='new or empty folder'):
@@ -612,3 +620,30 @@ def test_the_longwave_and_ice_run_writes_terlunas_tables_and_mask(tmp_path):
     assert record['switches']['ice_weights'] == 'patch-10' and record['sunlight']['basis'] == 'calibration'
     if DESIGN_INPUTS is not None and DESIGN_INPUTS.is_dir():
         assert (run / 'N032_surf_0172.sra').read_text() == (DESIGN_INPUTS / 'moon_landmask.sra').read_text()
+
+
+# The seed waterworld: all ocean, locked to a red dwarf.
+
+@needs_archive
+def test_the_seed_waterworld_runs_all_ocean_under_a_fixed_star(tmp_path):
+    record = ex.write_run(tmp_path / 'run', SEED, SEED_AIR, DEFAULTS, calibrations=ex.Calibrations.identity())
+    run = tmp_path / 'run'
+    assert {p.name for p in run.iterdir()} == set(ex.NAMELISTS) | {'sun.dat', 'sun_hr.dat'}   # no surface files
+    assert record['surface'] == {'kind': 'ocean', 'mask_land_share': 0.0}
+    assert record['sunlight'] == dict(top_w_m2=pytest.approx(32.664 / 0.16 ** 2, rel=1e-9), scale=1.0, basis='scenario')
+    assert record['switches']['sun_clock'] == 'plasim'           # patch 04's synodic clock replaces the fixed hour angle
+    plasim, planet, radmod = (_entries((run / name).read_text())
+                              for name in ('plasim_namelist', 'planet_namelist', 'radmod_namelist'))
+    year = derive.year_days(SEED)
+    assert (plasim['NAQUA'], plasim['FIXEDLON'], radmod['NFIXED'], radmod['NSUNCLOCK']) == ('1', '180.0', '1', '0')
+    assert float(planet['ROTSPD']) == 1.0 / year and float(planet['SIDEREAL_YEAR']) == year * 86400.0
+    assert (planet['ECCEN'], planet['OBLIQ'], planet['MVELP']) == ('0.0', '0.0', '102.7')   # the template's, idle
+    assert float(planet['GA']) == derive.gravity(SEED) and (plasim['N_DAYS_PER_YEAR'], plasim['N_RUN_STEPS']) == \
+        ('12', str(12 * derive.calendar(SEED, DEFAULTS)['steps_per_model_day']))
+    w_um, f = (np.array(v, dtype=float) for v in _star((run / 'sun_hr.dat').read_text()))
+    w = w_um * 1e-6
+    lwmin, hinge = np.log10(MINWAVEL_M), np.log10(7.5e-7)
+    grid = np.concatenate([10 ** (lwmin + np.arange(1024) * (hinge - lwmin) / 1024),
+                           10 ** (hinge + np.arange(1024) * (-4 - hinge) / 1024)])
+    assert _split(w, np.where(w < MINWAVEL_M, 0.0, f)) == \
+        pytest.approx(_split(grid, (1e6 * grid) ** -5 / np.expm1(HC_K / (3400.0 * grid))), abs=1e-5)

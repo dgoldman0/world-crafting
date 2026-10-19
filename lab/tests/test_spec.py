@@ -97,6 +97,23 @@ def test_the_mars_illustration_lists_its_unchosen_fields():
     assert unchosen({'a': [{'b': 'unchosen'}, 1]}) == ['a.0.b']
 
 
+def test_the_registrys_field_paths_name_fields_a_seed_states():
+    seeds = [LIB.world(p.parent.name) for p in (LAB / 'worlds').glob('*/world.toml')]
+    seeds += [LIB.scenario(f'{p.parent.parent.name}/{p.stem}') for p in (LAB / 'worlds').glob('*/scenarios/*.toml')]
+    for entry in LIB.registry():
+        for test in entry['when']:
+            if 'field' in test:
+                assert any(_has(seed, test['field']) for seed in seeds), (entry['id'], test['field'])
+
+
+def _has(tree: dict, path: str) -> bool:
+    try:
+        get_path(tree, path)
+        return True
+    except KeyError:
+        return False
+
+
 def test_the_registrys_config_paths_name_fields_of_the_defaults():
     for entry in LIB.registry():
         for test in entry['when']:

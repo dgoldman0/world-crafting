@@ -13,12 +13,13 @@ import math
 from .spec import SpecError, unchosen
 
 DAY_S = 86400.0
+AU_M = 1.495978707e11                    # the astronomical unit, m (IAU 2012 Resolution B2)
 R_GAS = 8.314462618                      # J mol-1 K-1, CODATA 2018
 MOLAR_MASS = {'N2': 28.0134, 'O2': 31.9988, 'Ar': 39.948, 'CO2': 44.0095}             # g/mol
 CM1_EARTH_G = 9.81                       # CM1's and Morrison's Earth gravity
 STANDARD_G = 9.80665
 # A stated value must lie this close to its derivation (world_spec.md, rule 2), relatively; a breach refuses.
-TOLERANCE = {'gravity_m_s2': 2e-3, 'solar_day_days': 1e-5}
+TOLERANCE = {'gravity_m_s2': 2e-3, 'solar_day_days': 1e-5, 'sidereal_year_days': 1e-4, 'sidereal_period_days': 1e-6}
 
 
 # The planet record.
@@ -34,14 +35,15 @@ def planet(world: dict, scenario: dict, *, exoplasim: dict | None = None) -> dic
         stated['gravity_m_s2'] = dict(stated=world['body']['gravity_m_s2'], derived=gravity_derived(world))
     if world['rotation'].get('solar_day_days') is not None:
         stated['solar_day_days'] = dict(stated=world['rotation']['solar_day_days'], derived=solar_day_derived(world))
-    day = solar_day_days(world)
+    day = solar_day_days(world)                  # None for a world locked to its star, whose star stands still
     fractions = mole_fractions(scenario)
     pressures, molar_mass = partial_pressures_bar(scenario), molar_mass_g_mol(fractions)
     record = dict(gravity_m_s2=g, rotation_rate_rad_s=rotation_rate(world), solar_day_days=day,
                   exoplasim_rotationperiod_days=exoplasim_rotationperiod_days(world),
                   partial_pressures_bar=pressures, mole_fractions=fractions, molar_mass_g_mol=molar_mass,
                   zgasw=zgasw(fractions), specific_gas_constant=specific_gas_constant(molar_mass),
-                  capillary_factor=capillary_factor(g), soil_factor=soil_factor(day), stated=stated)
+                  capillary_factor=capillary_factor(g), soil_factor=None if day is None else soil_factor(day),
+                  stated=stated)
     if scenario['air']['reference_temperature_k'] != 'settled':
         radius = world['body']['radius_m']
         h = scale_height_m(reference_temperature_k(scenario), molar_mass, g)
@@ -73,23 +75,64 @@ def gravity_derived(world: dict) -> float:
 
 def rotation_rate(world: dict) -> float:
     """Ω, rad/s, from the sidereal period."""
-    return 2.0 * math.pi / (world['rotation']['sidereal_period_days'] * DAY_S)
+    return 2.0 * math.pi / (sidereal_period_days(world) * DAY_S)
 
 
-def solar_day_days(world: dict) -> float:
-    """The solar day: stated with its basis and checked against its derivation, or derived."""
+def sidereal_period_days(world: dict) -> float:
+    """The rotation against the stars: stated, or, for a world locked to its star, the orbit's period, against which
+    a stated period is checked."""
+    rotation = world['rotation']
+    locked = rotation.get('locked_to')
+    if locked is None:
+        if rotation.get('sidereal_period_days') is None:
+            raise SpecError(f'{world["id"]}: the rotation states its sidereal period, or rotation.locked_to')
+        return rotation['sidereal_period_days']
+    if locked != 'star':
+        raise SpecError(f'{world["id"]}: rotation.locked_to is "star", where the world states {locked!r}')
+    return _checked(rotation.get('sidereal_period_days'), year_days(world), 'sidereal_period_days', world['id'])
+
+
+def year_days(world: dict) -> float:
+    """The orbit's sidereal period: stated, and checked against Kepler's third law where the star states its GM, or
+    derived from it; a moon takes its host's stated year."""
+    orbit, star = world['orbit'], world.get('star', {})
+    stated, gm_star = orbit.get('sidereal_year_days'), star.get('gm_m3_s2')
+    if 'from_host' in orbit:                      # a moon's year is its host's, as the host's file states it
+        gm_star = None
+    if gm_star is None:
+        if stated is None:
+            raise SpecError(f'{world["id"]}: the orbit states its sidereal year, or the star its GM')
+        return stated
+    derived = kepler_period_days(orbit['semi_major_axis_au'], gm_star + world['body']['gm_m3_s2'])
+    return _checked(stated, derived, 'sidereal_year_days', world['id'])
+
+
+def kepler_period_days(semi_major_axis_au: float, gm_total_m3_s2: float) -> float:
+    """2π (a³/GM)^½, the two bodies' GM together."""
+    return 2.0 * math.pi * math.sqrt((semi_major_axis_au * AU_M) ** 3 / gm_total_m3_s2) / DAY_S
+
+
+def solar_day_days(world: dict) -> float | None:
+    """The solar day: stated with its basis and checked against its derivation, or derived; None for a world locked
+    to its star, whose star stands still in its sky."""
+    if world['rotation'].get('locked_to') is not None:
+        sidereal_period_days(world)              # refuses a lock other than to the star
+        if world['rotation'].get('solar_day_days') is not None:
+            raise SpecError(f'{world["id"]}: a world locked to its star has no solar day to state')
+        return None
     return _checked(world['rotation'].get('solar_day_days'), solar_day_derived(world), 'solar_day_days', world['id'])
 
 
 def solar_day_derived(world: dict) -> float:
-    return synodic_period_days(world['rotation']['sidereal_period_days'], world['orbit']['sidereal_year_days'])
+    return synodic_period_days(sidereal_period_days(world), year_days(world))
 
 
-def synodic_period_days(sidereal_days: float, year_days: float) -> float:
+def synodic_period_days(sidereal_days: float, year_days_: float) -> float:
     """1/(1/P_rot − 1/P_year), for prograde rotation."""
-    if sidereal_days == year_days:
-        raise SpecError('a rotation locked to the year has no solar day; synchronous rotation is a field still to add')
-    return 1.0 / (1.0 / sidereal_days - 1.0 / year_days)
+    if sidereal_days == year_days_:
+        raise SpecError('a rotation locked to the year has no solar day; a world locked to its star states '
+                        'rotation.locked_to')
+    return 1.0 / (1.0 / sidereal_days - 1.0 / year_days_)
 
 
 def _checked(stated, derived: float, name: str, where: str) -> float:
@@ -201,7 +244,7 @@ def exoplasim_rotationperiod_days(world: dict) -> float:
     stated = world['rotation'].get('solar_day_days')
     if stated == 1.0 and solar_day_days(world) == 1.0:
         return 1.0
-    period = world['rotation']['sidereal_period_days']
+    period = sidereal_period_days(world)
     if period == 1.0:
         raise SpecError(f'{world["id"]}: a sidereal period of exactly 1 d takes ExoPlaSim\'s 24-hour path; '
                         'state the solar day as 1 d with its basis, or give the period its own digits')
@@ -259,7 +302,7 @@ def output_steps(mean_interval_days: float, model_day_s: float, steps: int, n_da
 def calendar(world: dict, defaults: dict) -> dict:
     """ExoPlaSim's calendar for a world under its defaults."""
     rotationperiod = exoplasim_rotationperiod_days(world)
-    n_days = days_per_year(rotationperiod, world['orbit']['sidereal_year_days'])
+    n_days = days_per_year(rotationperiod, year_days(world))
     day_s = model_day_days(rotationperiod, n_days) * DAY_S
     step_s = plasim_step_s(defaults['timestep_min'])
     steps = steps_per_model_day(day_s, defaults['timestep_min'])
@@ -340,8 +383,11 @@ def cm1_factors(world: dict, scenario: dict, defaults: dict, *, temperature_k: f
     m = molar_mass_g_mol(mole_fractions(scenario))
     h, c = scale_height_m(t, m, g), math.sqrt(R_GAS * t / (m / 1000))
     time = (h / c) / (h_ref / c_ref)
-    return dict(length=h / h_ref, time=time, rate=1.0 / time, capillary=capillary_factor(g),
-                soil=soil_factor(solar_day_days(world)))
+    day = solar_day_days(world)
+    if day is None:
+        raise SpecError(f'{world["id"]}: a world locked to its star has no solar day for CM1\'s soil layers; its '
+                        'fixed-star patch comes with plan stage 12')
+    return dict(length=h / h_ref, time=time, rate=1.0 / time, capillary=capillary_factor(g), soil=soil_factor(day))
 
 
 def cm1_values(settings: dict, factors: dict, *, set_paths: frozenset = frozenset()) -> dict:

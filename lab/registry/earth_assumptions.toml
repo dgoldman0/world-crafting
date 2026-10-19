@@ -4,7 +4,8 @@
 # specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
 # calibration's envelope (calibration). Tolerances are relative (rel_tolerance).
 # Thresholds marked "proposed" come from the design and await the author's decision before the reach report uses
-# them. `rotation.synchronous` is a planned world field (world_spec.md, "Fields still to add"), false unless given.
+# them. A field a world leaves out holds no value, so that `ne` holds for it: A1 tests every world but one locked to
+# its star (rotation.locked_to), whose star ExoPlaSim's synchronous mode holds still.
 #
 # action: require-switch | require-build | require-refit | warn | refuse
 # state:  repaired | calibrated | bounded | open
@@ -17,7 +18,7 @@ model = "exoplasim"
 where = "plasim/src/radmod.f90, solang"
 form = "latent defect"
 assumes = "a rotation of exactly one day (rotspd = 1)"
-when = [{ field = "rotation.synchronous", eq = false }, { q = "exoplasim_rotationperiod_days", ne = 1.0 }]
+when = [{ field = "rotation.locked_to", ne = "star" }, { q = "exoplasim_rotationperiod_days", ne = 1.0 }]
 effect = "the Sun skips back 1/(N-1) of a turn each model day: 2 deg at a 2-day rotation, 10 deg at 10 and 12 days, 16 deg from just above 12 days to 20, 33 deg above 20"
 state = "repaired"
 repair = { patch = "04-sun-clock", switch = "NSUNCLOCK", value = 2, default = 0 }

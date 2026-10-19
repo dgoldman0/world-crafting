@@ -353,3 +353,51 @@ def test_each_cases_grid_and_settings_agree_with_terlunas_case(name):
     assert values['pbl_length_m'] == pytest.approx(namelist['l_inf'] * RATIO, abs=0.0501)            # written to 0.1 m
     assert values['rayleigh_rate_per_s'] == pytest.approx(namelist['rdalpha'] / RATIO, abs=5.01e-9)   # written to 1e-8
     assert case.settings['unscaled']['damping_base_fraction'] * values['ztop_m'] == pytest.approx(namelist['zd'] * RATIO, rel=1e-12)
+
+
+# A world locked to its star.
+
+SEED, SEED_AIR = LIB.world('waterworld-seed'), LIB.scenario('waterworld-seed/gaean-1bar')
+
+
+def test_a_world_locked_to_its_star_turns_once_a_year_and_has_no_solar_day():
+    year = derive.year_days(SEED)
+    assert year == derive.kepler_period_days(0.16, 5.57392248e19 + 1.993002209e13) == pytest.approx(36.0706, abs=1e-4)
+    assert derive.sidereal_period_days(SEED) == year and derive.solar_day_days(SEED) is None
+    assert derive.rotation_rate(SEED) == 2 * 3.141592653589793 / (year * derive.DAY_S)
+    record = derive.planet(SEED, SEED_AIR, exoplasim=EXOPLASIM)
+    assert record['solar_day_days'] is None and record['soil_factor'] is None
+    assert record['gravity_m_s2'] == pytest.approx(1.8947, abs=1e-4)
+    calendar = record['calendar']
+    assert (calendar['rotationperiod'], calendar['n_days_per_year']) == (year, 12)
+    assert calendar['model_day_s'] / derive.DAY_S == pytest.approx(year * 12 / 11, rel=1e-12)
+    with pytest.raises(SpecError, match='fixed-star patch'):
+        derive.cm1_factors(SEED, SEED_AIR, CM1)
+
+
+def test_a_stated_year_or_period_holds_to_keplers_third_law():
+    assert derive.year_days(_with(SEED, orbit={'sidereal_year_days': 36.0706})) == 36.0706
+    with pytest.raises(SpecError, match='sidereal_year_days'):
+        derive.year_days(_with(SEED, orbit={'sidereal_year_days': 36.0}))
+    with pytest.raises(SpecError, match='sidereal_period_days'):
+        derive.sidereal_period_days(_with(SEED, rotation={'sidereal_period_days': 36.0}))
+    with pytest.raises(SpecError, match='locked_to is "star"'):
+        derive.sidereal_period_days(_with(SEED, rotation={'locked_to': 'host'}))
+    with pytest.raises(SpecError, match='no solar day to state'):
+        derive.solar_day_days(_with(SEED, rotation={'solar_day_days': 36.0}))
+    year = derive.year_days(SEED)
+    assert derive.year_days(_with(SEED, orbit={'sidereal_year_days': year * (1 + 5e-5)})) == year * (1 + 5e-5)
+    with pytest.raises(SpecError, match='sidereal_year_days'):
+        derive.year_days(_with(SEED, orbit={'sidereal_year_days': year * (1 + 2e-4)}))
+    assert derive.sidereal_period_days(_with(SEED, rotation={'sidereal_period_days': year * (1 + 5e-7)})) == \
+        year * (1 + 5e-7)
+    with pytest.raises(SpecError, match='sidereal_period_days'):
+        derive.sidereal_period_days(_with(SEED, rotation={'sidereal_period_days': year * (1 + 2e-6)}))
+    with pytest.raises(SpecError, match='locked_to is "star"'):
+        derive.solar_day_days(_with(SEED, rotation={'locked_to': 'host'}))
+    # A moon's year is its host's, stated in the host's file, whatever its star's GM.
+    assert derive.year_days(_with(MOON, star={'gm_m3_s2': 1.3271244e20})) == 365.25636
+    plain = {k: v for k, v in EARTH['orbit'].items() if k != 'sidereal_year_days'}
+    with pytest.raises(SpecError, match='sidereal year, or the star its GM'):
+        derive.year_days({**EARTH, 'orbit': plain})
+    assert derive.year_days(EARTH) == 365.25636                 # stated, with no GM for the Sun to check it by

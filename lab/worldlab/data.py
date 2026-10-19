@@ -38,6 +38,8 @@ ROOTS = ('terluna', 'terluna-drive')
 # The fields of a world and of a scenario that hold a pin, or one of the words that name no pin.
 PIN_FIELDS = {'world': ('star.spectrum', 'surface.geometry'), 'scenario': ('sunlight.filter', 'water.lakes_start')}
 WORDS = frozenset({'none', 'model-default', 'unchosen'})
+FIELD_WORDS = {'star.spectrum': frozenset({'blackbody'}), 'surface.geometry': frozenset({'ocean'})}   # words that
+                                     # name no pin in one field alone: a blackbody star, a world all ocean
 ENTRY_KEYS = frozenset({'title', 'use', 'licence', 'credit', 'reviewed', 'files', 'note'})
 REQUIRED_ENTRY_KEYS = ENTRY_KEYS - {'note'}
 FILE_KEYS = frozenset({'name', 'bytes', 'sha256', 'retrieved', 'url', 'source', 'commit', 'made', 'note'})
@@ -107,9 +109,10 @@ def spec_pins(kind: str, tree: dict) -> dict[str, Pin]:
             value = get_path(tree, field)
         except KeyError:
             continue
+        words = WORDS | FIELD_WORDS.get(field, frozenset())
         if not isinstance(value, str):
-            raise DataError(f'{field}: a pin or one of {sorted(WORDS)}, where the {kind} holds {value!r}')
-        if value not in WORDS:
+            raise DataError(f'{field}: a pin or one of {sorted(words)}, where the {kind} holds {value!r}')
+        if value not in words:
             found[field] = parse_pin(value)
     return found
 

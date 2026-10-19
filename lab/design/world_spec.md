@@ -31,8 +31,9 @@ scenario, and the waterworlds' anchors are illustrative worlds under illustrativ
      Terluna's runner, against 29.5305882 d from 1/(1/P_rot − 1/P_year).
    - Earth's seed states the standard gravity of 9.80665 m/s², PlaSim's own Earth value. The derivation, GM/R²
      less the spin term, gives the area mean of 9.7977 m/s², 0.09% lower.
-   - **Tolerances.** A stated gravity lies within 0.2% of its derivation, and a stated solar day within one
-     part in 10⁵; a breach refuses the world.
+   - **Tolerances.** A stated gravity lies within 0.2% of its derivation, a stated solar day within one part in
+     10⁵, a stated year within one part in 10⁴ of Kepler's third law where the star states its GM, and a stated
+     sidereal period of a world locked to its star within one part in 10⁶ of its year; a breach refuses the world.
 3. **Sources.** Every value of a found world or scenario names its source, and every crafted or illustrative
    value its basis. A model choice in a scenario of any kind, such as a slab ocean and its depth, names its
    basis.
@@ -98,16 +99,17 @@ scenario, and the waterworlds' anchors are illustrative worlds under illustrativ
 | `kind` | – | `found` or `illustrative` |
 | `body.radius_m` | m | Mean radius |
 | `body.gm_m3_s2` | m³ s⁻² | GM; surface gravity is GM/R² less the spin term, the area mean, unless `body.gravity_m_s2` is stated with its basis |
-| `rotation.sidereal_period_days` | d | Rotation against the stars |
+| `rotation.sidereal_period_days` | d | Rotation against the stars; for a world locked to its star, the orbit's period, which a stated value must match to 10⁻⁶ |
+| `rotation.locked_to`, `rotation.substellar_longitude_deg` | –, ° | `star` for a world that keeps one face to its star, and the east longitude of the point beneath it |
 | `rotation.obliquity_deg` | ° | The equator's tilt to the orbit |
-| `rotation.solar_day_days` | d | Optional, stated with its basis; otherwise 1/(1/P_rot − 1/P_year) |
-| `orbit.star`, `semi_major_axis_au`, `sidereal_year_days`, `eccentricity` | –, AU, d, – | The orbit about the star |
+| `rotation.solar_day_days` | d | Optional, stated with its basis; otherwise 1/(1/P_rot − 1/P_year); none for a world locked to its star |
+| `orbit.star`, `semi_major_axis_au`, `sidereal_year_days`, `eccentricity` | –, AU, d, – | The orbit about the star; the year follows Kepler's third law where the star states its GM, which a stated year must match to 10⁻⁴ |
 | `orbit.perihelion_longitude_deg` | ° | The longitude of perihelion from the vernal equinox, which an eccentric orbit states (PlaSim's MVELP) |
 | `orbit.from_host` | – | For a moon, the host planet whose orbit it follows, in place of the four fields above |
-| `star.id`, `star.spectrum`, `star.spectrum_form`, `star.constant_w_m2`, `star.temperature_k` | –, pinned name or `blackbody`, –, W m⁻², K | The spectrum: a pinned measured or model spectrum, its tails the star's blackbody, or the blackbody alone; `irradiance` for a pinned irradiance at 1 AU, kept as measured with its tails holding the rest of the constant, or `shape` for one scaled whole to the constant; the total at 1 AU; and the effective temperature that sets the blackbody |
+| `star.id`, `star.spectrum`, `star.spectrum_form`, `star.constant_w_m2`, `star.temperature_k`, `star.gm_m3_s2` | –, pinned name or `blackbody`, –, W m⁻², K, m³ s⁻² | The spectrum: a pinned measured or model spectrum, its tails the star's blackbody, or the blackbody alone; `irradiance` for a pinned irradiance at 1 AU, kept as measured with its tails holding the rest of the constant, or `shape` for one scaled whole to the constant; the total at 1 AU; the effective temperature that sets the blackbody; and the star's GM, from which a planet's year follows |
 | `host.id`, `host.neglected` | – | A moon's planet, and the forcings from it left out, with their size |
 | `host.semi_major_axis_m`, `host.eccentricity`, `host.inclination_to_equator_deg` | m, –, ° | The moon's orbit about its host, and its tilt to the moon's equator, over which a host's permanent tide is averaged |
-| `surface.geometry` | pinned name | Heights over the geoid from a pinned source, `model-default` or `unchosen`: a height image and a gravity field, each with its PDS3 label |
+| `surface.geometry` | pinned name | Heights over the geoid from a pinned source, `model-default`, `ocean` for a world all ocean, or `unchosen`: a height image and a gravity field, each with its PDS3 label |
 | `surface.geoid_degree` | – | The gravity field's last degree in the geoid, stated with its basis |
 | `surface.tide.from`, `surface.tide.love_k2`, `surface.tide.sub_longitude_deg` | –, –, ° | The permanent tide of a body fixed in the sky, for a field whose degree-2 terms leave it out: `host`, the k2 that scales it by 1 + k2, and the east longitude of the mean sub-host point, on the equator |
 
@@ -134,7 +136,7 @@ scenario, and the waterworlds' anchors are illustrative worlds under illustrativ
 |---|---|---|---|
 | Surface gravity | GM/R² − (2/3)Ω²R, the area mean with the spin term | 1.6242107 m/s², against Terluna's GM/R² of 1.6242188765608128 m/s² | ExoPlaSim `gravity`; CM1's gravity, compiled in as `TERLUNA_G` until the namelist patches (architecture.md, "Model adapters"); the surface geopotential; every hydrostatic height in the GCM-to-CRM extraction |
 | Rotation rate | 2π/P_rot | 2.6616995 × 10⁻⁶ s⁻¹ | CM1's Coriolis parameter (`cm1_run.py:2038-2040`) |
-| Solar day | 1/(1/P_rot − 1/P_year), or stated | 29.53059 d stated; 29.5305882 d derived | CM1 `var19` (`cm1_run.py:2016`; 2,551,443.0 s). PlaSim's synodic clock derives its own from the rotation and the year (patch 04), 0.2 s a lunar day shorter than CM1's |
+| Solar day | 1/(1/P_rot − 1/P_year), or stated; none for a world locked to its star | 29.53059 d stated; 29.5305882 d derived | CM1 `var19` (`cm1_run.py:2016`; 2,551,443.0 s). PlaSim's synodic clock derives its own from the rotation and the year (patch 04), 0.2 s a lunar day shorter than CM1's |
 | Partial pressures | x_i·p, from the mole fractions | N2 0.99128639, O2 0.21227, Ar 0.01185725, CO2 0.00048636 bar | ExoPlaSim `configure` |
 | Mole fractions | CO2 as ppm of the total; O2 as p_O2/p or as given; the rest N2 and Ar, split by Ar/N2 or with Ar as given | CO2 4.0 × 10⁻⁴, O2 0.17457850 | CM1's CO2 and O2, compiled in as `TERLUNA_CO2` and `TERLUNA_O2` (written as 0.174579) until the namelist patches |
 | Mass fractions | x_i M_i / Σ x_j M_j, from the mole fractions | CO2 6.1057 × 10⁻⁴, O2 0.19375 | PlaSim `ZGASW` (patch 08) |
@@ -169,7 +171,10 @@ ice-optics weights come from `lab/worldlab/sunlight.py`, and the pressure at the
 with stage 2's geography producer, from the world's heights and seas. Each derivation takes its plainest form,
 and the calendar follows the rounding of ExoPlaSim's configure and `plasim.f90`, which the model applies. The
 derivations agree with `paper/data/regime_calc.json` to one part in 10¹² and with `worlds.json` to its stated
-digits, and with Terluna's records within each comparison's stated tolerance.
+digits, and with Terluna's records within each comparison's stated tolerance. A world locked to its star takes
+its rotation's period from its orbit's year, which Kepler's third law gives from the two bodies' GM where the star
+states its GM; a moon takes its host's stated year. A locked world has no solar day: its planet record holds none,
+nor a soil factor, and CM1's factors wait for stage 12's fixed-star patch.
 `lab/worldlab/spec.py` codes these rules:
 
 - **Ids.** A world takes its folder's name, a scenario `<world>/<name>`, a model's defaults `<model>/defaults`
@@ -223,7 +228,8 @@ spectrum and the scenario's filter through the manifest:
   lowercase hex digits. A plain name takes lowercase letters, digits, `.`, `_` and `-`; a root's path is
   relative, without empty, `.` or `..` parts. A world's `star.spectrum` and `surface.geometry`, and a
   scenario's `sunlight.filter` and `water.lakes_start`, hold a pin or one of `none`, `model-default` and
-  `unchosen`; these fields alone name Terluna's files in the seeds.
+  `unchosen`, or `blackbody` for a star and `ocean` for a surface; these fields alone name Terluna's files in the
+  seeds.
 - **The manifest** keys each entry by its pin without `#` or `@`. An entry holds a title, a use, the licence
   its review found, a credit, the review's date and its files; each file its name, size, sha256 and one
   source, a URL or a Terluna pin, with the date the lab took its bytes. A pin with a digest names one file of
@@ -292,11 +298,17 @@ on them (`notes/geography.md`):
   `air.reference_level` is "water" or "sea", the level PlaSim's heights start from; a land albedo of
   "model-default" keeps ExoPlaSim's albedo map; `forcing.top_infrared_w_m2` gives patch 06's infrared, the glow
   producer coming with stage 5. An eccentric orbit states `orbit.perihelion_longitude_deg`, PlaSim's MVELP, whose
-  template holds Earth's 102.7°. A world stating rotation locked to its star or a surface all ocean is refused until
-  the waterworld's fields are coded.
+  template holds Earth's 102.7°. A world locked to its star runs in configure's synchronous mode, `NFIXED` with the
+  star over `FIXEDLON`, and keeps PlaSim's own Sun clock, since patch 04's synodic clock replaces the mode's fixed hour
+  angle and, at a rotation equal to the year, holds the star over 0° E whatever `FIXEDLON` states. The mode holds
+  the star at the latitude of the obliquity all year and leaves out an eccentric orbit's libration, so a locked world
+  states obliquity 0 and eccentricity 0; PlaSim's synthetic ozone keeps a seasonal cycle on the orbit's year, which
+  the seed's air leaves out. A world all ocean runs as configure's aquaplanet, `NAQUA`, with no surface files. On the seed
+  waterworld, all ocean and locked to a red dwarf of provisional values (`lab/worlds/waterworld-seed`), configure
+  writes the same entries as the lab.
 - **The patches and calibrations.** The lab writes the namelist entries of every switch of the series that the
-  defaults name, and `resolve` gives the switches as the build and the calibrations make them, which the run's
-  record carries and the registry tests (rule 7): `from-spectrum` ice weights take patch 10's constant weights while
+  defaults name, and `resolve` gives the switches as the build, the calibrations and the world make them, which the
+  run's record carries and the registry tests (rule 7): `from-spectrum` ice weights take patch 10's constant weights while
   the series stops before patch 11, as registry entry `exoplasim-ice-weights` warns. A first run
   (`Calibrations.identity()`) takes each calibration at its identity default: RAYSCALE and SWH2OSCALE 1, TH2OC
   PlaSim's 0.024, the curved air's terms and the gas bands off, and a sunlight scale of 1 where the scenario's
@@ -373,19 +385,16 @@ while builds compile the air in.
 
 ## Fields still to add
 
-The waterworlds ([waterworlds.md](waterworlds.md)) need five first, each settled with the stage whose code first
-reads it; the names are proposals:
+The waterworlds ([waterworlds.md](waterworlds.md)) need two more, each settled with the stage whose code first
+reads it, its name a proposal; rotation locked to the star, a surface all ocean and the star's GM were settled in
+stage 2 (World fields):
 
 - **The water's share of the body's mass** (`body.water_mass_fraction`), from which the steam column takes the
   water's lifetime (stage 9).
-- **The star's mass** (`star.gm_m3_s2`), from which the lab derives a planet's year by Kepler's third law where the
-  world leaves it unstated (stage 2).
-- **Rotation locked to the star** (`rotation.locked_to = "star"`, with the substellar longitude): ExoPlaSim's
-  synchronous mode, the rotation's period the orbit's (stage 2), and CM1 under a star fixed in the sky (stage 12).
-- **A surface all ocean** (`surface.geometry = "ocean"`): no land and no heights, the sea's surface the geoid,
-  which ExoPlaSim's aquaplanet switch takes (stage 2).
 - **Air of steam alone** (`air.kind = "steam"`), whose pressure follows the vapour curve at the surface
   temperature, and for which the registry refuses ExoPlaSim and CM1 (stage 9).
+
+CM1 under a star fixed in the sky comes with stage 12.
 
 Later:
 

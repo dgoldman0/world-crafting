@@ -11,8 +11,8 @@ namelists, which the tests run in the lab's environment; the entries the lab wri
 A run's calibrations come from the stages that fit them. `Calibrations.identity()` takes each at its identity
 default, the released model's own value, with the curved air's terms and the gas bands off, as a world's first run
 does (plan.md); otherwise every calibration the run's switches use must be given. `resolve` gives the switches as
-the build and the calibrations make them (world_spec.md, rule 7), which the run's record carries and the registry
-tests.
+the build, the calibrations and the world make them (world_spec.md, rule 7), which the run's record carries and the
+registry tests.
 """
 from __future__ import annotations
 
@@ -335,11 +335,16 @@ def series(run: dict) -> tuple[str, ...]:
     return tuple(patches)
 
 
-def resolve(run: dict, calibrations: Calibrations) -> dict:
-    """The run's switches as its build and calibrations make them (world_spec.md, rule 7): `from-spectrum` ice
-    weights take patch 10's constant weights while the series stops before patch 11, and a first run holds the
-    curved air's terms and the gas bands off."""
+def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) -> dict:
+    """The run's switches as its build, its calibrations and its world make them (world_spec.md, rule 7):
+    `from-spectrum` ice weights take patch 10's constant weights while the series stops before patch 11; a first run
+    holds the curved air's terms and the gas bands off; and a world locked to its star keeps PlaSim's own Sun clock,
+    since patch 04's synodic clock replaces the fixed hour angle of ExoPlaSim's synchronous mode and, at a rotation
+    equal to the year, holds the star over 0° E whatever FIXEDLON states (models/exoplasim/patches/04-sun-clock.patch;
+    radmod.f90:1397-1414)."""
     switches = dict(run['switches'])
+    if world is not None and locked(world):
+        switches['sun_clock'] = 'plasim'
     if switches.get('ice_weights') not in ICE_WEIGHTS:
         raise SpecError(f'switches.ice_weights is one of {ICE_WEIGHTS}, where the run states '
                         f'{switches.get("ice_weights")!r}')
@@ -348,6 +353,27 @@ def resolve(run: dict, calibrations: Calibrations) -> dict:
     if calibrations.first_run:
         switches.update(twilight='none', gas_bands=False)
     return switches
+
+
+def locked(world: dict) -> bool:
+    """Whether the world keeps one face to its star (rotation.locked_to)."""
+    value = world['rotation'].get('locked_to')
+    if value not in (None, 'star'):
+        raise SpecError(f'{world.get("id")}: rotation.locked_to is "star", where the world states {value!r}')
+    return value == 'star'
+
+
+def substellar_longitude(world: dict) -> float:
+    """The east longitude of the point under the star of a locked world, ExoPlaSim's substellarlon."""
+    value = world['rotation'].get('substellar_longitude_deg')
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0.0 <= value < 360.0:
+        raise SpecError(f'{world.get("id")}: a world locked to its star states rotation.substellar_longitude_deg from '
+                        f'0 to 360°, where it states {value!r}')
+    return float(value)
+
+
+def all_ocean(world: dict) -> bool:
+    return world.get('surface', {}).get('geometry') == 'ocean'
 
 
 # The entries.
@@ -359,9 +385,6 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
     defaults with the study's changes, and `top` the sunlight at the top of the air (`top_of_air`)."""
     where = scenario.get('id', 'the scenario')
     air, water = scenario['air'], scenario['water']
-    if 'locked_to' in world['rotation'] or world.get('surface', {}).get('geometry') == 'ocean':
-        raise SpecError(f'{world["id"]}: rotation locked to the star and a surface all ocean are fields still to add '
-                        '(world_spec.md), which the adapter writes once they are coded')
     if air.get('reference_level') not in REFERENCE_LEVELS:
         raise SpecError(f'{where}: PlaSim takes its surface pressure at the level its heights start from, '
                         f'{" or ".join(REFERENCE_LEVELS)}, where the scenario states {air.get("reference_level")!r}')
@@ -373,7 +396,7 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
     ocean = water.get('ocean', {})
     if ocean.get('kind') != 'slab':
         raise SpecError(f'{where}: ExoPlaSim runs a slab ocean, where the scenario states {ocean.get("kind")!r}')
-    switches = resolve(run, calibrations)
+    switches = resolve(run, calibrations, world)
     g = derive.gravity(world)
     cal = derive.calendar(world, run)
     orbit, rotation = world['orbit'], world['rotation']
@@ -388,7 +411,7 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
 
     planet = entries['planet_namelist']
     planet.update(GSOL0=_check_top(top, scenario, calibrations), GASCON=gas_constant(scenario), GA=g,
-                  PLARAD=float(world['body']['radius_m']), SIDEREAL_YEAR=orbit['sidereal_year_days'] * derive.DAY_S,
+                  PLARAD=float(world['body']['radius_m']), SIDEREAL_YEAR=derive.year_days(world) * derive.DAY_S,
                   ECCEN=float(orbit['eccentricity']), OBLIQ=float(rotation['obliquity_deg']),
                   NFIXORB=_switch(run['fixed_orbit'], 'fixed_orbit'))
     perihelion = perihelion_longitude(world)
@@ -402,6 +425,15 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
                   NRADICE=_switch(ocean['sea_ice'], 'water.ocean.sea_ice'), NO3=OZONE[air['ozone']], NSTARFILE=1,
                   STARFILE=STAR_FILES[0], STARFILEHR=STAR_FILES[1])
     radmod.update(_radiation_switches(scenario, switches, calibrations, where))
+    if locked(world):                                 # configure's synchronous mode (exoplasim/__init__.py:2628-2630)
+        if rotation['obliquity_deg'] != 0.0 or orbit['eccentricity'] != 0.0:
+            raise SpecError(f'{world["id"]}: ExoPlaSim\'s synchronous mode holds the star at the latitude of the '
+                            'obliquity all year and leaves out the libration of an eccentric orbit (radmod.f90:1397-1402); '
+                            'a world locked to its star states obliquity 0 and eccentricity 0')
+        radmod['NFIXED'] = 1
+        plasim['FIXEDLON'] = substellar_longitude(world)
+    if all_ocean(world):                              # configure's aquaplanet (exoplasim/__init__.py:2858-2860)
+        plasim['NAQUA'] = 1
 
     rainmod = entries['rainmod_namelist']
     reference, scale = cloud_water(switches['cloud_water'], g)
@@ -526,7 +558,8 @@ def configure_arguments(world: dict, scenario: dict, run: dict, *, top: TopOfAir
     ocean, albedo = scenario['water']['ocean'], scenario['land']['albedo']
     return dict(flux=top.w_m2, starspec=starspec, **pressures, gravity=derive.gravity(world),
                 radius=world['body']['radius_m'] / EARTH_RADIUS_M, rotationperiod=cal['rotationperiod'],
-                synchronous=False, year=world['orbit']['sidereal_year_days'],
+                synchronous=locked(world), substellarlon=substellar_longitude(world) if locked(world) else 180.0,
+                aquaplanet=all_ocean(world), year=derive.year_days(world),
                 eccentricity=world['orbit']['eccentricity'], obliquity=world['rotation']['obliquity_deg'],
                 lonvernaleq=perihelion_longitude(world), fixedorbit=bool(run['fixed_orbit']), landmap=landmap,
                 topomap=topomap, mldepth=ocean['mixed_layer_m'], seaice=bool(ocean['sea_ice']),
@@ -687,7 +720,8 @@ def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrati
             raise SpecError(f"{where}: keeps ExoPlaSim's own surface, which takes no surface of the lab's and seas of "
                             f"the model's own, where the scenario states {scenario['water'].get('seas')!r}")
     elif geometry == 'ocean':
-        pass                                      # the namelists refuse it until the waterworld's fields are coded
+        if surface is not None:
+            raise SpecError(f'{where}: a world all ocean takes no surface, where one is given')
     elif isinstance(geometry, str) and geometry not in ('unchosen', 'none'):
         if surface is None or np.shape(surface.land_fraction)[0] != nlat:
             raise SpecError(f"{where}: its heights need the scenario's surface on the run's grid of {nlat} latitudes "
@@ -696,8 +730,8 @@ def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrati
             raise SpecError(f"{scenario.get('id')}: PlaSim's heights start at the water level, where the scenario "
                             f"states its pressure at {scenario['air'].get('reference_level')!r}")
     else:
-        raise SpecError(f'{where}: surface.geometry is a pinned surface or model-default, where the world states '
-                        f'{geometry!r}')
+        raise SpecError(f'{where}: surface.geometry is a pinned surface, model-default or ocean, where the world '
+                        f'states {geometry!r}')
     top = top_of_air(world, scenario, calibrations, manifest=manifest, store=store)
     entries = namelists(world, scenario, run, top=top, calibrations=calibrations)
     texts = namelist_texts(entries, archive=archive)
@@ -707,13 +741,15 @@ def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrati
         texts['twilight.dat'] = twilight_table(calibrations.ledger, levels)
     if radmod['NLWCORR']:
         texts['lwcorr.dat'] = longwave_table(calibrations.longwave, levels)
-    record = dict(files={}, switches=resolve(run, calibrations), first_run=calibrations.first_run,
+    record = dict(files={}, switches=resolve(run, calibrations, world), first_run=calibrations.first_run,
                   sunlight=dict(top_w_m2=top.w_m2, scale=top.scale, basis=top.basis))
     data = {}
     if geometry == 'model-default':
         data = model_surfaces(run['resolution'], albedo_map=scenario['land']['albedo'] == 'model-default',
                               archive=archive)
         record['surface'] = dict(kind='model-default', files=sorted(data))
+    elif geometry == 'ocean':                         # configure's aquaplanet removes every surface file
+        record['surface'] = dict(kind='ocean', mask_land_share=0.0)
     else:
         written, shares = surface_files(surface, derive.gravity(world))
         texts.update(written)

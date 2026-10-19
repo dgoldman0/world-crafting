@@ -53,7 +53,7 @@ three-dimensional cloud models as further work (Sections 2.1, 2.3, 4.1 and 4.3).
 | Water | 40% of the mass | The paper |
 | Star and distance | The Sun at 0.9 to 1.15 AU; AD Leonis at about 0.145 to 0.18 AU | The paper's Figure 4 |
 | Air | Steam alone; Gaean air | The author's direction of 2026-10-19; the Gaean air's composition and pressure are a choice for stage 11 |
-| Rotation, in three dimensions | Locked to AD Leonis, turning once in about 37 days at 0.16 AU for a star of 0.40 solar masses; a stated day around the Sun | Proposed; the day around the Sun is a choice for stage 12 |
+| Rotation, in three dimensions | Locked to AD Leonis, turning once in about 36 days at 0.16 AU for a star of 0.42 solar masses, the seed's provisional mass; a stated day around the Sun | Proposed; the day around the Sun is a choice for stage 12 |
 | Protection | None; then a shield where the Gaean air needs one | The author's direction of 2026-10-19; the lab proposes the least shield that keeps the air |
 
 By the paper's relation, with Earth's air at 288 K for the scale height H and the horizon factor √(πR/2H):
@@ -110,12 +110,13 @@ generates CM1's case families into explicit entries (architecture.md, "Specifica
 
 ## What the lab adds
 
-- **Specifications** ([world_spec.md](world_spec.md), "Fields still to add"): the water's share of the body's mass,
-  the star's mass, rotation locked to the star, a surface all ocean, and air of steam alone.
-- **ExoPlaSim's input writer** (stage 2): for an all-ocean world, ExoPlaSim's aquaplanet switch, with the land mask
-  and heights left unwritten; for a world locked to its star, the synchronous mode and its substellar longitude; the
-  star's light files from its own spectrum, and through patch 11 the ice-optics weights from that spectrum, which
-  matter most around a red dwarf, whose light lies further into the near infrared than the Sun's.
+- **Specifications** ([world_spec.md](world_spec.md)): rotation locked to the star, a surface all ocean and the
+  star's GM, settled in stage 2; the water's share of the body's mass and air of steam alone, to come with stage 9.
+- **ExoPlaSim's input writer** (stage 2, written): for an all-ocean world, ExoPlaSim's aquaplanet switch, with no
+  surface files; for a world locked to its star, the synchronous mode and its substellar longitude, with PlaSim's
+  own Sun clock; the star's light files from its own spectrum, checked on a seed waterworld of provisional values
+  (`lab/worlds/waterworld-seed`); and, through patch 11, the ice-optics weights from that spectrum, which matter
+  most around a red dwarf, whose light lies further into the near infrared than the Sun's.
 - **The registry,** which refuses ExoPlaSim and CM1 for air whose main gas condenses, since both treat water vapour
   as a minor part of the air; a steam scenario runs in the one-dimensional column alone.
 - **Tools in `python/`:** the steam column (stage 9), and Terluna's thermal column, exobase, escape and

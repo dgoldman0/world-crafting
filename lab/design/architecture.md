@@ -271,7 +271,8 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   aquaplanet switch, `NAQUA`, and leaves the land mask and heights unwritten (`exoplasim/__init__.py:2858-2860`).
   For a world locked to its star it sets the synchronous mode, `NFIXED`, with the substellar longitude in
   `FIXEDLON` (`:2628-2630`), and gives the orbit's period as the rotation period, from which `ROTSPD` follows
-  (`:2616-2617`). The star's light files and, through patch 11, the ice-optics weights come from the star's own
+  (`:2616-2617`); it keeps PlaSim's own Sun clock there, since patch 04's synodic clock replaces the mode's fixed
+  hour angle and, at a rotation equal to the year, holds the star over 0° E whatever `FIXEDLON` states. The star's light files and, through patch 11, the ice-optics weights come from the star's own
   spectrum, which matters most around a red dwarf, whose light lies further into the near infrared than the Sun's.
 - **Patch 10's solar weights.** Patch 10 writes the near-infrared weights of the TSIS-1 Sun into
   PlaSim as Fortran constants (regeneration.md, cross-dependency 13). A planned patch 11 reads them from

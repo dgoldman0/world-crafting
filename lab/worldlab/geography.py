@@ -140,7 +140,7 @@ def static_tide(world: dict, library: Library | None = None) -> tp.Tide | None:
     lon0 = _number(tide.get('sub_longitude_deg'), f'{where}.sub_longitude_deg', low=None)
     gm_world = _number(world.get('body', {}).get('gm_m3_s2'), f'{world.get("id")}: body.gm_m3_s2')
     orbit_days = 2 * math.pi * math.sqrt(a**3 / (gm + gm_world)) / DAY_S
-    spin_days = _number(world.get('rotation', {}).get('sidereal_period_days'), f'{world.get("id")}: rotation.sidereal_period_days')
+    spin_days = _number(derive.sidereal_period_days(world), f'{world.get("id")}: rotation.sidereal_period_days')
     if abs(spin_days / orbit_days - 1.0) > SYNCHRONOUS:
         raise SpecError(f'{where}: a host stays fixed in the sky only for a rotation synchronous with the orbit, where '
                         f'the world turns in {spin_days} d against a two-body period of {orbit_days:.4f} d')

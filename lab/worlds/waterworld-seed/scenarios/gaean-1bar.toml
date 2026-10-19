@@ -1,0 +1,35 @@
+# The seed waterworld under Gaean air, for the ExoPlaSim adapter's test (plan.md, stage 2). Draft schema 0. The air's
+# composition and pressure are provisional, Earth's dry air at 1 bar, until the author's choice at plan stage 11
+# (lab/design/waterworlds.md).
+
+schema = "worldlab.scenario/0"
+id = "waterworld-seed/gaean-1bar"
+world = "waterworld-seed"
+kind = "illustrative"
+title = "The seed waterworld under 1 bar of Earth's dry air"
+
+[air]
+reference_level = "sea"              # the ocean's surface, the world's geoid
+surface_pressure_pa = 100000.0       # provisional: 1 bar
+o2_mole_fraction = 0.2095            # Earth's dry air, as Earth's control states it
+co2_ppm = 400.0                      # as Earth's control
+ar_mole_fraction = 0.00934           # as Earth's control
+balance = "N2"
+reference_temperature_k = 288.0      # provisional: Earth's global mean
+cloud_droplets_per_cm3 = 100.0       # as Earth's control
+ozone = "none"                       # provisional; PlaSim's synthetic ozone would keep a seasonal cycle on the
+                                     # 36-day year of a world with no seasons (radmod.f90:1495-1502)
+water_vapour = "prognostic"
+
+[water]
+ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }   # as the Open Moon's and Earth's runs
+
+[land]
+albedo = "model-default"             # the world has no land
+
+[sunlight]
+filter = "none"
+scale = 1.0
+
+[forcing]
+top_infrared_w_m2 = { day = 0.0, night = 0.0 }
