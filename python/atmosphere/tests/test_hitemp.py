@@ -161,6 +161,20 @@ def test_the_stores_smallest_zip_gives_its_recorded_cut():
     assert (read, len(lines['nu']), unknown) == (1461436, 622109, 19)
 
 
+@needs_sums
+@needs_zips
+def test_the_steam_optics_take_the_stores_cut_list():
+    store, _ = _store_zips()
+    record = [(f.name, f.sha256) for f in worldlab.Manifest().files(hitemp.ENTRY)]
+    if not (store / 'caches' / 'hitemp-lines' / f'{hitemp.key(record)}.npz').is_file():
+        pytest.skip("the store's cache lacks the cut list of the current key (python -m atmosphere.waterworlds.hitemp)")
+    optics = so.SteamOptics(lines='hitemp', store=store)
+    assert len(optics.lines) == 6617956 and optics.cut == hitemp.key(record)
+    assert optics.key != so.SteamOptics().key and optics.describe()['source'] == 'hitemp'
+    sigma = optics.cross_section(so.Band(1500.0, 1505.0, 0.01, 10), 1e3, 250.0)
+    assert np.all(np.isfinite(sigma)) and np.all(sigma >= 0) and sigma.max() > 0
+
+
 @needs_zips
 def test_the_stores_cut_list_holds_the_recorded_count():
     store, _ = _store_zips()

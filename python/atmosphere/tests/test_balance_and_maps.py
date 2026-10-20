@@ -142,6 +142,10 @@ def test_the_table_holds_each_columns_surfaces_in_and_out_of_process(tmp_path):
     pooled = tb.compute(**grid, cache=tmp_path, processes=2, report=lambda *a, **k: None)
     assert sorted(tmp_path.rglob('*.npy')) == cached                      # the second table computed nothing anew
     assert table['failed'] == [] and len(lines) == 1 + 4                    # the fill, then one line a column
+    assert table['optics']['source'] == 'hitran' and not table['optics']['hold'] and 'HITRAN2020' in table['evidence']
+    held = tb.compute(**dict(grid, gravities=[2.3], temperatures=[300.0]), cache=tmp_path, hold=True,
+                      report=lambda *a, **k: None)
+    assert held['optics']['hold'] and 'held at 296 K' in held['evidence'] and held['optics']['key'] != table['optics']['key']
     for name in tb.ARRAYS:
         assert np.array_equal(np.asarray(table[name]), np.asarray(pooled[name]))
     assert steam.column(Waterworld.from_gravity(1.15), 500.0, levels)['capped']

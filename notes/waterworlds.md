@@ -36,13 +36,15 @@ images in its source and `comparison.py` sets the lab's results beside them.
 - **Its absorption.** `steam_optics.py` computes pure steam's absorption on two bands, 1 to 3,500 cm⁻¹ at 0.01 cm⁻¹
   and 3,500 to 25,000 cm⁻¹ at 0.05 cm⁻¹: HITRAN2020's water lines stronger than 10⁻³⁰ cm per molecule at 296 K,
   403,685 of them, self-broadened, as Voigt profiles cut 25 cm⁻¹ from their centres less their value there, with
-  MT_CKD 4.3's self continuum. Up to 2 bar the radiative–convective column's multi-mesh line sum serves, its points
-  within 0.4% of a direct sum on the thermal band's grid and 0.9% on the stellar band's. Above it, where steam's
+  MT_CKD 4.3's self continuum. For the reproduction the optics take HITEMP2010's lines as `hitemp.py` cuts them, and
+  with `hold` a layer warmer than 296 K takes the self continuum's coefficients at 296 K, its radiation term and
+  density staying the layer's own (below). Up to 2 bar the radiative–convective column's multi-mesh line sum serves,
+  its points within 0.4% of a direct sum on the thermal band's grid and 0.9% on the stellar band's. Above it, where steam's
   Lorentz widths pass about 0.5 cm⁻¹ and the multi-mesh sum's far wings, expanded in (γ/d)², err further, keeping
   only 27 to 85% of the lines' absorption at 26 bar, by window, every line is summed directly on the band's grid.
   Scattering enters through the albedo alone, as in the paper. A cache keeps each layer's cross-sections under a key
-  of the lines, the partition sums' and the continuum's files, the band, the method and its version, and the layer's
-  state.
+  of the lines, the partition sums' and the continuum's files, the continuum's hold, the band, the method and its
+  version, and the layer's state.
 - **The radiating surfaces.** `radiating.py` finds, wavenumber by wavenumber, the height at which the vertical
   optical depth from the top reaches one, the absorber growing with pressure within a layer and the height with its
   logarithm, and takes the surface's height, 0, where the whole column stays thinner. The emitting surface's height
@@ -163,8 +165,17 @@ unknown lower-state energy, and sorts what it keeps; that the column's line sum 
 code are refused; that the cut list is cached under a key that follows the zips' hashes and the cut, reads back with
 the zips gone, and is rebuilt only from the zips of its record; that two processes cut as one does; and, where the
 store holds the zips, that their first records read as HITEMP2010's, that the zip from 11,000 to 30,000 cm⁻¹ gives
-its recorded cut, 622,109 lines kept with 19 of unknown energy among its records, and that the store's cut list holds
-the recorded count.
+its recorded cut, 622,109 lines kept with 19 of unknown energy among its records, that the store's cut list holds
+the recorded count, and that the steam optics take it under a key of their own. With the continuum held, the optics
+keep MT_CKD's own values at and below 296 K, and above it, at the continuum's 10 cm⁻¹ nodes, give the 296 K
+coefficients times the layer's own density and radiation term to 10⁻¹²; a held table records its hold and its key.
+The acceptance check's tests (`test_comparison.py`) hold a synthetic comparison to each row's tolerance, list a lab
+value missing where the paper has one as a failure, place 450 K and 1.6 m/s² with the radiation, and find each value
+outside a shifted bracket, the curves inside its widened form; the comparison refuses a table whose optics' key
+differs from its own. The column check's tests (`test_column_check.py`) check that its columns are saturated over
+1 bar of nitrogen, with the tropopause's water above it and gravity constant, the two gravities sharing their levels;
+that its layer optics equal the column's own for water alone to 10⁻¹²; and that it takes the first line list as its
+reference, weaker lines letting more out.
 
 The column's numerical choices were tested once at 2.3 m/s², at 300 and 450 K, against finer settings, with the
 layers' masses at the local gravity. The base settings give an outgoing longwave of 246.77 and 240.95 W/m², emitting
@@ -340,6 +351,19 @@ so the paper's 273 K contour fixes the star's flux, and the 10⁹-year contour a
 survey of stage 11 takes the star's measured values, 3,414 K and 0.0227 of the Sun's luminosity, which would move
 its contours by about 3%.
 
+`comparison.acceptance` applies the check to a comparison and writes it into the product. The radiation rows hold
+the lab at 4/3 kT/m to their tolerances: Figure 3's instellation up to 450 K at 2.3 m/s²; the distances of the
+Sun's 273 K contour and of both stars' 10⁹-year contours from 1.6 m/s² up, as the table above places them, with
+Figure 5's arrows; and each factor of Figure 2. Each row gives its worst difference and where it lies, the
+uncertainty of reading the figures, under 0.1%, and the lab's numerical error, about 0.1% by the convergence checks
+above, and it fails where the lab lacks a value the paper has. AD Leonis's 273 K contour from 1.6 m/s² up, to which
+its flux is fitted, is reported apart. The escape row holds the paper's values that the escape sets between the
+lab's at 1.2722 and 1.42 kT/m: the lifetimes' temperatures, the transition, the temperature above which Figure 5's
+waters are short-lived, Figure 3's curves above 450 K, Figure 4's contours below 1.6 m/s², the coldest snowball's
+thawed ocean and both stars' widest zones. The row passes on that bracket itself, as the plan words it; for the
+curves, which carry the radiation's offset as well, the bracket widened by the radiation's tolerance is reported
+beside it, with the value nearest an end, and the same values by the printed equations stand as the finding.
+
 ## HITEMP2010's lines
 
 The author downloaded HITEMP2010's water lines from HITRANonline with their own sign-in on 2026-10-19: 34 zips,
@@ -364,9 +388,20 @@ and H₂¹⁸O between 11,800 and 14,420 cm⁻¹ carry HITRAN's −1 for an unkn
 strength without a temperature scaling; eleven of them would pass the floor, and the cut drops all nineteen,
 10⁻¹¹ of the kept lines' strength at 296 K. Of the lines kept, 76,483, holding 2.5% of their strength at 296 K, give
 a temperature exponent of zero or below for their air-broadened width, which the steam optics apply to the
-self-broadened width, as they do for HITRAN's lines. The steam optics take these lines next, with the continuum held
-as the lab proposes; the radiative–convective tool's columns at 250 to 360 K, the table and the comparison then
-follow on them.
+self-broadened width, as they do for HITRAN's lines.
+
+On 2026-10-20 the author approved the continuum's hold, as the lab reads Schaefer and colleagues' sentence: the
+warmest temperature MT_CKD 4.3's file gives is its reference, 296 K, and the hold keeps the self continuum's
+coefficients there, the radiation term and the density staying the layer's own, as the file keeps the coefficients
+apart from both. The change's reviewer measured how far the other readings would move the held continuum at
+1,000 cm⁻¹: holding the radiation term at 296 K as well raises it by 7% at 450 K and 18% at 600 K, and holding the
+whole of it, the density included, by 62% and 140%, while the hold itself stands 10.6 and 54 times above MT_CKD 4.3's
+own values there. The author also approved 3% as the tolerance of the check on the radiative–convective column's own
+columns, which `column_check.py` makes: it builds saturated columns of water over 1 bar of nitrogen at 250 to 360 K,
+at 9.8 m/s² and at the Moon's gravity, to the description of the column's validation against PyRADS
+(`radiative_convective/validation.json`), and computes their outgoing longwave with the column's own lines, grid
+and continuum, then with HITEMP2010's lines, beside the outgoing longwave the validation records on PyRADS's own
+profiles.
 
 ## Limits
 

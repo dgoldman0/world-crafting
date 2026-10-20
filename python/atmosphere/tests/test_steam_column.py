@@ -163,6 +163,32 @@ def test_a_cached_cross_section_is_the_one_computed(tmp_path):
     assert so.SteamOptics(cache=tmp_path, continuum=False).path(band, 1e3, 250.0) != cached.path(band, 1e3, 250.0)
 
 
+@needs_lines
+def test_the_held_continuum_is_mt_ckds_own_up_to_296_k_and_keeps_its_296_k_coefficients_above():
+    """At the continuum's 10 cm^-1 nodes, where its interpolation returns the node's value, the held continuum at 450 K
+    is the 296 K coefficients times the layer's own density and radiation term."""
+    band = so.Band(1100.0, 1110.0, 0.01, 10)
+    plain, held = so.SteamOptics(), so.SteamOptics(hold=True)
+    assert held.key != plain.key and held.describe()['hold'] and not plain.describe()['hold']
+    assert np.array_equal(held.cross_section(band, 1e3, 250.0), plain.cross_section(band, 1e3, 250.0))
+    assert np.array_equal(held.cross_section(band, 1e3, 296.0), plain.cross_section(band, 1e3, 296.0))
+    nodes, p, t = np.array([1100.0, 1110.0, 1120.0]), 1e4, 450.0
+    at_296 = plain.continuum.cross_sections(nodes, 296.0, p, 1.0)[0]
+    rad = sp.WaterContinuum.radiation_term
+    expected = at_296 * (296.0 / t) * rad(nodes, t) / rad(nodes, 296.0)
+    assert held.held.cross_sections(nodes, t, p, 1.0)[0] == pytest.approx(expected, rel=1e-12)
+    assert np.all(plain.continuum.cross_sections(nodes, t, p, 1.0)[0] < 0.5 * expected)   # MT_CKD 4.3 weakens
+    grid = band.grid
+    expected = (sp.line_absorption(grid, held.lines, held.sums, t, p, p, pedestal=True, cutoff=so.CUTOFF,
+                                   coarse_factor=band.coarse_factor)
+                + held.held.cross_sections(grid.nu, t, p, 1.0)[0])
+    assert np.allclose(held.cross_section(band, p, t), expected.astype(np.float32), rtol=1e-6)
+    with pytest.raises(ValueError):
+        so.SteamOptics(hold=True, continuum=False)
+    with pytest.raises(ValueError):
+        so.SteamOptics(lines='hitran2016')
+
+
 def test_two_transparent_bands_join_at_3500_cm1_without_counting_it_twice():
     col = steam.column(Waterworld.from_gravity(2.0), 300.0, steam.Levels(top_pa=1.0, per_decade=4))
     result = rd.surfaces(col, rd.column_spectra(col, _Clear(), so.BANDS), (5772.0,))

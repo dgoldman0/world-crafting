@@ -10,16 +10,17 @@ and reports a line when it ends; a column that fails is recorded with its error,
 is written with the rest.
 
 The table's key covers its inputs and its producer: the grid, the stars, the levels, the bands, the optics' key
-(lines, partition sums, continuum, method and version), the layers' gravity, the angles, the code of every module
-that turns cross-sections into the table, shared/constants.json, and the versions of Python, numpy and scipy. Its
-header states its evidence.
+(lines, partition sums, continuum and its hold, method and version), the layers' gravity, the angles, the code of
+every module that turns cross-sections into the table, shared/constants.json, and the versions of Python, numpy and
+scipy. Its header states its evidence.
 
     python -m atmosphere.waterworlds.steam_table --store STORE \\
-        --gravities 1.1:2.6:0.1 --temperatures 220:600:5 --stars 5772,3400 --processes 6
+        --gravities 1.1:2.6:0.1 --temperatures 220:600:5 --stars 5772,3400 --processes 6 \\
+        [--lines hitemp] [--hold-continuum]
 
 With --store the table lands at STORE/products/steam-table/<key>/table.json, the key being the first 16 hex digits of
 the sha256 of its inputs and producer, and the optics' cache at STORE/caches/steam-optics/ (lab/design/architecture.md,
-the store); --out and --cache place them elsewhere.
+the store); --out and --cache place them elsewhere. HITEMP's lines come from the store, or the lab's own without it.
 """
 from __future__ import annotations
 
@@ -46,13 +47,14 @@ from atmosphere.waterworlds.body import Waterworld
 SCHEMA = 'world-crafting.waterworlds.steam-table/2'
 PYTHON_ROOT = Path(__file__).resolve().parents[2]
 PRODUCER_FILES = ('atmosphere/waterworlds/steam_table.py', 'atmosphere/waterworlds/steam.py',
-                  'atmosphere/waterworlds/steam_optics.py', 'atmosphere/waterworlds/radiating.py',
+                  'atmosphere/waterworlds/steam_optics.py', 'atmosphere/waterworlds/hitemp.py',
+                  'atmosphere/waterworlds/radiating.py',
                   'atmosphere/waterworlds/body.py', 'atmosphere/waterworlds/escape.py',
                   'atmosphere/radiative_convective/longwave.py', 'atmosphere/radiative_convective/thermodynamics.py',
                   'atmosphere/radiative_convective/spectroscopy.py', 'shared/constants.py', 'shared/constants.json')
 N_ANGLES = 4
 EVIDENCE = ('A calculation: clear-sky, plane-parallel radiative transfer through columns of saturated steam on '
-            'HITRAN2020 lines and MT_CKD 4.3, with heights from hydrostatic balance under GM/r^2; numerically '
+            '{lines} lines and MT_CKD 4.3{held}, with heights from hydrostatic balance under GM/r^2; numerically '
             'converged as notes/waterworlds.md records; compared with the paper in plan stage 9; physically '
             'unvalidated.')
 ARRAYS = ('olr', 'z_lw', 'lw_factor', 'lw_top_share', 'z_sw', 'sw_factor', 'sw_top_share')
@@ -89,7 +91,8 @@ def _column(job):
 
 
 def compute(gravities, temperatures, stars, *, cache: Path, levels=steam.Levels(), bands=so.BANDS,
-            optical_gravity: str = 'surface', processes: int = 1, report=print) -> dict:
+            optical_gravity: str = 'surface', lines: str = 'hitran', hold: bool = False, store: Path | None = None,
+            processes: int = 1, report=print) -> dict:
     """The table, its arrays indexed [gravity, temperature] and [star, gravity, temperature]."""
     if fetch_inputs.restore()['status'] != 'PASS':
         raise ValueError('the spectroscopic inputs are missing or changed (fetch_inputs)')
@@ -97,7 +100,8 @@ def compute(gravities, temperatures, stars, *, cache: Path, levels=steam.Levels(
         [float(s) for s in stars]
     if len(set(gravities)) != len(gravities) or len(set(temperatures)) != len(temperatures):
         raise ValueError('a grid repeats a value')
-    optics = so.SteamOptics(cache=cache)
+    made_by = producer()                      # the code as the run starts, whatever changes on disk while it runs
+    optics = so.SteamOptics(cache=cache, lines=lines, hold=hold, store=store)
     states = set()
     for t_s in temperatures:
         for g in gravities:
@@ -154,16 +158,16 @@ def compute(gravities, temperatures, stars, *, cache: Path, levels=steam.Levels(
                 record(job, _column(job))
             except Exception as error:
                 record(job, error=error)
-    inputs = {f['name']: f['sha256'] for f in fetch_inputs.manifest()['files']
-              if f['name'].startswith(('hitran_h2o', 'hitran_q', 'mt_ckd'))}
+    prefixes = ('hitran_q', 'mt_ckd') + (('hitran_h2o',) if optics.source == 'hitran' else ())
+    inputs = {f['name']: f['sha256'] for f in fetch_inputs.manifest()['files'] if f['name'].startswith(prefixes)}
+    evidence = EVIDENCE.format(lines='HITRAN2020' if optics.source == 'hitran' else 'HITEMP2010',
+                               held=', held at 296 K in warmer layers' if optics.hold else '')
     return dict(schema=SCHEMA, gravities=gravities, temperatures=temperatures, stars=stars,
                 levels=dict(top_pa=levels.top_pa, per_decade=levels.per_decade, sliver=levels.sliver),
                 optical_gravity=optical_gravity, n_angles=N_ANGLES,
                 bands=[dict(start=b.start, stop=b.stop, step=b.step, coarse_factor=b.coarse_factor) for b in bands],
-                optics=dict(key=optics.key, floor=1e-30, continuum='MT_CKD 4.3 self', broad_pa=so.BROAD_PA,
-                            cutoff=so.CUTOFF, version=so.VERSION, lines='HITRAN2020 as served 2026-09-24',
-                            inputs=inputs),
-                producer=producer(), evidence=EVIDENCE, failed=failed,
+                optics=dict(optics.describe(), inputs=inputs),
+                producer=made_by, evidence=evidence, failed=failed,
                 seconds=round(time.time() - columns_start, 1),
                 made=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds'),
                 **{k: v.tolist() for k, v in out.items()})
@@ -207,13 +211,18 @@ def main(argv=None) -> int:
     parser.add_argument('--gravities', default='1.1:2.6:0.1')
     parser.add_argument('--temperatures', default='220:600:5')
     parser.add_argument('--stars', default='5772,3400')
+    parser.add_argument('--lines', default='hitran', choices=so.LINE_SOURCES)
+    parser.add_argument('--hold-continuum', action='store_true',
+                        help="hold the continuum's coefficients at 296 K in warmer layers, the lab's reading of the "
+                             "paper's model")
     parser.add_argument('--processes', type=int, default=1)
     args = parser.parse_args(argv)
     if args.store is None and (args.out is None or args.cache is None):
         parser.error('give --store, or --out and --cache')
     cache = args.cache or args.store / 'caches' / 'steam-optics'
     table = compute(span(args.gravities), span(args.temperatures), [float(v) for v in args.stars.split(',')],
-                    cache=cache, optical_gravity=args.optical_gravity, processes=args.processes)
+                    cache=cache, optical_gravity=args.optical_gravity, lines=args.lines, hold=args.hold_continuum,
+                    store=args.store, processes=args.processes)
     out = args.out or args.store / 'products' / 'steam-table' / key(table)[:16] / 'table.json'
     print(out, write(out, table), f'{len(table["failed"])} failed', flush=True)
     return 1 if table['failed'] else 0
