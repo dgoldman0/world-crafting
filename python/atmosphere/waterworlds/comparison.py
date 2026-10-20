@@ -208,11 +208,13 @@ def _outside(paper, ends, widen: float = 0.0) -> float:
 
 
 def _bracket(points) -> dict:
-    """A row of (label, paper, ends, widen) points, each paper value held between the lab's at the escape's two ends.
-    The row passes on the bracket itself; the bracket widened by the radiation's tolerance, for the curves that carry
-    the radiation as well, is reported beside it, with the point nearest an end."""
+    """A row of (label, paper, ends, widen, reading) points, each paper value held between the lab's at the escape's
+    two ends. By the author's decision of 2026-10-20, taken after the HITEMP results so that the radiation's offset
+    counts once, the row passes where each value lies within the bracket widened by the radiation's tolerance, for the
+    curves that carry the radiation as well, and a value outside it by less than its reading uncertainty counts as
+    agreement, as ASME V&V 20 has it; the plain bracket is reported beside it, with the point nearest an end."""
     found, missing = [], []
-    for label, paper, ends, widen in points:
+    for label, paper, ends, widen, reading in points:
         if not _finite(paper):
             continue
         if not all(_finite(e) for e in ends):
@@ -221,14 +223,16 @@ def _bracket(points) -> dict:
         lo, hi = sorted(float(e) for e in ends)
         margin = min(float(paper) - lo, hi - float(paper)) / (lo if float(paper) - lo < hi - float(paper) else hi)
         found.append(dict(label=label, outside=_outside(paper, ends), widened=_outside(paper, ends, widen),
-                          margin=margin))
+                          reading=reading, margin=margin))
     nearest = min(found, key=lambda p: p['margin']) if found else None
     return dict(ends=list(ESCAPE_ENDS), points=len(found), missing=missing,
                 outside=[p['label'] for p in found if p['outside'] > 0],
                 worst=max((p['outside'] for p in found), default=math.nan),
-                outside_widened=[p['label'] for p in found if p['widened'] > 0],
+                outside_widened={p['label']: dict(by=p['widened'], reading=p['reading'])
+                                 for p in found if p['widened'] > 0},
+                beyond_reading=[p['label'] for p in found if p['widened'] > p['reading']],
                 nearest=None if nearest is None else dict(label=nearest['label'], margin=nearest['margin']),
-                passes=bool(found) and not missing and all(p['outside'] == 0 for p in found))
+                passes=bool(found) and not missing and all(p['widened'] <= p['reading'] for p in found))
 
 
 def _widest(rows, factor: str, side: str):
@@ -239,6 +243,17 @@ def _widest(rows, factor: str, side: str):
     return max(widths) if widths else math.nan
 
 
+def _width_reading(rows, factor: str) -> float:
+    """The reading uncertainty of the paper's widest zone, a share of its width: each of the two distances read to
+    READING of itself, the width their difference."""
+    best = max((r for r in rows if _name(r['factor']) == factor and _finite(r['paper_freezing'])
+                and _finite(r['paper_billion'])), key=lambda r: r['paper_freezing'] - r['paper_billion'], default=None)
+    if best is None:
+        return math.nan
+    return READING * math.hypot(best['paper_freezing'], best['paper_billion']) / (best['paper_freezing']
+                                                                               - best['paper_billion'])
+
+
 def acceptance(result: dict) -> dict:
     """Stage 9's acceptance check on a comparison (lab/design/plan.md, notes/waterworlds.md).
 
@@ -246,7 +261,7 @@ def acceptance(result: dict) -> dict:
     instellation up to RADIATION_TO_K; the distances of the Sun's 273 K contour and of both stars' 10^9-year contours
     from RADIATION_FROM_G up, and of Figure 5's arrows; and each factor of Figure 2. AD Leonis's 273 K contour, to
     whose distances its flux is fitted, is reported apart. The values the escape sets are held to the spread of the
-    factors the paper's figures need, each lying between the lab's at ESCAPE_ENDS: the lifetimes' temperatures, the
+    factors the paper's figures need, each lying between the lab's at ESCAPE_ENDS (see _bracket): the lifetimes' temperatures, the
     transition, the temperature from which Figure 5's waters are short-lived, Figure 3's curves above RADIATION_TO_K,
     Figure 4's contours below RADIATION_FROM_G, the coldest snowball's thawed ocean, and the widest zones. Each value
     the escape sets is also compared by the printed equations, as the finding."""
@@ -272,28 +287,31 @@ def acceptance(result: dict) -> dict:
 
     def escape(lab_ends):
         """The values the escape sets, (label, paper, the lab's at `lab_ends`, widening)."""
-        points = [(f'Figure 3, 10^{label[2:]}-year lifetime', v['paper'], [v[f'lab_{e}'] for e in lab_ends], 0.0)
-                  for label, v in f3['lifetimes_k'].items()]
+        points = [(f'Figure 3, 10^{label[2:]}-year lifetime', v['paper'], [v[f'lab_{e}'] for e in lab_ends], 0.0,
+                   READING) for label, v in f3['lifetimes_k'].items()]
         points.append(('Figure 4, the transition', f4['transition']['paper'],
-                       [f4['transition'][f'lab_{e}'] for e in lab_ends], 0.0))
+                       [f4['transition'][f'lab_{e}'] for e in lab_ends], 0.0, READING))
         short = f5['short_lived_from_k']
-        points.append(('Figure 5, short-lived from', short['paper'], [short[f'lab_{e}'] for e in lab_ends], 0.0))
+        points.append(('Figure 5, short-lived from', short['paper'], [short[f'lab_{e}'] for e in lab_ends], 0.0,
+                       READING))
         points += [(f'Figure 3, {k}, {r["t_s"]:.0f} K', r[f'paper_{k}'], [r[f'lab_{k}_{e}'] for e in lab_ends],
-                    TOLERANCES['instellation']) for r in f3['rows'] if r['t_s'] > RADIATION_TO_K for k in kinds]
+                    TOLERANCES['instellation'], READING) for r in f3['rows'] if r['t_s'] > RADIATION_TO_K
+                   for k in kinds]
         for star in ('sun', 'ad_leonis'):
             by_g = {}
             for r in f4[star]['rows']:
                 if r['g'] < RADIATION_FROM_G - 1e-9:
                     by_g.setdefault(r['g'], {})[_name(r['factor'])] = r
             points += [(f'Figure 4, {star}, {name}, {g:.1f} m/s2', rows[lab_ends[0]][f'paper_{c}'],
-                        [rows[e][f'lab_{c}'] for e in lab_ends], TOLERANCES['distance'])
+                        [rows[e][f'lab_{c}'] for e in lab_ends], TOLERANCES['distance'], READING)
                        for g, rows in sorted(by_g.items()) for c, name in (('freezing', '273 K'),
                                                                             ('billion', '10^9 years'))]
             points.append((f'Figure 4, {star}, widest zone', _widest(f4[star]['rows'], lab_ends[0], 'paper'),
-                           [_widest(f4[star]['rows'], e, 'lab') for e in lab_ends], 0.0))
+                           [_widest(f4[star]['rows'], e, 'lab') for e in lab_ends], 0.0,
+                           _width_reading(f4[star]['rows'], lab_ends[0])))
         cold = {e: f5[e]['snowballs']['0.4'] for e in lab_ends}
         points.append(('Figure 5, the coldest snowball thawed', cold[lab_ends[0]]['paper_to_k'],
-                       [cold[e]['lab_to_k_paper_end'] for e in lab_ends], 0.0))
+                       [cold[e]['lab_to_k_paper_end'] for e in lab_ends], 0.0, READING))
         return points
 
     rows = dict(instellation=_differences(instellation, TOLERANCES['instellation']),

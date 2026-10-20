@@ -55,3 +55,25 @@ def test_the_check_holds_each_line_list_to_the_first():
                                             'delta_air', 'gid', 'mass')))
     out = cc.check(dict(a=lines, b=weaker), temperatures=(250.0,), grid=grid, report=lambda *a, **k: None)
     assert all(r['difference_b'] > 0 for r in out['rows'])              # weaker lines let more out
+
+
+def _pyrads():
+    """A PyRADS checkout beside the lab's store, where the lab keeps its outside code."""
+    from worldlab.roots import root
+    store = root('store')
+    path = None if store is None else store.parent / 'external' / 'PyRADS'
+    return path if path is not None and (path / 'pyrads' / 'SetupGrids.py').is_file() else None
+
+
+@pytest.mark.skipif(_pyrads() is None, reason='no PyRADS checkout beside the store')
+def test_pyrads_columns_take_pyrads_own_levels_and_saturation():
+    """PyRADS's 60 levels, up to 1e-4 of the surface's pressure, saturated over liquid water at every temperature, so
+    that at 250 K its air holds more water than the column's own, saturated over ice."""
+    p, t, x = cc.pyrads_levels(300.0, _pyrads())
+    assert len(p) == 60 and np.all(np.diff(p) < 0) and p[-1] == pytest.approx(1e-4 * p[0], rel=1e-9)
+    assert t[0] == pytest.approx(300.0, abs=1e-9) and np.allclose(t[t <= 200.0 + 1e-9], 200.0)
+    strat = t <= 200.0 + 1e-9
+    assert np.allclose(x[strat], x[strat][0], rtol=1e-12)
+    cold = cc.column(cc.PLANETS[0], 250.0, _pyrads())
+    assert cold['p_pa'][0] - 1e5 > 1.2 * float(saturation_pressure(250.0))
+    assert np.allclose(cold['layer_mass_kg_m2'], -np.diff(cold['p_pa']) / 9.8, rtol=1e-12)

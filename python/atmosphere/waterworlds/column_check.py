@@ -11,9 +11,13 @@ By stage 9's acceptance check the second lies within 3% of the first. Each row a
 validation records for the column on PyRADS's own 60-level profiles, and the first's difference from it, which
 measures how far these columns lie from those. A layer's cross-sections depend on its pressure, temperature and
 water alone, which the two gravities share, so each surface temperature's layers are computed once; the product is
-written after each temperature.
+written after each temperature. With --pyrads, the columns are PyRADS's own (Koll and Cronin 2018, MIT licence),
+built by its make_grid from a checkout of the commit the validation ran, c0a8647: 60 levels from the surface up to
+10^-4 of its pressure, saturated by its Clausius-Clapeyron curve of constant latent heat over Earth's dry air, under
+a 200 K stratosphere that keeps the tropopause's water; PyRADS's package itself, whose optical depths need numba,
+stays unloaded.
 
-    python -m atmosphere.waterworlds.column_check --store STORE [--processes N]
+    python -m atmosphere.waterworlds.column_check --store STORE [--processes N] [--pyrads PYRADS_CHECKOUT]
 
 writes the check to STORE/products/hitemp-column-check/<key>/check.json, its key covering the line lists, the
 columns, the grid and the producer.
@@ -36,8 +40,9 @@ import scipy
 
 from shared.constants import EARTH_RADIUS
 from atmosphere.radiative_convective import fetch_inputs, longwave, optics as ro, spectroscopy as sp
-from atmosphere.radiative_convective.thermodynamics import (MOON, ColumnSpec, DryAir, Planet, build_column,
-                                                           column_from_levels, species_column, uniform_rh)
+from atmosphere.radiative_convective.thermodynamics import (MOLAR_MASS, MOON, ColumnSpec, DryAir, Planet,
+                                                           build_column, column_from_levels, species_column,
+                                                           uniform_rh)
 from atmosphere.waterworlds import figures as fg, hitemp
 
 SCHEMA = 'world-crafting.waterworlds.hitemp-column-check/1'
@@ -49,6 +54,9 @@ HITRAN_FLOOR = ro.LONGWAVE.floor('H2O')
 DIFFUSIVITY = 5 / 3
 TOLERANCE = 0.03
 AIR = DryAir(1e5, {'N2': 1.0})
+EARTH_AIR = DryAir(1e5)                         # PyRADS's dry air, 28.97 g/mol
+PYRADS_COMMIT = 'c0a8647f8fdcacbafec8ecb69aa2a64ecaab98e1'
+PYRADS_FILES = ('pyrads/SetupGrids.py', 'pyrads/VerticalStructure.py', 'pyrads/Thermodynamics.py', 'pyrads/phys.py')
 VALIDATION = Path(__file__).resolve().parents[1] / 'radiative_convective' / 'validation.json'
 RECORDED = {'earth_9.8': 'earth_gravity_9_8', 'moon': 'lunar_gravity'}   # the validation's rows for each planet
 PRODUCER_FILES = ('atmosphere/waterworlds/column_check.py', 'atmosphere/waterworlds/hitemp.py',
@@ -58,10 +66,37 @@ PRODUCER_FILES = ('atmosphere/waterworlds/column_check.py', 'atmosphere/waterwor
                   'atmosphere/radiative_convective/thermodynamics.py', 'shared/constants.py', 'shared/constants.json')
 
 
-def column(planet: Planet, t_s: float) -> dict:
-    """A checked column: saturated water over 1 bar of nitrogen, a 200 K stratosphere, gravity constant with height."""
+def column(planet: Planet, t_s: float, pyrads: Path | None = None) -> dict:
+    """A checked column: saturated water over 1 bar of nitrogen, a 200 K stratosphere, gravity constant with height;
+    with `pyrads`, a PyRADS checkout, PyRADS's own column of that description."""
+    if pyrads is not None:
+        p, t, x = pyrads_levels(t_s, pyrads)
+        return column_from_levels(planet, EARTH_AIR, p, t, x, constant_gravity=True)
     col = build_column(ColumnSpec(planet, AIR, t_s, stratosphere_k=200.0, humidity=uniform_rh(1.0)))
     return column_from_levels(planet, AIR, col['p_pa'], col['t_k'], col['x_h2o'], constant_gravity=True)
+
+
+def pyrads_levels(t_s: float, pyrads: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """PyRADS's saturated levels at t_s, surface first: pressure (Pa), temperature (K) and water's mole fraction, from
+    PyRADS's own make_grid with its Test01 thermodynamics, 60 levels, a 200 K stratosphere and 1e5 Pa of dry air. Its
+    specific humidity becomes a mole fraction over the column's own dry air, so that each layer's water is its mass
+    times q."""
+    import importlib
+    import sys
+    import types
+    if 'pyrads' not in sys.modules:             # its modules alone: the package's optical depths import numba
+        package = types.ModuleType('pyrads')
+        package.__path__ = [str(Path(pyrads) / 'pyrads')]
+        sys.modules['pyrads'] = package
+    grids, phys, thermo = (importlib.import_module(f'pyrads.{m}') for m in ('SetupGrids', 'phys', 'Thermodynamics'))
+    params = types.SimpleNamespace(Rv=phys.H2O.R, cpv=phys.H2O.cp, Lvap=phys.H2O.L_vaporization_TriplePoint,
+                                   satvap_T0=phys.H2O.TriplePointT, satvap_e0=phys.H2O.TriplePointP, R=phys.air.R,
+                                   cp=phys.air.cp, ps_dry=1e5, g=9.8, cosThetaBar=3 / 5, RH=1.0)
+    params.esat = lambda t: thermo.get_satvps(t, params.satvap_T0, params.satvap_e0, params.Rv, params.Lvap)
+    grid = grids.make_grid(t_s, 200.0, 60, 1.0, 2.0, 1.0, params, RH=1.0)
+    p, t, q = (np.asarray(v, dtype=float)[::-1] for v in (grid.p, grid.T, grid.q))
+    water, dry = q / MOLAR_MASS['H2O'], (1 - q) / EARTH_AIR.molar_mass
+    return p, t, water / (water + dry)
 
 
 _WORKER: dict = {}
@@ -103,6 +138,19 @@ def recorded() -> dict:
     return {planet: {float(r['ts']): r['this_default'] for r in pyrads[rows]} for planet, rows in RECORDED.items()}
 
 
+def _pyrads_record(pyrads: Path | None) -> dict:
+    """The columns' source: the lab's rebuild, or PyRADS's checkout at the validated commit, with its files' hashes."""
+    if pyrads is None:
+        return dict(source='build_column')
+    import subprocess
+    head = subprocess.run(['git', '-C', str(pyrads), 'rev-parse', 'HEAD'], capture_output=True, text=True,
+                          check=True).stdout.strip()
+    if head != PYRADS_COMMIT:
+        raise SystemExit(f'{pyrads}: PyRADS at {head}, where the validation ran {PYRADS_COMMIT}')
+    return dict(source='pyrads', commit=head, licence='MIT', url='https://github.com/ddbkoll/PyRADS',
+                files={n: hashlib.sha256((Path(pyrads) / n).read_bytes()).hexdigest() for n in PYRADS_FILES})
+
+
 def producer() -> dict:
     root = Path(__file__).resolve().parents[2]
     return dict(module='atmosphere.waterworlds.column_check',
@@ -111,14 +159,14 @@ def producer() -> dict:
 
 
 def check(sources: dict, *, temperatures=TEMPERATURES, planets=PLANETS, grid: sp.Grid = GRID, processes: int = 1,
-          report=print, written=None) -> dict:
+          report=print, written=None, pyrads: Path | None = None) -> dict:
     """The outgoing longwave of every checked column on each line list in `sources`, a name for each list, the first
     the reference; each other list's difference from it, and whether every one lies within TOLERANCE. `written`, when
     given, takes the result so far after each temperature."""
     names = list(sources)
     rows, record = [], recorded()
     for t_s in temperatures:
-        cols = {p.name: column(p, t_s) for p in planets}
+        cols = {p.name: column(p, t_s, pyrads) for p in planets}
         first = cols[planets[0].name]
         for c in cols.values():                   # constant gravity: the same levels at every gravity
             if not (np.array_equal(c['p_pa'], first['p_pa']) and np.array_equal(c['t_k'], first['t_k'])):
@@ -158,6 +206,7 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--store', type=Path, required=True, help="the lab's store, which holds HITEMP's lines")
     parser.add_argument('--processes', type=int, default=1)
+    parser.add_argument('--pyrads', type=Path, help="a PyRADS checkout at the validated commit, for PyRADS's columns")
     args = parser.parse_args(argv)
     if fetch_inputs.restore()['status'] != 'PASS':
         raise SystemExit('the spectroscopic inputs are missing or changed (radiative_convective.fetch_inputs)')
@@ -166,6 +215,7 @@ def main(argv=None) -> int:
     inputs = dict(hitran={f['name']: f['sha256'] for f in fetch_inputs.manifest()['files']
                           if f['name'].startswith(('hitran_h2o_0', 'hitran_q', 'mt_ckd'))},
                   hitran_floor_296k=HITRAN_FLOOR, hitemp_cut=path.stem, temperatures=list(TEMPERATURES),
+                  profiles=_pyrads_record(args.pyrads),
                   planets=[dict(name=p.name, gravity=p.surface_gravity) for p in PLANETS],
                   grid=dict(start=GRID.start, step=GRID.step, size=GRID.size), coarse_factor=COARSE_FACTOR,
                   diffusivity=DIFFUSIVITY, producer=producer())
@@ -176,7 +226,7 @@ def main(argv=None) -> int:
         result = dict(result, inputs=inputs,
                       made=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds'))
         print(out, fg.write(out, result), flush=True)
-    result = check(dict(hitran=hitran, hitemp=cut), processes=args.processes, written=written)
+    result = check(dict(hitran=hitran, hitemp=cut), processes=args.processes, written=written, pyrads=args.pyrads)
     print('passes' if result['passes'] else 'fails', json.dumps(result['worst']),
           'against the recorded', result['worst_against_recorded'], flush=True)
     return 0 if result['passes'] else 1

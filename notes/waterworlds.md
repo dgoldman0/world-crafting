@@ -39,7 +39,8 @@ images in its source and `comparison.py` sets the lab's results beside them.
   MT_CKD 4.3's self continuum. For the reproduction the optics take HITEMP2010's lines as `hitemp.py` cuts them, and
   with `hold` a layer warmer than 296 K takes the self continuum's coefficients at 296 K, its radiation term and
   density staying the layer's own (below). Up to 2 bar the radiative–convective column's multi-mesh line sum serves,
-  its points within 0.4% of a direct sum on the thermal band's grid and 0.9% on the stellar band's. Above it, where steam's
+  its points within 0.4% of a direct sum on the thermal band's grid and 0.9% on the stellar band's. Above it, where
+  steam's
   Lorentz widths pass about 0.5 cm⁻¹ and the multi-mesh sum's far wings, expanded in (γ/d)², err further, keeping
   only 27 to 85% of the lines' absorption at 26 bar, by window, every line is summed directly on the band's grid.
   Scattering enters through the albedo alone, as in the paper. A cache keeps each layer's cross-sections under a key
@@ -171,11 +172,15 @@ keep MT_CKD's own values at and below 296 K, and above it, at the continuum's 10
 coefficients times the layer's own density and radiation term to 10⁻¹²; a held table records its hold and its key.
 The acceptance check's tests (`test_comparison.py`) hold a synthetic comparison to each row's tolerance, list a lab
 value missing where the paper has one as a failure, place 450 K and 1.6 m/s² with the radiation, and find each value
-outside a shifted bracket, the curves inside its widened form; the comparison refuses a table whose optics' key
-differs from its own. The column check's tests (`test_column_check.py`) check that its columns are saturated over
+outside a shifted bracket, the curves inside its widened form and a zone's width within its reading uncertainty; the
+comparison refuses a table whose optics' key differs from its own. The column check's tests
+(`test_column_check.py`) check that its columns are saturated over
 1 bar of nitrogen, with the tropopause's water above it and gravity constant, the two gravities sharing their levels;
-that its layer optics equal the column's own for water alone to 10⁻¹²; and that it takes the first line list as its
-reference, weaker lines letting more out.
+that its layer optics equal the column's own for water alone to 10⁻¹²; that it takes the first line list as its
+reference, weaker lines letting more out; and, where a PyRADS checkout stands beside the store, that PyRADS's
+columns take its 60 levels up to 10⁻⁴ of the surface's pressure, saturated over liquid water at 250 K, with a uniform
+stratosphere. The sampling test's tests (`test_sampling.py`) check that its grid runs from 1 cm⁻¹ to five Wien peaks
+in 5,000 points and that a grey column emits from the same height on that grid as on the lab's bands.
 
 The column's numerical choices were tested once at 2.3 m/s², at 300 and 450 K, against finer settings, with the
 layers' masses at the local gravity. The base settings give an outgoing longwave of 246.77 and 240.95 W/m², emitting
@@ -360,9 +365,13 @@ above, and it fails where the lab lacks a value the paper has. AD Leonis's 273 K
 its flux is fitted, is reported apart. The escape row holds the paper's values that the escape sets between the
 lab's at 1.2722 and 1.42 kT/m: the lifetimes' temperatures, the transition, the temperature above which Figure 5's
 waters are short-lived, Figure 3's curves above 450 K, Figure 4's contours below 1.6 m/s², the coldest snowball's
-thawed ocean and both stars' widest zones. The row passes on that bracket itself, as the plan words it; for the
-curves, which carry the radiation's offset as well, the bracket widened by the radiation's tolerance is reported
-beside it, with the value nearest an end, and the same values by the printed equations stand as the finding.
+thawed ocean and both stars' widest zones. After the results on HITEMP2010's lines (below), the author decided on
+2026-10-20 that the row passes on the bracket widened by the radiation's tolerance for the curves, which carry the
+radiation's offset as well, so that the offset counts once, and that a value outside it by less than its reading
+uncertainty agrees with the paper, as ASME V&V 20 has it. A zone's width, the difference of two distances each read
+to 0.1%, has a reading uncertainty of 0.1% of their root-sum-square over the width. The plain bracket is
+reported beside it, with the value nearest an end, and the same values by the printed equations are recorded as the
+finding.
 
 ## HITEMP2010's lines
 
@@ -403,6 +412,54 @@ at 9.8 m/s² and at the Moon's gravity, to the description of the column's valid
 and continuum, then with HITEMP2010's lines, beside the outgoing longwave the validation records on PyRADS's own
 profiles.
 
+## The reproduction on HITEMP2010's lines
+
+The table on HITEMP2010's lines with the continuum held ran on 2026-10-20 (`products/steam-table/4cfc4b1d6e241978/
+table.json`, its 1,232 columns all computed). Filling its cache took 12,205 s on seven processes, the 58 layer states
+above 2 bar, summed directly over HITEMP's 6.6 million lines, taking about 300 s each on one core, and its columns
+about 30 minutes more. The radiation barely moves. At 2.3 m/s² the outgoing longwave rises by 0.04%, from 249.38 to
+249.47 W/m² at 450 to 600 K; the emitting factors keep their fourth decimal and the absorbing factors move by up to
+0.12%, and by up to 0.51% across the whole table, at 1.1 m/s². The line list and the continuum's version, two of the
+causes the first look named, therefore account for almost none of the lab's offsets from the paper: the columns'
+radiating surfaces sit high, where the steam is colder than 296 K, and there HITEMP's hot lines add little while the
+held continuum equals MT_CKD's own.
+
+The paper's spectral grid gives the same emitting factors as well. `sampling.py` sampled the lab's cross-sections
+for Figure 2's world at Schaefer and colleagues' 5,000 points from 1 cm⁻¹ to five times the Wien peak, taken as the
+peak of the Planck curve in wavenumber, 1.96 cm⁻¹ per kelvin, and its emitting factors stayed within 0.0004 of those
+on the lab's bands at every temperature (`products/steam-sampling/f37063474887d1a3/
+sampling.json`). One candidate remains untested, the model's top: Schaefer and colleagues ran 30 layers up to 1 Pa,
+where the lab's column runs to 0.01 Pa, and a top at 1 Pa caps the heights of the strongest lines' cores, which would
+lower the emitting factor more than the absorbing one, and most at high temperatures, as Figure 2's differences run.
+The test takes a few minutes on one core from the cache and waits for machine time.
+
+On this table the acceptance check (`products/steam-comparison/b57e618e9da365c7/comparison.json`) passes three of
+its four rows:
+
+| Row | Tolerance | The lab on HITEMP2010, at 4/3 kT/m |
+|---|---|---|
+| Instellation (Figure 3), up to 450 K | 3% | worst 1.62%, at 265 K: passes |
+| Distances (Figures 4 and 5) | 1.5% | worst 0.86%, the Sun's 273 K contour at 1.6 m/s²: passes |
+| Radiating-surface factors (Figure 2) | 1.5% | the emitting factor 2.09% above the paper's at 598 K, the absorbing factor 1.49%, within it: fails on the emitting factor |
+| The escape, between the lab's at 1.2722 and 1.42 kT/m | the bracket widened, within reading uncertainty | one value outside, AD Leonis's widest zone, by 0.15% against a reading uncertainty of 2.6%: passes |
+
+The plain bracket leaves 13 of the escape row's 38 values outside, by up to 1.2%: Figure 3's curves at 455 to 470 K,
+Figure 4's 273 K contours from 1.3 to 1.5 m/s², where the escape is weakest, and AD Leonis's widest zone. By the printed equations all 37 of the
+values the escape sets, to which the lab's figures give a number, fall outside the paper's, by up to 32%. Stage 9's
+check therefore fails on Figure 2's emitting factor alone.
+
+The check on the radiative–convective column's own columns passes (`products/hitemp-column-check/88a4ac0336d0d3aa/
+check.json`): with HITEMP2010's lines, the columns' outgoing longwave stands 0.08 to 0.23% above that with the
+column's own, HITRAN2020's, at every temperature and at both gravities, against 3%. The rebuilt columns themselves
+give 1.1 to 4.0% more outgoing longwave than the validation records on PyRADS's profiles, because PyRADS builds its
+columns otherwise. PyRADS (Koll and Cronin 2018, MIT licence), checked out at the validation's commit c0a8647 in
+`/media/projectspace/world-crafting-research/external/PyRADS`, saturates its air over liquid water at every
+temperature, by a Clausius–Clapeyron curve of constant latent heat, where the column saturates over ice below
+273.16 K, so that its stratosphere holds 2.2 to 2.8 times the water at 250 to 360 K, by the two columns' levels as
+`column_check` builds them; its dry air is Earth's; and its 60 levels stop at 10⁻⁴ of the surface's pressure, 10 to
+17 Pa. `column_check.py --pyrads` runs the check on PyRADS's own columns, built
+by its own code; that run, about two hours on six processes, waits for machine time.
+
 ## Limits
 
 - MT_CKD's self continuum is fitted near Earth's temperatures, and its temperature exponents, from 1.4 to 6.4 below
@@ -430,4 +487,6 @@ profiles.
 ## Room for improvement
 
 - The sound speed of the authors' calculation, from their code or their word.
+- Figure 2's factors with the column's top at 1 Pa, and the check on PyRADS's own columns, both waiting for machine
+  time (above).
 - A real-gas density of saturated steam at the surface.

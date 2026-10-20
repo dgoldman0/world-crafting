@@ -141,11 +141,19 @@ def test_the_acceptance_check_holds_the_radiation_to_its_tolerances_and_the_esca
     gap = cp.acceptance(_result(radiation=1.01, missing=True))['rows']['instellation']
     assert gap['missing'] == ['Figure 3, expanding, 300 K'] and not gap['passes']
     # Both ends above the paper: every value falls outside the bracket, by (1.01 - 1)/1.01 of the nearer end, and the
-    # curves, their bracket widened by the radiation's tolerance, inside the widened one.
+    # curves, their bracket widened by the radiation's tolerance, inside the widened one. The widest zones miss by less
+    # than a width's reading uncertainty, 0.1% of each distance over their difference, and count as agreeing.
     shifted = cp.acceptance(_result(bracket=(1.01, 1.05)))['rows']['escape']
     assert len(shifted['outside']) == 12 and shifted['worst'] == pytest.approx(0.01 / 1.01) and not shifted['passes']
     assert len(shifted['outside_widened']) == 1 + 1 + 1 + 2 + 1             # the values bound by the escape alone
+    zone = shifted['outside_widened']['Figure 4, sun, widest zone']
+    assert zone['reading'] == pytest.approx(cp.READING * np.hypot(1.0, 0.90) / 0.10) and zone['by'] < zone['reading']
+    assert len(shifted['beyond_reading']) == 4 and 'Figure 4, sun, widest zone' not in shifted['beyond_reading']
     assert shifted['nearest']['margin'] == pytest.approx(-0.01 / 1.01)
+    # Ends a twentieth of a percent above the paper: every value falls outside the plain bracket, and the row passes,
+    # the curves through the widening and the rest through their reading uncertainty.
+    near = cp.acceptance(_result(bracket=(1.0005, 1.05)))['rows']['escape']
+    assert len(near['outside']) == 12 and near['beyond_reading'] == [] and near['passes']
 
 
 @needs_lines
