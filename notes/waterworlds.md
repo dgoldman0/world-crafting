@@ -5,10 +5,10 @@ the reproduction of Arnscheidt, Wordsworth and Ding (2019), "Atmospheric Evoluti
 ApJ 881, 60 ([../lab/design/waterworlds.md](../lab/design/waterworlds.md)), whose arXiv source (1906.10561v2,
 sha256 8d416543…f451) was read on 2026-10-19; equation numbers here are the arXiv version's. `body.py` sizes the
 worlds, `escape.py` computes their isothermal wind, and `steam.py`, `steam_optics.py` and `radiating.py` compute the
-steam column, its absorption and its radiating surfaces; `balance.py`, `steam_table.py` and `maps.py` compute the
-energy balance, the columns' table over gravity and surface temperature, and the contours over gravity and distance;
-`figures.py` reads the paper's figures from the images in its source and `comparison.py` sets the lab's results
-beside them.
+steam column, its absorption and its radiating surfaces, for which `hitemp.py` reads and cuts HITEMP2010's water
+lines; `balance.py`, `steam_table.py` and `maps.py` compute the energy balance, the columns' table over gravity and
+surface temperature, and the contours over gravity and distance; `figures.py` reads the paper's figures from the
+images in its source and `comparison.py` sets the lab's results beside them.
 
 ## What the tools compute
 
@@ -92,14 +92,15 @@ beside them.
   water and Wagner et al. (2011) over ice; steam is an ideal gas at every height; a year is a Julian year; the Sun
   gives 1,361 W/m² at 1 AU (shared/constants.json), on whose square root every distance from it depends. The
   column's top, its levels, its bands and their steps, the lines' floor, the continuum and the surface's emissivity
-  of one are the lab's choices; the paper names its line list, HITEMP2010 truncated for use below 1,000 K, which the
-  lab adds when the author has downloaded it. Starlight beyond 25,000 cm⁻¹, where water has no lines, counts at the
-  surface's height: it is 12.2% of a 5,772 K Planck curve and 0.6% of a 3,400 K one, and averaging over the computed
-  range alone would raise the Sun's absorbing height by 14%. The paper names the heat of vaporisation in its escape
-  term and leaves its value unstated; over liquid water L is the heat of vaporisation by the Clapeyron equation with
-  the saturated liquid's and vapour's densities of Wagner and Pruß (2002), within 0.1% of the steam tables from 373
-  to 600 K, where the ideal gas's Clausius–Clapeyron slope runs 1.6% high at 373 K, 17% at 500 K and 84% at 600 K,
-  which would raise the wind's power at 1.1 m/s² and 600 K by 28%; over ice, below 273.16 K, L is the heat of
+  of one are the lab's choices; the paper names its line list, HITEMP2010 truncated for use below 1,000 K, which
+  `hitemp.py` reads and cuts as the paper's model cut it (below). Starlight beyond 25,000 cm⁻¹, where HITRAN2020
+  gives water no lines and HITEMP2010's kept lines hold 3 × 10⁻⁸ of their strength, counts at the surface's height:
+  it is 12.2% of a 5,772 K Planck curve and 0.6% of a 3,400 K one, and averaging over the computed range alone would
+  raise the Sun's absorbing height by 14%. The paper names the heat of vaporisation in its escape term and leaves
+  its value unstated; over liquid water L is the heat of vaporisation by the Clapeyron equation with the saturated
+  liquid's and vapour's densities of Wagner and Pruß (2002), within 0.1% of the steam tables from 373 to 600 K,
+  where the ideal gas's Clausius–Clapeyron slope runs 1.6% high at 373 K, 17% at 500 K and 84% at 600 K, which
+  would raise the wind's power at 1.1 m/s² and 600 K by 28%; over ice, below 273.16 K, L is the heat of
   sublimation, which adds about 7%, near 1 W/m², to the wind's power at 1.1 m/s² and 270 K.
 
 ## How they were checked
@@ -153,6 +154,17 @@ curves are read between their points and NaN beyond, that the red star's flux is
 where their branch reaches the thawing temperature into the ocean state the same instellation holds, found by
 bisection, and, with the source restored, that the whole comparison runs and the transition, Ganymede's line and the
 red star's flux stand as recorded.
+
+The tests of HITEMP2010's lines (`python/atmosphere/tests/test_hitemp.py`) check that the lab's data manifest records
+34 zips covering 0 to 30,000 cm⁻¹ without a gap and HITEMP2010's 114,241,164 lines; that records read field by
+field, and that the cut keeps a line 2% over the floor at 1,000 K, drops one 2% short of it, one at 0 cm⁻¹ and one of
+unknown lower-state energy, and sorts what it keeps; that the column's line sum integrates an isolated line at
+1,000 K to the strength the cut takes, to 10⁻⁵; that zips of another layout, record length, molecule or isotopologue
+code are refused; that the cut list is cached under a key that follows the zips' hashes and the cut, reads back with
+the zips gone, and is rebuilt only from the zips of its record; that two processes cut as one does; and, where the
+store holds the zips, that their first records read as HITEMP2010's, that the zip from 11,000 to 30,000 cm⁻¹ gives
+its recorded cut, 622,109 lines kept with 19 of unknown energy among its records, and that the store's cut list holds
+the recorded count.
 
 The column's numerical choices were tested once at 2.3 m/s², at 300 and 450 K, against finer settings, with the
 layers' masses at the local gravity. The base settings give an outgoing longwave of 246.77 and 240.95 W/m², emitting
@@ -213,10 +225,10 @@ without expansion stays flat above 300 K, as the paper's does up to 400 K, 0.6% 
 heights by eq. 3, and the reproduction does the same, keeping the local gravity as one of the lab's own changes for
 stage 11. The lab's heights run 6 to 8% above the paper's at 400 to 500 K, which raises its factors by 0.005 to 0.02;
 the line lists (HITRAN2020 here, HITEMP2010 there), the continuum's version and the spectral sampling are candidate
-causes, and rerunning with HITEMP's lines will test the first. Without the continuum the lab's outgoing longwave at
-2.3 m/s², on the thermal band, rises to 329 to 352 W/m² with the layers' masses at the local gravity and to 330 to 357
-at the surface's, against the paper's flat 248, so the paper's column also holds a continuum, or line wings, of
-comparable strength.
+causes, and rerunning with HITEMP's lines will test the first, though their added opacity would raise the lab's
+heights further. Without the continuum the lab's outgoing longwave at 2.3 m/s², on the thermal band, rises to 329
+to 352 W/m² with the layers' masses at the local gravity and to 330 to 357 at the surface's, against the paper's
+flat 248, so the paper's column also holds a continuum, or line wings, of comparable strength.
 
 ## The comparison with the paper's Figures 2 to 5
 
@@ -294,8 +306,67 @@ The change's reviewer tried other readings of the paper and found none that give
 the density, the water or the year (the ratios above vary by a factor of 500), a density in grams, a loss through the
 critical sphere, half the mass in water, or a factor on the sound speed together with one on the density. Reading the
 authors' code, or asking them, would settle the cause. The evidence is a calculation of the printed equations against
-values read from the paper; the author chooses how stage 9's acceptance check treats the difference
-(`lab/design/plan.md`).
+values read from the paper; by the author's choice of 2026-10-19, stage 9's acceptance check compares both (below).
+
+## The acceptance check
+
+The author set stage 9's acceptance check on 2026-10-19 (`lab/design/plan.md`), and its tolerances on the radiation
+come from outside the comparison, which the lab had already run. Yang et al. (2016) ran seven radiation codes on the
+same columns of Earth-like air, 1 bar of nitrogen with 376 ppmv of CO₂ and saturated water on a moist adiabat under a
+200 K stratosphere, at surface temperatures of 250 to 360 K, under the Sun and under a 3,400 K blackbody standing for
+an M dwarf; their two line-by-line codes, SMART and LBLRTM, came up to 3% apart in the instellation that holds a
+surface temperature. The author took that 3% as the tolerance on the instellation of the paper's columns of steam,
+which run to 600 K. The tolerance on distances, which go as the inverse square root of the instellation, is half of
+it, and so is the tolerance on each of Figure 2's radiating-surface factors, which enter the balance as a ratio, the
+emitting factor over the absorbing one. The escape's tolerance comes from the paper's own figures, as the lab's fits
+read them: they need sound speeds whose squares run from 1.27 to 1.42 kT/m, and the lab is held to that spread, each
+of the paper's curves bound by the escape lying between the lab's at its two ends. Every number that depends on the
+escape is compared twice, by the equations as printed and at 4/3 kT/m; the check passes on the second, and the
+printed equations' departure is recorded as a finding. Under ASME V&V 20, a standard for validation against
+experiment, each difference is reported beside a combined uncertainty, and the lab borrows that form for a
+comparison of two codes: the uncertainty of reading the paper's figures is under 0.1%, and the lab's numerical
+error, by the convergence checks above, about 0.1%. On the HITRAN2020 table of 2026-10-19 the comparison gives:
+
+| What | Tolerance | The lab on HITRAN2020, at 4/3 kT/m |
+|---|---|---|
+| Instellation that holds a surface temperature at 2.3 m/s² (Figure 3) | 3% | 0.6 to 1.6% above the paper's up to 400 K; with expansion, within 2.0% up to 495 K |
+| Distances: the contours from 1.6 m/s² up (Figure 4) and the arrows of Figure 5 | 1.5% | within 0.85%; the arrows 0.58 to 0.65% |
+| Each radiating-surface factor of Figure 2 | 1.5% | 0.1 to 2.1% above, over 1.5% for the emitting factor from 500 K up and for the absorbing factor at 598 K, 1.54% |
+| The escape: the lifetimes' temperatures (Figure 3) and the transition (Figure 4) | between the lab's results at 1.27 and 1.42 kT/m | 4/3 lies inside the range, the temperatures within 1.6% of the paper's and the transition 2.6% above; the comparison holds 1.2722 and 4/3 kT/m, and its rerun adds 1.42 |
+
+Below about 1.6 m/s², and above about 450 K at 2.3 m/s², the escape sets the curves and its row applies; there
+Figure 3's curve without expansion falls 8.3% below the paper's at 505 K. AD Leonis takes the paper's implied flux,
+so the paper's 273 K contour fixes the star's flux, and the 10⁹-year contour and the zone's width test the lab. The
+survey of stage 11 takes the star's measured values, 3,414 K and 0.0227 of the Sun's luminosity, which would move
+its contours by about 3%.
+
+## HITEMP2010's lines
+
+The author downloaded HITEMP2010's water lines from HITRANonline with their own sign-in on 2026-10-19: 34 zips,
+3.40 GB, holding the 114,241,164 lines HITEMP gives for water from 0 to 30,000 cm⁻¹ in HITRAN's 160-character
+records. The lab's data manifest records each zip's size and sha256 after a review of its rights
+(`lab/data/manifest.toml`, entry `hitemp2010-h2o`; HITRANonline's HITEMP page states no terms of redistribution, so
+the zips stay in the store, outside Git), and the store keeps them at `data/<digest>/`. The paper's model, as
+Schaefer et al. (2016) describe it, drops every line whose strength at 1,000 K falls below 10⁻³⁰ cm/molecule, cuts
+the rest 25 cm⁻¹ from centre and, outside MT-CKD's temperature range of validity, holds the continuum at its value
+for the warmest temperature given. The lab's MT_CKD 4.3 continuum weakens above its reference temperature, 296 K,
+by its own exponents, so for columns warmer than about 300 K the continuum is a second candidate cause of the lab's
+offset; the colder columns, where the offset is largest, 1.1 to 1.6% at 260 to 275 K, lie below 296 K at every
+level, and a held continuum leaves them as they are. The lab proposes to hold MT_CKD 4.3's self continuum at 296 K,
+the one temperature its file gives. Schaefer and colleagues also computed their spectra on 5,000 points from 1 cm⁻¹
+to five times the Wien peak of the surface's Planck curve, and whether the paper's runs kept that grid is unstated.
+
+On 2026-10-19 `hitemp.py` cut the zips on four processes. Of the 114,241,164 lines it kept 6,617,956, from 0.072 to
+29,661.8 cm⁻¹, 99.5% of them of the main isotopologue, and cached them in the store
+(`caches/hitemp-lines/7d5cc459f2d2bca3.npz`, 476 MB). By a floor of 10⁻³⁰ at 296 K, the lab's HITRAN2020 files, from 0
+to 25,000 cm⁻¹, hold 403,685 water lines; the cut at 1,000 K keeps sixteen times as many. Nineteen lines of H₂¹⁷O
+and H₂¹⁸O between 11,800 and 14,420 cm⁻¹ carry HITRAN's −1 for an unknown lower-state energy, which leaves their
+strength without a temperature scaling; eleven of them would pass the floor, and the cut drops all nineteen,
+10⁻¹¹ of the kept lines' strength at 296 K. Of the lines kept, 76,483, holding 2.5% of their strength at 296 K, give
+a temperature exponent of zero or below for their air-broadened width, which the steam optics apply to the
+self-broadened width, as they do for HITRAN's lines. The steam optics take these lines next, with the continuum held
+as the lab proposes; the radiative–convective tool's columns at 250 to 360 K, the table and the comparison then
+follow on them.
 
 ## Limits
 

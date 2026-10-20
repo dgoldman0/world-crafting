@@ -91,3 +91,283 @@ made = "By Terluna's climate/gcm/climatology.py (bf2b93928b020464), from run A28
 retrieved = 2026-10-18
 bytes = 85721
 sha256 = "3fb185c8087ea9b5bffdfbfb191cfed5cc3f4397a9a7d0eb52269f925ee6f05c"
+
+[data.hitemp2010-h2o]
+title = "HITEMP2010's water lines, 0 to 30,000 cm-1, in the 34 zips HITRANonline serves"
+use = "The steam columns of plan stage 9's reproduction (python/atmosphere/waterworlds/hitemp.py): the lines whose strength at 1000 K reaches 1e-30 cm/molecule, as Schaefer et al. (2016) cut them for the model that Arnscheidt, Wordsworth and Ding (2019) used"
+licence = "HITRANonline serves HITEMP2010 to registered users who sign in. Its HITEMP page (hitran.org/hitemp, read 2026-10-19) states no licence or terms of redistribution and asks users to cite the appropriate HITEMP article as well as the original sources of the data. The lab keeps its copy in the store, outside Git, and cites the HITEMP article, the BT2 line list and HITRANonline."
+credit = "Rothman, L. S., Gordon, I. E., Barber, R. J., Dothe, H., Gamache, R. R., Goldman, A., Perevalov, V. I., Tashkun, S. A. & Tennyson, J. (2010), HITEMP, the high-temperature molecular spectroscopic database, J. Quant. Spectrosc. Radiat. Transfer 111, 2139-2150; for water chiefly from the BT2 line list, Barber, R. J., Tennyson, J., Harris, G. J. & Tolchenov, R. N. (2006), A high-accuracy computed water line list, Mon. Not. R. Astron. Soc. 368, 1087-1094; distributed by HITRANonline (hitran.org)"
+reviewed = 2026-10-19
+note = "Downloaded by the author with their own sign-in on 2026-10-19; hitran.org sends a request without one to its sign-in page, so a fresh copy needs the same. The zips hold 114,241,164 lines, HITEMP2010's count for water, in HITRAN's 160-character records closed by CR LF, one .par member to each zip."
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00000-00050_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00000-00050_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 52272559
+sha256 = "ec429b947e883b362d5b3c86fa8901f1961b299f96203935b8aa4b7baff6929f"
+note = "2,048,387 lines from 0 to 50 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00050-00150_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00050-00150_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 89371630
+sha256 = "733be3cb1d3e9a75a98236ec155c855a5212180327966907e4709206a2ededa4"
+note = "3,470,074 lines from 50 to 150 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00150-00250_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00150-00250_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 92836538
+sha256 = "c8af44379583666ec03a91aab2004924cd8fdc516c8fc57e919ff656b0a75e4c"
+note = "3,625,575 lines from 150 to 250 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00250-00350_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00250-00350_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 89485929
+sha256 = "4409e53182e1987d839643fd011c2f3c06bd85a48f6b94c8f4a05534d04362e8"
+note = "3,500,494 lines from 250 to 350 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00350-00500_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00350-00500_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 164584987
+sha256 = "aaf96bfb7ddb81bd33b4af207100a339442e2cd1b842a730917775c2d167e04e"
+note = "4,972,481 lines from 350 to 500 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00500-00600_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00500-00600_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 117121684
+sha256 = "6917dfb5e795f1d0dc5988bab21d624f4f64c6981ca963f85be46e6801a0877e"
+note = "3,561,630 lines from 500 to 600 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00600-00700_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00600-00700_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 95749511
+sha256 = "180988b108faf4ff0b12f78d6973dc5c7876babf597426c9a2e1160df7f29f7c"
+note = "3,795,745 lines from 600 to 700 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00700-00800_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00700-00800_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 98330966
+sha256 = "3d57c07416d4cff9d33ab9334cf209a850c34dce692f68d63917001419a88c48"
+note = "3,907,835 lines from 700 to 800 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00800-00900_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00800-00900_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 129577515
+sha256 = "5d019c1e4373bc4015274fb3f3da278c6e15fd1f7f8d3cebaeb20de90322dff2"
+note = "3,969,887 lines from 800 to 900 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_00900-01000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_00900-01000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 124805369
+sha256 = "0c4885c624f7e2bd2482bdc6519b911497e317eec47c44ac3bce60fc3061ceb4"
+note = "3,820,310 lines from 900 to 1,000 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_01000-01150_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_01000-01150_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 126160901
+sha256 = "caf89d2356d0e3be8308de75f1a29fefb48ccc0d8b0d48e75dd4fd371f766f70"
+note = "4,960,367 lines from 1,000 to 1,150 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_01150-01300_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_01150-01300_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 107136251
+sha256 = "08c548a6eab491c99297d08e2c10fcadc0db6932afdb637b0f88893373c7f49e"
+note = "4,163,192 lines from 1,150 to 1,300 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_01300-01500_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_01300-01500_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 114109753
+sha256 = "4ae58e775bacd21fd0fe69027ce1ce42575af68d6c9ee7fede6bbbb45f956667"
+note = "4,363,563 lines from 1,300 to 1,500 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_01500-01750_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_01500-01750_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 115078498
+sha256 = "ae7d561e7269c8b3acfdefc9d01c2d6339a5ecc3134732706b958cd0caf8d2d3"
+note = "4,336,535 lines from 1,500 to 1,750 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_01750-02000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_01750-02000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 127375941
+sha256 = "a9c193abf8f649cf703256004b68abc1f2a8e97e33b5e66edfd5f3e8514034f1"
+note = "3,758,715 lines from 1,750 to 2,000 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_02000-02250_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_02000-02250_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 110406372
+sha256 = "d2192c5a215fa0cab4c52a799abe3fc373ffe70e70f56d17af3f521e18a76006"
+note = "3,283,806 lines from 2,000 to 2,250 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_02250-02500_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_02250-02500_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 99081911
+sha256 = "758a7d8695a67bdd9cd7f6e4c76fda18dbfcae192103d2a1aba5d979a742817b"
+note = "2,971,465 lines from 2,250 to 2,500 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_02500-02750_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_02500-02750_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 99793235
+sha256 = "1e1755fb68988fcb2839578308c11c8eccdf258d7cb5d568fb2b8ef6aba98d41"
+note = "2,992,331 lines from 2,500 to 2,750 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_02750-03000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_02750-03000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 104103560
+sha256 = "c0349b759c374d7d2d5a3036b45ae652d05d51dab34a650faffd1f29592083f3"
+note = "3,076,556 lines from 2,750 to 3,000 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_03000-03250_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_03000-03250_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 93888145
+sha256 = "6b8134333686c84c2639d78ae90435e89c4ba0e8da4f9ef7c4a822e1c22c7923"
+note = "2,708,657 lines from 3,000 to 3,250 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_03250-03500_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_03250-03500_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 80916517
+sha256 = "5d3bef250306ecc1e1cbad796457f35241262cb8136df1957a18693426e4fb1f"
+note = "2,299,459 lines from 3,250 to 3,500 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_03500-04150_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_03500-04150_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 122819095
+sha256 = "133b112f465347576017f1ebe6052c0416f05371931c074f2f3a515527d64464"
+note = "4,583,911 lines from 3,500 to 4,150 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_04150-04500_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_04150-04500_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 82580535
+sha256 = "a2501847c9f3b9a142eca6edff4459926e76c4b3d08d779f5a6e818364e434e9"
+note = "2,421,691 lines from 4,150 to 4,500 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_04500-05000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_04500-05000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 99792509
+sha256 = "c4a7956ecff5c7462e8dc489e741b89a1e53ac2a0d799b330b664154121adc68"
+note = "2,834,046 lines from 4,500 to 5,000 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_05000-05500_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_05000-05500_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 108960846
+sha256 = "66e51858f6461b960f9fe4c4cc38b651f22064758977709907932026b84d7c77"
+note = "4,079,576 lines from 5,000 to 5,500 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_05500-06000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_05500-06000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 101801678
+sha256 = "8a8c72172ec9378a1909e4940d692bd2e87d62a8214383c5a19e798c0bf24fa3"
+note = "3,784,869 lines from 5,500 to 6,000 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_06000-06500_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_06000-06500_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 95141673
+sha256 = "dc3598ade8bfb0dbc6e91dd3bdc73b8005f33d03818ae399a344d497e0a39a69"
+note = "3,452,571 lines from 6,000 to 6,500 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_06500-07000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_06500-07000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 95245155
+sha256 = "e771fef26f1992d524a1fa91e1fbef33d37807910b163edf62fc09357c5aecf9"
+note = "2,680,328 lines from 6,500 to 7,000 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_07000-07500_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_07000-07500_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 87338394
+sha256 = "8b6c5eb4d2446322b7dd80bb86220c4ae4126c98b96ee228bef095f1f500afa7"
+note = "3,154,700 lines from 7,000 to 7,500 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_07500-08000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_07500-08000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 74442594
+sha256 = "dc06c54d38c454f6f1d9f00436744e667eb7fb04796a4408535286de209f21dc"
+note = "2,671,165 lines from 7,500 to 8,000 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_08000-08500_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_08000-08500_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 79486366
+sha256 = "83e929c68cc7e1c8c89de3bbd0eec02cf7aceff721563b22aaae6cd2c5263996"
+note = "2,220,333 lines from 8,000 to 8,500 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_08500-09000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_08500-09000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 62612413
+sha256 = "fff55706cc49d193e9cd6b162d6bf349d2c32c6910c87b92cc2268339908badb"
+note = "1,735,773 lines from 8,500 to 9,000 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_09000-11000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_09000-11000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 107079980
+sha256 = "641bcaad6a951b6a9125405dc3e0ef536be3f4fb3f2ddd2e81696f8230f97b8b"
+note = "3,573,701 lines from 9,000 to 11,000 cm-1"
+
+[[data.hitemp2010-h2o.files]]
+name = "01_11000-30000_HITEMP2010.zip"
+url = "https://hitran.org/files/HITEMP/HITEMP-2010/H2O_line_list/01_11000-30000_HITEMP2010.zip"
+retrieved = 2026-10-19
+bytes = 47665851
+sha256 = "e3c699fb657c3a070d4e4727d909ad1e8f0585ef4bd4902c26cbfc1764af5446"
+note = "1,461,436 lines from 11,000 to 30,000 cm-1"

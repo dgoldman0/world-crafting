@@ -116,11 +116,14 @@ def test_every_entry_records_its_licence_credit_and_one_source_for_each_file():
             assert f.url is None or f.url.startswith('https://')
 
 
-def test_the_manifest_holds_the_seeds_pins_alone():
+def test_the_manifest_holds_the_seeds_pins_and_the_data_a_stages_tool_names_alone():
+    """Every entry is a pin the seeds name or the data a stage's tool names by its entry, stage 9's water lines."""
+    from atmosphere.waterworlds import hitemp
     seeds = {p.name for p in _seed_pins()}
-    assert seeds == set(MANIFEST.entries) == {'tsis1-hsrs-stride100', 'lola-ldem16-grail-jggrx0420a',
+    assert seeds == {'tsis1-hsrs-stride100', 'lola-ldem16-grail-jggrx0420a',
                      'terluna:protection/spectra/shield_transmission.json',
                      'terluna:climate/gcm/products/climatology_A28_dim5_moon.npz'}
+    assert set(MANIFEST.entries) == seeds | {hitemp.ENTRY}
     for pin in _seed_pins():
         assert MANIFEST.files(pin)
 

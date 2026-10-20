@@ -9,7 +9,7 @@ test are modified, below). Import from this folder (`pytest` sets the path; else
 | `atmosphere/radiative_convective/` | The line-by-line clear-sky radiative–convective column (HITRAN2020 lines, MT_CKD 4.3 continuum, collision-induced absorption, Rayleigh scattering; GM/r² hydrostatics; a pseudo-spherical solar beam) and the correlated-k thermal scheme built from the same spectroscopy. Every GCM and CM1 radiation calibration was fitted against it | [../notes/reference_radiation.md](../notes/reference_radiation.md) |
 | `atmosphere/middle_atmosphere/` | `equilibrium.py`, `photolysis.py`, `chemistry.py`: the radiative–photochemical equilibrium column to 0.1 Pa that the surface-light model and the sky's optics build their columns from. Its escape and exobase modules stay in Terluna | Terluna's `METHODS.md`, copied here |
 | `atmosphere/electricity/` (`conductivity.py`, `muons.py`, `charging.py`) | The lunar conductivity column the electrified CM1's leakage and screening read: ion production from the CRAC:CRII tables and MCEq muons, small ions' recombination, mobility and attachment to humidity-swollen aerosol; and the graupel-crystal charging laws integrated over size distributions (Saunders and Peck, Takahashi, with WRF-ELEC's critical rime accretion rates). Terluna's thunder, occurrence and tower scripts are analyses and stay there; the package README is Terluna's and still lists them | [../notes/electrification.md](../notes/electrification.md) |
-| `atmosphere/waterworlds/` (`body.py`, `escape.py`, `steam.py`, `steam_optics.py`, `radiating.py`, `balance.py`, `steam_table.py`, `maps.py`, `figures.py`, `comparison.py`, `fetch_inputs.py`) | The lab's own tools for low-gravity waterworlds after Arnscheidt, Wordsworth and Ding (2019), new on 2026-10-19 for plan stage 9: bodies of the size relation of Sotin et al. (2007), fixed by their surface gravity; the isothermal transonic wind of steam that carries their water away; columns of steam alone, saturated at every height, with their absorption line by line from the radiative–convective column's spectroscopy, summed directly where hot steam's lines grow broad; and the heights from which those columns emit and at which they absorb; the energy balance; the table of columns over gravity and surface temperature that the paper computes once; and the contours over gravity and distance at 273 K and at a lifetime; the curves of the paper's Figures 2 to 5, read from the images in its arXiv source, which `fetch_inputs.py` restores by hash into the git-ignored `inputs/`; and the comparison of the lab's steam worlds with them | [../notes/waterworlds.md](../notes/waterworlds.md) |
+| `atmosphere/waterworlds/` (`body.py`, `escape.py`, `steam.py`, `steam_optics.py`, `hitemp.py`, `radiating.py`, `balance.py`, `steam_table.py`, `maps.py`, `figures.py`, `comparison.py`, `fetch_inputs.py`) | The lab's own tools for low-gravity waterworlds after Arnscheidt, Wordsworth and Ding (2019), new on 2026-10-19 for plan stage 9: bodies of the size relation of Sotin et al. (2007), fixed by their surface gravity; the isothermal transonic wind of steam that carries their water away; columns of steam alone, saturated at every height, with their absorption line by line from the radiative–convective column's spectroscopy, summed directly where hot steam's lines grow broad; HITEMP2010's water lines, read in place from the zips that the lab's data manifest records in its store and cut at 1,000 K as the paper's model cut them; and the heights from which those columns emit and at which they absorb; the energy balance; the table of columns over gravity and surface temperature that the paper computes once; and the contours over gravity and distance at 273 K and at a lifetime; the curves of the paper's Figures 2 to 5, read from the images in its arXiv source, which `fetch_inputs.py` restores by hash into the git-ignored `inputs/`; and the comparison of the lab's steam worlds with them | [../notes/waterworlds.md](../notes/waterworlds.md) |
 | `illumination/surface_light/`, `illumination/cloud_light/model.py` | Columns and sunlight for the sky solver and the curved-air ledger | |
 | `illumination/sky/` | The spherical successive-orders sky solver and the solved-column sky | [../notes/sky_solver.md](../notes/sky_solver.md) |
 | `climate/gcm/plasim_shortwave.py`, `plasim_longwave.py` | PlaSim's clear-sky shortwave and longwave arithmetic for one column, and the fitters for its corrections | [../notes/exoplasim.md](../notes/exoplasim.md) |
@@ -22,7 +22,7 @@ test are modified, below). Import from this folder (`pytest` sets the path; else
 ## Running
 
 ```sh
-python -m pytest python               # from the repository root: 209 tests
+python -m pytest python               # from the repository root: 218 tests
 ```
 
 On 2026-10-17, after the electricity tools were added, all 111 passed in the research drive's `optics`
@@ -36,9 +36,11 @@ them three tests skip). `muons.py` needs MCEq, which Terluna keeps in a separate
 are committed. The geography package's 47 tests, on synthetic files, grids and fields, need no inputs; its
 checks on the Moon's own heights and field, which the lab's data store holds, are in `lab/tests/test_geography.py`.
 On 2026-10-18 the system Python (3.13.7, numpy 2.3.3, scipy 1.16.2), lacking numba, collected 124 tests and
-passed 111: the sky solver's 34 stay uncollected, and without the inputs 13 skip. The waterworld tools' 51 tests,
-added on 2026-10-19, need no inputs but for five, which read the spectroscopic inputs, and two, which read the paper's source; one of the
-wind's tests also takes the mpmath package; the system Python then collected 175.
+passed 111: the sky solver's 34 stay uncollected, and without the inputs 13 skip. The waterworld tools' 60 tests,
+added on 2026-10-19, need no inputs but for these: eleven read the spectroscopic inputs, two the paper's source, and
+three HITEMP2010's zips in the lab's store, one of them with the spectroscopic inputs too. The nine on HITEMP's lines
+also import the lab's data manifest (`lab/worldlab/data.py`), and one of the wind's tests takes the mpmath package.
+The system Python then collected 184.
 
 ## What still needs Terluna
 

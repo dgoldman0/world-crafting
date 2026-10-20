@@ -233,7 +233,8 @@ spectrum and the scenario's filter through the manifest:
 - **The manifest** keys each entry by its pin without `#` or `@`. An entry holds a title, a use, the licence
   its review found, a credit, the review's date and its files; each file its name, size, sha256 and one
   source, a URL or a Terluna pin, with the date the lab took its bytes. A pin with a digest names one file of
-  its entry.
+  its entry. The manifest holds the pins the seeds name and the data a stage's tool names by its entry, so far
+  stage 9's water lines (`hitemp2010-h2o`, which `python/atmosphere/waterworlds/hitemp.py` reads).
 - **The store** keeps each file at `data/<digest>/<name>`, read-only. A fetch copies from Terluna's roots and
   downloads only when asked, writing through a temporary file and keeping only bytes of the recorded size
   and hash; each read checks both again. One file sits in the store outside the manifest: the copy of

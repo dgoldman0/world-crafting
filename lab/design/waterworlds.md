@@ -133,10 +133,14 @@ generates CM1's case families into explicit entries (architecture.md, "Specifica
 
 ## Choices for the author, at their stage
 
-- AD Leonis's temperature, luminosity and mass, which the paper leaves unstated (stage 9); stage 2's seed red dwarf
-  takes provisional values until then.
+- AD Leonis's temperature, luminosity and mass, which the paper leaves unstated (stage 9). Set on 2026-10-19 for
+  the temperature and luminosity: the reproduction takes a 3,400 K Planck curve at the 0.0242 of the Sun's flux that
+  the paper's Figure 4 implies, and the survey the star's measured 3,414 K and 0.0227 (Kossakowski et al. 2022). The
+  mass enters only the locked worlds' rotation, so the author chooses it at stage 12; stage 2's seed red dwarf keeps
+  provisional values until then.
 - The reproduction's tolerances against the paper's numbers and its digitised curves, and how it compares the
-  lifetimes, given the printed escape's difference from the paper's figures (stage 9).
+  lifetimes, given the printed escape's difference from the paper's figures (stage 9). Set on 2026-10-19, in
+  stage 9's acceptance check (plan.md).
 - The Gaean air's composition and pressure, such as Earth's at 1 atm or the Open Moon's at 1.2 atm (stage 11).
 - The day of the worlds turning around the Sun, and the anchors themselves (stage 12).
 
