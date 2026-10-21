@@ -155,8 +155,22 @@ CM1, like PlaSim, holds gravity constant with height. The cases reach 150 km, wh
 lower than at the ground and constant-g heights read about 8% low. Terluna's radiative–convective model,
 which uses g(z), finds the column holding about 5% more air per unit area than p_s/g_s.
 
+## The simple boundary layer's density (found 2026-10-21)
+
+Terluna's budgets of its CM1 boxes found that CM1's simple boundary-layer scheme, `ipbl = 2`, hands the solver its
+tendencies of θ, the mixing ratios and the wind multiplied by the air's density, which `solve1.F` adds as changes per
+second (Terluna, `domain/climate` 13e7123). At the Open Moon's surface, near 1.4 kg/m³, the boxes' boundary layer took
+1.32 to 1.35 times the surface's evaporation and 1.46 to 1.51 times its sensible heat; with the density divided out,
+its water came to 0.995 to 1.000 of the evaporation. The lab checked the lines in cm1r22.0, its pinned release, where
+YSU, MYNN and MYJ fill the same arrays with WRF's tendencies per second ([upstream-ipbl2-density.md](../models/cm1/upstream-ipbl2-density.md),
+a draft report to CM1's developer). The lab's CM1 defaults take this scheme (`lab/configs/cm1/defaults.toml`,
+`pbl = "cm1-simple"`), so plan stage 3 adds the fix as a patch before any lab case runs. Terluna's rings and boxes up
+to 13e7123 ran with `ipbl = 2`, every ring on the research drive among them, and carry the bias until reruns with the
+fix size it.
+
 ## Improvements in order of value
 
+0. Divide the density out of the simple boundary layer's tendencies (above), before any case runs.
 1. Force rings and boxes from the longwave-corrected GCM, with the sideways transport, and test whether
    the near-ground gap closes.
 2. Scale Morrison's (and NSSL's) size limits and breakup with gravity, and test the rain's evaporation.
