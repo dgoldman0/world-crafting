@@ -14,6 +14,12 @@ each run that uses it.
 **State (2026-10-19): plan stages 1 and 2 passed; the waterworld study planned as stages 9 to 13, with stage 9
 under way.**
 
+Following Terluna's comparison of CM1 boxes with the GCM, stage 3 forces CM1 through the whole column, holding the
+air to the GCM's only above the GCM's convection, and the ExoPlaSim runs of stages 8 and 12 gain level sets and a
+convection setting ([design/plan.md](design/plan.md), stage 3 and "The GCM's convection, boundary layer and
+levels"). The repository's root README lists the findings beside the paper's passages they change ("Where current
+understanding differs from the paper").
+
 ## Reading order
 
 | Document | Holds |

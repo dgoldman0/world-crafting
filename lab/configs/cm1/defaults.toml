@@ -37,6 +37,10 @@ dz0_m = 100.0                                  # the vertical grid: dz0 up to z_
 z_fine_m = 1000.0
 dz_max_m = 2000.0
 ztop_m = 150000.0
+# The 8-16 km hold and the 16 km day-night top below are Terluna's ring settings. In Terluna's box over the Near-side
+# Sea that hold stood in for the deep convection, which reaches 55-80 km on the Moon (notes/cm1.md, "The nudging and
+# the convection"); plan stage 3 replaces both with forcing through the whole column and a hold above the forcing
+# GCM's convection top.
 nudge_start_m = 8000.0                         # nudging toward the GCM from here, fully from nudge_full_m
 nudge_full_m = 16000.0
 pbl_length_m = 452.98697768979696              # l_inf, 75 m x 9.81/g at the reference; cm1_run.py:2005 rounds it to 453.0
