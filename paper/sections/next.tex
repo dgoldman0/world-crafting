@@ -6,36 +6,38 @@ global and resolved calculations share their physics: the Mars GCM's parameteriz
 WRF's core, which the GCM drives at its boundaries \autocite{spiga2009new}, and the generic model's radiation and
 cloud have run on the same core over Proxima~b, where the resolved cloud feedback was much weaker than the GCMs'
 \autocite{lefevre2021convection}. Codes built separately, as here, are brought toward that consistency by repair and
-calibration. The first experiments take up the parts in which the two atmospheric models now differ most, the GCM's
-convection, the temperature of the upper air and PlaSim's cloud, and then replace PlaSim's broadband radiation with
-a scheme reduced from the reference spectroscopy, whose accuracy depends on an independent check of that reference;
-comparisons on worlds modelled in other studies would then test the reach proposed in Table~\ref{tab:reach}. Each
-experiment that changes the GCM's climate also resets the dimming that holds the design temperature. The
+calibration. The first experiments take up the parts in which the two atmospheric models now differ, the boxes' large-scale
+ascent, the GCM's convection, the temperature of the upper air and PlaSim's cloud, and then replace PlaSim's
+broadband radiation with a scheme reduced from the reference spectroscopy, whose accuracy depends on an independent
+check of that reference, each change to the GCM's climate resetting the dimming that holds the design temperature;
+comparisons on worlds modelled in other studies would then test the reach proposed in Table~\ref{tab:reach}. The
 remaining experiments compare the present models with an independent GCM and use the lunar departures from Earth to
 test specific approximations in the dynamics, CM1's radiation, the microphysics and the wave physics, and in the
 models of the lakes and seas beneath the waves.
 
-\textbf{Convection's closure.} With simplified Betts--Miller convection on fifteen levels, CM1's boxes rain
-82--84\% of the GCM's rain at three sites, and over the sea and the dry south-east more of it falls at other hours
-than the agreement test allows; none of the closures tried with the scheme passes the test. The nearest forms
-0.87--0.95 of the rain at the boxes' sites by convection, yet across the tropics it leaves 58--74\% of the rain to
-the large-scale condensation, and it dries the land to about 40\% of its soil water. Since PlaSim's single column
-convects unlike the GCM, a closure is chosen in GCM runs read against the boxes, and one passes when it brings the
-rain within the test's tolerances in amount and timing at every site, with the land's water held and the processes
-agreeing.\claim{N05}
+\textbf{Convection's closure.} With simplified Betts--Miller convection on fifteen levels, the boxes miss the
+agreement test in their rain's amount and timing (Results), and so does every closure tried with the scheme. The
+nearest closure forms 0.87--0.95 of the rain at the boxes' sites by convection, yet across the tropics it leaves
+58--74\% of the rain to the large-scale condensation, and it dries the land to about 40\% of its soil water. Since
+PlaSim run as a single column convects unlike the full GCM, a closure is chosen in GCM runs read against boxes that
+make their own large-scale ascent, and one passes when it brings the rain within the test's tolerances in amount and
+timing at every site, with the land's water held and the processes agreeing.\claim{N05}
 
-\textbf{The upper air's temperature.} CM1's updrafts dilute at about $2\times10^{-4}$ per metre, three to eight
-times the rate that Earth's thermal structure implies once translated to the Moon's scales, and hold CM1's air at
-40--60~km 3.5--10~K colder than the GCM's. Whether that dilution belongs to lunar convection or to CM1's 6~km columns
-decides which free troposphere the GCM's convection should be closed toward: one pair of runs on a finer grid
-sampled a higher dilution still, and columns of 3 or 2~km, at 8 or 27 times the cost, would show whether it
-converges. A free troposphere as warm as Earth's translated structure implies would also warm the ground beyond the
-design temperature at the design's sunlight.\claim{N06}
+\textbf{The upper air's temperature.} The GCM's free troposphere stands 4.6--7.0~K warmer than a target proposed
+from CM1's raining air and from Earth's convection translated to the Moon's scales, while the band of boxes forced
+with the GCM's ascent, cooled by that ascent on land and by radiation at sea, was still cooling when they stopped
+(Results). Which free troposphere the GCM's convection should be closed toward therefore waits on two tests: boxes
+that make their own ascent, run longer, and CM1 on finer grids, since its plumes dilute at $2.0\times10^{-4}$ per
+metre in the lowest cloud layer, 1.0--1.6$\times10^{-4}$ in the band and 0.5--0.6$\times10^{-4}$ at 60~km, and one
+pair on a finer grid sampled a higher rate. Columns of 3 or 2~km, at 8 or 27 times the cost, would show whether the
+rates converge.\claim{N06}
 
 \textbf{Cloud from the cloud-resolving model.} Varied in the tests, PlaSim's cloud amount and cloud water changed
 the test world's temperature by several kelvin. The cold cloud's water and crystal size take factors computed for
-lunar gravity, while the cover remains PlaSim's Earth-tuned diagnosis from humidity: in raining windows its anvils
-cover 0.16--0.29 of the sky where CM1's cover 0.57--0.75.\claim{N07} The cloud cover and water by pressure of CM1 runs
+lunar gravity, while the convective cloud keeps Slingo's Earth fit: in raining windows its anvils cover 0.16--0.29
+of the sky where CM1's cover 0.57--0.75, a gap that a lunar intercept for the convective cover closed on land, while
+at sea it follows the rain's timing, and over the lunar day the two models' net cloud effects agree within
+4--14~W\,m$^{-2}$.\claim{N07} The cloud cover and water by pressure of CM1 runs
 forced from the design case, once its convection is closed, become the target to which PlaSim's humidity thresholds
 and its cloud-water profile are fitted. Refitted cloud could change the test world's temperature as much as the cloud settings do, up to about 6~K.
 Cloud fitted this way remains a calibration, refitted for each other world from cloud-resolving runs of that
@@ -90,15 +92,14 @@ the circulation's sensitivity would show whether the full equations are needed. 
 design case's spread from year to year would make a deep core a requirement for air as tall against its world's
 radius.
 
-\textbf{Radiation in CM1.} Read at constant volume, RRTMG's longwave agrees with the reference within 0.013~K a
-day in every layer, and its tables' extrapolation to 1.2~atm moves the lowest layers' cooling by 0.002--0.003~K a
-day, so CM1's sunlight is the radiative step that remains: RRTMG takes the Sun's unfiltered spectrum, and giving it
-the shield's, in a run of its own, would correct the difference of about 5~W\,m$^{-2}$ in the air's absorbed sunlight
-that results from it.\claim{N08}
+\textbf{Radiation in CM1.} Read at constant volume, RRTMG's longwave agrees with the reference's correlated-$k$
+emulation within 0.013~K a day in every layer, and its tables' extrapolation to 1.2~atm moves the lowest layers'
+cooling by 0.002--0.003~K a day, so giving RRTMG the shield's spectrum in place of the Sun's unfiltered one is the
+radiative step that remains: in a run of its own it would correct the difference of about 5~W\,m$^{-2}$ in the air's
+absorbed sunlight between the two spectra.\claim{N08}
 
-\textbf{Microphysics at lunar gravity.} In a box forced from the Earth-orbit state, Morrison's limits on rain scaled
-to lunar gravity nearly doubled the rain at the ground and cut the share of falling rain that evaporated from 86 to
-48\%, while the size of ice crystals stays Earth's and snow falls with the drops' gravity exponent where its own mass and area laws give a larger
+\textbf{Microphysics at lunar gravity.} With Morrison's limits on rain scaled to lunar gravity (Repairs), the size
+of ice crystals stays Earth's and snow falls with the drops' gravity exponent where its own mass and area laws give a larger
 one.\claim{N03} A gravity-similarity pair that convects, under prescribed radiative cooling, would measure how far
 the scaled microphysics departs from similarity, and the share of falling rain each model evaporates at sea, 0.69 in
 CM1 against 0.51 in the GCM, would test the starting sizes of the GCM's drops.

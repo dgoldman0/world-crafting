@@ -38,7 +38,7 @@ Design case\newline\run{A28R\_\allowbreak 301k\_\allowbreak design\_\allowbreak 
 \end{table}
 
 \textbf{What each repair changed.} The first calibration cooled the climate more than any later change. In
-the first design runs, with 25\% seas under the undimmed shield and with PlaSim's Sun clock and Earth's orbit, the
+the 25\% states, under the undimmed shield and with PlaSim's Sun clock and Earth's orbit, the
 calibrated configuration settled at 295.5~K, at least 20~K below the uncalibrated run, which was still warming at
 315.5~K in model year 12.\claim{H15}\claim{G14} The later repairs' effects on the
 global-mean surface temperature are plotted beside the sensitivity tests in Figure~\ref{fig:repairs}, each pair of
@@ -62,18 +62,20 @@ the carbon dioxide and oxygen bands cooled it by a further 2.2~K over years 10--
 mostly through PlaSim's high cloud: computed cloud-free, the column's ground temperature changes by 0.57~K with the bands, while the
 high deck fell from 16 to 12\% of the sky and the top layer's cirrus from 2.0 to 0.05\% as that layer warmed by
 7~K.\claim{G03} The corrected terms have been run only together with the bands and the eased dimming: in the corrected-curved-air
-state, whose dimming was eased from 5.0 to 3.0\% to hold a target of 295~K, the climate settles at 295.0~K, with
-2.31~mm of rain a day.\claim{G04} With its convection, levels, surface exchange, rain evaporation and cold cloud
-changed together and its longwave correction refitted near 301~K, the GCM, at a dimming of 6.6\%, settles at
-300.8~K with 2.00~mm of rain a day over years 10--19: the refined-physics state.\claim{G18}
+state, whose dimming was eased from 5.0 to 3.0\%, the climate settles at 295.0~K, with 2.31~mm of rain a
+day.\claim{G04} With its convection, levels, surface exchange, rain evaporation and cold cloud
+changed together and its longwave correction refitted near 301~K, the GCM, at a dimming of 6.6\% set for the design
+temperature of 301~K, settles at 300.8~K with 2.00~mm of rain a day over years 10--19: the refined-physics
+state.\claim{G18}
 Three of its changes were measured singly, each on a baseline of its own: the cold cloud's factors cooled the
 climate by 2.8~K and cut its rain by 19\%, the clear share of the curved air's terms cooled it by about 1~K, and
 Beljaars's gust in PlaSim's transfer would settle it about 0.7~K warmer.\claim{G19} Turned by its seas and lakes, at
-the same sunlight, the test world runs 0.80~K warmer, mainly because its clouds cool it less, while its global rain
+the same sunlight and with the refined-physics state's longwave correction, which misfits the turned climate at sea
+by up to 3.56~W\,m$^{-2}$ in a layer where its rule allows 2.5, the test world runs 0.80~K warmer, mainly because its clouds cool it less, while its global rain
 and the share of its land in drylands hold, the near side's north growing wetter and the southern highlands drier;
-with the longwave correction refitted on that climate and the dimming increased to 7.6\%, a dimming that also takes
-in the night twilight's double count (Verification), the design case settles at 301.2~K over years 10--49, with
-1.97~mm of rain a day.\claim{G24}
+with the correction refitted on that climate and the dimming increased to 7.6\%, set with the night twilight's
+double count present (Verification), the design case settles at 301.2~K over years 10--49, with 1.97~mm of rain a
+day, cooling about 0.08~K a decade to 301.1~K in years 40--49.\claim{G24}
 
 \begin{figure}[tbp]
 \centering
@@ -125,8 +127,8 @@ sea surfaces fixed from a coarser run of the same model. The planetary albedos w
 similar.
 
 \textbf{The gap between the models.} CM1 and the GCM disagree in their rain and their upper air. Boxes forced from
-the refined-physics state's years 10--19 through the whole column were read against an agreement test fixed before
-they ran. At each box it asks for the rain within 10\% of the GCM's over a lunar day, at most 15\% of it in a
+the refined-physics state's years 10--19 through the whole column, with the GCM's mean ascent imposed, were read
+against an agreement test fixed before they ran. At each box it asks for the rain within 10\% of the GCM's over a lunar day, at most 15\% of it in a
 different quarter of the lunar day, and the evaporation, the air near the ground and aloft, the column's vapour, the
 share of falling rain evaporated and the radiation within its tolerances, and it admits a change to either model
 only on evidence apart from the comparison.\claim{G20} Over the Near-side Sea,
@@ -135,12 +137,16 @@ over the land at 0\textdegree~E and over the semi-arid inland of the near side's
 hours, whereas over the sea 22--41\% of its rain falls in a different quarter of the lunar day, its evening rain
 short, and over the south-east 24\%, moved into the morning; at every site its air at 40--60~km runs 3.5--10~K colder
 than the GCM's.\claim{G21} Forced also with the GCM's weather within each lunar day, from means written every
-5.5~hours, the sea box follows the GCM's lunar days, with a correlation of 0.91, and still rains 17.5\% less, so the
-shortfall lies in the two models' physics; there CM1 evaporates 0.69 of its falling rain and the GCM 0.51. The GCM's
-side of these comparisons counts the night's twilight twice, as every state with the curved-air terms
-does.\claim{G22} The colder upper air comes mostly from the mixing in CM1's updrafts, which dilute at about
-$2\times10^{-4}$ per metre where Earth's thermal structure, translated to the Moon's scales, implies
-0.25--0.66$\times10^{-4}$, and which of the two free tropospheres the Moon would have stays open.\claim{G23}
+5.5~hours, the sea box follows the GCM's lunar days, with a correlation of 0.91, and rains 17.5\% less, a shortfall
+the test leaves unresolved; there CM1 evaporates 0.69 of its falling rain and the GCM 0.51, though with two of its
+checks of method missed the box counts as observations.\claim{G22} The boxes' cool band, from $\sigma$~0.38 to 0.73,
+has a different cause at each site: at sea and in the dry south-east the radiation's cooling outruns CM1's weak
+latent heating, and on land the imposed ascent makes most of it, while the band still cools 0.25--0.35~K a lunar day
+after three lunar days.\claim{G23} Boxes that make their own large-scale ascent, by a damped gravity wave whose lid
+stands at the GCM's convection top, give other results: on land CM1 rains 6.66~mm a day against the GCM's 6.01, a
+difference the test leaves unresolved, at the GCM's hours and with its band within 0.15~K of the GCM's air, whereas
+at sea it rains twice the GCM's rain and in the dry south-east almost none, readings that missed the test's checks of
+method.\claim{G26} How a box receives its large-scale ascent thus changes the comparison's result at every site.
 
 CM1's rain depends on the slice as well: in the rings forced from the Sun-and-tilt state the direction of the slice
 alone changes the rain at a place by a factor of several, while temperature and wind at that place agree between

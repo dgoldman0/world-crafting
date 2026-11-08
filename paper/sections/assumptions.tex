@@ -56,7 +56,7 @@ The radiation schemes were fitted to Earth's columns and Earth's Sun, and the te
 sunlight are far from both. PlaSim's fits were found to err first in the column's totals, then in its split of sunlight, then in the
 heights at which it absorbs and cools. In the totals, ExoPlaSim normalises its Rayleigh coefficient to the
 ultraviolet of a 5772~K blackbody, which for the shield-filtered Sun gives a coefficient too low, and PlaSim's
-water continuum over-absorbs at long paths, so that, uncalibrated, the first design run, with 25\% seas under the
+water continuum over-absorbs at long paths, so that the uncalibrated run, with 25\% seas under the
 undimmed shield, passed 310~K and was still warming at 315.5~K in model year 12.\claim{H15} In the split, Lacis
 and Hansen's near-infrared water absorptivity, fitted to Earth's water paths over a stated range that ends at
 10~cm of precipitable water \autocite{lacis1974parameterization}, levels off toward half the sunlight, so over the
@@ -104,7 +104,7 @@ free-convection transfer whose constant, 0.0016~m\,s$^{-1}$\,K$^{-1/3}$, comes f
 $(g/p_s)^{1/3}$, and CM1's surface layer, MM5's as CM1 carries it \autocite{bryan2026cm1}, adds a gust of
 $\sqrt{\Delta\theta_v}$~m\,s$^{-1}$, a formula that omits gravity, although the same layer computes its gust over
 land from the build's gravity in Beljaars's form \autocite{beljaars1995parametrization}. On the Moon the first raised
-PlaSim's transfer 1.7--2.1 times, and the second made the surface wind of CM1's sea box 1.6--1.8 times stronger,
+PlaSim's transfer over the sea 1.7--2.1 times above its value without the term, and the second made the surface wind of CM1's sea box 1.6--1.8 times stronger,
 where Beljaars's form, computed from the box's own fluxes, makes it 1.1--1.2 times stronger.\claim{H38}
 
 Five defects in the released codes contradict their own inputs, units or intent. Three of them, all in
@@ -128,8 +128,8 @@ latitude against the Moon's 29 and brought Earth's seasons and summer rain to 60
 moves the tilt by a fraction of a degree.\claim{H24} The Moon's slow rotation and small tilt made all three
 large, whereas the other two err on Earth as well. CM1's simple boundary layer ($\code{ipbl} = 2$) hands its solver
 tendencies multiplied by the air's density, where the solver expects them per unit mass, so its mixing errs by the
-factor of the density's value in kilograms per cubic metre: about 20\% too strong in Earth's air near sea level and
-40\% in the lunar air over the seas, where the boxes' boundary layer took up 1.32--1.35 times the surface's
+factor of the density's value in kilograms per cubic metre, by the code's arithmetic up to about 20\% too strong in
+Earth's air near sea level and 40\% in the lunar air over the seas, where the boxes' boundary layer took up 1.32--1.35 times the surface's
 evaporation and 1.46--1.51 times its sensible heat.\claim{H34} The fifth defect's error is independent of the world.
 SWAN reads its breaker parameter
 uninitialised whenever depth-induced breaking is off, and divides by its square root in the fraction that sets the
@@ -193,8 +193,8 @@ Cloud thresholds & Relative humidity, 0.983 in the lowest layer & Up to about 6~
 Convective cover, fit & Slingo's fit to Earth's convection & Near its floor in a test, $+2.2$~K & Fit & L & Open \\
 Saturation & Over liquid at every temperature & Cloud at 136--149\% of ice saturation & Fit & L & Open \\
 Deep convection & Kuo-type: an undiluted surface parcel's buoyancy rains the column's supply & Upper air within 1.3~K of the undiluted adiabat & Fit & L & Open; a replacement under test \\
-Shallow convection & Tops capped at 700~hPa & Cap near 28~km & Constant & L & Open \\
-Vertical diffusion & Mixing lengths 160 and 438~m; least wind 1~m\,s$^{-1}$ & Earth's lengths in a deeper boundary layer & Constant & L & Least wind general; lengths open \\
+Shallow convection & Tops capped at 700~hPa & Cap near 28~km & Constant & L & Setting \\
+Vertical diffusion & Mixing lengths 160 and 438~m; least wind 1~m\,s$^{-1}$ & Earth's lengths in a deeper boundary layer & Constant & L & Least wind of the transfer general; lengths open \\
 Free convection over water & 0.0016~m\,s$^{-1}$\,K$^{-1/3}$, a tank law in $(g/p_s)^{1/3}$ & Transfer raised 1.7--2.1 times & Constant & L & General \\
 Rain evaporation & One constant; no drop size or fall speed & A fifth of new rain evaporated, drops' half & Constant & L & General; lunar calibration \\
 Lowest level & Cause uncertain, probably the spectral transform & Up to 20~K cold in 0.8\% of windows & --- & ? & Open, screened \\

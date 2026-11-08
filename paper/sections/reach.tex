@@ -2,15 +2,22 @@
 
 The Open Moon is the first world besides Earth that the repaired codes have simulated; for other worlds,
 Table~\ref{tab:reach} gives, property by property, the range each repair was built for. To extend the ensemble to
-another world, a modeller applies the general repairs unchanged within those ranges, derives the world's orientation
-from its surface loads, lays out a level set for its scale height, recomputes the curved-air table from its own
-column and starlight, refits the Rayleigh and water multipliers, the water continuum, the longwave correction and
-the gas-band fits against the reference model, refits the rain's starting drop sizes against CM1 runs of the world,
-the cold cloud's factors from air lifted at its gravity and the snow's sublimation from snowflakes grown at that
-gravity, and sets the scenario's values, while leakage and
-the slice forcing read that world's conductivity column and GCM fields, and the condition for ground strikes stays
-a bound between two of WRF-ELEC's rules. The reference model, the code that computes the curved-air table and
-offline copies of PlaSim's radiation, all in the code repository, compute the new table and the refits.\claim{W01}
+another world, a modeller, in order:
+\begin{enumerate}
+\item derives the world's orientation from its surface loads and lays out a level set for its scale height, the grid
+  on which everything after is computed;
+\item sets the scenario's values and applies the general repairs unchanged within the ranges of
+  Table~\ref{tab:reach};
+\item recomputes the curved-air table from the world's own column and starlight;
+\item refits the Rayleigh and water multipliers, the water continuum, the longwave correction and the gas-band fits
+  against the reference model;
+\item refits the rain's starting drop sizes against CM1 runs of the world, the cold cloud's factors from air lifted
+  at its gravity and the snow's sublimation from snowflakes grown at that gravity.
+\end{enumerate}
+Leakage and the slice forcing then read that world's conductivity column and GCM fields, and the condition for
+ground strikes stays a bound between two of WRF-ELEC's rules. The reference model, the code that computes the
+curved-air table and offline copies of PlaSim's radiation, all in the code repository, compute the new table and the
+radiation's refits.\claim{W01}
 
 \textbf{The defects in other configurations.} The three ExoPlaSim defects, two removed by general repairs and the
 third avoided with the fixed-orbit switch, remain in the released code, and by the code's arithmetic they bias any
@@ -33,8 +40,7 @@ remains a fit made on Earth's convection.\claim{W02} Among the other codes, CM1,
 parameter on its Morrison and NSSL paths and has run storms at
 the Moon's gravity and at Earth's; its drop limits and breakup scale with gravity, their refinement for the air's density computed for
 gravities from the Moon's to Earth's, and its gust over water takes the run's gravity. Along the day, its Sun and soil are built for
-days from a few Earth days to the Moon's, while along the column RRTMG's tables end at 1.05~bar, beyond which their extrapolation to the Moon's 1.2~atm
-moves the lowest layers' cooling by 0.002--0.003~K a day. At sea, with
+days from a few Earth days to the Moon's, while along the column RRTMG's tables end at 1.05~bar. At sea, with
 SWAN's knee patched, the two wave models, in the configuration used, are built to run water seas at any gravity as
 the scaled image of an Earth sea, and on the code paths the similarity tests ran they have been tested at a sixth
 of Earth's gravity, with Earth's empirical laws, whereas SWAN's ST6 drag, exact quadruplets and bottom friction,
@@ -65,10 +71,8 @@ reverse of the test world's error, and the same general repair corrects it. Arou
 
 \textbf{Worlds turned by their water.} Surface water that loads a world unevenly turns it beneath its spin axis
 by an angle that grows as the water's products of inertia approach the differences among the body's own moments.
-The Moon's largest and smallest moments differ by 2.5$\times10^{-4}$ of $MR^2$, and its seas, 0.02\% of its mass
-and lying roughly opposite each other through it, add products of inertia 13\% of $C - A$, enough to turn it
-8\textdegree. On a body as nearly spherical as the Moon, surface water turns the body by degrees, so its
-orientation, and with it its tilt and the places its grid puts under its sun, is derived from its loads before its
+On a body as nearly spherical as the Moon, whose largest and smallest moments differ by
+2.5$\times10^{-4}$ of $MR^2$, seas and lakes turn the body by several degrees, so its orientation, and with it its tilt and the places its grid puts under its sun, is derived from its loads before its
 climate is run, and the long-term turn under an old ocean also needs a model of the body's interior.\claim{W07}
 
 \textbf{Worlds beyond the codes' physics.} Titan's nitrogen--methane air at 94~K, present Mars's thin carbon dioxide
@@ -105,9 +109,9 @@ Starlight other than the Sun's & PlaSim's near-infrared water fit, tuned to a so
 Air tall against the radius & Flat, sunlit-only columns; PlaSim's horizon factor of 35; Earth's $\sigma$ levels & Curved-air terms and slant factors from a table of the world's column; a level set for its scale height & Thin-shell, constant-gravity dynamics; one clear column for all; coarse layers aloft \\
 Air heavier than Earth's & Broadband shortwave and longwave fits; Rayleigh scaled to a 5772~K Sun; RRTMG's tables past 1,053.63~hPa & Multipliers, gas bands and longwave by height, refitted to the reference & RRTMG past 1.05~bar; multi-bar surfaces \\
 Composition & RRTMG's calendar CO$_2$, trace gases and ozone; PlaSim's shortwave lacking CO$_2$ and O$_2$ & Nitrogen--oxygen air with O$_2$ and CO$_2$ near the design air's, refitted otherwise; ozone-free in CM1 & CO$_2$- or CH$_4$-dominated air; condensables other than water \\
-Cold cloud & Liquid optics for all cloud; saturation over liquid & Ice optics below $-38$\,\textdegree C & Ice saturation; crystal size with gravity; ice optics below 190~K, where the radius table gives radii under the fitted 10~\textmu m \\
+Cold cloud & Liquid optics for all cloud; saturation over liquid & Ice optics below $-38$\,\textdegree C; the cold cloud's water and crystal size by factors computed at the world's gravity & Ice saturation; ice optics below 190~K, where the radius table gives radii under the fitted 10~\textmu m \\
 Storm electricity & The 180~kV\,m$^{-1}$ cap; the $-7$\,\textdegree C ground rule; the 0.75~s sub-step & Density-scaled breakdown; the condition for ground strikes; a scaled sub-step & Charging in little cloud water; breakdown in other gases \\
-Water heavy against the figure & The configured surface and tilt, whatever the loads & A surface and tilt turned by the loads, the crust responding elastically & The long-term turn, which needs an interior model \\
+
 Seas & The wind-input knee; the air's density; breaker parameter read uninitialised & Similarity at any gravity, tested at a sixth of Earth's on the similarity tests' code paths; air density per build; breaking kept on & Earth's drag, growth and breaking laws; ST6, exact quadruplets, bottom friction and SWASH's rotation at Earth's constants; air density as a field \\
 \end{xltabular}
 }

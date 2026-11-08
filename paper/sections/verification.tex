@@ -22,12 +22,13 @@ and longwave patches as well; those patches were written to reproduce the releas
 and have yet to be run that way, so these two checks establish identity with the released model only once those patches are,
 while for the water scaling at its default the identity already follows from arithmetic on this
 spectrum.\claim{V01} The recorded sources were checked next, against the pinned upstream archives: applied to them,
-the patch series rebuild byte for byte the two patched sources of the deployed ExoPlaSim copy and the Fortran of
-the lunar CM1 builds behind the results, eight rebuilt directly and the 45\textdegree\,N rings' build through
-sources identical to one of them, while the Earth-gravity benchmark builds were compiled from earlier states of the
-runners' edit lists. The GCM runs are traced to the same series through their source hashes: prefixes of the
-ExoPlaSim series reproduce the source hashes of 32 of the 34 GCM runs that recorded one; of the states in
-Table~\ref{tab:states}, the uncalibrated and first calibrated runs predate source hashing, and the
+the patch series rebuild byte for byte the two patched sources of the ExoPlaSim copy deployed for the ten-level
+states and the Fortran of the lunar CM1 builds behind the results from those states, eight rebuilt directly and the
+45\textdegree\,N rings' build through sources identical to one of them, while the Earth-gravity benchmark builds were
+compiled from earlier states of the runners' edit lists, and the refined physics and the builds of the boxes forced
+from it lie outside the series. The GCM runs are traced to the same series through their source hashes: prefixes of the
+ExoPlaSim series reproduce the source hashes of 32 of the 34 ten-level GCM runs that recorded one; of the ten-level
+states in Table~\ref{tab:states}, the uncalibrated and first calibrated runs predate source hashing, and the
 convective-cover run compiled a draft of its patch whose committed form repeats its first year byte for
 byte.\claim{V03} In the last kind of check the runs themselves are restarted or repeated: a GCM run killed a minute into a model year and resumed writes the same restart and the same values in every output variable as the uninterrupted run, runs of CM1 repeat bit
 for bit on one thread, and the Earth supercell, restarted on four threads and on two, repeats its fields and its 41
@@ -62,7 +63,7 @@ refit with the gas bands and the longwave correction, by contrast, are known thr
 (Table~\ref{tab:verification}). Whatever its test, every calibration of the radiation is clear-sky, so PlaSim's cloud
 cover remains uncalibrated, and the accuracy of each is bounded by the reference's own; the calibrations of its rain
 and cold cloud, to CM1's boxes, to air lifted at both gravities and to a particle model's snowflakes, are known
-through their fits alone. That accuracy has been checked in part.
+through their fits alone. The reference's accuracy has been checked in part.
 The reference's correlated-$k$ emulation reproduces the line-by-line outgoing longwave within 0.4--1.4~W\,m$^{-2}$,
 and the line-by-line model has two recorded checks
 against other codes, kept as numbers alone, with their harness outside the repository: PyRADS
@@ -101,9 +102,9 @@ writing them only where the Sun is up, while the curved-air patch adds its twili
 the second pass therefore kept the first pass's twilight and added its own. In the design case the double count
 puts 2.70~W\,m$^{-2}$ too much sunlight into the global mean, 1.5\% of what the air and ground absorb, all of it on
 the night side, from 1.7~W\,m$^{-2}$ at the equator to 17.7 near 86\textdegree, and the dimming chosen to hold the
-design temperature took it in: without it the same temperature would take a scale near 0.938 in place of
-0.924. A switch that starts each pass from zero where the Sun is down removes the double count and leaves sunlit
-columns bit for bit.\claim{H40} The rings and the boxes forced from the ten-level states started from soundings with the vapour of
+design temperature was set with the excess present: without it the same temperature would take a scale near 0.938
+in place of 0.924. A switch in the runner that starts each pass from zero where the Sun is down removes the double
+count and leaves sunlit columns bit for bit.\claim{H40} The rings and the boxes forced from the ten-level states started from soundings with the vapour of
 the GCM's top level, near 130~km, held constant above it, and on the 45\textdegree\,N rings, the only cases
 examined for it, the air began 6--15 times saturated over ice at 140--150~km and every column kept
 1.1~g\,m$^{-2}$ of ice above 107~km through both lunar days. The same rings and boxes were held toward the GCM from
