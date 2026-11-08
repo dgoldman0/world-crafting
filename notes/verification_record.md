@@ -1,11 +1,11 @@
 # Verification record: ExoPlaSim, CM1 with WRF-ELEC, SWAN and SWASH
 
-This note lists every check performed on the adaptations from 2026-09-24 to 2026-10-17, grouped by kind. Each entry
+This note lists every check performed on the adaptations from 2026-09-24 on, grouped by kind. Each entry
 says what the check establishes and what it does not, with its locator and date. The checks that are known to be
 missing are listed in section 7.
 
 The companion `defect_log.md` describes the defects these checks found or confirmed, and its conventions apply here.
-Terluna references are file:line at commit 186b294, and run and build folders are on the research drive,
+Terluna references are file:line at commit 186b294 unless another commit is named, and run and build folders are on the research drive,
 `/media/projectspace/terluna-research/`. Source marks:
 
 - **R**: Terluna's documented record.
@@ -67,7 +67,7 @@ Each of these identity runs covers one model year, from one restart, on one rank
 | Gravity scaling at Earth's g | Code test that fall-speed scaling is skipped at 9.81 and where a particle is absent, and that no rain ventilation is left on Earth's coefficients | Passes | `climate/tests/test_cm1_elec.py:116` | 2026-10-04, 2026-10-06 | R |
 | Inputs of paired cases | `ring_45n_corrected_sideways`, `ring_45n_corrected_gcm_land` and `box_highland_own_height` against their reference cases | Byte-identical except the intended files and switches | `climate/crm/README.md:1136-1137, 1213-1214, 1338-1339`; `climate/tests/test_cm1_run.py:567, 581` | 2026-10-02, 2026-10-16 | R |
 | One thread | Repeated single-thread runs | Bit for bit | `climate/crm/README.md:80-81` | 2026-10-04 | R |
-| Several threads | `moon_omp` and the electrified build from `box_0e`'s day-10.5 restart on 4 threads | Do not always repeat: an unlocated race (defect log A6) | `climate/crm/README.md:80-110` | 2026-10-04, 2026-10-06 | R |
+| Several threads | `moon_omp` and the electrified build from `box_0e`'s day-10.5 restart on 4 threads | Do not always repeat: an unlocated fault of uncertain cause (defect log A6) | `climate/crm/README.md:80-110` | 2026-10-04, 2026-10-06 | R |
 | Compiler rebuilds | `-O3 -march=native` and a strict variant against `moon_omp` (`-O2`) and two last-bit nudges of it, one model day of `ring_equator` on one thread | Neither rebuild is bit for bit. Every field differs by 0.69–0.97 (strict variant 0.82–0.99) of the larger nudge's difference. 2-m air differs by 0.28–0.32 °C rms; domain means within 0.04 °C | `climate/crm/README.md:49-78`; `climate/results/crm/build_check_ring_equator.json`; `crm-runs/build_check/` | 2026-09-30, 27cde9a | R |
 
 No retained artefact of the two `ring_80n_lsw` checks was found in `crm-runs/` or `session-tools/cm1_smoke/` (V). No
@@ -153,8 +153,8 @@ Every calibration below is clear-sky. PlaSim's clouds are not calibrated against
 | `RAYSCALE` 1.8 and `TH2OC` 0.004 | Global-mean columns at 280 and 310 K, from runs that had Earth's orbit (defect log A2) | Albedo within about 0.007; OLR within about ±2 W/m², from +3.4 and −11.8 | — | `climate/gcm/README.md:222-252`; `gcm-runs/cal_*`, `gcm-runs/calibration/` | 2026-09-25, 0a33f3c |
 | `SWH2OSCALE` 1.356 and `RAYSCALE` 2.215 | Clear-sky split of arriving sunlight on 11 columns of `A28_dim5` | Air 0.3 points and reflection 0.7 points rms; the air had been 8.1 points short | A 303 K column with 338 kg/m² of vapour: 0.7 points short, from 9.7. A cooler column: 0.2. On 11 new columns of the corrected run, within 0.6 points rms; at 0° E the air takes 31.4%, as line-by-line's does (corrected 2026-10-17 by the technical referee; the product gives 0.3137 against 0.3136) | `climate/gcm/README.md:280-302`; `shortwave_fit_A28_dim5.json`; `radiation_check_A28_dim5_moon.json` | 2026-09-29, 74fed6c, 28a5b9c |
 | CO₂ and O₂ bands, with `SWH2OSCALE` 1.292 and `RAYSCALE` 2.237 | The line-by-line pseudo-spherical design column, layer by layer | Layers within 0.97 W/m² rms, from 1.71 as run. 0.19 K of ground is left, from water lines under the tropopause | — | `climate/gcm/README.md:1098-1112`; `shortwave_gases.json`; `shortwave_fit_A28_dim5_lunar.json`; `shortwave_water_A28_dim5.json` | 2026-10-14, 6a16d63, 55e5020 |
-| Longwave by height (`NLWCORR`) | About 2,100 cloud-free 3-day means of `A28_corrected_970_heating` (about 295 K), against correlated-k | Each layer's mean error removed over land and over sea. 1–5 W/m² remain column to column, within 2.5 W/m² in every latitude band | Not checked at the settled state near 307 K (section 7) | `climate/gcm/README.md:767-790`; `longwave_A28_corrected_970_heating.json` | 2026-10-17, b6171de |
-| CM1 RRTMG (checked, not calibrated) | Clear columns at the 0° E crossing | Within 2.5 points of line-by-line in the reflected, air and ground shares; within 8 W/m² over the lunar day | On 990 cloud-free columns of the 45° N ring, RRTMG cools more than correlated-k: by 4.5 W/m² at 0–1.8 km, 8.5 at 1.8–6.5 km and 10.2 at 6.5–13.7 km | `climate/crm/README.md:911-919, 1173-1180`; `radiation_check_box_0e_small.json`; `radiation_ring_45n_corrected_sideways.json` | 2026-09-29, 36e29c4; 2026-10-17, 17fa76e |
+| Longwave by height (`NLWCORR`) | About 2,100 cloud-free 3-day means of `A28_corrected_970_heating` (about 295 K), against correlated-k | Each layer's mean error removed over land and over sea. 1–5 W/m² remain column to column, within 2.5 W/m² in every latitude band | At 301.2 K, layers up to 5.9 W/m² off over land and 6.8 over the sea, 4.2–7.6 W/m² in the worst layers at 302.5 K; a refit on 301 K columns holds within 0.3 W/m² there and within 1.9–2.65 W/m² on Terluna's settled 301 K design years (defect log B18) | `climate/gcm/README.md:767-790`; `longwave_A28_corrected_970_heating.json`; Terluna `domain/climate` 6fb0958, 8641746 | 2026-10-17, b6171de; 2026-10-19, 6fb0958 |
+| CM1 RRTMG (checked, not calibrated) | Clear columns at the 0° E crossing | Within 2.5 points of line-by-line in the reflected, air and ground shares; within 8 W/m² over the lunar day | On 990 cloud-free columns of the 45° N ring, CM1's longwave within 0.013 K a day of correlated-k in every layer (0.2–1.3 W/m²) and within 0.008 K a day of the same RRTMG run offline, its stored tendencies read at constant volume; read at constant pressure they gave the 4.5, 8.5 and 10.2 W/m² of extra cooling at 0–1.8, 1.8–6.5 and 6.5–13.7 km in the paper's first released draft (defect log C20) | `climate/crm/README.md:911-919, 1173-1180`; `radiation_check_box_0e_small.json`; `radiation_ring_45n_corrected_sideways.json`; Terluna `domain/atmosphere` fe49ad9, `climate/crm/cm1_output.py` | 2026-09-29, 36e29c4; 2026-10-17, 17fa76e; 2026-10-20, fe49ad9 |
 | PlaSim longwave before correction (checked) | 151 cloud-free 3-day means at 47° N | Cools the lowest layer 10.6 W/m² and the next 11.4 W/m² more than correlated-k | — | `climate/crm/README.md:1181-1190`; `gcm_heating_A28_corrected_970_heating.json` | 2026-10-17, a822183 |
 
 **What these calibrations do not establish:**
@@ -204,7 +204,8 @@ All of these are in Terluna's record except the last two, which are this pass's 
 - **CM1 reproducibility.** The `-O3` rebuilds are not bit-identical, though they stay within the nudge spread
   (section 1), and CM1 on several threads is not bit-reproducible.
 - **Twilight ledger (V).** Its scattering orders did not converge in every batch: `twilight.json` has
-  `channels.orders_converged: false`.
+  `channels.orders_converged: false`. The leftover is about a millionth of the terms (8.8 × 10⁻⁶ W/m² at the
+  ground), and Terluna's 301 K ledger completes the orders (`domain/climate` b73fa08).
 - **Kill-and-resume record (V).** The record says the resumed year's output was "byte-identical". That holds for the
   data, not for the file bytes (section 1).
 
@@ -212,16 +213,19 @@ All of these are in Terluna's record except the last two, which are this pass's 
 
 ### The CM1–GCM comparison
 
-- **CM1 against the longwave-corrected GCM.** No CM1 case has been forced from `A28_corrected_970_lw_ice`, or from
-  any run with the longwave correction.
-  - At 45° N, with the sideways transport imposed, CM1's lowest 1.8 km run 3.7 K above the GCM. About 1.5 K of that
-    is attributed to PlaSim's longwave over-cooling (`climate/crm/README.md:1147-1196`).
-  - Whether the corrected GCM physics closes that gap is untested.
-- **The longwave refit at the settled state.** The correction was fitted at about 295 K and applied in a run that
-  settled near 307 K. `research/plan.md:301-302` says its layers stray 5–7 W/m² at 302 K, but no product holding that
-  comparison was located (V).
-- **The high cloud's range,** from its water and its crystal size, has not been worked out
-  (`research/decisions.md:419`). The ice optics below 180 K and for crystals below 10 µm rest on extrapolation.
+- **The 45° N ring with the corrected set-up.** With the sideways transport imposed, CM1's lowest 1.8 km at 45° N
+  run 3.7 K above the GCM, and PlaSim's longwave over-cooling is worth about 2.7 K of it (defect log C20). Every ring
+  ran the boundary layer's density fault and the 8–16 km nudging (defect log A9, C19). Terluna's boxes, at other
+  sites and forced from its longwave-corrected design climate with both changed, come within 0.23 K over the sea and 1.15 K over land of
+  the GCM at 2 m; the rerun of the 45° N ring with the same changes is missing.
+- **The GCM's convection, boundary layer and levels against CM1.** Over the Near-side Sea PlaSim's Kuo scheme rains
+  through the night where CM1 stays quiet, and CM1's upper air runs 7.7–10 K colder than the GCM's at 42–56 km.
+  Terluna's replacement convection schemes, its 14- and 15-level sets and a nonlocal boundary layer tested in single
+  columns have yet to reproduce CM1's rain by time of day at both sites or the sea's 6.5 km night layer (defect log
+  B29–B32).
+- **The high cloud's ice optics** below 180 K and for crystals below 10 µm rest on extrapolation. The cloud's range
+  from its water and its crystal size is estimated to first order: halving or doubling them in the top three layers
+  moves the ground 5–7 K (Terluna `domain/climate` 8641746).
 - **The CM1 twilight pair** has no same-executable control and no estimate of the realization noise in
   second-lunar-day composites (defect log C8; S, V).
 - **CM1 forcing from older GCM states,** neither set rerun:
@@ -237,11 +241,9 @@ All of these are in Terluna's record except the last two, which are this pass's 
 - **ExoPlaSim runtime identity** of `SUN_EDITS`, `SHORTWAVE_EDITS`, and the twilight copy with its patches off
   (section 1).
 - **CM1 MPI builds** remain at `-O2` and are untested against the OpenMP builds (`climate/crm/README.md:76-78`).
-- **The CM1 thread race** is not located (`climate/crm/README.md:96-110`).
+- **The source of CM1's threaded parting** remains unlocated (`climate/crm/README.md:96-110`).
 - **CM1 microphysics similarity.** The gravity pair never convected, and its next design, a prescribed radiative
   cooling, was not built.
-- **RRTMG below 1053.63 hPa.** Its extrapolation over the lowest ~7 km over the sea is not tested on its own (defect
-  log B22; S, V).
 - **RRTMG with the shield-filtered solar spectrum** (defect log B9).
 - **WRF-ELEC:** no output of its own test case to compare; the 2-km grid's effect on flash initiation is unchecked;
   no 2-km box wide enough for several storms has been run.

@@ -1,5 +1,8 @@
 # Outline, second draft
 
+Historical outline. The current terminology and ensemble framing follow the author's 18 October 2026
+review, recorded in `../review/terracompatible_revision_2026-10-18.md`; the manuscript is the current text.
+
 Stage 3 redone on 2026-10-17 after the author's reading of the first draft. The first draft's outline is in
 the Git history (commit 6c8a68f). Headings are unnumbered and few; each paragraph below names its governing
 relation (charter G1). The writing rules are in the repository's `AGENTS.md`.

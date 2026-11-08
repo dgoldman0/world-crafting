@@ -1,0 +1,180 @@
+# Editorial round 15: dispositions
+
+The flow findings of round 15 (`editorial_round15_flow_opening.md`, `editorial_round15_flow_middle.md`,
+`editorial_round15_flow_closing.md`) are acted on section by section, at the author's direction. Repairs went
+first, as the worst; the author then asked for the rest, and the Conclusion's three findings, in the section the
+author accepted, went to the author and were applied on the author's word. Kept by Claude Opus 5.5, the drafting
+assistant, from 18 October 2026. A finding marked applied took the reviewer's sample rewrite or one-line repair;
+where the text differs from the proposal, the reason is given.
+
+## Abstract (opening record, F01–F03)
+
+Acted on in commit 9d555e6, together with the abstract's new opening.
+
+| Finding | Disposition |
+|---|---|
+| F01 | Superseded: the new opening sets out the worlds in plain words, then the two problems, with the author's concessive and additive turns. |
+| F02 | Applied: "though they produce little or no error at Earth's values". |
+| F03 | Applied in part. "With the repairs in place" opens the checks and "Applied in the lunar runs" opens their effects on the climate; a hinge sentence names the two Earth fits revisited next; "Water cloud, in turn" marks the second plan. The proposal kept "whose climate is unobserved", which the author had judged defensive; "Applied in the lunar runs" replaces it. |
+
+## Introduction (opening record, F04–F13)
+
+| Finding | Disposition |
+|---|---|
+| F04 | Applied: "For such work, by the account of THOR's developers, …". |
+| F05 | Applied: "for". |
+| F06 | Applied: the Moon and Titan follow the Solar System's clause, the exoplanets close in a sentence of their own, and "An engineered world, by contrast" marks the turn. |
+| F07 | Applied, folding in the proposal's "one such world": the Open Moon "is a design of that kind for the Moon". |
+| F08 | Applied: "Modelling such worlds means adapting codes like those named above, and the developers who ported …". |
+| F09 | Applied with "but", "then", "because", "moreover" and "therefore", and one addition from the abstract: the ensemble's models were built separately and tuned to Earth in different ways, so the Introduction and the abstract set out the same two problems. |
+| F10 | Applied: "Toward such an ensemble". |
+| F11 | Applied: "whereas". |
+| F12 | Applied: "Alongside these couplings". |
+| F13 | Applied, with "therefore" in place of the proposal's "Even after these repairs", which read as a caveat; the last two sentences are joined so that the conditional state follows from the fits' weight. |
+
+## Worlds (opening record, F14–F20)
+
+| Finding | Disposition |
+|---|---|
+| F14 | Applied: "Along these four ratios". |
+| F15 | Applied as proposed. |
+| F16 | Applied: "As modelled, …". |
+| F17 | Applied as "In this scenario's air, every absorber path is longer …", since the proposal's "With this scenario's …" would open two sentences in a row on "With". |
+| F18 | Applied, with "The curvature matters because the air is tall" in place of "The curvature comes from the air's height". |
+| F19 | Applied as proposed. |
+| F20 | Applied with a different bridge, "The solar day sets the scale of time as gravity sets that of height", which takes up the pairing of the section's opening; "The rotation is nearly as slow" and "The tilt, by contrast, is small" follow. |
+
+## Assumptions (opening record, F21–F30)
+
+| Finding | Disposition |
+|---|---|
+| F21 | Applied as proposed. |
+| F22 | Applied as proposed; the other constants now form a paragraph of their own, and `\claim{H05}` precedes `\claim{H03}`, each beside its claims. |
+| F23 | Applied: "CM1 keeps Earth's day as well". |
+| F24 | Applied, with the bridge as a short sentence of its own: "The test world's air is far taller." |
+| F25 | Applied: "Beyond the gases". |
+| F26 | Applied as a separate Earth value: "Moreover, the relative-humidity threshold above which it forms cloud in each layer was set for Earth". |
+| F27 | Applied: "but". |
+| F28 | Applied: "The first is the Sun clock" and "The second lies in Slingo's convective cover". |
+| F29 | Applied: "whereas". |
+| F30 | Applied: "although". |
+| Also | In the same paragraphs, three semicolons that hid a consequence or an addition now read "so that", "so" and "PlaSim's longwave errs by height as well", and CM1's thread race opens "CM1's defect is a race between threads". |
+
+## Repairs (middle record, findings 1–16)
+
+| Finding | Disposition |
+|---|---|
+| 1 | Applied with 4: the record of the patch series moves into Switches and builds. |
+| 2 | Applied, with a different bridge: Switches and builds now stands between the rule and the classes, so the paragraph opens "Whatever their switches, most repairs fall into three classes". The definitions take "since", "therefore", "One step nearer the world" and "by contrast"; "A second convention" and "Beyond the three classes and the settings" mark the turns. |
+| 3 | Applied as proposed: the range of the three ExoPlaSim repairs sits beside them, the calendar and SWAN's avoidances are grouped as avoidances by configuration, and "however" marks the two faults left open. |
+| 4 | Applied: Switches and builds follows the rule directly. The folded record keeps every detail of the old sentence: pinned upstream archives, each change's switch or condition, its default and its checks, and the released settings listed beside them. |
+| 5 | Applied: "Because gravity enters the fall-speed laws …". |
+| 6 | Applied: "whereas". |
+| 7 | Applied, except that "the repairs follow the sixfold stretch" would give the repairs an action; the text reads "CM1's Rayleigh damping rate and its boundary-layer length are scaled with the sixfold stretch of the dry dynamics". |
+| 8 | Applied as proposed, grouped by code; `\claim{R16}`, which covers the soil, the flash log and the cloud water, follows the cloud-water clause. |
+| 9 | Applied: "Both atmospheric models, PlaSim and CM1, take the curved geometry from the general method, …". |
+| 10 | Applied: the appendix pointer sits beside the channels, and "The infrared escape, for its part" marks the parallel. |
+| 11 | Applied as proposed. |
+| 12 | Applied: "In a third step". |
+| 13 | Applied: "To place that cooling by layer" and "although it runs only in the longwave test". |
+| 14 | Applied: the leakage keeps its own sentence, and the ground strikes open on their reason. WRF-ELEC's two Earth rules bracket them widely on the Moon: under the stopping field every lunar channel stops 15–25 km up, while the −7 °C rule alone counts every channel that reaches that level, as Assumptions sets out. |
+| 15 | Applied, with "The bound sits between them". |
+| 16 | Applied with one change: the proposal filled stock CM1's absences "from the same fields", yet the Sun and the Coriolis parameter come from CM1's own set-up; they are "filled in turn". "While on the 45° N ring" marks the second absence that showed, and the seas open "Beyond the storms, the seas take their forcing from the GCM as well". |
+
+
+## Verification (middle record, findings 17–30)
+
+| Finding | Disposition |
+|---|---|
+| 17 | Applied: "Six kinds of check were made on the repaired codes, …". |
+| 18 | Applied: "In the first step", "In the second", "In the third". |
+| 19 | Applied: "although". |
+| 20 | Applied: "by contrast". |
+| 21 | Applied: "while". |
+| 22 | Applied as proposed. |
+| 23 | Applied: "so a wave model's gravity is checked numerically, by a similarity test". |
+| 24 | Applied: "SWASH, the model of the shore, was tested against theory and by the same scaling". |
+| 25 | Applied: "while". |
+| 26 | Applied: "The arithmetic checks, the other half of this step, compared …"; CM1's untested microphysics also takes "by contrast". |
+| 27 | Applied, with "That accuracy has been checked in part." as a sentence of its own, so that one sentence carries a single colon. |
+| 28 | Applied, with the leakage's benchmark opening "The leakage added for the lunar runs has an Earth benchmark of its own", so "lunar runs" appears once in the sentence. |
+| 29 | Applied as proposed. |
+| 30 | Applied as proposed. |
+
+## Results (middle record, findings 31–42)
+
+| Finding | Disposition |
+|---|---|
+| 31 | Applied: "Run with these repairs, the codes gave results of two kinds on the test world". |
+| 32 | Applied: "which holds both cloud repairs", as Table 3 records. |
+| 33 | Applied: "since". |
+| 34 | Applied, with the comparison of Yang et al. opening as a sentence of its own, so that one sentence carries a single colon. |
+| 35 | Applied: "A third term, …, remains unquantified." |
+| 36 | Applied: "however". |
+| 37 | Applied with "with" in place of the proposal's "for": the runs record the evaporation beside the box's low rain, so the text links the two and leaves the cause open. "Each model, moreover, computes …" and "CM1's rain depends on the slice as well" mark the further points. |
+| 38 | Applied: the paragraph's last sentence opens on its relation, "Exoplanet estimates of lightning use laws fitted to Earth's storms, whose tops stand far below the lunar runs' 55–80 km". |
+| 39 | Applied: "Even so". |
+| 40 | Applied: "The second result depends on the scheme". |
+| 41 | Applied: "Light as these winds are", and "whereas" for Charnock's roughness. |
+| 42 | Applied: "At the shore, …" in a sentence of its own. |
+| 43 | Taken up at Reach's opening. |
+
+Checks: a script found the numbers, inline mathematics, citations, cross-references and claim markers of
+`repairs.tex` identical before and after; `make -C paper check` passed with its existing warnings; the PDF built at
+35 pages with zero overfull boxes, and pages 9–14 were read. Page 13 now ends about six lines short, with
+Verification opening page 14.
+
+## Reach (closing record, F1–F9, with the middle record's finding 43)
+
+| Finding | Disposition |
+|---|---|
+| F1, 43 | Applied: the section opens on the recast sentence, which bridges from the lunar results, and "for other worlds" marks the turn to Table 4. |
+| F2 | Applied: "while". |
+| F3 | Applied, with one change: the proposal's "and so it adds …" made the synchronous mode the cause of the cover's term; the text gives the term, then the synchronous mode's model day, "so the cover rises by about +0.23 …". |
+| F4 | Applied as proposed, in one paragraph. |
+| F5 | Applied: "whereas". |
+| F6 | Applied as a sentence of its own, "Their warmer runs, however, …", since the sentence before already turns on "while". |
+| F7 | Applied: "moreover" and "though". |
+| F8 | Applied as proposed, with the Open Moon for the breathable Moon. |
+| F9 | Applied: "so although". |
+
+## Next steps (closing record, F10–F18)
+
+| Finding | Disposition |
+|---|---|
+| F10 | Applied: "yet". |
+| F11 | Applied: "Beyond the refit" and "would go further and replace". |
+| F12 | Applied as proposed. |
+| F13 | Applied: "and before adopting them a first step corrects …, while a test …". |
+| F14 | Applied: "Separately". |
+| F15 | Applied as proposed. |
+| F16 | Applied: "also stays open". |
+| F17 | Applied: "For their number". |
+| F18 | Applied: "Beyond the source terms". |
+
+## Conclusion (closing record, F19–F21)
+
+Brought to the author, who accepted the section, and applied on the author's word: "The GCM can then be used …"
+(F19), "and varying its pressure then changes the column mass …" (F20), and "In the simulated storms, for
+instance, the electrification graft computes …" (F21).
+
+## Appendix and Availability (closing record, F22–F28)
+
+| Finding | Disposition |
+|---|---|
+| F22 | Applied: "while". |
+| F23 | Applied, in two sentences so that each carries one colon: "The patches apply to upstream sources pinned by checksum: …" and "As patches to those sources, they inherit their licences: …". |
+| F24 | Applied: the claims register's sentence moves to Code and data, after the sentence that names the register. |
+| F25 | Applied: "so". |
+| F26 | Applied: the note on where the records are kept moves to the end of the review history, where it covers every round. |
+| F27 | Applied, with one change: "its replacement develops" left the rewrite's author unnamed, so the text reads "Codex replaced it with one that develops the broader model ensemble". |
+| F28 | Applied: "In every round the agents read for cadence silently", beside the records note. |
+| Also | The review history now records round 15 and its dispositions. |
+
+Checks for the sections after Repairs: a script found every section's numbers, inline mathematics, citations,
+cross-references and claim markers identical before and after.
+
+The Conclusion's three insertions pushed the appendix's first paragraph across a page, and the simple spacing rule
+before Table 5 then broke the page early, leaving page 27 nearly empty with a stray continuation header above
+Table 5. `\Needspace`, which measures the space left before breaking, replaces it; the paper is back to 35 pages,
+with Table 5 whole on page 27 and the Conclusion's last two paragraphs together on page 26.

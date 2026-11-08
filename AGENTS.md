@@ -1,14 +1,17 @@
 # World-crafting
 
-The models, patches and in-house tools for modelling Earth-like worlds beyond Earth's range — planets and
-constructed worlds whose air and water are close to Earth's while their gravity, size, day or starlight
-differ — and the paper that describes them. The work so far comes from one case, a breathable Moon
+The models, patches and in-house tools for modelling Gaean worlds beyond Earth's range — planets
+and constructed worlds with nitrogen–oxygen air, water as the principal condensable, and broadly terrestrial
+surface pressures and temperatures, while their gravity, size, day or starlight differ — and the paper that
+describes them. The work so far comes from one case, the Open Moon, a breathable Moon
 designed in the Terluna project (github.com/dgoldman0/Terluna). The machinery here was brought from
 Terluna at commit 186b294 (2026-10-17), and `PROVENANCE.md` records its provenance file by file.
 
 ## Commits
 
-Use informative commit messages. Multiple phrases for a commit message.
+Use informative commit messages. Multiple phrases for a commit message. A commit message describes the author's
+decisions and directions in the committer's own words and quotes the author nowhere; quoting the paper's own text,
+code or file names is fine.
 
 ## System usage limits
 
@@ -43,12 +46,19 @@ These follow Terluna's AGENTS.md (sha256 7fac1ca0…be6 at 186b294):
 
 ## The paper
 
-The paper stands alone as a field paper on modelling Earth-like worlds beyond Earth's range: exoplanets
-and constructed worlds whose air and water resemble Earth's while their gravity, size, day or starlight
-differ. That purpose, and the work toward it, frame the paper. The breathable Moon is its worked case,
-the world on which the work so far was done. Terluna enters as provenance only: the origin of the case,
-the code and data records, and the history of AI assistance. Paper IDs and ensemble language belong to
-Terluna's five-paper ensemble and stay out of this paper.
+The paper stands alone as a field paper on modelling Gaean worlds beyond Earth's range: exoplanets
+and constructed worlds with nitrogen–oxygen atmospheres and water as the principal condensable, at surface
+pressures and temperatures broadly comparable to Earth's and permitting liquid surface water and an active
+water cycle. Their gravity, size, rotation and starlight may differ substantially from Earth's. Gaean
+names this physical class; the tested range of each code is specified separately. The paper's central purpose is the
+development of an ensemble of models for those worlds, connecting
+global climate to storms and seas. That purpose, and the work toward it, frame the paper. The Open
+Moon is its worked case, the world on which the work so far was done and existing systems' limitations
+became apparent. Terluna enters as provenance only: the origin of the case, the code and data records,
+and the history of AI assistance. Terluna's paper IDs and five-paper ensemble stay out of this paper;
+the model ensemble is the subject. The Conclusion develops that broader purpose throughout, with the
+lunar work as evidence and a starting point. Further physics for other gases and condensables could extend
+the ensemble beyond the Gaean class; that extension remains prospective.
 
 Evidence and release follow Terluna's editorial charter
 (`ensemble/planning/Open_Moon_Editorial_Charter_control-01.md`, sha256 aac4a4f2…0b0): technical meaning
@@ -56,8 +66,11 @@ and evidence states (G5), full-document source admission (G6), exact-build visua
 (G7) and release integrity (E4). Each section is drafted and reviewed with its neighbours, its reviews are
 recorded in `paper/review/`, and the release register uses PASS, BLOCKED and DEFERRED with exact
 artifact hashes; nothing is prefilled. Author metadata: Daniel S. Goldman, ORCID 0000-0003-2835-3521,
-no affiliation label. Final releases carry an accurate AI-assistance disclosure and the actual review
-history, in which each of the author's own readings is recorded as the author's review.
+no affiliation label. The paper is a standalone paper and carries what a journal paper carries: a short,
+accurate statement of AI assistance, naming the tools and what they did, and statements of code and data
+availability and competing interests. The story of its own making stays in the repository: the actual review
+history, in which each of the author's own readings is recorded as the author's review, the drafting history,
+the agents' roles and the release work are kept in `paper/review/` and the release register.
 
 ## Writing
 
@@ -67,6 +80,10 @@ notes it was built from, in Terluna's `ensemble/planning/source_controls/` (`STY
 `Jewish_Papers_Updated_Style_Notes.md`, `Agent_Working_State_Editorial_Gates.md`), with the author's
 corrections of 2026-10-17. Read those four sources in full once before writing for the paper; the rules
 below are their working form.
+
+The author's explicit direction for a piece outranks these rules. Where a direction and a rule conflict,
+carry out the direction; where the conflict is unclear, ask the author once, naming both. A rule is never
+grounds for setting a direction aside.
 
 **Say what is.** State what a thing is, does or includes.
 
@@ -80,7 +97,9 @@ below are their working form.
   excluded.
 
 **No witticisms.** Titles, headings, coined terms and paragraph landings say what they name. Aphorisms,
-puns, personified coinages, quotable closing lines and rhetorical questions are excluded.
+puns, personified coinages, quotable closing lines and rhetorical questions are excluded. These bans, like
+the ban on promotional framing, aim at cheap wit and hype; vision is welcome, and the Conclusion's ending
+is meant to inspire.
 
 **Write for the expert.** The reader models planetary atmospheres, convection or waves and knows the
 general concepts.
@@ -104,8 +123,9 @@ general concepts.
 - Nouns are precise: the variable, the scheme, the switch, the run, the layer.
 - Physical processes, and the people who did the work, stay visible where they belong.
 
-**Sentences carry their dependencies.** A string of equal-weight declaratives (proposition, stop,
-proposition) is a list disguised as prose.
+**Sentences carry their dependencies.** Paratactic prose is excluded: a string of equal-weight declaratives
+(proposition, stop, proposition), or a paragraph that chains facts like bullet points, is a list disguised as
+prose.
 
 - Write the causal, temporal, constitutive, comparative, concessive or evidentiary relation into the
   syntax: subordination, apposition, participial phrases, relative clauses, periodic sentences.
@@ -123,13 +143,23 @@ proposition) is a list disguised as prose.
   is unwritten, and the passage is rebuilt.
 - Each paragraph develops a question, mechanism, sequence, comparison, consequence or tension; its last
   sentence completes that movement or sets up the next paragraph.
-- Transitions come from the subject matter. Stock signposts ("Moreover", "In addition", "Turning to",
-  "Notably", "It is worth noting") are excluded.
+- Writing flows and transitions smoothly. Each move from one thought to the next is marked: by the relation
+  written into the syntax, by a transition drawn from the subject matter, or by a transition word
+  ("moreover", "even though", "however", "in addition") used where it moves the reader on. A new or
+  independent point is marked as one, so that it reads as an addition and never as a consequence of the
+  sentence before. The author's own transitions stay.
+- Stock signposts are filler and are excluded: "It is worth noting", "Notably", "Turning to", or a
+  "Moreover" that opens a point with no relation to what came before.
 - A genuine catalogue goes in a table or a list.
 
-**Conclusions and the arc.** A conclusion gathers the developed lines into a new relation or consequence.
-Replaying the section order, reciting the inventory and delivering a generic lesson are excluded. The
-abstract, the opening pages and the conclusion promise, develop and land on the same contribution.
+**Conclusions and the arc.** The paper has no separate discussion, so its Conclusion is the discussion. It
+reminds the reader of the work in a line or two at most, then discusses what the findings mean and open up,
+rooted in the code and technology built, in as many paragraphs as the ideas need and with one line of argument
+across them. It excites throughout, and its ending ties the section together in pure inspiration: the vision
+of what this work makes possible, in concrete images and prospects. Numbers enter only where they make a
+point, and a condition is stated once. Recaps, data dumps, replaying the section order, reciting the inventory
+and delivering a generic lesson are excluded. The abstract, the opening pages and the conclusion promise,
+develop and land on the same contribution.
 
 **Technical meaning survives editing.** Each edit keeps the claim's conditions, numbers, scope and
 evidence state. Reproducibility and physical validation stay distinct.
@@ -156,11 +186,21 @@ universal claim is checked against what was actually examined.
 ## Review of the paper
 
 The paper alone is written in drafts and review rounds. Its editorial quality is judged by reading: after
-a section is drafted, fresh reviewer agents that see only the text and these rules read it whole and
-return located findings; the text is revised and read again by fresh reviewers, round after round, until a
-round finds nothing blocking. The author's readings are the decisive review. `paper/tools/lint.py` screens
+a section is drafted, fresh reviewer agents that see the text, the author's direction for it in the author's
+own words, and these rules read it whole and return located findings. They judge the text against the
+author's direction first and the rules second, and no finding overrides that direction. The author's
+readings are the decisive review and come ahead of further rounds: once a draft carries out the author's
+direction, it goes to the author, and later rounds follow the author's reading. Otherwise the text is
+revised and read again by fresh reviewers until a round finds nothing blocking. `paper/tools/lint.py` screens
 for candidate places, and its output is reported as screening only. Each round's reviewers, findings and
-dispositions go in `paper/review/`.
+dispositions go in `paper/review/`. Review records may quote the author where the exact phrasing matters, leaving
+out anything awkward.
+
+When a revision touches more than one section, it follows the order of synthesis. The body is revised first; the
+Introduction follows, since it synthesizes the whole; then the Conclusion, which synthesizes the whole and inspires
+from it; and the abstract comes last, since it encompasses everything. Each stage gets a light reading by one
+fresh reviewer agent before the next begins, and a full editorial review of the whole paper closes the sequence.
+Findings on wording the author has approved go to the author.
 
 ## Software work
 

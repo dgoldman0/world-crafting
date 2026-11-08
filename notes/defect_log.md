@@ -1,7 +1,7 @@
 # Defect log: ExoPlaSim, CM1 with WRF-ELEC, SWAN and SWASH
 
 This log lists the defects found while carrying four Earth-built models to Terluna's breathable Moon, from
-2026-09-24 to 2026-10-17. The defects fall into three classes:
+2026-09-24 on. The defects fall into three classes:
 
 - **(a)** upstream defects that the adaptation exposed;
 - **(b)** Earth constants, units, geometry and fitted forms written into upstream code;
@@ -15,7 +15,9 @@ corrected there. The companion note `verification_record.md` describes the check
 **References.**
 - Repository paths are Terluna's at commit 186b294. `climate/gcm/exoplasim_run.py:212` means line 212 of that
   file at that commit. The checkout at `/home/kir/Documents/Projects/terluna` (f03b839) differs from 186b294 only in
-  `research/integration/five-branches.md`, so its line numbers match.
+  `research/integration/five-branches.md`, so its line numbers match. Entries and findings that Terluna recorded
+  after 186b294 (A9, B29–B34, C19, C20 and the updates to B18, B22 and B28) cite the Terluna commit and branch that
+  record them, and their paths are at that commit.
 - Upstream line numbers are those of the pinned sources:
   - CM1 r22.0: `cm1r22.0.tar.gz`, sha256 `05f990bb…6226`.
   - WRF-ELEC: MicroTed/wrf4-elec at `e43041b`.
@@ -49,9 +51,10 @@ corrected there. The companion note `verification_record.md` describes the check
 | A3 | ExoPlaSim | 360-day year of 17,280 steps is not a whole number of 1,430-step model days | 09-29, be50d8b | `whole_lunar_days` (1), 74fed6c | Output means slipped 120 steps a year against the Sun | Fixed | R |
 | A4 | PlaSim | Lowest model level reads up to ~20 K too cold in 0.8% of 3-day windows | 09-25, 86bfb63 | None; screen in analyses | Lowest-level analyses only; surface fields unaffected | Open | R |
 | A5 | SWAN 41.51 | `KTETA` read uninitialised when depth breaking is off | 10-02, 8785f7e | Always `BREAKING CONSTANT 1.0 0.73` | Repeated Earth runs differed by ~2.5% in Hs; outputs excluded | Avoided, not patched | R |
-| A6 | CM1 r22.0 | Thread race: runs on several threads do not always repeat | 10-04, b85eb5c | None; one thread repeats | Paired multithread runs are separate realizations | Open | R |
+| A6 | CM1 r22.0 | Threaded runs part from one another; cause uncertain, most likely CM1's own threaded loops | 10-04, b85eb5c | None; one thread repeats | Paired multithread runs are separate realizations | Open | R |
 | A7 | WRF-ELEC | No conduction by default; ion charge persists for weeks in month-long runs | 10-05, e09aa30 | `leakage` (lunar 1), 4499e35 | ~20 kV/m at the ground over the whole box; lightning unchanged | Fixed for lunar runs | R |
 | A8 | WRF-ELEC `lightmsz` | Channel reach marked only above threshold `scth` | 10-05, a5205d2 | Flash log takes reach from charge handed to ions | 13 flashes logged no reach | Fixed (logging) | R |
+| A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | Density divided out in Terluna's build `moon_omp_rain_law_pbl`; none in this repository's series | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Open here; fixed in Terluna's new builds | R |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant; fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
@@ -73,13 +76,19 @@ corrected there. The companion note `verification_record.md` describes the check
 | B19 | PlaSim | Liquid-water optics for all cloud | 10-17, 9e30a1f | `NICEOPT` (`--ice-optics`, off) | High cloud's net warming 12.4 → 5.7 W/m² | Opt-in | R |
 | B20 | PlaSim | Saturation over liquid at all temperatures; Earth's spacing of the top levels | 10-17, 9e30a1f | None | High cloud starts at 136–149% of ice saturation | Open | R |
 | B21 | PlaSim, CM1 | Constant gravity and a thin shell in the dynamics | S | None | Not quantified; g is 5.4% lower at 48.6 km | Open | S, V |
-| B22 | CM1 RRTMG | Reference pressures stop at 1053.63 hPa; deeper layers extrapolated | S | None | Lowest ~7 km over the sea extrapolated; not quantified | Open | S, V |
+| B22 | CM1 RRTMG | Reference pressures stop at 1053.63 hPa; deeper layers extrapolated | S | None | Lowest ~7 km over the sea extrapolated; measured offline, 0.002–0.003 K a day in the lowest layers | Harmless for this air | S, V; R (6f7d7b0) |
 | B23 | CM1 RRTMG | Ice optics end at 140 µm | 10-04, 0b9507d | Size passed to radiation capped at 140 µm and logged | Crash at day 6.45 avoided; capped ice 7% optically too thick in the main run | Mitigated | R |
 | B24 | SWAN | AGROW knee fixed at 1 Hz | 10-02, 8785f7e | Patched knee at g/g_ref Hz | Similarity error 5.44% → 0.303% in Hs | Fixed | R |
 | B25 | SWAN | Air density fixed at 1.28 kg/m³ | 10-02, 8785f7e | Patched to 1.40390 kg/m³ in the coupled build | Not quantified | Fixed in coupled build | R |
 | B26 | SWAN | INIT 2-s period; ST6 and exact-XNL paths at Earth's g; Earth radius default | 10-02, 8785f7e | Bypassed or set by input | None in the selected configuration | Avoided | R |
 | B27 | SWAN, SWASH | Earth-calibrated laws: Wu drag, Komen, AGROW coefficient, breaker index 0.73, SWASH breaking 0.6/0.3 | 10-02 to 10-03 | Retained | Not quantified | Open | R |
-| B28 | CM1 Morrison | Rain's mean diameter capped at 2.8 mm and breakup begun at 0.3 mm, Earth's values | 10-17 | None | Not quantified; lunar drops held small | Open | S, V |
+| B28 | CM1 Morrison | Rain's mean diameter capped at 2.8 mm and breakup begun at 0.3 mm, Earth's values | 10-17 | In Terluna: limits scaled from `&param3` (0 = stock), dd89cef, 8b55847 | Lunar limits: rain at the ground 33 → 63 mm a lunar day, evaporated share 86% → 48%, air at 2 m +1.47 K | Open here; patched in Terluna | S, V; R |
+| B29 | PlaSim | Kuo-type deep convection rains a column's moisture supply wherever an undiluted surface parcel is buoyant | 10-21, Terluna `domain/climate` f07ad8d | In Terluna: simplified Betts–Miller (`nprc` 2) and mass-flux (`nprc` 3) schemes, Kuo kept at `nprc` 1 | Near-side Sea rains 2.9 mm/day after midnight against CM1's 0.14–0.17; upper air within 1.3 K of the undiluted adiabat, where CM1's mixing updrafts hold theirs 3.0–6.3 K below | Open; replacements under test in Terluna | R |
+| B30 | PlaSim | Falling rain evaporates by one constant (`gamma` 0.01 in `rainmod.f90`), with no drop size or fall speed | 10-21, 05b1384 | In Terluna: `--rain-evaporation` | PlaSim evaporates 29% of its rain against 61% in CM1's boxes; matching takes 0.027 over the sea and about 0.046 over land | Open | R |
+| B31 | PlaSim | Ten σ levels set for Earth: on the Moon the lowest layer spans 0–1.73 km and one layer 6.4–13.7 km | 10-26, 697ac36, a75fd47 | In Terluna: 14- and 15-level sets (`--levels`) with a conservative restart remap | The lowest layer averages away 1.4–2.3 kJ/kg of surface-layer moist static energy; CM1's 6 km night boundary layer and 7–8 km cloud tops fall inside one layer | Open; 14 and 15 levels under test in Terluna | R |
+| B32 | PlaSim | Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and 1 m/s wind floor | 10-26, b182515; compared 10-27, 21d98fc | None yet; a nonlocal scheme with the stretched length, tested in single columns, misses the sea night's stop rule (6d0c707) | Over the sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour through 5.2 km where PlaSim's median diffusivity is 0.1–0.3 m²/s | Open | R |
+| B33 | PlaSim | Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³, from a tank law that scales as (g/p_s)^⅓ | 10-26, b182515 | In Terluna: `cfree` in `fluxmod`'s namelist, `--free-convection lunar` (0.00083) | Near-side Sea's evaporation 3.82 → 3.62 mm/day (CM1 2.98); global evaporation and rain 3% lower | Open here; switch in Terluna | R |
+| B34 | PlaSim | Shallow convection's tops capped at 700 hPa | 10-25, 1d05c3d | In Terluna: `--sbm-shallow-cap`, tied to the depth test (ea1b62f) | Near 28 km in the Moon's air; binds in 1–1.4% of cells | Open here; switch in Terluna | R |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
 | C2 | CM1–GCM check | GCM's missing sunlight booked as reflection | 09-29, be50d8b retracts 36e29c4 | Each model's own arriving sunlight | A false "reflects too much" finding | Fixed | R |
 | C3 | Twilight ledger | Sky model's channels overstate absorbed energy by 58%; ledger's first channels put near-IR sunlight too high | 10-14, 2ac4359 and 55e5020 | 10,697 channels keeping heights | First two 20-year GCM tests used the old terms | Fixed | R |
@@ -98,15 +107,20 @@ corrected there. The companion note `verification_record.md` describes the check
 | C16 | GCM runner | Yearly summary assumed 120 outputs per year | 10-17, 710df23 | `times_per_year` | None | Fixed | R |
 | C17 | SWAN pilot | Exception-marked bottom nodes dropped adjacent water nodes | 10-02, f863b67 | Finite negative depths on dry ground; wet-node check | Smoke-run diagnostics rejected | Fixed | R |
 | C18 | Records | Seven record errors corrected without code change | various | — | — | Corrected | R, V |
+| C19 | CM1 set-up | Nudging toward the GCM from 8 km (full at 16 km), with the day–night table stopping at 16 km | 10-21, Terluna `domain/climate` 13e7123 | Site forcing through the column, each layer's total kept, air held only above the GCM's convection top (`gcm_site.py`; 2cc5179, 5a44e5e) | Sea box: the nudging supplied 89 of the 107 W/m² its radiation removed, rain 0.06 against the GCM's 2.72 mm/day; the interpolation dried the column 0.55 mm/day | Fixed in Terluna's site boxes; every earlier ring and box ran it | R |
+| C20 | CM1 analyses | Stored radiative tendencies (`lwten`, `swten`, at constant volume under `eqtset = 2`) read as rates at constant pressure | 10-20, Terluna `domain/atmosphere` fe49ad9 | Conventions in `climate/crm/cm1_output.py`: × cvm/cp against another code, × cv/cp in a θ budget | Radiation overstated by 38–40%: the extra RRTMG cooling of 4.5–10.2 W/m² and the 45° N ring's heat budget | Fixed | R |
 
 ## (a) Upstream defects exposed by the adaptation
 
-The paper (third draft, 2026-10-17) classes these items as follows. A3 (the 360-day calendar) is a limitation in
-units of time, avoided by configuration; A7 (WRF-ELEC's missing clear-air conduction) a simplification that holds for
-runs of hours; A8 (the flash log's reach threshold) a constant on the lunar path. Its five defects in the released
-codes are A1, A2 and B11 (ExoPlaSim's convective-cover unit, classed here under (b)), which produce little or no error
-at Earth's values; A5, hidden by SWAN's usual configuration; and A6, CM1's thread race, independent of the world. A4,
-PlaSim's cold lowest level, is a fault of uncertain cause.
+The paper's first released draft (tag `paper-v1`) classes these items as follows. A3 (the 360-day calendar) is a
+limitation in units of time, avoided by configuration; A7 (WRF-ELEC's missing clear-air conduction) a simplification
+that holds for runs of hours; A8 (the flash log's reach threshold) a constant on the lunar path. Its four defects in
+the released codes are A1, A2 and B11 (ExoPlaSim's convective-cover unit, classed here under (b)), which produce
+little or no error at Earth's values, and A5, hidden by SWAN's usual configuration. A9, CM1's simple boundary layer,
+makes a fifth on the lunar runs' path; the draft predates it, and its error, which grows with the air's density,
+reaches Earth's runs as well. A6, the parting of CM1's threaded runs, most likely in CM1's own threaded loops, and
+A4, PlaSim's cold lowest level, are faults of uncertain cause, since stock CM1 has yet to run with these cases'
+options, which would place A6 in or out of the released code.
 
 ### A1. ExoPlaSim: `solang`'s Sun clock (R)
 
@@ -211,7 +225,7 @@ PlaSim's cold lowest level, is a fault of uncertain cause.
   day-10.5 restart once matched and once parted about 85 steps in; the electrified build parted from itself about
   50 steps in (`climate/crm/README.md:80-95`; b85eb5c, 2026-10-04).
 - **Search.** On 2026-10-06 (3e85df8, corrected in 0e9642f), runs parted at random 3,000–7,400 s in, always first in
-  the domain's total vertical momentum. The plain Morrison box parts too, so at least one race lies outside the
+  the domain's total vertical momentum. The plain Morrison box parts too, so at least one source of the parting lies outside the
   electrification. The search could not pin it to radiation or large-scale forcing: with about half the runs
   parting, three runs agree by chance about one time in eight (`README:96-110`).
 - **Effect.** Paired runs that differ in one setting compare as realizations. For example, the uncapped rerun
@@ -241,6 +255,30 @@ PlaSim's cold lowest level, is a fault of uncertain cause.
   (`climate/crm/README.md:1689-1693`).
 - **Fix.** On 2026-10-05 (a5205d2), the flash log takes a flash's area and levels from where it hands charge to the
   small ions. This changes logging only; the physics is unchanged.
+
+### A9. CM1 r22.0: the simple boundary layer's density-weighted tendencies (R)
+
+- **Defect.** With `ipbl = 2`, `turb.F`'s block for the simple scheme calls `turbsz` for θ, qv, qc and qi and
+  `turbuz` and `turbvz` for the wind. `turbsz` ends with `turbz(i,j,k) = rho(i,j,k)*(dumz(i,j,k)-s(i,j,k))*rdt`
+  (`turbtend.F:686, 697`), and `turbuz` and `turbvz` with the mean of the neighbouring densities times the wind's
+  change (`:1541, 2333`), while `solve1.F` adds the arrays as changes per second (`:1208, 1500`). YSU, MYNN and MYJ
+  fill the same arrays with WRF's tendencies per second (`turb.F:2264, 2619, 2817`), so the fault is the simple
+  scheme's alone.
+- **Found** on 2026-10-21 by the closed heat and water budgets of Terluna's CM1 boxes (`domain/climate` 13e7123).
+  The lines above were checked in pristine cm1r22.0 the same day; NCAR's main branch holds the same code.
+- **Effect.** Under air near 1.4 kg/m³ at the ground, the boxes' boundary layer took 1.32–1.35 times the surface's
+  evaporation and 1.46–1.51 times its sensible heat, with the drag inflated alike. Of Terluna's 59 CM1 runs, 51 used
+  the scheme, every ring and box the paper reports among them. Boxes run with the fix and the corrected forcing
+  (C19) stay 1.15 K over land and 0.23 K over the sea warmer than the GCM at 2 m, where the September rings ran
+  2.4–4.7 °C warmer over land and 1.8–2.4 °C over the seas; the boxes also differ in site and forcing state, and
+  Terluna reads most of the rings' warmth as this fault, which one corrected rerun of a reference ring or box, the
+  step Terluna's plan recommends, would size. On
+  Earth, where the boundary layer's air weighs 1.0–1.2 kg/m³, the code implies up to about 20%, untested on an
+  Earth case.
+- **Fix.** Divide the density out at the end of the `ipbl = 2` block, as Terluna's build `moon_omp_rain_law_pbl`
+  does; its boundary layer passes on 0.995–1.000 of the evaporation. This repository's series holds the stock
+  scheme. The `lab` branch plans the fix as a patch (its plan, stage 3) and drafts the report to CM1's developer
+  (`models/cm1/upstream-ipbl2-density.md`).
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
@@ -496,8 +534,13 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
     20% to 46% of the sky.
   - Twenty years with B19 (`A28_corrected_970_lw_ice`): 306.5 K over years 10–19, 11.5 K above the design case
     (e790666).
-- **Remains.** The fit was made on the 295 K design state. Its accuracy at the settled state is unchecked
-  (verification record, missing checks).
+- **Checked near 301 K** (Terluna `domain/climate` 6fb0958). The 295 K fit leaves layers up to 5.9 W/m² off over
+  land and 6.8 over the sea at 301.2 K, and 4.2–7.6 W/m² in the worst layers at 302.5 K; a refit on 301 K columns
+  holds within 0.3 W/m² there.
+- **Remains.** Each fit holds near its own state, level set and convection scheme. On Terluna's settled 301 K design
+  years the refit holds within 1.9–2.65 W/m² by layer (8641746); on the Betts–Miller scheme's climate it leaves
+  3.38 W/m² (5578b55); carried onto 14 or 15 levels it leaves 6.4–8.8 W/m², so runs on those sets take a refit on
+  their own columns (6c78965, 805691b, 00da68d, 3fd43d5).
 
 ### B19. PlaSim: liquid-water optics for all cloud (R; opt-in)
 
@@ -533,9 +576,11 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   `fp`, which extrapolates linearly in ln p (`module_ra_rrtmg_lw.F:3676-3683`, `module_ra_rrtmg_sw.F:2878-2885`).
 - **Arithmetic (V).** At the water level the lunar air stands at 1,215.9 hPa. With a scale height near 51 km at
   290–295 K, the lowest ~7 km over the sea lie beyond the table; less over high ground.
-- **Status.** Not changed and not tested separately. RRTMG's excess cooling against correlated-k on the 45° N ring
-  (4.5 W/m² in the lowest 1.8 km, 8.5 W/m² at 1.8–6.5 km; 17fa76e) includes this extrapolation along with other
-  causes.
+- **Measured** offline (Terluna `domain/atmosphere` 6f7d7b0): the table's edge moves the lowest layers' cooling by
+  0.002–0.003 K a day, and RRTMG's own optics come within 0.02 K a day of the correlated-k model, so the
+  extrapolation is harmless for this air and needs no patch. The excess cooling on the 45° N ring (4.5 W/m² in the
+  lowest 1.8 km, 8.5 W/m² at 1.8–6.5 km; 17fa76e) comes from reading CM1's stored tendencies at constant pressure
+  (C20).
 
 ### B23. CM1 RRTMG: ice optics end at 140 µm (R)
 
@@ -609,9 +654,103 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 - **Why it is Earth's.** The largest raindrop that survives its fall scales with the capillary length,
   (σ/(ρ_w g))^½, 2.46 times longer at lunar gravity (`paper/data/regime_calc.json`), and slower drops collide with
   less energy. Earth's caps keep lunar drops small, and small drops evaporate faster.
-- **Found** on 2026-10-17 by this repository's main session, reading pristine cm1r22.0. No run tested it.
-- **Effect.** Not quantified. It bears on the 85% of falling water that evaporates in the lunar boxes and on the
-  rain gap with the GCM.
+- **Found** on 2026-10-17 by this repository's main session, reading pristine cm1r22.0.
+- **Effect** (Terluna `domain/atmosphere` dd89cef, 8b55847, read in 21529d2). Terluna's patch scales the limits
+  from `&param3`, 0 giving stock CM1 bit for bit: breakup from 0.84 mm, a 6.88 mm cap on the mean diameter and a
+  5.80 m/s cap on the mean fall speed at lunar gravity. Over the small box's second lunar day, against a spread of
+  0.13 K between realizations, the lunar limits nearly doubled the rain at the ground (33 to 63 mm a lunar day), cut
+  the share of falling water evaporated from 86% to 48% and the cloud cover from 47% to 36%, and warmed the air at
+  2 m by 1.47 K.
+- **Status.** Open in this repository's series; the `lab` branch plans the patch for its stage 3.
+
+### B29. PlaSim: Kuo-type deep convection (R; open)
+
+- **Defect.** PlaSim's deep convection (`rainmod.f90`, `nprc` 1) is a Kuo scheme: wherever a parcel lifted
+  undiluted from the surface is buoyant, it turns the column's moisture supply into rain, the surface's evaporation
+  included. ExoPlaSim's namelist only switches the scheme on or off.
+- **Found** on 2026-10-21 (Terluna `domain/climate` f07ad8d), when the corrected CM1 box over the Near-side Sea
+  rained almost nothing after midnight while the GCM's circulation sank over the site.
+- **Effect.** After midnight the sea there evaporates 3.4 mm/day and the scheme rains 2.9 of it, where CM1's box
+  rains 0.14–0.17 mm/day. The scheme heats the upper air to within 1.3 K of the undiluted parcel's adiabat, where
+  CM1's mixing updrafts hold theirs 3.0–6.3 K below (467a146).
+- **Fixes under test in Terluna.** A simplified Betts–Miller scheme (Frierson 2007; `nprc` 2, 2542b57) with a
+  cloud-depth test and mixing integrated within layers (91ab10d), and a bulk mass-flux scheme on Tiedtke's model
+  with entrainment measured in CM1's clouds (`nprc` 3, 38c2371, 3fd43d5), each behind PlaSim's own switch with Kuo
+  kept at 1. Settled, the Betts–Miller scheme runs 1.2–1.7 K warmer than Kuo's 298.4 K at the same sunlight
+  (5578b55). In two-year tests each setting of either scheme so far misses CM1's rain by time of day at one site or
+  both, and the mass-flux scheme's test parcel crosses PlaSim's stable layer below cloud base on too few columns,
+  so convection's share of the rain falls from 86% to 42–45% (3fd43d5, b182515). In single columns on fifteen levels
+  the mass-flux scheme goes deep on every step of the sea's night, its tops at 57–58 km where CM1's night cloud stops
+  at 7–8 km, and the column loses CM1's night layer under that convection whichever boundary layer it has (6d0c707;
+  B32).
+
+### B30. PlaSim: one constant for the evaporation of falling rain (R; open)
+
+- **Defect.** `mkrain` (`rainmod.f90`) evaporates falling rain by one Earth-set constant, `gamma` (0.01): a share of
+  each layer's saturation deficit per step, with no drop size or fall speed (Terluna `domain/climate` 05b1384).
+- **Effect.** PlaSim evaporates 29% of its falling rain on the Moon, an ordinary share on Earth, where CM1's
+  corrected boxes with lunar drops evaporate 61% over the sea and over land. At one constant PlaSim evaporates far
+  more over the sea than over land (75.8% against 58.2% at 0.04), so it matches the sea box at 0.027 and the land box
+  near 0.046, by extrapolation (2cc5179, 30e7f83). More evaporation moistens the lower air and grows PlaSim's low
+  cloud: two years at 0.04 cooled the Moon 1.8 K, still cooling (05b1384).
+- **Status.** Terluna's runner sets the constant (`--rain-evaporation`, recorded only when given); the form of the
+  evaporation stays Earth's.
+
+### B31. PlaSim: Earth's σ levels near the ground (R; open)
+
+- **Defect.** PlaSim's ten σ levels are fractions of the surface pressure chosen for Earth's air. At the design
+  air's 51 km scale height they stand near 0.9, 4.0, 9.9, 18.2, 29, 42, 59, 79, 108 and 166 km, the lowest layer
+  spanning the ground to 1.73 km and one layer 6.4–13.7 km (Terluna `domain/climate` 697ac36).
+- **Effect.** The lowest layer averages away the 1.4–2.3 kJ/kg of moist static energy that CM1's afternoon and
+  evening updraughts draw from the surface layer, and CM1's 6 km night boundary layer over the sea, with its clouds' 7–8 km
+  tops, falls inside one layer (03e7c41, 697ac36).
+- **Fixes under test in Terluna.** Sets of 14 levels (new levels near 2.4, 6, 8 and 13.5 km) and 15 levels (the
+  lowest near 0.3 km), at about 1.5 times the ten-level run's cost, with a mass-conserving remap for restarts
+  (697ac36, a75fd47). The longwave correction takes a refit on each set's own columns (B18).
+
+### B32. PlaSim: Earth's mixing lengths and wind floor in the vertical diffusion (R; open)
+
+- **Defect.** PlaSim's vertical diffusion converts its coefficient from heights to σ with g³, as the physics
+  requires, but its mixing lengths, 160 m for momentum and 438 m for heat and vapour, and its 1 m/s wind floor are
+  Earth's (Terluna `domain/climate` 21d98fc).
+- **Effect.** Near the ground PlaSim carries heat at about CM1's rate. Higher up, over the Near-side Sea after
+  midnight, CM1's mixed layer reaches 6.5 km against the GCM's 4.3 km; at every hour CM1 keeps its vapour nearly
+  uniform to 6.2 km where the GCM's falls 2.7–4.7 g/kg, and it carries 28–112 W/m² of vapour up through 5.2 km,
+  80–92% by resolved motion, where PlaSim's median diffusivity is 0.1–0.3 m²/s at Richardson numbers of 3–8. Stretched by the gravity
+  ratio, to 966 m and 2.65 km, the lengths raise PlaSim's diffusivity over the sea 1.5–3 times at 0.6–1.8 km and 5–9
+  times at 5.2 km; CM1's set-up assumes the same scaling for its own length, a scaling untested by any experiment
+  here.
+- **Tested in single columns** (Terluna `domain/climate` 6d0c707). A nonlocal boundary layer, Holtslag and
+  Boville's K-profile as CAM3 implements it with YSU's explicit entrainment, run on fifteen levels under the CM1
+  boxes' forcing, brings the land's afternoon mixed layer down from PlaSim's 6.86 km to 3.54 km, toward CM1's
+  2.75 km, closing 81% of the depth's gap and 55% of the vapour drop's. Over the sea at night, with the stretched length, it leaves the mixed layer 4.41 km deep against
+  PlaSim's own 4.87 km and CM1's 6.48 km and closes 35% of the vapour drop's gap, short of the half that a stop rule
+  set beforehand required, so no GCM run followed. In those columns the mass-flux convection goes deep on every night
+  step and holds an inversion near 3.1 km; started from CM1's own midnight air, every boundary layer keeps CM1's deep
+  night layer through the quarter, so the column loses that layer in the evening under deep convection, whichever
+  boundary layer it has. CM1's cloud-topped night layer carries 10–12 W/m² of heat down through 6–7 km, mostly by its
+  subgrid mixing, which Terluna reads as entrainment driven from the cloud's top, a term PlaSim's schemes lack.
+
+### B33. PlaSim: Earth's free-convection constant over water (R; open here)
+
+- **Defect.** `surflx` computes the transfer of heat and vapour over water with Miller, Beljaars and Palmer's
+  (1992) free-convection constant, 0.0016 m s⁻¹ K⁻¹ᐟ³, the still-air limit of a tank law, 0.17 (g κ²/(θ_v ν))^⅓, that goes
+  as (g/p_s)^⅓ once the diffusivities are written through the density (Terluna `domain/climate` b182515).
+- **Effect.** The Moon's gravity and the design air's 1,215.9 hPa give 0.00083. Two years at that value lower the
+  Near-side Sea's evaporation from 3.82 to 3.62 mm/day, a quarter of its excess over CM1's 2.98, dry the lowest
+  0.6 km by 0.34 g/kg toward CM1's air, lower global evaporation and rain by 3% and move the imbalance at the top of
+  the air 0.4 W/m² toward balance.
+- **Status.** A namelist variable in Terluna's build (`fluxmod`'s `cfree`, `--free-convection lunar`); this
+  repository's series holds the Earth constant.
+
+### B34. PlaSim: shallow convection's tops at 700 hPa (R; open here)
+
+- **Defect.** PlaSim's shallow convection caps its clouds' tops at 700 hPa, an Earth height in pressure, near
+  28 km in the Moon's air (Terluna `domain/climate` 1d05c3d, ea1b62f).
+- **Effect.** In Terluna's two-year tests of the Betts–Miller scheme's depth test the cap binds in 1–1.4% of cells
+  (1d05c3d).
+- **Status.** Terluna's `--sbm-shallow-cap`, off by default, ties the cap to the depth test's threshold above each
+  column's condensation level (ea1b62f).
 
 ## (c) Defects in Terluna's own work
 
@@ -828,16 +967,44 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
 | a5205d2, b5a797a, e09aa30 | Hail charging account, Takahashi share, leftover-charge figures, thunder levels | 0e9642f, 66a4e3b |
 | `climate/gcm/README.md:152-155` | Resumed year's "restart and output were byte-identical" | V: restart identical; netCDF output identical in every variable but differs in 12 bytes of HDF5 object-header metadata (verification record) |
 
+### C19. CM1 set-up: nudging from 8 km, and a forcing table that stops at 16 km (R)
+
+- **Defect.** The rings and boxes held their air to the GCM's from 8 km, fully from 16 km (`nudge` in each case
+  kind, `climate/crm/cm1_run.py:1100, 1112, 1116` at 186b294), and a box's day–night table reached 16 km (`top_m`,
+  `:1285, 1334, 1354`), its layers interpolated in height. Lunar convection reaches 55–80 km, so the hold
+  covers most of the convecting column.
+- **Found** on 2026-10-21 by the water and heat budgets of Terluna's box over the Near-side Sea, set against the
+  GCM's own budget at the site (`domain/climate` 13e7123).
+- **Effect.** Over that box's second lunar day the nudging supplied 89 of the 107 W/m² its radiation removed,
+  standing in for the deep convection that forms the GCM's rain at 18–72 km, and the box rained 0.06 mm/day against
+  the GCM's 2.72. The table's stop left out the 35.5 W/m² the GCM's circulation takes from the air above 16 km, and
+  its interpolation dried the column by 0.55 mm/day. How far the hold restrained the rings' convection is unmeasured.
+- **Fix.** For Terluna's site boxes, `climate/crm/gcm_site.py` takes the GCM's own budget at the site, lays each GCM
+  layer's tendency on CM1's levels with its total kept, applies it through the whole column, holds temperature and
+  vapour to the GCM's only above the top of the GCM's convection, from its next level up at 93 km, and nudges the
+  mean wind toward the GCM's by local time (2cc5179, 5a44e5e, 13e7123). The rings keep the earlier forcing until they are rerun.
+
+### C20. CM1 analyses: radiative tendencies read at constant pressure (R)
+
+- **Defect.** Under `eqtset = 2`, CM1 stores its radiative heating at constant volume (`lwten = hr*cp/cvm`, `swten`
+  alike, cp/cvm 1.38–1.39 in the lunar air) and hands RRTMG the ground's temperature for the air at the ground.
+  Terluna's readers (`ring_radiation.py`, `rrtmg_edge.py` and `ring_heat_budget.py` in `climate/crm`) took the
+  stored tendencies as rates at constant pressure and extrapolated the air at the ground from the two lowest layers.
+- **Found** on 2026-10-20, when RRTMG run offline on the ring's columns failed to reproduce CM1's written cooling
+  (Terluna `domain/atmosphere` fe49ad9).
+- **Effect.** Radiation overstated by 38–40%: the extra cooling of 4.5, 8.5 and 10.2 W/m² against the correlated-k
+  model on the 45° N ring (the paper's claim V08, and B22's former attribution) and a heat budget of the ring that
+  counted radiation 40% too large. Read correctly, CM1's longwave comes within 0.013 K a day of the correlated-k
+  model in every layer (0.2–1.3 W/m²), and the GCM's longwave over-cooling is worth about 2.7 K of the 3.7 K gap near
+  the ground at 45° N, where the paper's first released draft gives 1.5 K.
+- **Fix.** One module of conventions, `climate/crm/cm1_output.py`: a stored tendency times cvm/cp against another
+  radiation code, times cv/cp in a budget beside CM1's other θ tendencies (fe49ad9).
+
 ## (d) Record inconsistencies found in this pass, not yet corrected in Terluna (V)
 
 - **Upstream report claim.** `climate/gcm/exoplasim_run.py:251` says the `solang` bug was "Reported upstream". The
   claim holds (ExoPlaSim issue #69, opened by the author on 2026-09-29, open and unanswered on 2026-10-17), but
   Terluna's record does not cite the issue. The history pass missed it; the literature pass found it.
-- **Twilight convergence flag.** `climate/results/gcm/twilight.json` has `channels.orders_converged: false`. The
-  ledger's README section (`climate/gcm/README.md:958-1000`) does not mention it.
-- **Unbacked longwave caveat.** `research/plan.md:301-302` says the longwave refit's "layers stray 5–7 W/m² at
-  302 K". No product or script holding that comparison was found in the repository or in the research drive's
-  `session-tools/`, `climate-targets-runs/` or `gcm-runs/twilight/`.
 - **Stale forcing description.** `climate/crm/README.md:37-39` gives CM1's sunlight as the 5% dimmer shield's
   1,173.5 W/m² from `A28_dim5`. The runner's default forcing run is `A28_dim5_moon` (`cm1_run.py:1085`), and the
   corrected rings use 1,198 W/m² from `A28_corrected_970`.

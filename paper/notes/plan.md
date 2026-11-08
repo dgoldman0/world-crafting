@@ -3,6 +3,10 @@
 The paper is built the way a program is: small components with stated interfaces, each drafted, checked and
 committed before the next depends on it. The writing rules are in the repository's `AGENTS.md`.
 
+The table records the third draft's build stages. Subsequent reviews and builds are indexed in
+`../review/README.md`; the 18 October terminology and ensemble-framing revision is recorded in
+`../review/terracompatible_revision_2026-10-18.md`.
+
 | Stage | Product | State |
 |---|---|---|
 | 1. Ideate | `notes/ideation.md`: the question, thesis, contribution, evidence discipline, what to leave out | Done 2026-10-17 for the first draft; the second draft's framing is in `notes/outline.md` |

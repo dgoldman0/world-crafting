@@ -1,55 +1,27 @@
-\section{Availability, authorship and review}
+\section{Availability and declarations}
 
-\textbf{Code and data.} The patch series for ExoPlaSim, CM1 with WRF-ELEC and SWAN, the Fortran written for
-CM1's electrified build, the in-house reference and calibration tools with their tests, the notes on each
-component's correctness and limits, the defect log, the verification record, and this manuscript's figure
-scripts, data extracts and claims register are held in the world-crafting repository, to be published with
-the paper's release commit. The case comes from the Terluna project \autocite{goldman2026terluna}, whose
-repository at commit 186b294 holds the scenario, the runners, the case set-up and the analyses; the model runs
-themselves are held on the project's research drive, and the products derived from them are committed to
-Terluna with the hashes of their inputs. The upstream sources are pinned by checksum: ExoPlaSim 3.4.2 from its
-source distribution, CM1 release 22.0, SWAN 41.51, SWASH 12.01 and WRF-ELEC at commit \code{e43041b}. The
-patches inherit their upstream licences: the GNU GPL version 3 for ExoPlaSim and version 3 or later for SWAN,
-CM1's MIT-style licence, and the WRF public-domain notice for WRF-ELEC.
+\textbf{Code and data.} The ensemble's code and records are held in the public world-crafting repository,
+\url{https://github.com/dgoldman0/world-crafting}, where work on the ensemble will continue as a standalone
+project, if resources allow, and where this paper's release is tagged \code{paper-v1}. It holds the patches to
+ExoPlaSim, CM1 with WRF-ELEC and SWAN, the Fortran written for CM1's electrified build, the in-house reference and
+calibration tools with their tests, the notes on each component's correctness and limits, the defect log and the
+verification record, with this paper's figure scripts, data extracts and a register tracing the work's own numbers
+to their sources. The runs and their analyses belong to the Terluna project \autocite{goldman2026terluna}, whose public repository at commit 186b294, tagged \code{world-crafting-paper-v1}, holds the scenario, the runners that build and run the models, the case
+set-up, the analyses, and the products derived from the runs with the hashes of their inputs; the raw model output
+is available from the author on reasonable request. The patches apply to upstream sources pinned by checksum:
+ExoPlaSim 3.4.2 from its source distribution, CM1 release 22.0, SWAN 41.51 and WRF-ELEC at commit \code{e43041b};
+SWASH 12.01 runs unmodified from its pinned archive. As patches to those sources, they inherit their licences: the GNU GPL version 3 for ExoPlaSim and version 3 or later for SWAN, CM1's MIT-style
+licence, and the WRF public-domain notice for WRF-ELEC.
 
-\textbf{Author and assistance.} Daniel S. Goldman set the scenario and its questions, made the decisions
-recorded in Terluna's decisions register and is responsible for the content. The adaptations, analyses and
-this manuscript were developed with AI assistance. Claude Opus~5.5 (Anthropic), working under the author's
-direction, wrote and ran most of the code, patches and analyses in Terluna, where 374 of the 487 commits to
-186b294 name it as co-author,\claim{Z01} assembled the world-crafting repository and drafted this text;
-subagents of the same model compiled the defect log and the verification record, checked the bibliography and
-gathered the sources, refereed the claims, challenged the whole manuscript and reviewed the prose. In Terluna,
-OpenAI's Codex reviewed the solar-shield, atmospheric-electricity and three other research branches on
-8 October 2026 and planned their merge, an order the author accepted, and wrote notes outside this paper's
-subject; by Terluna's records, the July 2026 knowledge bundle from which the scenario's earlier decisions were
-recovered, and the editorial controls behind the paper's writing rules, came from the author's conversations
-with ChatGPT. Each claim marker in the source names a register entry that traces the claim to a file in one of
-the two repositories, a run on the research drive, a web record or a stated calculation, and the paper's check
-script confirms that every marker resolves and every listed source exists; numbers repeated in the conclusion
-and the next steps refer to the same entries without markers.
+\textbf{Author and AI assistance.} The author designed the scenario, directed the work and is responsible
+for the content. The code, analyses and manuscript were developed with AI assistance: Claude Opus~5.5 (Anthropic)
+wrote and ran most of the code and analyses\claim{Z01} and drafted most of the text, with subagents of the same
+model checking its claims, sources and prose; OpenAI's Codex drafted the conclusion, revised and reviewed the whole
+text and, in Terluna, reviewed research branches of the code; and the author's conversations with ChatGPT (OpenAI) were a source for the scenario's early planning and for the style rules applied to the text. The records of this assistance
+are kept in the Terluna and world-crafting repositories, those of the manuscript's reviews in world-crafting.
 
-\textbf{Competing interests.} The author declares no competing interests. The work is an unfunded personal
-project that brings the author no income, and the author's practice is to make public every part of it that its
+\textbf{Competing interests.} The author declares no competing interests. The work is an unfunded personal project from which the author receives no income, and the author's practice is to make public every part of it that its
 licences and sources allow.
-
-\textbf{Review history.} A first draft, written section by section on 17 October 2026, received the drafting
-assistant's own silent prose passes; two subagents acting as technical referees checked every claim and table row
-against its sources and found 94 statements to correct or qualify; and a third, as whole-manuscript challenger,
-raised 5 blocking, 11 major and 21 minor findings. The author then read the draft in a stream-of-thought review,
-which the author counts as its cadence review, and rejected its framing and much of its prose. Claude Opus~5.5,
-under the author's direction, wrote a second draft in answer to that review and to the challenge, and five fresh
-reviewer agents read it in a first editorial round, four by section and one across the whole paper, raising 172
-findings, 20 of them blocking. The author, reading the second draft during that round, found it still centred on
-the test world; the third draft, written by the same assistant, reframes the paper on the field and acts on the
-round's findings. The author read the third draft, judged the rest of the paper to stand for now and rejected its
-conclusions as a summary that implied reach to untested worlds. The closing section was rewritten as discussion and
-conclusions and read, with the passages revised beside it, in seven further rounds, each by two fresh reviewer
-agents, one for prose and the author's direction and one for evidence and scope, with a revision after each; the
-sixth of these found that the next steps gave one charging law positive ground strikes where the runs made negative
-ones, an error the earlier rounds had passed, and the seventh found nothing blocking, its remaining findings acted
-on in the last revision. Each round's findings and dispositions, with the referees' reports and the challenge, are
-recorded in the repository's review folder, with the page-by-page inspection of the built PDF, identified by its
-hash. Review by people other than the author, or by a journal, is still to come.
 
 \textbf{Acknowledgements.} The work used models and data that their developers make freely available: ExoPlaSim
 and the Planet Simulator, CM1, WRF-ELEC, SWAN and SWASH, the HITRAN database, the MT\_CKD continuum and the

@@ -10,48 +10,67 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 152,
+  "total": 167,
   "with_local_original": 87,
-  "blocked": 65,
+  "blocked": 80,
   "deferred": 87,
   "passed": 0,
   "depth": {
-   "claim-locators": 70,
-   "abstract-only": 60,
+   "claim-locators": 71,
+   "abstract-only": 74,
    "not read": 21,
    "full": 1
   },
-  "cited_in_paper": 73,
+  "cited_in_paper": 96,
   "cited_blocked": [
+   "battalio2022interaction",
    "battjes1985calibration",
    "berger1978long",
    "booij1999third",
    "bryan2002benchmark",
    "cavaleri1981wind",
+   "cazaubiel2019wave",
    "charnock1955wind",
    "christian2003global",
    "clough2005atmospheric",
+   "dahlback1991new",
+   "detelich2026modeling",
    "dwyer2003fundamental",
    "ebert1992parameterization",
    "fierro2013implementation",
+   "haqqmisra2022samosa",
+   "hogan2020evaluating",
+   "hogan2022tool",
+   "karman2019update",
    "komen1984existence",
    "kristjansson2000impact",
    "kuhlman2006numerically",
+   "kylling1995reliable",
+   "lacis1991description",
    "macgorman2001lightning",
+   "mccaul2009forecasting",
    "mckay1991making",
    "mlawer2012development",
    "nicoll2012measurements",
+   "prather2019round",
+   "price1992simple",
+   "rafkin2022interaction",
    "rodgers1967use",
    "salinas2021modeling",
    "saunders1998laboratory",
+   "schneck2026modeling",
+   "sergeev2022thai",
    "slingo1991response",
+   "song2022idealized",
    "stamnes1988numerically",
    "sun2023aerosol",
    "takahashi1978riming",
    "trenberth2005trends",
+   "turbet2022thai",
    "verlinde1993fitting",
    "weisman1982dependence",
    "wu1982wind",
+   "yang2016differences",
    "ziegler1994observed"
   ]
  },
@@ -1906,15 +1925,25 @@
    },
    "additional_files": null,
    "reading": {
-    "depth": "not read",
-    "reader": "this agent",
-    "locators": []
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (subagent reviewer and main session), 2026-10-18",
+    "locators": [
+     "abstract; the text documents MT_CKD versions up to 4.1.1"
+    ]
    },
    "admission": "DEFERRED",
    "admission_reason": "Legal local original archived on 2026-10-17 (found by the legal-copies helper, fetched by the main session); not yet read in full",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "Documents MT_CKD's inclusion in HITRAN (MT_CKD 4.x era). Elsevier copy blocked; no abstract retrieved. Archived 2026-10-17: publisher version of record, NSF Public Access Repository; title found on the first pages."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "MT_CKD as included in HITRAN, the continuum the reference re-implements at version 4.3.",
+     "support": "supported (abstract): MT_CKD as included in HITRAN; the version 4.3 the reference re-implements is the code's own",
+     "note": ""
+    }
+   ],
+   "notes": "Documents MT_CKD's inclusion in HITRAN (MT_CKD 4.x era). Elsevier copy blocked; abstract read on the archived original's first page (2026-10-18). Archived 2026-10-17: publisher version of record, NSF Public Access Repository; title found on the first pages. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "koll2018earth",
@@ -2695,9 +2724,17 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "Elsevier, closed; no abstract retrieved. L10 (pseudo-spherical: spherical direct beam, plane-parallel diffuse) is unverified here."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "The pseudo-spherical method behind the diffuse light of the curved-air channels.",
+     "support": "title only",
+     "note": "Cited for the method; the twilight without scattered light comes from the in-house code, which runs the two-stream only with the Sun above the horizon (python/climate/gcm/twilight.py:408-410)."
+    }
+   ],
+   "notes": "Elsevier, closed; no abstract retrieved. L10 (pseudo-spherical: spherical direct beam, plane-parallel diffuse) is unverified here. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "li2006effective",
@@ -2784,9 +2821,17 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "No local original: PNAS, PMC and eScholarship refuse scripted requests. Delegated agent C read the PMC full text: twilight heating missed by flat ray tracing; spherical atmospheres intercept 2.5 W/m2 more sunlight; spherical column mass exceeds flat by 1 + 4H/R. Not re-read here; BLOCKED until a local copy is archived."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "On Earth, a spherical atmosphere intercepts 2.5 W/m2 more sunlight than flat layers in the global mean and absorbs (heats the climate by) 1.5 W/m2 more; full abstract also checked on OSTI by the step-4 reader.",
+     "support": "supported (abstract, Semantic Scholar)",
+     "note": ""
+    }
+   ],
+   "notes": "No local original: PNAS, PMC and eScholarship refuse scripted requests. Delegated agent C read the PMC full text: twilight heating missed by flat ray tracing; spherical atmospheres intercept 2.5 W/m2 more sunlight; spherical column mass exceeds flat by 1 + 4H/R. Not re-read here; BLOCKED until a local copy is archived. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "vasylyev2021accurate",
@@ -3393,6 +3438,13 @@
      "statement": "Slowly rotating planets with Earth's gravity and air are a common subject of exoplanet GCMs.",
      "support": "supported",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "Slowly rotating planets of Way et al. among the planets on which runs would test how far the general repairs hold.",
+     "support": "as in next.tex's test of the reach",
+     "note": "Added in round 17's dispositions."
     }
    ],
    "notes": null
@@ -3429,13 +3481,35 @@
       "quote": "This contains some Earth-centric parameterizations, each for a different reason, that are not valid for use in other planetary configurations.",
       "read_in": "archived original (text layer)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": null,
+      "location": "p. 5825, abstract",
+      "quote": "Two different radiation schemes are supported, the GISS radiation, valid only for atmospheres similar to that of modern Earth, and SOCRATES, which is more generalized but more computationally expensive.",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": null,
+      "location": "p. 5831",
+      "quote": "A spectral file is a construct native to SOCRATES which contains all aspects of the radiation problem, including the spectral interval and Gauss point grids, gas absorption coefficients for major and minor species",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
      }
     ]
    },
    "admission": "DEFERRED",
    "admission_reason": null,
    "cited_in_paper": true,
-   "paper_use": null,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex; conclusions.tex",
+     "statement": "ROCKE-3D 2.0, with SOCRATES, computes its radiation from k-distributions of the air's own gases, read from a spectral file built for the atmosphere; SOCRATES is the more general and the costlier of its two radiation schemes",
+     "support": "supported",
+     "note": "Locators of 2026-10-19 on pp. 5825 and 5831, read by Claude Opus 5.5 (main session)"
+    }
+   ],
    "notes": "GMD (CC BY) archived. Agent A also reports pp. 5835-5836 (three Earth-specific settings removed, -1.27 W/m2) and p. 5851 (Earth-centric tunings matter less than planet differences)."
   },
   {
@@ -3696,7 +3770,7 @@
    },
    "additional_files": null,
    "reading": {
-    "depth": "abstract-only",
+    "depth": "claim-locators",
     "reader": "this agent",
     "locators": [
      {
@@ -3712,13 +3786,28 @@
       "quote": "the maximum atmospheric pressure at the lunar surface could have reached ∼1 kPa",
       "read_in": "abstract via OpenAlex record",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": null,
+      "location": "archived original, Sect. on the atmosphere's dissipation",
+      "quote": "This lunar atmosphere may have taken ∼70 million years to fully dissipate. ... The actual duration of the atmosphere may exceed this estimate",
+      "read_in": "archived original (pdftotext), 2026-10-19",
+      "quote_check": "quote found in text"
      }
     ]
    },
    "admission": "DEFERRED",
    "admission_reason": "Legal local original archived on 2026-10-17 (found by the legal-copies helper, fetched by the main session); not yet read in full",
    "cited_in_paper": true,
-   "paper_use": null,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The Moon held its volcanic air, at most about 1 kPa, for an estimated 70 million years or more.",
+     "support": "supported (archived original)",
+     "note": "Added in round 18's closing dispositions."
+    }
+   ],
    "notes": "CC BY-NC-ND at ScienceDirect but scripted access refused; the USRA repository handle returned HTTP 500. Archived 2026-10-17: publisher version of record (CC BY-NC-ND), via the Wayback copy of the USRA repository; title found on the first pages."
   },
   {
@@ -3900,9 +3989,31 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "Author-hosted copy of the JGR version of record."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "The LMD Mars mesoscale model runs the LMD GCM's physics on WRF's core, driven at its boundaries by the GCM, for downscaling consistency.",
+     "support": "supported (abstract)",
+     "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The LMD's GCM physics runs on WRF's core in a mesoscale model on Mars, sharing the global and resolved calculations' physics.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "Where one physics package serves the global and resolved calculations, its parameters are shared by construction.",
+     "support": "supported (abstract; constants converted to Mars's values, p. 3, per the round-17 evidence reader)",
+     "note": "Added in round 17's dispositions."
+    }
+   ],
+   "notes": "Author-hosted copy of the JGR version of record. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "mayne2014unified",
@@ -4171,6 +4282,13 @@
      "statement": "The LMD generic model carries correlated-k radiation for other compositions.",
      "support": "supported",
      "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "next.tex; conclusions.tex",
+     "statement": "The LMD generic model computes its radiation by the correlated-k method, from coefficients built for the atmosphere's gases",
+     "support": "supported",
+     "note": "Its locator on arXiv v1 p. 2"
     }
    ],
    "notes": null
@@ -4319,9 +4437,17 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "HAL copy archived. Table 2: Earth-rotation G-star aquaplanet total cloud cover CAM3 77, CAM4 70, CAM4_Wolf 70, AM2 86, LMDG max-overlap 43, LMDG random 86 (%), per agent B; '43-86%' therefore spans six configurations of five GCMs and its low end is an overlap choice."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "Standard GCMs diverge by 20-30 K on a tidally locked planet under an M star, within 8 K on a rapidly rotating one under a G star, from cloud, radiative transfer and their interaction with dynamics.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "HAL copy archived. Table 2: Earth-rotation G-star aquaplanet total cloud cover CAM3 77, CAM4 70, CAM4_Wolf 70, AM2 86, LMDG max-overlap 43, LMDG random 86 (%), per agent B; '43-86%' therefore spans six configurations of five GCMs and its low end is an overlap choice. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "yang2023cloud",
@@ -4445,9 +4571,24 @@
    },
    "admission": "DEFERRED",
    "admission_reason": null,
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "arXiv v1 archived. Bond albedo 0.06 (CRM domain) vs 0.32 (GCM) for the substellar box."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "A convection-resolving model coupling WRF's core with the LMD generic model's radiation and cloud, run over Proxima b; its cloud feedback much weaker than the GCMs'.",
+     "support": "supported (abstract)",
+     "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The LMD generic model's physics on WRF's core in a convection-resolving model over Proxima b.",
+     "support": "supported (abstract; Sect. 2.2 heading per the round-17 evidence reader)",
+     "note": "Added in round 17's dispositions."
+    }
+   ],
+   "notes": "arXiv v1 archived. Bond albedo 0.06 (CRM domain) vs 0.32 (GCM) for the substellar box. Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "sergeev2020atmospheric",
@@ -4785,9 +4926,31 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": null
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "Dozens of TAM's unstable profiles initialize the cloud-resolving TRAMS, whose results guide the tuning of TAM's convection scheme.",
+     "support": "supported (abstract)",
+     "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The Titan loop: a cloud-resolving model started from a GCM's unstable profiles, and the GCM's convection scheme tuned with the cloud-resolving runs and observations.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "A Titan GCM's convection tuned with resolved storms and observations, as the cloud exchange proposes for PlaSim's cloud.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    }
+   ],
+   "notes": "Cited from 2026-10-18 after the related-work scan."
   },
   {
    "key": "hueso2006methane",
@@ -5449,9 +5612,28 @@
    },
    "admission": "BLOCKED",
    "admission_reason": "No legal local original obtainable from this machine on 2026-10-17: publisher/repository copies refuse scripted requests or are closed access; see notes",
-   "cited_in_paper": false,
-   "paper_use": null,
-   "notes": "CC BY at Wiley; scripted retrieval refused."
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "PlanetWaves, adapted from an Earth wave model to other planets' gravity, air and liquids.",
+     "support": "supported (abstract; the UMWM origin from the PlanetWaves repository README)",
+     "note": ""
+    }
+   ],
+   "notes": "CC BY at Wiley; scripted retrieval refused. Cited from 2026-10-18 after the related-work scan.",
+   "supporting_records": [
+    {
+     "kind": "web record",
+     "url": "https://github.com/Cornell-MIT/PlanetWaves",
+     "file": "README.md",
+     "commit": "9a5da8ab30cffa9b8f48c3af7eb35b61ad2bf09c",
+     "retrieved": "2026-10-18, raw README read by the main session",
+     "quote": "Four-dimensional spectral wave model adapted from the University of Miami wave model (UMWM) to produce surface waves for a given bathymetry and a given wind climate on different planets. ... TAMnoTopo : Titan GCM (TAM) with no topography influence ... TAMwTopo : Titan GCM (TAM) with topography influence ... TAM_LM_winds.mat : 10 years of GCM winds at Ligeia Mare; TAM_OL_winds.mat : 10 years of GCM winds at Ontario Lacus",
+     "supports": "PlanetWaves' descent from an Earth wave model (repairs.tex) and the Titan GCM winds behind Detelich et al.'s lake runs (repairs.tex, introduction.tex)"
+    }
+   ]
   },
   {
    "key": "rubin2022ancient",
@@ -6455,6 +6637,589 @@
    "cited_in_paper": true,
    "paper_use": "Introduction: natural worlds keep atmospheres where escape velocity is large against insolation",
    "notes": "arXiv copy archived."
+  },
+  {
+   "key": "cazaubiel2019wave",
+   "citation": "Cazaubiel, Mawet, Darras, Grosjean, van Loon, Dorbolo and Falcon (2019). Wave turbulence on the surface of a fluid in a high-gravity environment. Phys. Rev. Lett., 123(24), 244501. doi:10.1103/PhysRevLett.123.244501",
+   "entry_type": "article",
+   "doi": "10.1103/PhysRevLett.123.244501",
+   "verified_via": "Crossref api.crossref.org/works/10.1103/PhysRevLett.123.244501 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "verification.tex",
+     "statement": "A centrifuge has raised gravity up to twentyfold for wave turbulence in a container; wind seas in the laboratory stay at Earth's gravity.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "price1992simple",
+   "citation": "Price and Rind (1992). A simple lightning parameterization for calculating global lightning distributions. J. Geophys. Res.-Atmos., 97(D9), 9919-9933. doi:10.1029/92JD00719",
+   "entry_type": "article",
+   "doi": "10.1029/92JD00719",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/92JD00719 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "The flash-rate law that sets the rate from the convective cloud-top height.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "mccaul2009forecasting",
+   "citation": "McCaul, Goodman, LaCasse and Cecil (2009). Forecasting lightning threat using cloud-resolving model simulations. Weather Forecast., 24(3), 709-729. doi:10.1175/2008WAF2222152.1",
+   "entry_type": "article",
+   "doi": "10.1175/2008WAF2222152.1",
+   "verified_via": "Crossref api.crossref.org/works/10.1175/2008WAF2222152.1 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "The flash-rate laws from the upward flux of precipitating ice at -15 C and the column's integrated ice.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "lacis1991description",
+   "citation": "Lacis and Oinas (1991). A description of the correlated k distribution method for modeling nongray gaseous absorption, thermal emission, and multiple scattering in vertically inhomogeneous atmospheres. J. Geophys. Res.-Atmos., 96(D5), 9027-9063. doi:10.1029/90JD01945",
+   "entry_type": "article",
+   "doi": "10.1029/90JD01945",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/90JD01945 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "The correlated-k method behind the reference model's emulation.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "kylling1995reliable",
+   "citation": "Kylling, Stamnes and Tsay (1995). A reliable and efficient two-stream algorithm for spherical radiative transfer: documentation of accuracy in realistic layered media. J. Atmos. Chem., 21(2), 115-150. doi:10.1007/BF00696577",
+   "entry_type": "article",
+   "doi": "10.1007/BF00696577",
+   "verified_via": "Crossref api.crossref.org/works/10.1007/BF00696577 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "not read",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its bibliographic record, for the method its title names",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "The pseudo-spherical two-stream used for the diffuse light of the curved-air channels.",
+     "support": "title only",
+     "note": "Cited for the method; the twilight without scattered light comes from the in-house code, which runs the two-stream only with the Sun above the horizon (python/climate/gcm/twilight.py:408-410)."
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "karman2019update",
+   "citation": "Karman et al. (2019). Update of the HITRAN collision-induced absorption section. Icarus, 328, 160-175. doi:10.1016/j.icarus.2019.02.034",
+   "entry_type": "article",
+   "doi": "10.1016/j.icarus.2019.02.034",
+   "verified_via": "Crossref api.crossref.org/works/10.1016/j.icarus.2019.02.034 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "green",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "HITRAN's collision-induced absorption (N2-N2, N2-O2, O2-O2, N2-H2O among its pairs) used by the reference model.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "song2022idealized",
+   "citation": "Song, Yang, Luo, Li and Fu (2022). Idealized 2D cloud-resolving simulations for tidally locked habitable planets. Astrophys. J., 934(2), 149. doi:10.3847/1538-4357/ac7879",
+   "entry_type": "article",
+   "doi": "10.3847/1538-4357/ac7879",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/1538-4357/ac7879 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "A 2-D cloud-resolving model across the day and night sides of a tidally locked aquaplanet, consistent with a GCM in circulation and cloud arrangement, far from it in cloud water and cloud width.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "battalio2022interaction",
+   "citation": "Battalio, Lora, Rafkin and Soto (2022). The interaction of deep convection with the general circulation in Titan's atmosphere. Part 2: impacts on the climate. Icarus, 373, 114623. doi:10.1016/j.icarus.2021.114623",
+   "entry_type": "article",
+   "doi": "10.1016/j.icarus.2021.114623",
+   "verified_via": "Crossref api.crossref.org/works/10.1016/j.icarus.2021.114623 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "TAM's simplified Betts-Miller convection scheme tuned in two parameters (reference humidity and relaxation time) with TRAMS results and observations.",
+     "support": "supported (abstract, Semantic Scholar)",
+     "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The Titan loop: a cloud-resolving model started from a GCM's unstable profiles, and the GCM's convection scheme tuned with the cloud-resolving runs and observations.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "A Titan GCM's convection tuned with resolved storms and observations, as the cloud exchange proposes for PlaSim's cloud.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "detelich2026modeling",
+   "citation": "Detelich et al. (2026). Modeling the seasonality of wind-driven hydrocarbon waves in Titan's polar lakes. J. Geophys. Res.-Planets, 131(5), e2026JE009693. doi:10.1029/2026JE009693",
+   "entry_type": "article",
+   "doi": "10.1029/2026JE009693",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/2026JE009693 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "hybrid",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "repairs.tex",
+     "statement": "PlanetWaves driven by a Titan GCM's winds over Titan's polar lakes.",
+     "support": "supported (abstract; the GCM winds from the PlanetWaves repository README, github.com/Cornell-MIT/PlanetWaves, which ships ten years of TAM winds for the two lakes)",
+     "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "A GCM's winds have driven a wave model over Titan's polar lakes.",
+     "support": "supported (abstract; the GCM winds from the PlanetWaves README, see supporting_records)",
+     "note": "Added in round 17's dispositions."
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18.",
+   "supporting_records": [
+    {
+     "kind": "web record",
+     "url": "https://github.com/Cornell-MIT/PlanetWaves",
+     "file": "README.md",
+     "commit": "9a5da8ab30cffa9b8f48c3af7eb35b61ad2bf09c",
+     "retrieved": "2026-10-18, raw README read by the main session",
+     "quote": "Four-dimensional spectral wave model adapted from the University of Miami wave model (UMWM) to produce surface waves for a given bathymetry and a given wind climate on different planets. ... TAMnoTopo : Titan GCM (TAM) with no topography influence ... TAMwTopo : Titan GCM (TAM) with topography influence ... TAM_LM_winds.mat : 10 years of GCM winds at Ligeia Mare; TAM_OL_winds.mat : 10 years of GCM winds at Ontario Lacus",
+     "supports": "PlanetWaves' descent from an Earth wave model (repairs.tex) and the Titan GCM winds behind Detelich et al.'s lake runs (repairs.tex, introduction.tex)"
+    }
+   ]
+  },
+  {
+   "key": "turbet2022thai",
+   "citation": "Turbet et al. (2022). The TRAPPIST-1 Habitable Atmosphere Intercomparison (THAI). I. Dry cases. Planet. Sci. J., 3(9), 211. doi:10.3847/PSJ/ac6cf0",
+   "entry_type": "article",
+   "doi": "10.3847/PSJ/ac6cf0",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/PSJ/ac6cf0 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "Four GCMs on the same dry TRAPPIST-1e cases spread by 7 K (N2-dominated) and 6 K (CO2-dominated) in global-mean surface temperature.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "sergeev2022thai",
+   "citation": "Sergeev et al. (2022). The TRAPPIST-1 Habitable Atmosphere Intercomparison (THAI). II. Moist cases. Planet. Sci. J., 3(9), 212. doi:10.3847/PSJ/ac6cf2",
+   "entry_type": "article",
+   "doi": "10.3847/PSJ/ac6cf2",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/PSJ/ac6cf2 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "Four GCMs on the same moist TRAPPIST-1e aquaplanet cases spread by 14 K (N2) and 24 K (CO2).",
+     "support": "supported (abstract)",
+     "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "Four GCMs given the same moist TRAPPIST-1e cases all simulate a temperate climate yet differ by 14 K (nitrogen-dominated) and 24 K (carbon dioxide), a spread the authors relate to parameterization choices.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "THAI's planet among the further cases that would test the ensemble along distinct physical directions.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "yang2016differences",
+   "citation": "Yang et al. (2016). Differences in water vapor radiative transfer among 1D models can significantly affect the inner edge of the habitable zone. Astrophys. J., 826(2), 222. doi:10.3847/0004-637X/826/2/222",
+   "entry_type": "article",
+   "doi": "10.3847/0004-637X/826/2/222",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/0004-637X/826/2/222 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "results.tex",
+     "statement": "Five band codes used in GCMs and two line-by-line codes, on moist clear-sky columns of 250-360 K, differ by up to 60 W/m2 in the shortwave and by 10-20 W/m2 in OLR at the warm end.",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "haqqmisra2022samosa",
+   "citation": "Haqq-Misra, Wolf, Fauchez, Shields and Kopparapu (2022). The Sparse Atmospheric Model Sampling Analysis (SAMOSA) intercomparison: motivations and protocol version 1.0. Planet. Sci. J., 3(11), 260. doi:10.3847/PSJ/ac9479",
+   "entry_type": "article",
+   "doi": "10.3847/PSJ/ac9479",
+   "verified_via": "Crossref api.crossref.org/works/10.3847/PSJ/ac9479 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "Sixteen cases of a 15-day synchronous rotator around a 3000 K blackbody star, sampled from an ExoPlaSim survey and compared with ExoCAM; proposed as a test of the convective-cover repair.",
+     "support": "supported (abstract)",
+     "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "The SAMOSA cases among the planets other studies model, on which runs would test how far the general repairs hold.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "SAMOSA's planets among the further cases that would test the ensemble along distinct physical directions.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "hogan2022tool",
+   "citation": "Hogan and Matricardi (2022). A tool for generating fast k-distribution gas-optics models for weather and climate applications. J. Adv. Model. Earth Sy., 14(10), e2022MS003033. doi:10.1029/2022MS003033",
+   "entry_type": "article",
+   "doi": "10.1029/2022MS003033",
+   "verified_via": "Crossref api.crossref.org/works/10.1029/2022MS003033 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "ecCKD divides the spectrum into k-terms within a user-set error tolerance, built for Earth's weather and climate.",
+     "support": "supported (abstract)",
+     "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "Free tools for the reduction and its check exist, built around Earth's columns, so the reference model would supply them with absorption spectra computed on other worlds' columns.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "A radiation scheme reduced with existing tools from the reference model's spectroscopy.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "hogan2020evaluating",
+   "citation": "Hogan and Matricardi (2020). Evaluating and improving the treatment of gases in radiation schemes: the Correlated K-Distribution Model Intercomparison Project (CKDMIP). Geosci. Model Dev., 13(12), 6501-6521. doi:10.5194/gmd-13-6501-2020",
+   "entry_type": "article",
+   "doi": "10.5194/gmd-13-6501-2020",
+   "verified_via": "Crossref api.crossref.org/works/10.5194/gmd-13-6501-2020 (2026-10-18)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "Claude Opus 5.5 (main session), 2026-10-18",
+    "locators": []
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained; cited on 2026-10-18 from its abstract (OpenAlex or Semantic Scholar)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": null,
+     "section": "next.tex",
+     "statement": "CKDMIP evaluates CKD schemes against benchmark line-by-line calculations on Earth's columns (profiles and palaeo-to-future gas scenarios).",
+     "support": "supported (abstract)",
+     "note": ""
+    },
+    {
+     "claim_id": null,
+     "section": "conclusions.tex",
+     "statement": "Free tools for the reduction and its check exist, built around Earth's columns, so the reference model would supply them with absorption spectra computed on other worlds' columns.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    },
+    {
+     "claim_id": null,
+     "section": "introduction.tex",
+     "statement": "A radiation scheme reduced with existing tools from the reference model's spectroscopy.",
+     "support": "supported (abstract)",
+     "note": "Added in round 17's dispositions."
+    }
+   ],
+   "notes": "Added from the related-work scan of 2026-10-18."
   }
  ]
 }
