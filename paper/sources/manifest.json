@@ -10,18 +10,18 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 170,
-  "with_local_original": 88,
-  "blocked": 82,
-  "deferred": 88,
+  "total": 177,
+  "with_local_original": 89,
+  "blocked": 88,
+  "deferred": 89,
   "passed": 0,
   "depth": {
-   "claim-locators": 72,
-   "abstract-only": 76,
+   "claim-locators": 73,
+   "abstract-only": 82,
    "not read": 21,
    "full": 1
   },
-  "cited_in_paper": 99,
+  "cited_in_paper": 106,
   "cited_blocked": [
    "battalio2022interaction",
    "battjes1985calibration",
@@ -30,6 +30,7 @@
    "booij1999third",
    "brdar2018mcsnow",
    "bryan2002benchmark",
+   "bryan2003resolution",
    "cavaleri1981wind",
    "cazaubiel2019wave",
    "charnock1955wind",
@@ -39,17 +40,21 @@
    "detelich2026modeling",
    "dwyer2003fundamental",
    "ebert1992parameterization",
+   "emanuel1994large",
    "fierro2013implementation",
    "haqqmisra2022samosa",
    "hogan2020evaluating",
    "hogan2022tool",
+   "hourdin2017art",
    "karman2019update",
    "komen1984existence",
    "kristjansson2000impact",
+   "kuang2008modeling",
    "kuhlman2006numerically",
    "kylling1995reliable",
    "lacis1991description",
    "macgorman2001lightning",
+   "matsuyama2014planetary",
    "mccaul2009forecasting",
    "mckay1991making",
    "mlawer2012development",
@@ -63,6 +68,7 @@
    "schneck2026modeling",
    "sergeev2022thai",
    "slingo1991response",
+   "sobel2000modeling",
    "song2022idealized",
    "stamnes1988numerically",
    "sun2023aerosol",
@@ -7383,6 +7389,308 @@
     }
    ],
    "notes": "Version 2 source (8 November 2026)."
+  },
+  {
+   "key": "matsuyama2014planetary",
+   "citation": "Matsuyama, Nimmo and Mitrovica (2014). Planetary reorientation. Annu. Rev. Earth Planet. Sci., 42, 605–634. doi:10.1146/annurev-earth-060313-054724",
+   "entry_type": "article",
+   "doi": "10.1146/annurev-earth-060313-054724",
+   "verified_via": "Crossref api.crossref.org/works/10.1146/annurev-earth-060313-054724 (2026-11-08)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "S17",
+      "location": "Abstract (Crossref or OpenAlex record)",
+      "quote": "For tidally deformed satellites in synchronous rotation, the slow rotation and correspondingly small remnant bulge makes them prone to reorientation.",
+      "read_in": "abstract via Crossref or OpenAlex metadata",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-11-08: the open copy answered scripted requests with a browser challenge; it can be fetched by hand",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "S17",
+     "section": "introduction.tex, reach.tex, refinement.tex",
+     "statement": "Mass loads reorient a body beneath its spin axis (true polar wander); synchronous satellites with small bulges are prone to it",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026), added where the paper names known work it had stated as its own."
+  },
+  {
+   "key": "hourdin2017art",
+   "citation": "Hourdin et al. (2017). The art and science of climate model tuning. Bull. Amer. Meteor. Soc., 98(3), 589–602. doi:10.1175/BAMS-D-15-00135.1",
+   "entry_type": "article",
+   "doi": "10.1175/BAMS-D-15-00135.1",
+   "verified_via": "Crossref api.crossref.org/works/10.1175/BAMS-D-15-00135.1 (2026-11-08)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "green",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "R25",
+      "location": "Abstract (Crossref or OpenAlex record)",
+      "quote": "Tuning consists of adjusting the values of these parameters to bring the solution as a whole into line with aspects of the observed climate.",
+      "read_in": "abstract via Crossref or OpenAlex metadata",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-11-08: the open copy answered scripted requests with a browser challenge; it can be fetched by hand",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "R25",
+     "section": "refinement.tex",
+     "statement": "A parameter tuned to a target brings the solution as a whole into line and takes up imbalances elsewhere in the model",
+     "support": "supported (abstract), the general role of tuning",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026), added where the paper names known work it had stated as its own."
+  },
+  {
+   "key": "sobel2000modeling",
+   "citation": "Sobel and Bretherton (2000). Modeling tropical precipitation in a single column. J. Climate, 13(24), 4378–4392. doi:10.1175/1520-0442(2000)013<4378:MTPIAS>2.0.CO;2",
+   "entry_type": "article",
+   "doi": "10.1175/1520-0442(2000)013<4378:MTPIAS>2.0.CO;2",
+   "verified_via": "Crossref api.crossref.org/works/10.1175/1520-0442(2000)013<4378:MTPIAS>2.0.CO;2 (2026-11-08)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "G26",
+      "location": "Abstract (Crossref or OpenAlex record)",
+      "quote": "its free tropospheric temperature, rather than its mean vertical velocity, is prescribed. This allows the precipitation and vertical velocity to be true prognostic variables",
+      "read_in": "abstract via Crossref or OpenAlex metadata",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-11-08: the open copy answered scripted requests with a browser challenge; it can be fetched by hand",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "G26",
+     "section": "refinement.tex",
+     "statement": "Prescribing a column's large-scale ascent largely sets its rain, the reason the weak-temperature-gradient method lets the column make its own ascent",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026), added where the paper names known work it had stated as its own."
+  },
+  {
+   "key": "kuang2008modeling",
+   "citation": "Kuang (2008). Modeling the interaction between cumulus convection and linear gravity waves using a limited-domain cloud system-resolving model. J. Atmos. Sci., 65(2), 576–591. doi:10.1175/2007JAS2399.1",
+   "entry_type": "article",
+   "doi": "10.1175/2007JAS2399.1",
+   "verified_via": "Crossref api.crossref.org/works/10.1175/2007JAS2399.1 (2026-11-08)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "G26",
+      "location": "Abstract (Crossref or OpenAlex record)",
+      "quote": "soundings obtained from horizontal averages of the CSRM domain allow the large-scale wave equation to be evolved, and thereby its interaction with cumulus convection is modeled",
+      "read_in": "abstract via Crossref or OpenAlex metadata",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-11-08: the open copy answered scripted requests with a browser challenge; it can be fetched by hand",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "G26",
+     "section": "results.tex, refinement.tex",
+     "statement": "The damped gravity wave by which the boxes make their own large-scale ascent is Kuang's method",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026), added where the paper names known work it had stated as its own."
+  },
+  {
+   "key": "bryan2003resolution",
+   "citation": "Bryan, Wyngaard and Fritsch (2003). Resolution requirements for the simulation of deep moist convection. Mon. Weather Rev., 131(10), 2394–2416. doi:10.1175/1520-0493(2003)131<2394:RRFTSO>2.0.CO;2",
+   "entry_type": "article",
+   "doi": "10.1175/1520-0493(2003)131<2394:RRFTSO>2.0.CO;2",
+   "verified_via": "Crossref api.crossref.org/works/10.1175/1520-0493(2003)131<2394:RRFTSO>2.0.CO;2 (2026-11-08)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "N06",
+      "location": "Abstract (Crossref or OpenAlex record)",
+      "quote": "The results reveal that simulations with 1-km grid spacing do not produce equivalent squallline structure and evolution as compared to the higher-resolution simulations.",
+      "read_in": "abstract via Crossref or OpenAlex metadata",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-11-08: the open copy answered scripted requests with a browser challenge; it can be fetched by hand",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "N06",
+     "section": "next.tex",
+     "statement": "Resolved deep convection changes with grid spacing at kilometre scales, so CM1's dilution is tested on finer grids",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026), added where the paper names known work it had stated as its own."
+  },
+  {
+   "key": "emanuel1994large",
+   "citation": "Emanuel, Neelin and Bretherton (1994). On large-scale circulations in convecting atmospheres. Q. J. R. Meteorol. Soc., 120(519), 1111–1143. doi:10.1002/qj.49712051902",
+   "entry_type": "article",
+   "doi": "10.1002/qj.49712051902",
+   "verified_via": "Crossref api.crossref.org/works/10.1002/qj.49712051902 (2026-11-08)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "H37",
+      "location": "Abstract (Crossref or OpenAlex record)",
+      "quote": "convection acts as a heat source for the large-scale circulations, while the latter supply water vapour to the convection. We show that this idea has led to fundamental misconceptions about this interaction",
+      "read_in": "abstract via Crossref or OpenAlex metadata",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No legal local original: closed access at Wiley (OpenAlex, 2026-11-08)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "H37",
+     "section": "assumptions.tex",
+     "statement": "A convection scheme driven by the moisture supply, as Kuo-type schemes are, rests on a view of convection that this work criticized",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026), added where the paper names known work it had stated as its own."
+  },
+  {
+   "key": "keane2014evidence",
+   "citation": "Keane and Matsuyama (2014). Evidence for lunar true polar wander and a past low-eccentricity, synchronous lunar orbit. Geophys. Res. Lett., 41(19), 6610–6619. doi:10.1002/2014GL061195",
+   "entry_type": "article",
+   "doi": "10.1002/2014GL061195",
+   "verified_via": "Crossref api.crossref.org/works/10.1002/2014GL061195 (2026-11-08)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": true
+   },
+   "license": null,
+   "original": {
+    "path": "paper/sources/originals/keane2014evidence.pdf",
+    "url": "https://arxiv.org/pdf/1408.6863",
+    "retrieved": "2026-11-08",
+    "bytes": 10218597,
+    "sha256": "411f93eacd3e0818d9fe62ed62537ac4f0fe03b233d44fd139f52cb31650eea8",
+    "version": "arXiv:1408.6863, the accepted manuscript (not the GRL typeset version)",
+    "pages": 25
+   },
+   "additional_files": null,
+   "reading": {
+    "depth": "claim-locators",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "S17",
+      "location": "arXiv p. 1, Key points",
+      "quote": "The formation of the South Pole-Aitken impact basin reoriented the Moon ~15°.",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "S17",
+      "location": "arXiv p. 1, Abstract",
+      "quote": "true polar wander (driven by the formation of the South Pole-Aitken Basin)",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "DEFERRED",
+   "admission_reason": null,
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "S17",
+     "section": "refinement.tex",
+     "statement": "The South Pole–Aitken basin is thought to have reoriented the Moon itself by about 15°",
+     "support": "supported",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026). Read at the claim locators only."
   }
  ]
 }

@@ -62,8 +62,9 @@ Earth's, and the solar day lasts 29.53 Earth days. In a run of a natural planet 
 on the test world the values of all four err together, by amounts large enough to measure. PlaSim, for example,
 fixes the horizon air mass at Earth's 35, where the Moon's well-mixed air has about 7. The design's seas and lakes
 also set the test world's orientation: their uneven load turns the nearly spherical Moon about 8\textdegree\ beneath
-its spin axis while its crust responds elastically, and the geography and tilt under which the models run follow from
-that turn.\claim{S17}
+its spin axis while its crust responds elastically, a case of the true polar wander that mass loads drive
+\autocite{matsuyama2014planetary}, and the geography and tilt under which the models run follow from that
+turn.\claim{S17}
 
 The global climate is computed by ExoPlaSim~3.4.2 \autocite{paradise2022exoplasim,paradise2025exoplasim}, PlaSim
 \autocite{fraedrich2005planet} extended for other worlds (the appendix gives each code's configuration), which runs
@@ -94,8 +95,9 @@ for. On the paths the lunar runs take, the released codes also contain five defe
 little or no error at Earth's values yet, by ExoPlaSim's own arithmetic, bias its runs that meet their
 conditions, runs of slowly rotating and tidally locked planets among them, while the other two err on Earth as well:
 CM1's simple boundary layer multiplies its mixing by the air's density in kilograms per cubic metre, and SWAN reads
-a parameter it has left unset.\claim{H34} Several of these values and defects leave a run plausible on its own and
-were found only by setting one model against another, or against its own surface fluxes.\claim{H34}\claim{H38} Of the repairs made to these values
+a parameter it has left unset.\claim{H34} Several of these values and defects leave a run plausible on its own; they
+were found by setting one model against another or against its own surface fluxes, or by reading the
+code.\claim{H34}\claim{H38} Of the repairs made to these values
 and defects, most belong to three classes, which differ in the worlds they hold for. A general repair, which
 corrects a unit, applies a scaling law or a parameterization fitted over a wider range, or removes a defect,
 contains no coefficient fitted to the test world and is built to hold on another world within the limits of its

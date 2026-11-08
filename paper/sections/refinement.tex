@@ -5,49 +5,49 @@ GCM budget by budget, defects and Earth values in both codes have been repaired,
 at lunar gravity, and the scenario has gained an orientation computed from its water. The rings and the boxes forced
 from the ten-level states held CM1's air toward the GCM's from 8~km, a height that leaves an Earth-scale boundary
 layer and its convection free, while lunar convection reaches 55--80~km, so the hold covered most of the convecting
-column and, over the Near-side Sea, took the place of the deep convection (Verification).\claim{H39} Forced instead
+column and, over the Near-side Sea, took the place of the deep convection (Verification).\claim{H39} That hold was a
+defect of the adaptation, a height set on Earth's scale in air whose heights are six times Earth's. Forced instead
 with the GCM's heating and moistening through the whole column, its temperature and moisture held to the GCM's only
-above the GCM's convection top, CM1 convects through the depth in which the GCM convects, and the height of the hold
-follows a quantity the forcing GCM computes. A coupling height fixed on Earth's scale thus covers the convection of a
-world with a deeper troposphere, and one taken from the forcing model's convection top serves any world whose GCM
-computes that top.\claim{R14}
+above the GCM's convection top, which the forcing reads from the GCM at each site, CM1 convects through the depth in
+which the GCM convects.\claim{R14}
 
-Each fault found in CM1 left output that looked plausible on its own, and each was found by setting CM1 against
-something outside it. Its simple boundary layer's density fault appeared when a box's boundary layer took up more
-heat and water than its surface supplied; the gust over water, a formula that omits gravity, when the sea box's
-surface wind was set beside the GCM's; Morrison's Earth limits on rain, in CM1's code; and the error in reading its
-radiative output, which overstated CM1's radiative heating by 38--40\% in the comparisons of the first version, when
-RRTMG, run offline on the same columns, failed to reproduce the cooling CM1 had written.\claim{H34}\claim{H38}\claim{N03}\claim{V08}
+Of the faults found in CM1, the boundary layer's density fault appeared when a box's boundary layer took up more heat
+and water than its surface supplied, and the gust over water, a formula that omits gravity, when the sea box's
+surface wind was set beside the GCM's; Morrison's Earth limits on rain were read in CM1's code, and an error in
+reading its radiative output, which overstated CM1's radiative heating by 38--40\% in the comparisons of the first
+version, appeared when RRTMG, run offline on the same columns, failed to reproduce the cooling CM1 had
+written.\claim{H34}\claim{H38}\claim{N03}\claim{V08} The first two had left runs that looked plausible on their own,
+so on each new world a model's budgets are closed against its own surface and against a second model.
 
-The forcing also shaped what CM1 showed. Under a ten-level state with Kuo-type convection, whose circulation sinks
-over the Near-side Sea after midnight while the scheme keeps raining, CM1's sea box, forced through the whole column,
-took the sinking and rained 0.14~mm a day after midnight; forced in the same way from a fifteen-level state with
-simplified Betts--Miller convection, it rained 1.62--1.88~mm a day, against that state's own 2.28.\claim{G25} A
-cloud-resolving model forced from a GCM takes on the GCM's circulation, so a difference between the two can lie in
-the forcing as well as in either model's physics, and boxes that make their own large-scale ascent change the
-comparison's result at every site (Results).\claim{G26} Compared at the sea surface, the two models' exchange differed
-in its law as well; on fifteen levels, with its lowest level in the surface layer, PlaSim takes CM1's own similarity
-theory over ice-free water with Beljaars's gust, so the two models exchange heat and vapour with the sea by one law.
-What remains between them, in the timing of the rain and the temperature of the upper air, lies in the GCM's
-convection and in how the boxes receive their ascent, both still under test (Next steps).\claim{N05}
+The forcing also shaped what CM1 showed, as prescribing a column's large-scale ascent largely sets its rain, the
+reason the weak-temperature-gradient method lets a column make its own ascent \autocite{sobel2000modeling}. Under a
+ten-level state with Kuo-type convection, whose circulation sinks over the Near-side Sea after midnight while the
+scheme keeps raining, CM1's sea box, forced through the whole column, took the sinking and rained 0.14~mm a day
+after midnight; forced in the same way from a fifteen-level state with simplified Betts--Miller convection, it rained
+1.62--1.88~mm a day, against that state's own 2.28.\claim{G25} Boxes that make their own large-scale ascent, by
+Kuang's damped gravity wave \autocite{kuang2008modeling}, change the comparison's result at every site
+(Results).\claim{G26} Compared at the sea surface, the two models' exchange differed in its law as well; on fifteen
+levels, with its lowest level in the surface layer, PlaSim takes CM1's own similarity theory over ice-free water with
+Beljaars's gust, so the two models exchange heat and vapour with the sea by one law. What remains between them, in
+the timing of the rain and the temperature of the upper air, lies in the GCM's convection and in how the boxes
+receive their ascent, both still under test (Next steps).\claim{N05}
 
-PlaSim's calibrations hold near the state they were fitted on. The cold cloud's factors, computed at lunar gravity,
-cooled the climate by 2.8~K and cut its rain by 19\%, the largest of the refinements measured singly, and a longwave
-correction fitted on one state misplaces the cooling of another, so it is refitted whenever the state, the levels or
-the convection change (Repairs).\claim{G19}\claim{R25} The dimming that holds the design temperature is then set with
-whatever imbalance the physics leaves, and the design case's was set while a fault of the adaptation's own counted
-the night's twilight twice: PlaSim's diagnostic of cloud forcing writes the shortwave only where the Sun is up, so the
-twilight the curved-air patch adds below the horizon accumulated over its two passes, and the design case reaches its
-target with too much heat on the night side and toward the poles (Verification).\claim{H40} A design climate that
-holds its target temperature is therefore also checked for where its heat goes.
+PlaSim's calibrations hold near the state they were fitted on, and a dimming tuned to the design temperature takes
+up whatever imbalance the physics leaves, as tuned parameters do in climate models generally
+\autocite{hourdin2017art}. Here the cold cloud's factors, computed at lunar gravity, cooled the climate by 2.8~K and
+cut its rain by 19\%, the largest of the refinements measured singly; a longwave correction fitted on one state
+misplaces the cooling of another, so it is refitted whenever the state, the levels or the convection change
+(Repairs); and the design case's dimming was set while a fault of the adaptation's own counted the night's twilight
+twice, so that the design case reaches its target with too much heat on the night side and toward the poles
+(Verification).\claim{G19}\claim{R25}\claim{H40} After each retune, a design climate is checked for where its heat
+goes as well as for its mean.
 
-The scenario changed as well, with the water it adds. Angular momentum holds a body's spin axis fixed in space, so a
-load that tilts the body's principal axes turns the body beneath that axis until its axis of greatest moment lies
-along the spin and, under a tidal lock, its axis of least moment points to the host. As the Moon's basins fill, the
-Moon follows its new axes and, while its crust responds elastically, turns by about 8\textdegree, a turn its mantle
-would ease only over geological time in the central case of its present thermal state, so the runs take the elastic
-state.\claim{S17} At the same sunlight the turned Moon's climate runs 0.8~K warmer, its near side's north wetter and
-its southern highlands drier.\claim{G24} A world's orientation is thus an output of its scenario: an ensemble that
-adds water to a body derives the orientation from the water's load before running the body's climate, and derives it
-again whenever that climate's runoff moves the lakes, since the order in which the basins fill sets the path from
-today's orientation to the turned one.
+Water added to a world is also a load on its figure, and such loads reorient a body beneath its spin axis, the true
+polar wander to which slowly rotating synchronous satellites are prone \autocite{matsuyama2014planetary} and which
+the South Pole--Aitken basin is thought to have driven on the Moon itself \autocite{keane2014evidence}. In the
+scenario, the Moon's added seas and lakes turn it by about 8\textdegree\ while its crust responds elastically, a
+turn its mantle would ease only over geological time in the central case of its present thermal state, so the runs
+take the elastic state; at the same sunlight the turned Moon's climate runs 0.8~K warmer, its near side's north
+wetter and its southern highlands drier.\claim{S17}\claim{G24} In setting up a world, its orientation is derived from
+the water's load before its climate is run and derived again whenever the climate's runoff moves the lakes, a check
+that the ensemble's set-up is to make, with those above, if the work continues.
