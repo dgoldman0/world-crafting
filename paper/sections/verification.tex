@@ -59,8 +59,10 @@ solar-position routine alone, correlates with the run's at 1.0000.\claim{V11}
 fit, in the version fitted before the gas bands: on eleven columns outside the fit's set it held within 0.6
 percentage points rms, and on a 303~K column carrying 338~kg\,m$^{-2}$ of vapour, warmer and wetter than any fitted, it fell 0.7 points short, where the scheme before its water recalibration fell 9.7 short.\claim{V07} The
 refit with the gas bands and the longwave correction, by contrast, are known through their fit residuals
-(Table~\ref{tab:verification}). Whatever its test, every calibration is clear-sky, so PlaSim's clouds remain
-uncalibrated, and the accuracy of each is bounded by the reference's own. That accuracy has been checked in part.
+(Table~\ref{tab:verification}). Whatever its test, every calibration of the radiation is clear-sky, so PlaSim's cloud
+cover remains uncalibrated, and the accuracy of each is bounded by the reference's own; the calibrations of its rain
+and cold cloud, to CM1's boxes, to air lifted at both gravities and to a particle model's snowflakes, are known
+through their fits alone. That accuracy has been checked in part.
 The reference's correlated-$k$ emulation reproduces the line-by-line outgoing longwave within 0.4--1.4~W\,m$^{-2}$,
 and the line-by-line model has two recorded checks
 against other codes, kept as numbers alone, with their harness outside the repository: PyRADS
@@ -91,9 +93,16 @@ reported here: the GCM runner's first solar spectrum, extended past 2.73~\textmu
 build discharged once per step after all the step's charging, multiplied memory the scheme had left unset and
 made private a variable its threads shared; the first terrain build placed its forcing by a corner column
 2.9~km up; and the sky solver's production grid of 114 channels absorbed 58\% too much sunlight above 500~nm with
-the Sun overhead, which had made PlaSim look short of its calibration. Five remain in reported runs, three of them
+the Sun overhead, which had made PlaSim look short of its calibration. Six remain in reported runs, four of them
 across whole sets of runs. The first channels of the curved-air table, bisected on the whole column alone, absorbed near-infrared sunlight too high in the air, 19.0 against 10.7~W\,m$^{-2}$ at 66--85~km, and the curved-air and gas-band runs
-of Table~\ref{tab:states} ran on them.\claim{H30} The rings and the boxes forced from the ten-level states started from soundings with the vapour of
+of Table~\ref{tab:states} ran on them.\claim{H30} Every run with the curved-air terms also ran PlaSim's diagnostic of
+cloud forcing, which sets the shortwave fluxes to zero once and then computes them twice, without cloud and with it,
+writing them only where the Sun is up, while the curved-air patch adds its twilight in each pass; below the horizon
+the second pass therefore kept the first pass's twilight and added its own. In the design case the double count
+puts 2.70~W\,m$^{-2}$ too much sunlight into the global mean, 1.5\% of what the air and ground absorb, all of it on
+the night side, from 1.7~W\,m$^{-2}$ at the equator to 17.7 near 86\textdegree, and the dimming chosen to hold the
+design temperature took it in: without it the same temperature would take a scale near 0.938 in place of
+0.924.\claim{H40} The rings and the boxes forced from the ten-level states started from soundings with the vapour of
 the GCM's top level, near 130~km, held constant above it, and on the 45\textdegree\,N rings, the only cases
 examined for it, the air began 6--15 times saturated over ice at 140--150~km and every column kept
 1.1~g\,m$^{-2}$ of ice above 107~km through both lunar days. The same rings and boxes were held toward the GCM from

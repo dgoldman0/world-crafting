@@ -10,23 +10,25 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 167,
-  "with_local_original": 87,
-  "blocked": 80,
-  "deferred": 87,
+  "total": 170,
+  "with_local_original": 88,
+  "blocked": 82,
+  "deferred": 88,
   "passed": 0,
   "depth": {
-   "claim-locators": 71,
-   "abstract-only": 74,
+   "claim-locators": 72,
+   "abstract-only": 76,
    "not read": 21,
    "full": 1
   },
-  "cited_in_paper": 96,
+  "cited_in_paper": 99,
   "cited_blocked": [
    "battalio2022interaction",
    "battjes1985calibration",
+   "beljaars1995parametrization",
    "berger1978long",
    "booij1999third",
+   "brdar2018mcsnow",
    "bryan2002benchmark",
    "cavaleri1981wind",
    "cazaubiel2019wave",
@@ -7220,6 +7222,167 @@
     }
    ],
    "notes": "Added from the related-work scan of 2026-10-18."
+  },
+  {
+   "key": "frierson2007dynamics",
+   "citation": "Frierson (2007). The dynamics of idealized convection schemes and their effect on the zonally averaged tropical circulation. J. Atmos. Sci., 64(6), 1959–1976. doi:10.1175/JAS3935.1",
+   "entry_type": "article",
+   "doi": "10.1175/JAS3935.1",
+   "verified_via": "Crossref api.crossref.org/works/10.1175/JAS3935.1 (2026-11-08)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "bronze",
+    "local_copy_obtained": true
+   },
+   "license": null,
+   "original": {
+    "path": "paper/sources/originals/frierson2007dynamics.pdf",
+    "url": "https://journals.ametsoc.org/downloadpdf/journals/atsc/64/6/jas3935.1.pdf",
+    "retrieved": "2026-11-08",
+    "bytes": 1752804,
+    "sha256": "7b442afc173ae1f175de7877252565ad7e69747859afddf9a7613122958fbd0c",
+    "version": "AMS typeset version (free access), copied from Terluna's research drive (session-tools/agents/gap_boxes/redesign/literature/frierson_2007_jas.pdf), identical by cmp",
+    "pages": 18
+   },
+   "additional_files": null,
+   "reading": {
+    "depth": "claim-locators",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "R21",
+      "location": "PDF p. 3, Sect. 2",
+      "quote": "the convective relaxation time, a parameter of the scheme",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "R21",
+      "location": "PDF p. 4, Sect. 2d (Reference profiles)",
+      "quote": "For our temperature reference profile, we use the virtual pseudoadiabat for our temperature profile",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "R21",
+      "location": "PDF p. 4, Sect. 2d",
+      "quote": "we specify a fixed relative humidity relative to this calculated reference temperature",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "R21",
+      "location": "PDF p. 5, Sect. 3a (standard parameters)",
+      "quote": "SBM ⫽ 2 h and RHSBM ⫽ 0.7",
+      "read_in": "archived original (text layer; the tau's glyph is lost in extraction)",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "DEFERRED",
+   "admission_reason": null,
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "R21",
+     "section": "repairs.tex",
+     "statement": "The simplified Betts–Miller scheme relaxes a convecting column toward a moist adiabat, and its humidity toward 0.7 of saturation, over two hours.",
+     "support": "supported (the scheme's reference profiles and standard parameters; the 200 hPa depth test is the lunar runs' own setting, not this paper's)",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026). Read at the claim locators only."
+  },
+  {
+   "key": "beljaars1995parametrization",
+   "citation": "Beljaars (1995). The parametrization of surface fluxes in large-scale models under free convection. Q. J. R. Meteorol. Soc., 121(522), 255–270. doi:10.1002/qj.49712152203",
+   "entry_type": "article",
+   "doi": "10.1002/qj.49712152203",
+   "verified_via": "Crossref api.crossref.org/works/10.1002/qj.49712152203 (2026-11-08)",
+   "corrections": [],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "R19",
+      "location": "Abstract (Crossref record)",
+      "quote": "In free convection, the wind speed in the surface transfer law is related to the velocity of the large eddies in the mixed layer",
+      "read_in": "abstract via Crossref metadata",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No legal local original: closed access at Wiley (OpenAlex, 2026-11-08)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "R19",
+     "section": "repairs.tex",
+     "statement": "Both codes take the convective gust over water in Beljaars's form, w* = (g h B/theta_v)^(1/3), at the run's gravity.",
+     "support": "supported (abstract), with the form as CM1's sfclay.F and Terluna's surface_gust.py implement it",
+     "note": ""
+    },
+    {
+     "claim_id": "H38",
+     "section": "assumptions.tex",
+     "statement": "CM1's surface layer computes its gust over land from the build's gravity in Beljaars's form.",
+     "support": "supported (abstract) with CM1's code",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026)."
+  },
+  {
+   "key": "brdar2018mcsnow",
+   "citation": "Brdar and Seifert (2018). McSnow: a Monte-Carlo particle model for riming and aggregation of ice particles in a multidimensional microphysical phase space. J. Adv. Model. Earth Syst., 10(1), 187–206. doi:10.1002/2017MS001167",
+   "entry_type": "article",
+   "doi": "10.1002/2017MS001167",
+   "verified_via": "Crossref api.crossref.org/works/10.1002/2017MS001167 (2026-11-08)",
+   "corrections": [
+    "Crossref gives the authors' initials only (S. Brdar, A. Seifert)"
+   ],
+   "open_access": {
+    "status_openalex": "gold",
+    "local_copy_obtained": false
+   },
+   "license": "CC BY-NC-ND 4.0 (publisher version)",
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "R23",
+      "location": "Abstract (Crossref record)",
+      "quote": "We present a novel Monte‐Carlo ice microphysics model, McSnow, to simulate the evolution of ice particles due to deposition, aggregation, riming, and sedimentation.",
+      "read_in": "abstract via Crossref metadata",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No local original obtained on 2026-11-08: the publisher's PDF and the Juelich repository copy both answered scripted requests with a browser challenge; the open copies can be fetched by hand",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "R23",
+     "section": "repairs.tex",
+     "statement": "The snow's sublimation is taken from the snowflakes McSnow, a particle model of ice growth, grows at lunar gravity.",
+     "support": "supported (abstract) for what McSnow is; the lunar runs are Terluna's",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (8 November 2026)."
   }
  ]
 }

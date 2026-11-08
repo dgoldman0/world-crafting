@@ -28,9 +28,9 @@ Earth orbit\newline\run{A28\_\allowbreak dim5} & 28\% with lakes; 1,173.5 & Both
 Sun and tilt\newline\run{A28\_\allowbreak dim5\_\allowbreak moon} & 28\% with lakes; 1,173.5 & Synodic clock; whole model days; fixed orbit; recalibrated split of sunlight & 20--29; 294.9~K & Equatorial and tilted rings; SWAN; cloud-setting tests \\
 Curved air\newline\run{A28\_\allowbreak dim5\_\allowbreak moon\_\allowbreak geometry} & As above & Curved-air terms on the table's first channels, which absorbed near-infrared sunlight too high in the air & 10--19; 294.2~K & --- \\
 Gas bands\newline\run{A28\_\allowbreak dim5\_\allowbreak moon\_\allowbreak geometry\_\allowbreak gases} & As above & Carbon dioxide and oxygen bands, on the first channels & 10--19; 292.0~K & --- \\
-295~K design\newline\run{A28\_\allowbreak corrected\_\allowbreak 970} & 28\% with lakes; 1,198 & Curved air on the corrected channels; gas bands; dimming eased to 3.0\% & 10--19; 295.0~K & 45\textdegree\ rings \\
+Corrected curved air\newline\run{A28\_\allowbreak corrected\_\allowbreak 970} & 28\% with lakes; 1,198 & Curved air on the corrected channels; gas bands; dimming eased to 3.0\% & 10--19; 295.0~K & 45\textdegree\ rings \\
 Longwave test\newline\run{A28\_\allowbreak corrected\_\allowbreak 970\_\allowbreak lw\_\allowbreak ice} & 28\% with lakes; 1,198 & Longwave by height; ice optics & 10--19; 306.5~K & --- \\
-Refined physics\newline\run{A28R\_\allowbreak 301k\_\allowbreak design\_\allowbreak l15\_\allowbreak snow\_\allowbreak s934} & 28\% with rebuilt lakes; 1,154 & Fifteen levels; simplified Betts--Miller convection; gust and similarity over water; rain from drop sizes; snow sublimation; the cold cloud's factors; curved air from a 301~K column, in the clear share; longwave correction refitted & 10--19; 300.8~K & Boxes at three sites \\
+Refined physics\newline\run{A28R\_\allowbreak 301k\_\allowbreak design\_\allowbreak l15\_\allowbreak snow\_\allowbreak s934} & 28\% with lakes from a later routing; 1,154 & Fifteen levels; simplified Betts--Miller convection; gust and similarity over water; rain from drop sizes; snow sublimation; the cold cloud's factors; curved air from a 301~K column, in the clear share; longwave correction refitted & 10--19; 300.8~K & Boxes at three sites \\
 Turned\newline\run{A28R\_\allowbreak 301k\_\allowbreak design\_\allowbreak l15\_\allowbreak snow\_\allowbreak s934\_\allowbreak turned} & As above, turned; 1,154 & The Moon turned by its seas and lakes; tilt 1.61\textdegree & 10--19; 301.6~K & --- \\
 Design case\newline\run{A28R\_\allowbreak 301k\_\allowbreak design\_\allowbreak l15\_\allowbreak snow\_\allowbreak s924\_\allowbreak turned\_\allowbreak refit} & As above; 1,141 & Longwave correction refitted on the turned climate & 10--49; 301.2~K & --- \\
 \bottomrule
@@ -56,23 +56,24 @@ two-year test of the two alone, with the Earth-orbit state's split of sunlight, 
 weakened from $-15.7$ to $-13.3$~W\,m$^{-2}$ and the planetary albedo fell from 0.293 to 0.285, so that the test
 world ran 0.9~K warmer over the two years while still gaining 1.9~W\,m$^{-2}$ at the top of its air.\claim{G17}
 From the Sun-and-tilt state, the curved air, on the table's first channels, cooled it by 0.65~K, its clouds
-offsetting in the first year 3.5 of the clear sky's 5.4~W\,m$^{-2}$ loss under those terms. On the same channels
+offsetting in the first year 3.5 of the clear sky's 5.4~W\,m$^{-2}$ loss under those terms; that run counted the
+night's twilight twice (Verification), so the terms' own cooling is larger. On the same channels
 the carbon dioxide and oxygen bands cooled it by a further 2.2~K over years 10--19, still cooling 0.3~K a decade,
 mostly through PlaSim's high cloud: computed cloud-free, the column's ground temperature changes by 0.57~K with the bands, while the
 high deck fell from 16 to 12\% of the sky and the top layer's cirrus from 2.0 to 0.05\% as that layer warmed by
-7~K.\claim{G03} The corrected terms have been run only together with the bands and the eased dimming, in the 295~K design: to hold
-its design temperature on them, the dimming was eased from 5.0 to 3.0\%, and at that dimming the state settles at
-295.0~K, with 2.31~mm of rain a day.\claim{G04} In the refined state the GCM's convection, levels, surface
-exchange, rain evaporation and cold cloud were changed together, the longwave correction was refitted near 301~K and
-the design temperature was set at 301~K, near which the state settles at a dimming of 6.6\%, with 300.8~K and
-2.00~mm of rain a day over years 10--19.\claim{G18}
+7~K.\claim{G03} The corrected terms have been run only together with the bands and the eased dimming: in the corrected-curved-air
+state, whose dimming was eased from 5.0 to 3.0\% to hold a target of 295~K, the climate settles at 295.0~K, with
+2.31~mm of rain a day.\claim{G04} With its convection, levels, surface exchange, rain evaporation and cold cloud
+changed together and its longwave correction refitted near 301~K, the GCM, at a dimming of 6.6\%, settles at
+300.8~K with 2.00~mm of rain a day over years 10--19: the refined-physics state.\claim{G18}
 Three of its changes were measured singly, each on a baseline of its own: the cold cloud's factors cooled the
 climate by 2.8~K and cut its rain by 19\%, the clear share of the curved air's terms cooled it by about 1~K, and
 Beljaars's gust in PlaSim's transfer would settle it about 0.7~K warmer.\claim{G19} Turned by its seas and lakes, at
 the same sunlight, the test world runs 0.80~K warmer, mainly because its clouds cool it less, while its global rain
 and the share of its land in drylands hold, the near side's north growing wetter and the southern highlands drier;
-with the longwave correction refitted on that climate and the dimming increased to 7.6\%, the design case settles at
-301.2~K over years 10--49, with 1.97~mm of rain a day.\claim{G24}
+with the longwave correction refitted on that climate and the dimming increased to 7.6\%, a dimming that also takes
+in the night twilight's double count (Verification), the design case settles at 301.2~K over years 10--49, with
+1.97~mm of rain a day.\claim{G24}
 
 \begin{figure}[tbp]
 \centering
@@ -82,7 +83,7 @@ tests, each against its own baseline in Table~\ref{tab:states}: the uncalibrated
 whose bar runs off the scale; the first calibrated run for the cloud water and the full-column bound; the
 cloud-water run for the convective cover; the Earth-orbit state for the Sun, the tilt and the split; the
 Sun-and-tilt run for the curved air and the two cloud settings; the curved-air run for the gas bands; and the
-295~K design for the longwave test. The curved-air and gas-band runs used the first channels of the curved-air
+corrected-curved-air state for the longwave test. The curved-air and gas-band runs used the first channels of the curved-air
 table. Bars are means over the years in Table~\ref{tab:states} and the accompanying data, against each
 baseline's own years; several runs were still drifting, and the longwave test, extrapolated to balance, would settle at 306.8--307.1~K.\claim{G13}}
 \label{fig:repairs}
@@ -95,10 +96,11 @@ counting convective cover per 2,400~s, which holds the convective cloud near its
 from 0.983 to 0.6 cools it by 5.0~K and about 5.9~K, while cloud water at its full-column bound cools the first
 calibrated run by 3.2~K and about 3.5~K.\claim{G05}\claim{G16} Ranked by form, then, the largest effects on the test world were those of the fits: the first calibration of the radiation's fits, used beyond the range they were
 fitted over, moved the global mean by at least 20~K, the cloud's Earth-tuned settings, pushed to the ends of
-these tests, by up to about 6~K, and the cold cloud's factors, a calibration of the cloud's fits, by 2.8~K, while the two general repairs of units and constants measured singly moved it by
-1.6--2.5~K and the geometry's curved-air terms, on the table's first channels, by 0.65~K. A change to the cooling by height moves the global mean more than any cloud setting: the longwave correction with the ice optics, a
+these tests, by up to about 6~K, and the cold cloud's factors, a calibration of the cloud's fits, by 2.8~K, while
+the general repairs measured singly moved it by 0.7--2.5~K, the gust over water least, and the geometry's
+curved-air terms and their clear share by about a kelvin each. A change to the cooling by height moves the global mean more than any cloud setting: the longwave correction with the ice optics, a
 calibration and a general repair switched on together and the one change fitted to the cooling by height, warms
-the 295~K design by 11.5~K over years 10--19, toward a balance near 307~K, a sensitivity reached with a correction
+the corrected-curved-air state by 11.5~K over years 10--19, toward a balance near 307~K, a sensitivity reached with a correction
 fitted at 295~K, with the warmer run's water vapour over years 15--19 twice its baseline's, 348 against
 170~kg\,m$^{-2}$, and its cloud covering 38\% of the sky in place of 20\%, most of the gain in high
 cloud.\claim{G05} Given the reference's spectroscopy and these tests, the test world's climate is least certain
@@ -122,18 +124,21 @@ sea surfaces fixed from a coarser run of the same model. The planetary albedos w
 39.0--47.0\% in the GCMs against 18.1 and 37.4\%, and the authors judged the three models' climates broadly
 similar.
 
-\textbf{The gap between the models.} CM1 and the GCM disagree in their rain and their upper air, a disagreement
-measured in boxes forced from the refined state's years 10--19 through the whole column against a test set before
-they ran: at each box the rain within 10\% of the GCM's over a lunar day, at most 15\% of it in a different
-quarter of the lunar day, the processes agreeing as the test's rules set them, and every change made to either
-model to close a difference justified by evidence apart from the comparison.\claim{G20} Over the Near-side Sea,
+\textbf{The gap between the models.} CM1 and the GCM disagree in their rain and their upper air. Boxes forced from
+the refined-physics state's years 10--19 through the whole column were read against an agreement test fixed before
+they ran. At each box it asks for the rain within 10\% of the GCM's over a lunar day, at most 15\% of it in a
+different quarter of the lunar day, and the evaporation, the air near the ground and aloft, the column's vapour, the
+share of falling rain evaporated and the radiation within its tolerances, and it admits a change to either model
+only on evidence apart from the comparison.\claim{G20} Over the Near-side Sea,
 over the land at 0\textdegree~E and over the semi-arid inland of the near side's south-east, the boxes rain
-82--84\% of the GCM's rain, so none passes. Over the land CM1 rains at the GCM's hours, whereas over the sea
-22--41\% of its rain falls in a different quarter of the lunar day, its evening rain short, and at every site its
-air at 40--60~km runs 3.5--10~K colder than the GCM's.\claim{G21} Carrying the GCM's own weather within each lunar
-day, the sea box follows the GCM's lunar days, with a correlation of 0.91, and still rains 17.5\% less, so the
-shortfall lies in the two models' physics; there CM1 evaporates 0.69 of its falling rain and the GCM
-0.51.\claim{G22} The colder upper air comes mostly from the mixing in CM1's updrafts, which dilute at about
+82--84\% of the GCM's rain, so none passes. Over the land at 0\textdegree~E CM1 rains at the GCM's
+hours, whereas over the sea 22--41\% of its rain falls in a different quarter of the lunar day, its evening rain
+short, and over the south-east 24\%, moved into the morning; at every site its air at 40--60~km runs 3.5--10~K colder
+than the GCM's.\claim{G21} Forced also with the GCM's weather within each lunar day, from means written every
+5.5~hours, the sea box follows the GCM's lunar days, with a correlation of 0.91, and still rains 17.5\% less, so the
+shortfall lies in the two models' physics; there CM1 evaporates 0.69 of its falling rain and the GCM 0.51. The GCM's
+side of these comparisons counts the night's twilight twice, as every state with the curved-air terms
+does.\claim{G22} The colder upper air comes mostly from the mixing in CM1's updrafts, which dilute at about
 $2\times10^{-4}$ per metre where Earth's thermal structure, translated to the Moon's scales, implies
 0.25--0.66$\times10^{-4}$, and which of the two free tropospheres the Moon would have stays open.\claim{G23}
 
@@ -181,7 +186,7 @@ breaking, scaled to lunar gravity by similarity, and with Wu's drag law at both 
 Charnock's roughness at each gravity the lunar drag would be larger and the ratio higher, by about a tenth to a
 half. Forced by sixty days of the
 Sun-and-tilt run's surface stress, the first lunar cycle a spin-up and the second measured, SWAN computes a mean
-significant wave height of 1.39~m over the nearside sea, 5.29 million~km$^2$, with 68\% of its area and time at or
+significant wave height of 1.39~m over the Near-side Sea, 5.29 million~km$^2$, with 68\% of its area and time at or
 above 1~m, and its largest sea reaches 4.9~m with a 19.3~s mean period. The waves are as steep as Earth's. At the
 shore, computed by SWASH from SWAN's spectra, they run up today's steep slopes to a 98th-percentile run-up of 2.1~m on
 the exposed western face of the eastern Smythii headland.\claim{G12}

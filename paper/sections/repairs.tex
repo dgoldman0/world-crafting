@@ -21,10 +21,12 @@ Whatever their switches, most repairs belong to three classes, which differ in w
 world. A general repair contains no coefficient fitted to the test world or chosen for it, since its values
 follow from a unit, a scaling law, a parameterization fitted over a stated range or the code's own intent, and
 its limits are therefore those of its laws (Table~\ref{tab:reach}). One step nearer the world, a general method
-computes a quantity of the world's own column offline, and the patched codes apply it as computed, as they apply the curved-air terms, differences between spherical and flat solutions of a design column. In a calibration, by contrast, PlaSim's
-own coefficients are adjusted until its output matches the reference model on chosen columns of the test world.
+computes a quantity of the world's own column offline, and the patched codes apply it as computed, as they apply the curved-air terms, differences between spherical and flat solutions of a clear column of the test world's air. In a calibration, by contrast, a code's
+own coefficients are adjusted until its output matches a reference on chosen columns or states of the test world:
+the reference model for PlaSim's radiation, and CM1's boxes, air lifted at both gravities and a particle model's
+snowflakes for its rain and cold cloud.
 The gas-band change has a part of each of these last two kinds: its coefficients were fitted to the reference
-beam's loss above every level of the design column, a quantity computed for that column, and the Rayleigh and
+beam's loss above every level of the 295~K column on which the curved-air table was built, a quantity computed for that column, and the Rayleigh and
 water multipliers were then refitted with them until PlaSim's layers matched the reference, so the tables list it as a calibration. A second convention separates a repair from its setting: the code change that turns an
 Earth value into a parameter is counted as the repair and the lunar value entered in it as a setting, so CM1's
 gravity, Sun, carbon dioxide and oxygen are general repairs with lunar settings, while CM1's zeroed trace gases
@@ -87,16 +89,18 @@ optics \autocite{ebert1992parameterization} through a delta-scaled two-stream, w
 Kristjánsson and Mitchell's table \autocite{kristjansson2000impact}, in place of liquid water's. The
 parameterization was, however, fitted to crystals of 10~\textmu m and larger, sizes the table gives only above
 190~K, so in the coldest lunar cloud the optics are extrapolated in size.\claim{R12} Over water, both codes take the
-convective gust in Beljaars's form, $w_* = (g\,h\,B/\theta_v)^{1/3}$, from the boundary layer's depth $h$ and the
-surface's buoyancy flux $B$ at the run's gravity: CM1's surface layer, which already computes it so over land, and
-PlaSim's transfer over ice-free water, in place of the free-convection term and the least wind of 1~m\,s$^{-1}$.
+convective gust in Beljaars's form \autocite{beljaars1995parametrization}, $w_* = (g\,h\,B/\theta_v)^{1/3}$, from the
+boundary layer's depth $h$ and the surface's buoyancy flux $B$ at the run's gravity: CM1's surface layer, which
+already computes it so over land, and PlaSim's transfer over ice-free water, in place of the free-convection term
+and the least wind of 1~m\,s$^{-1}$, with CM1's least wind of 0.1~m\,s$^{-1}$.
 Over that water PlaSim also takes the similarity theory of CM1's surface layer, carried to the height of its lowest
 level, two of whose constants stay those of Earth's air: the viscosity in the roughness of smooth flow and a cap of
 2.85~mm on the roughness.\claim{R19}
 
 \textbf{Curved air.} Both atmospheric models, PlaSim and CM1, take the curved geometry from the general method,
-a table of curved-air terms computed for one clear design column, 1.2~atm of air with 205~kg\,m$^{-2}$ of water
-over a 294.9~K surface: the radiation of the same air was traced once, offline, through 100 spherical shells
+a table of curved-air terms computed for one clear column of the test world's air. For the 295~K column on which
+the method was built, 1.2~atm of air with 205~kg\,m$^{-2}$ of water over a 294.9~K surface, the radiation of the
+same air was traced once, offline, through 100 spherical shells
 and through the same layers taken flat, at solar elevations from $-90$ to 90\textdegree, with the differences
 tabulated. Sunlight from 360~nm to 5~\textmu m was traced in 10,697 spectral channels, whose construction the
 appendix gives, the 282 weakly absorbing channels by spherical successive orders of scattering from an in-house
@@ -113,10 +117,11 @@ fourth power. Fitted to straight rays through the same shells, PlaSim's slant fa
 $(\mu+a)/(\mu^2+b\mu+c)$, within 0.30\% for water vapour and 0.08\% for well-mixed air
 (Figure~\ref{fig:slant}).\claim{R06} The daytime terms, however, include a difference of solvers as well as of
 geometry: with the Sun overhead, where curvature leaves the beam's path unchanged, the spherical solver's ground
-still receives 1.3\% less sunlight than the two-stream's, so by day the terms also shift PlaSim's sunlight from the two-stream reference that PlaSim was calibrated against toward the successive-orders solver's.\claim{R07} The design case takes the same terms recomputed on a 301~K column, where the net loss is
-8.0~W\,m$^{-2}$, keeps the 295~K column's slant factors, against which the shortwave calibration was fitted, and
-applies each layer's terms in the share of its column clear of cloud above it, a refinement that cools the climate
-by about 1~K.\claim{R24} Since the table
+still receives 1.3\% less sunlight than the two-stream's, so by day the terms also shift PlaSim's sunlight from the two-stream reference that PlaSim was calibrated against toward the successive-orders solver's.\claim{R07} The design case takes the terms the same method computes on a 301~K column with 331~kg\,m$^{-2}$ of
+water, in 11,559 channels, where they sum to a net loss of 8.0~W\,m$^{-2}$, the shells' widening losing 8.7 and the
+curved light gaining 0.7; it keeps the 295~K column's slant factors, against which the shortwave calibration was
+fitted, and applies each layer's terms in the share of its column clear of cloud above it, a refinement that cools
+the climate by about 1~K.\claim{R24} Since the table
 is computed for one column, for another world it is recomputed from that world's own column and starlight, and how close to
 the horizon a flat treatment holds there depends on the height of the scattering layer against the radius: the
 plane-parallel codes that separate surface and aerosol in remote sensing hold typically to about
@@ -130,7 +135,7 @@ about 80~km, 3\% of its radius \autocite{vincendon2010spherical}. Even on Earth,
 \includegraphics[width=0.6\textwidth]{figures/fig_slant.pdf}
 \caption{The slant path over the vertical path as the Sun nears the horizon. PlaSim's formula,
 $35/\sqrt{1+1224\mu^2}$, has Earth's horizon value; the Moon's factors for water vapour and for well-mixed
-air are computed along straight rays through the design column's shells. The flat column's $1/\mu$ diverges at the
+air are computed along straight rays through the 295~K column's shells. The flat column's $1/\mu$ diverges at the
 horizon.}
 \label{fig:slant}
 \end{figure}
@@ -148,14 +153,14 @@ within 0.007 and the outgoing longwave within about 2~W\,m$^{-2}$. The second, m
 Sun-clock and orbit defects, refitted the Rayleigh multiplier with a multiplier on the near-infrared water
 absorptivity on eleven columns and brought the share of arriving sunlight absorbed in the air from 7.7--8.2
 percentage points short to within 0.3 points rms.\claim{R09} By layer the fit still placed sunlight low: on the
-design column of the curved-air table, PlaSim put almost nothing above 85~km, where the reference absorbs
+295~K column, PlaSim put almost nothing above 85~km, where the reference absorbs
 4.2~W\,m$^{-2}$. In a third step, three carbon dioxide and oxygen bands, each fitted to the reference beam's loss
 above every level within 0.13\% of its energy, and a refit of both multipliers brought the layers within
 0.97~W\,m$^{-2}$ rms of the reference, from 1.71 (Figure~\ref{fig:layers}).\claim{R10} In the longwave, the
 first calibration had fitted PlaSim's water continuum to the outgoing flux, which a scheme can match while
 misplacing its cooling by 10~W\,m$^{-2}$ in a layer. To place that cooling by layer, an extra escape to space
 for each layer and for the ground, fitted over land and over sea on about 2,100 cloud-free three-day means of
-the 295~K design and scaled with temperature to the fourth power, removes each layer's mean error on that state
+the corrected-curved-air state and scaled with temperature to the fourth power, removes each layer's mean error on that state
 and leaves 1--5~W\,m$^{-2}$ from column to column.\claim{R11} A correction fitted on one state errs on another,
 by up to 6.8~W\,m$^{-2}$ in a layer when the 295~K fit is run at 301~K, so the design case runs it refitted on the
 cloud-free means of its own climate, and each level set and convection scheme takes a refit of its own.\claim{R25}
@@ -163,7 +168,7 @@ cloud-free means of its own climate, and each level set and convection scheme ta
 \textbf{Levels, convection and rain in the GCM.} The design case runs PlaSim on fifteen $\sigma$ levels laid out for
 the test world's scale height, which put the lowest level near 0.3~km and the next near 1.2~km, where the released
 ten levels give the lowest layer the first 1.73~km.\claim{R20} On these levels a simplified Betts--Miller scheme
-replaces the Kuo-type one: it relaxes a convecting column toward a moist adiabat, and its humidity toward 0.7 of
+\autocite{frierson2007dynamics} replaces the Kuo-type one: it relaxes a convecting column toward a moist adiabat, and its humidity toward 0.7 of
 saturation, over two hours, and treats convection spanning more than 200~hPa as deep, a depth test set in pressure
 that spans 16\% of the lunar surface pressure and would need scaling for a world at another pressure. The scheme and
 the closures tried with it remain under test, since at every box the GCM's rain departs from CM1's beyond the
@@ -174,12 +179,13 @@ with the capillary length and fall by laws computed at the world's gravity and a
 is general and its starting sizes a calibration.\claim{R22} Two further calibrations fit PlaSim's cold cloud to the
 lunar column: factors on the water and crystal size of cloud colder than $-38$\,\textdegree C in its top three
 layers, computed from slabs of air lifted through those layers at lunar and at Earth gravity, and a sublimation of
-falling snow taken from a particle model's lunar snowflakes and fitted on two of the design boxes.\claim{R23}
+falling snow taken from the snowflakes that McSnow, a particle model of ice growth \autocite{brdar2018mcsnow},
+grows at lunar gravity, fitted on two CM1 boxes.\claim{R23}
 
 \begin{figure}[tbp]
 \centering
 \includegraphics[width=0.62\textwidth]{figures/fig_layers.pdf}
-\caption{Sunlight absorbed in each GCM layer of the curved-air table's design column, averaged over the
+\caption{Sunlight absorbed in each GCM layer of the 295~K column, averaged over the
 sphere, with PlaSim's ten layers placed on the column by their $\sigma$: the line-by-line pseudo-spherical
 model against PlaSim's arithmetic on the same column as run, and with the carbon dioxide and oxygen bands and
 the refitted multipliers. With the bands the layers agree with the reference within 0.97~W\,m$^{-2}$ rms, against
@@ -214,11 +220,12 @@ circulation a box lacks and, as a single local-time bin, of the transport across
 absences of stock CM1 are filled in turn: each ring column has its own Sun, a box one Sun for all its columns,
 and on tilted rings each column has its own Coriolis parameter, acting on departures from the base-state wind;
 CM1's own large-scale advection uses the GCM's mean vertical wind; and over terrain each column is
-nudged and forced at its own height above sea level. In the boxes forced from the refined state, the heating and
+nudged and forced at its own height above sea level. In the boxes forced from the refined-physics state, the heating and
 moistening are the GCM's own, the storage of its column less its physics, taken through the whole column, and
 CM1's temperature and vapour are held to the GCM's only above the top of the GCM's convection, the lowest level
-above which it forms less than 1\% of its convective rain, 72~km at the boxes' sites, so that CM1's boundary layer
-and convection develop freely through the column in which the GCM convects. The rings and the boxes forced from the ten-level
+above which it forms less than 1\% of its convective rain: at the sea and land sites that top stands at 72~km and the
+hold begins at the next level, 93~km, so that CM1's boundary layer and convection develop freely through the column
+in which the GCM convects. The rings and the boxes forced from the ten-level
 states of Table~\ref{tab:states} were held toward the GCM from 8~km, fully from 16~km.\claim{R14} Beyond the storms, the GCM forces the seas as well: SWAN is driven by the GCM's surface stress, converted through Wu's drag law inverted to an
 equivalent wind, so that its friction velocity is within $-2.5$ to $+1.2$\% of the GCM's, on spherical
 coordinates at the lunar radius and with its frequency band scaled by $g/g_\mathrm{E}$, and SWASH, run

@@ -243,11 +243,13 @@
   },
   {
    "id": "H11",
-   "text": "Against the same air in flat layers (with a pseudo-spherical direct beam for the sunlight), the curved geometry takes in 10.3 W/m2 more sunlight and lets out 16.2 W/m2 more infrared, 5.8 net: shells' widening -6.5, curved light and escape +0.7; twilight 1.4 W/m2 on the ground",
+   "text": "Against the same air in flat layers (with a pseudo-spherical direct beam for the sunlight), the design case's 301 K clear column in curved shells takes in 11.85 W/m2 more sunlight and lets out 19.85 W/m2 more infrared, 8.00 net: the shells' widening -8.74 (4.95 - 13.69), curved light and escape +0.73 (1.53 + 5.36 - 6.16); the ground's twilight while the Sun is below the horizon 1.4 W/m2, unchanged from the 294.9 K column",
    "source": [
     "terluna:research/decisions.md#L369",
     "terluna:climate/gcm/README.md#L1007-1016",
-    "repo:python/climate/results/gcm/twilight.json"
+    "repo:python/climate/results/gcm/twilight.json",
+    "terluna@bdda5a07:climate/gcm/README.md#L1403-1430",
+    "terluna@bdda5a07:climate/results/gcm/twilight_301k.json"
    ],
    "state": "conditional model"
   },
@@ -320,7 +322,7 @@
   },
   {
    "id": "H19",
-   "text": "Liquid optics for all cloud; saturation over liquid sets the threshold, so high cloud at 180-204 K in the second layer from the top forms only at 136-149% of ice saturation",
+   "text": "Liquid optics for all cloud; saturation over liquid sets the threshold, so in the corrected-curved-air state (A28_corrected_970), on ten levels, high cloud at 180-204 K in the second layer from the top forms only at 136-149% of ice saturation",
    "source": [
     "repo:notes/defect_log.md#B19",
     "repo:notes/defect_log.md#B20",
@@ -517,7 +519,7 @@
   },
   {
    "id": "R05",
-   "text": "The curved-air table: one clear design column (1.2 atm, 205 kg/m2 water, 294.9 K surface, 100 shells); 10,697 channels bisected within bands until each absorbs a direct beam within 1% of its sunlight as its members do and above 1,250 nm keeps the beam's loss by layer; single channels below 500 nm; 282 scattering channels by successive orders (cap 100); beam channels with pseudo-spherical two-stream diffuse light; shell widening -6.5 W/m2 net, curved light and escape +0.7",
+   "text": "The curved-air table: the 295 K column on which the method was built (1.2 atm, 205 kg/m2 water, 294.9 K surface, 100 shells); 10,697 channels bisected within bands until each absorbs a direct beam within 1% of its sunlight as its members do and above 1,250 nm keeps the beam's loss by layer; single channels below 500 nm; 282 scattering channels by successive orders (cap 100); beam channels with pseudo-spherical two-stream diffuse light; shell widening -6.5 W/m2 net, curved light and escape +0.7",
    "source": [
     "terluna:climate/gcm/README.md#L975-1016",
     "repo:notes/reference_radiation.md#L290-410",
@@ -800,7 +802,7 @@
   },
   {
    "id": "G03",
-   "text": "Curved air -0.65 K, clouds returning 3.5 of the clear sky's 5.4 W/m2 in the first year; gas bands -2.23 K, a cloud-free column moving only 0.57 K, the high deck 16.2% -> 11.6% and the top layer's cirrus 2.0% -> 0.05% as it warmed 7 K",
+   "text": "Curved air -0.65 K, clouds returning 3.5 of the clear sky's 5.4 W/m2 in the first year; gas bands -2.23 K, a cloud-free column moving only 0.57 K, the high deck 16.2% -> 11.6% and the top layer's cirrus 2.0% -> 0.05% as it warmed 7 K; the curved-air run counted the night's twilight twice (claim H40) and its baseline carried no twilight, so the terms' own cooling is larger than 0.65 K",
    "source": [
     "repo:paper/data/repairs.json",
     "terluna:climate/gcm/README.md#L1042-1063",
@@ -813,7 +815,7 @@
   },
   {
    "id": "G04",
-   "text": "With the curved air on the ledger's corrected terms and the gas bands, at a sunlight scale of 0.970 (3.0% dimming, eased from 5%), the 295 K design state settles at 295.02 K with 2.31 mm/day; the scale was chosen to hold that state's design temperature",
+   "text": "With the curved air on the ledger's corrected terms and the gas bands, at a sunlight scale of 0.970 (3.0% dimming, eased from 5%), the corrected-curved-air state settles at 295.02 K with 2.31 mm/day; the scale was chosen to hold that state's design temperature",
    "source": [
     "terluna:climate/gcm/README.md#L1148-1158",
     "terluna:research/decisions.md#L370-372",
@@ -890,11 +892,15 @@
   },
   {
    "id": "W01",
-   "text": "General repairs (Sun clock, cover per Earth day, cloud water by pressure, CM1 gravity and fall speeds, CM1's Sun and soil, breakdown cap, sub-step, damping and mixing length, flash-reach logging, SWAN's knee, ice optics within range) built to apply unchanged; fixed orbit and whole model days are avoidances; leakage and the forcing methods read their inputs; the condition for ground strikes is a bound; the curved-air terms are a method with a per-world table; the calibrations (Rayleigh, water multiplier, continuum, longwave correction, gas fits) hold near their case",
+   "text": "General repairs (Sun clock, cover per Earth day, cloud water by pressure, CM1 gravity and fall speeds, CM1's Sun and soil, breakdown cap, sub-step, damping and mixing length, flash-reach logging, SWAN's knee, ice optics within range) built to apply unchanged; fixed orbit and whole model days are avoidances; leakage and the forcing methods read their inputs; the condition for ground strikes is a bound; the curved-air terms are a method with a per-world table; the calibrations (Rayleigh, water multiplier, continuum, longwave correction, gas fits) hold near their case; for another world the orientation is derived from its loads, a level set laid out for its scale height, and the rain's starting drop sizes, the cold cloud's factors and the snow's sublimation refitted at its gravity",
    "source": [
     "repo:models/exoplasim/README.md",
     "repo:models/cm1/README.md",
-    "repo:notes/exoplasim.md#L179-228"
+    "repo:notes/exoplasim.md#L179-228",
+    "terluna@bdda5a07:research/studies/moon_orientation/README.md",
+    "terluna@bdda5a07:climate/gcm/README.md#L2467-2480",
+    "terluna@bdda5a07:climate/gcm/rain_drops.py",
+    "terluna@bdda5a07:climate/gcm/README.md#L1560-1575"
    ],
    "state": "documented"
   },
@@ -1147,9 +1153,11 @@
   },
   {
    "id": "H36",
-   "text": "PlaSim evaporates falling rain by one constant (gamma 0.01 in rainmod.f90), with no drop size or fall speed: 29% of its rain evaporated against 61% in CM1's boxes",
+   "text": "PlaSim evaporates falling rain by one constant (gamma 0.01 in rainmod.f90), with no drop size or fall speed: about a fifth of the rain formed in a lunar day evaporates, against about half with drops at lunar fall speeds",
    "source": [
-    "repo:notes/defect_log.md#B30"
+    "repo:notes/defect_log.md#B30",
+    "terluna@bdda5a07:research/plan.md#L500-505",
+    "terluna@bdda5a07:climate/gcm/rain_drops.py"
    ],
    "state": "finding"
   },
@@ -1166,7 +1174,7 @@
   },
   {
    "id": "H38",
-   "text": "PlaSim's free-convection constant over water, 0.0016 m s-1 K-1/3, from a tank law scaling as (g/p_s)^(1/3), raises its transfer 1.7-2.1 times; CM1's MM5 gust over water, sqrt(dthv) m/s, omits gravity while the same surface layer takes Beljaars's gust from the build's gravity over land; it raised the sea box's surface wind 1.6-1.8 times where Beljaars's gust from the box's own fluxes raises it 1.1-1.2 times",
+   "text": "PlaSim's free-convection constant over water, 0.0016 m s-1 K-1/3, from a tank law scaling as (g/p_s)^(1/3), raises its transfer 1.7-2.1 times; CM1's MM5 gust over water, sqrt(dthv) m/s, omits gravity while the same surface layer takes Beljaars's gust from the build's gravity over land; it raised the sea box's surface wind 1.6-1.8 times where Beljaars's gust from the box's own fluxes raises it 1.1-1.2 times; MM5's surface layer as CM1 carries it (bryan2026cm1); Beljaars's form after Beljaars (1995)",
    "source": [
     "repo:notes/defect_log.md#B33",
     "terluna@bdda5a07:research/decisions.md#L560",
@@ -1254,10 +1262,11 @@
   },
   {
    "id": "R24",
-   "text": "The design case takes the curved-air terms from a 301 K column (net -8.00 W/m2, against -5.83 on the 294.9 K column), keeps the 294.9 K column's slant factors, against which the shortwave calibration was refitted, and applies the terms in each layer's clear share (NTWLCLEAR 1), which cools the climate by about 1 K",
+   "text": "The design case takes the curved-air terms from a 301 K column with 331 kg/m2 of water, in 11,559 channels (267 by multiple scattering): net -8.00 W/m2, the widening -8.74 and the curved light +0.73, against -5.83 on the 294.9 K column; it keeps the 294.9 K column's slant factors, against which the shortwave calibration was refitted, and applies the terms in each layer's clear share (NTWLCLEAR 1), which cools the climate by about 1 K",
    "source": [
-    "terluna@bdda5a07:climate/gcm/README.md#L1400-1441",
-    "terluna@bdda5a07:climate/gcm/README.md#L1500-1506"
+    "terluna@bdda5a07:climate/gcm/README.md#L1390-1441",
+    "terluna@bdda5a07:climate/gcm/README.md#L1500-1506",
+    "terluna@bdda5a07:climate/results/gcm/twilight_301k.json"
    ],
    "state": "calculation"
   },
@@ -1300,7 +1309,7 @@
   },
   {
    "id": "G21",
-   "text": "Boxes forced by the refined state's years 10-19: sea 1.17 against 1.42 mm/day, 41% in another quarter, the evening rain missing, upper air 8-10 K colder; land at 0 E 17% short, timing agreeing, upper air 3.5-4.6 K colder; dry south-east 0.513 against 0.609 (16% short), 24% displaced, 7.5-7.7 K colder; the sea box carrying the weather 22% displaced",
+   "text": "Boxes forced by the refined-physics state's years 10-19: sea 1.17 against 1.42 mm/day, 41% in another quarter, the evening rain missing, upper air 8-10 K colder; land at 0 E 17% short, timing agreeing, upper air 3.5-4.6 K colder; dry south-east 0.513 against 0.609 (16% short), 24% displaced by CM1's morning rain, 7.5-7.7 K colder; the sea box carrying the weather 22% displaced",
    "source": [
     "terluna@bdda5a07:research/plan.md#L500-510",
     "terluna@bdda5a07:research/decisions.md#L657",
@@ -1310,7 +1319,7 @@
   },
   {
    "id": "G22",
-   "text": "Carrying the GCM's weather, the sea box follows the GCM's lunar days (r 0.91) and rains 17.5% less; CM1 evaporates 0.69 of its falling rain against the GCM's 0.51",
+   "text": "Forced also with the GCM's weather, from means written every 5.5 hours, the sea box follows the GCM's lunar days (r 0.91) and rains 17.5% less; CM1 evaporates 0.69 of its falling rain against the GCM's 0.51; the forcing GCM, like every state with the curved-air terms, counts the night's twilight twice",
    "source": [
     "terluna@bdda5a07:research/decisions.md#L657",
     "terluna@bdda5a07:research/plan.md#L500-510"
@@ -1356,11 +1365,12 @@
   },
   {
    "id": "N05",
-   "text": "None of the closures tried with the simplified Betts-Miller scheme passes; the second refinement (nclos_bm 3) convects 0.93-0.95 of the boxes' rain with the free troposphere inside the proposed target, yet dries the land to about 40% of its soil water and leaves 58-74% of the tropics' rain to the large-scale condensation; PlaSim's single column convects unlike the GCM, so its results cannot choose a closure",
+   "text": "None of the closures tried with the simplified Betts-Miller scheme passes; the second refinement (nclos_bm 3) forms 0.87-0.95 of the rain at the boxes' sites by convection, yet within 30 deg of the equator convection carries only 0.26-0.42 of the rain (58-74% left to the large-scale condensation), and it dries the land to about 40% of its soil water; PlaSim's single column convects unlike the GCM, so its results cannot choose a closure",
    "source": [
     "terluna@bdda5a07:research/decisions.md#L696",
     "terluna@bdda5a07:research/decisions.md#L703",
-    "terluna@bdda5a07:research/decisions.md#L711"
+    "terluna@bdda5a07:research/decisions.md#L711",
+    "terluna@bdda5a07:climate/gcm/README.md#L4742-4746"
    ],
    "state": "finding"
   },
@@ -1388,6 +1398,18 @@
     "repo:notes/defect_log.md#C20",
     "repo:notes/defect_log.md#B22",
     "repo:notes/cm1.md#L219-230"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H40",
+   "text": "With PlaSim's cloud-forcing diagnostic on (NDIAGCF 1), radstep zeroes the shortwave fluxes once (radmod.f90 lines 994-995 of the pinned ExoPlaSim 3.4.2) and calls swr twice (lines 1021-1046), swr writing the fluxes only where the Sun is up, while patch 07's twilight_term, called at the end of swr, adds the curved air's sunlight below the horizon in each pass: the night's twilight is counted twice. Over the turned design case's years 10-49 it adds 2.70 W/m2 at the top of the air in the global mean, 1.5% of the 178.2 W/m2 absorbed, from 1.7 W/m2 at the equator to 10.9 at 80 deg and 17.7 at 86 deg, all on the night side; without it the design temperature takes a sunlight scale near 0.938 in place of 0.924 at first order. Every run with the twilight also ran the diagnostic.",
+   "source": [
+    "repo:notes/defect_log.md#C21",
+    "repo:models/exoplasim/patches/07-curved-air.patch",
+    "repo:upstream/exoplasim-3.4.2.tar.gz",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28_dim5_moon_geometry"
    ],
    "state": "finding"
   }
