@@ -49,8 +49,8 @@ over years 10–49.
   scales its gust with gravity over land. It joins the inventory of Earth values with its repair. The released
   codes' defects number five: the first version's four and the simple boundary layer's density fault (A9).
 - The paper's version 2 states the current understanding throughout and adds one section, just before the
-  Conclusion, on how the models were refined. It is drafted on the local branch `paper/v2`, which stays off GitHub
-  until the CM1 results are realigned (below).
+  Conclusion, on how the models were refined. It is developed on the paper's branch and
+  released once the CM1 results are realigned (below); the tag `paper-v1` keeps the first version.
 - The lab's design temperature for the Open Moon (295 K, beside Terluna's 301 K) is decided separately, later.
 
 ## Each fix: general or the Moon's
@@ -142,7 +142,7 @@ design runs. `lab/configs/` gains each new setting at its released model's defau
 takes the turned Moon and the whole-column forcing; `lab/registry/` takes the states of B29–B34, CM1's gust and the
 orientation check.
 
-**5. The paper's version 2**, on `paper/v2`, below.
+**5. The paper's version 2**, on the paper's branch, below.
 
 ## The paper's version 2
 
@@ -184,9 +184,10 @@ each stage and a full editorial review to close, each recorded in `paper/review/
 **Realignment before release.** Version 2 waits on CM1 runs with the density fix, the gust at lunar gravity, the
 raindrop limits and the whole-column forcing on the turned design years: the 45° N ring for Figure `fig_gap`, and a
 comparison near the ground with the GCM. The sea's rain timing and the upper air stay open items in `next.tex`, and
-the release proceeds with them open. Once the realignment lands, `paper/v2` merges into the paper's branch, and the
+the release proceeds with them open. Once the realignment lands, the
 release is tagged `paper-v2` and deposited as a new Zenodo version, with the release register's rows (PASS,
-BLOCKED, DEFERRED) on exact hashes. Until then a pre-push hook in this clone refuses `paper/v2`.
+BLOCKED, DEFERRED) on exact hashes. Until then version 2 stays unreleased, and the tag `paper-v1` marks the
+released draft.
 
 **The records at release.** `paper/notes/corrections_after_v1.md` becomes the record of what version 2 changed, and
 the root README's "Where current understanding differs from the paper" then lists what differs from version 2.
