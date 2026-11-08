@@ -30,7 +30,7 @@ offline tools and tests.
 | The paper | `paper/`: notes, sections, figures, data extracts, source records, review records |
 | Fortran for an in-house tool: a kernel whose speed or numerics needs compiled code | Beside its Python tool in `python/`, built by `make` and called from Python, which keeps the orchestration. A model's own routines compile from its patched source in `models/<model>/`, with their bindings beside the tools that call them. Scaffolding stays in Python (`lab/design/architecture.md`, "Native code") |
 | The integrated lab: its design, specifications and registry of Earth assumptions and, as it is built, its code, case set-up, run bookkeeping and analyses | `lab/` (see `lab/README.md`; on the `lab` branch since 2026-10-17) |
-| The plan across the lines of work | `PLAN.md`, on main, brought up to date in each integration round |
+| The plan across the lines of work, with the project's major decisions | `PLAN.md`, committed on main as decisions are taken |
 | An integration round's record: the heads merged, how shared files were joined, its checks and its review | `integration/`, one file for each round |
 
 World-crafting is a standalone project (the author's decision of 2026-10-17). What the lab uses for its
@@ -233,20 +233,23 @@ Code, patches and tools follow a conventional software workflow, in small tested
 
 ## Branches and integration
 
-Main holds the integrated state of every line of work, with the plan (`PLAN.md`) and the integration records
-(`integration/`), and the repository's own directory, `world-crafting/`, keeps main checked out. Each line of work
-has its branch checked out in a worktree beside it: the paper's in `../world-crafting-paper`, the lab's in
-`../world-crafting-lab`. A new line of work takes a new branch and a new directory. The files kept outside Git, the
+Main records the project's major decisions and tracks every line of work. The plan (`PLAN.md`), the shared records
+and the integration records (`integration/`) are kept there, and the repository's own directory, `world-crafting/`,
+keeps main checked out. Decisions are committed on main directly, and each line's branch merges main to take them.
+Each line of work has its branch checked out in a worktree beside the repository: the paper's in
+`../world-crafting-paper`, the lab's in `../world-crafting-lab`. A new line of work takes a new branch and a new
+directory. The files kept outside Git, the
 pinned upstream sources in `upstream/`, the tools' inputs and caches, the paper's archived sources and the lab's
 `local.toml`, are copied or linked into each new checkout.
 
-The lines come together in integration rounds on the standing branch `maintenance/integration`, checked out in
-`../world-crafting-integration`. In each round the integration branch is fast-forwarded to main, each line's branch
-is merged by its exact head in an ordinary merge commit, and files that more than one branch changed are joined by
-meaning, keeping every branch's entries and each topic's newest statement. `PLAN.md` is then brought up to date,
-`make check` and `make paper` run, one independent reviewer reads the round, and its record goes in
-`integration/`. Main fast-forwards to the round's head at the author's word, and each line's branch then
-fast-forwards to main. Nothing is committed on the integration branch between rounds.
+A line's work comes into main through a joint integration at the author's word, on the standing branch
+`maintenance/integration`, checked out in `../world-crafting-integration`. In each round the integration branch is
+fast-forwarded to main, each line's branch is merged by its exact head in an ordinary merge commit, and files that
+more than one branch changed are joined by meaning, keeping every branch's entries and each topic's newest
+statement. `PLAN.md` is then brought up to date, `make check` and `make paper` run, one independent reviewer reads
+the round, and its record goes in `integration/`. Anything committed to main meanwhile is merged in, main
+fast-forwards to the round's head, and each line's branch then fast-forwards to main. Nothing is committed on the
+integration branch between rounds.
 
 ## Checks
 
