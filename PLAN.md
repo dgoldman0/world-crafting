@@ -51,6 +51,16 @@ over years 10–49.
 - The paper's version 2 states the current understanding throughout and adds one section, just before the
   Conclusion, on how the models were refined. It is developed on the paper's branch and
   released once the CM1 results are realigned (below); the tag `paper-v1` keeps the first version.
+- Components run when a study calls for them. Each fix enters with its released model's behaviour as its default;
+  before anything runs, `lab plan` reports a task's estimated cost and the results of its checks, and compute runs
+  once the user starts it and the checks clear.
+- A fix serves every world as one component when the Earth control stays within 2σ of the released model's yearly
+  means with it on; otherwise it becomes a switch that stays off for Earth.
+- Level sets are generated for each world from its scale height, and a world whose scale height is near Earth's
+  keeps ten levels.
+- CM1 boxes that carry the GCM's weather are an option for the studies that need them.
+- The unified interface, in which a user describes a world, chooses its components, sees their cost and checks and
+  starts the compute, gets its own design step before any user-facing work.
 - The lab's design temperature for the Open Moon (295 K, beside Terluna's 301 K) is decided separately, later.
 
 ## Each fix: general or the Moon's
@@ -71,9 +81,37 @@ over years 10–49.
 | RRTMG's tables past 1,053.63 hPa | CM1 | General | Computed to the Open Moon's 1.2 atm, where the extrapolation moves the lowest layers' cooling by 0.002–0.003 K/day | Computed offline | `domain/atmosphere` 6f7d7b0 |
 | Reorientation by surface loads | The set-up of any GCM run | General | Degree-2 loads small beside the body's figure; the elastic turn within years; the long-term turn given an interior model | Computed offline, reproduced independently | `geology/orientation.py`, `climate/gcm/turned.py`, `climate/gcm/carry.py` |
 
+## Porting: confidence, form and cost
+
+Each fix enters the lab opt-in, as the decisions above set out, in the form below.
+[lab/design/terluna_fixes.md](lab/design/terluna_fixes.md) holds the analysis behind the table, with its derivations.
+
+| Fix | Confidence | Form in the lab | Cost of a run | Waits on |
+|---|---|---|---|---|
+| CM1's radiative tendencies read at constant volume | High: CM1's code, and CM1 within 0.01 K/day of RRTMG run offline | One rule for every reader, keyed on `eqtset` | ×1 | — |
+| CM1's density fault under `ipbl = 2` | High: the fault in the lab's own CM1 source; the boxes' boundary layer took 1.32–1.35 times the surface's evaporation and 1.46–1.51 times its sensible heat | One patch, which the registry's A9 requires in every run with `ipbl = 2` | ×1 | — |
+| CM1's gust over water at the run's gravity | High: CM1's own form over land; the old formula made the sea box's wind 1.6–1.8 times stronger | One component, for convective surface layers | ×1 | The Earth control's test |
+| PlaSim's gust with similarity theory over water | High on the physics; over one lunar day it raised the sea's evaporation 17% and the rain 5% | One component, its air's viscosity derived for each world and its 2.85 mm roughness cap stated as Earth's; it ports with the depth rule it shares with the nonlocal scheme | ×1, with a calculation in each column | The Earth control's test |
+| CM1's raindrop limits | High on the scaling, medium on its factors | One component, with a warning below 1.62 m/s², under the gravities its density refinement was computed for | ×1 | — |
+| CM1 forced through the whole column | High that the hold from 8–16 km was wrong | One method; a case whose damping layer begins below the GCM's convection top plus one layer is refused (proposed) | ×1; forcing runs up to ×1.3 | The choice among the box forcings, below |
+| Reorientation by surface loads | High within years, medium over geological time | One tool, rebuilt from the Moon's constants with branches for the rotation state, the source of the moments and the interior's response; the long-term branch assessed first | Offline minutes; one or two extra GCM passes for a world with land | — |
+| PlaSim's rain evaporated from drop sizes | Medium | One scheme with tables for each world; its starting drop sizes a calibration fitted on the Moon's CM1 boxes, with γ outside that calibration's envelope | ×1; the calibration takes CM1 boxes of 2–27 hours each | The Earth control's test |
+| Level sets | Medium | Generated for each world from its scale height, the calibrations keyed to the set | ×1.5–2.25 at fifteen levels, ×3–9 at thirty | The Earth control's test |
+| PlaSim's clear-share twilight | Medium: one paired run, 1.0–1.2 K of cooling | One component, its ledger computed for each world | ×1; the ledger about 50 minutes on six threads | — |
+| PlaSim's 10 m wind | High: a diagnostic | One output | ×1 | — |
+| Simplified Betts–Miller convection | Low to medium | A setting with Kuo's scheme its default; the depth test a fraction of the surface pressure | ×1 | Terluna's CM1 analysis |
+| The box forcings: converging inflow, carried weather and the box's own ascent | Low to medium | Case variants; carried weather an option for the studies that need it | Carried weather ×3.5–7 a box, up to about 380 GB for a large one; the ascent ×2 | Terluna's CM1 analysis |
+| The cold cloud's factors and the longwave refit | Medium, for Terluna's climate | The Moon's calibrations; stage 5 fits the lab's own | A refit of about three hours | Terluna's CM1 analysis |
+| Snow sublimed from capped flakes | Low: unassessed | Assessed before any port | — | Its assessment |
+
+The type of world sets CM1's cost more than any fix. Under rule 9 of `lab/design/world_spec.md` CM1's grid follows
+the scale height, so per simulated second a box costs in proportion to gravity and a ring to the radius times the
+square of gravity: a ring on Earth costs about 130 times the Moon's, and the Moon's solar day, 29.5 times Earth's,
+offsets most of that over a day and night. Columns of 3 or 2 km in place of 6 would cost 8 or 27 times as much.
+
 ## The sequence
 
-Five steps follow this integration. Each change in them is small and tested and gets one review (AGENTS.md,
+The work runs in five steps. Each change in them is small and tested and gets one review (AGENTS.md,
 "Software work"), and each patch keeps an identity default.
 
 **1. The records.** The defect log, `notes/cm1.md`, `notes/exoplasim.md`, `notes/verification_record.md` and the
@@ -98,7 +136,8 @@ Acceptance: the records agree with each other and with the table above, `make ch
 the change.
 
 **2. The ports.** Terluna's code for the corrected physics enters `models/` as patches at the next numbers of each
-series, and `python/` at Terluna's package paths. Each README states its fix's kind and limits from the table above.
+series, and `python/` at Terluna's package paths. Each README states its fix's kind and limits from the tables above. The
+ports run in the order of "Porting: confidence, form and cost", the three CM1 fixes rated high first.
 
 - CM1: the density fix, beside the report drafted in `models/cm1/upstream-ipbl2-density.md`; the gust over water at
   the build's gravity; the raindrop limits (the lab's stage 3); the whole-column forcing,
@@ -198,3 +237,4 @@ the root README's "Where current understanding differs from the paper" then list
 - The numbers for the orientation check's warning and refusal, and the reproduction's tolerance, proposed above and
   set at their stages.
 - Snow sublimation's assessment, and CM1's clipped water, before either is classed.
+- The unified interface's design.
