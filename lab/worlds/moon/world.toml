@@ -1,0 +1,52 @@
+# The Moon as a body. Draft schema 0 (lab/design/world_spec.md). Values are Terluna's at commit 186b294;
+# each names its source there. What has been made of the Moon (air, seas, shield) is in scenarios/.
+
+schema = "worldlab.world/0"
+id = "moon"
+kind = "found"
+title = "The Moon"
+
+[body]
+radius_m = 1737400.0                 # shared/constants.json moon.radius_m
+gm_m3_s2 = 4.902800118e12            # moon.gm_m3_s2; g is derived: GM/R^2 less the spin term, 1.6242107 m/s2
+                                     # (Terluna took GM/R^2, 1.6242188765608128)
+
+[rotation]
+sidereal_period_days = 27.321661     # moon.sidereal_month_days: one turn against the stars per sidereal month
+obliquity_deg = 1.5424               # moon.equator_to_ecliptic_deg: the equator's tilt to the ecliptic
+solar_day_days = 29.53059            # moon.synodic_month_days, stated with its basis; the lab checks it against
+                                     # 1/(1/P_rot - 1/P_year) = 29.5305882 d and records both
+
+[orbit]                              # a moon follows its host planet's orbit about the star
+from_host = "earth"                  # lab/worlds/earth/world.toml: 1 AU, 365.25636 d, eccentricity 0.0167, perihelion
+                                     # 102.7 deg from Earth's vernal equinox. Terluna's
+                                     # runner typed 365.25636 d and 0.016715 (exoplasim_run.py:841-842)
+
+[star]
+id = "sun"
+spectrum = "tsis1-hsrs-stride100"    # 202-2730 nm, its tails the star's blackbody (lab/worldlab/sunlight.py)
+constant_w_m2 = 1361.0               # sun.solar_constant_W_m2 at 1 AU; also typed into exoplasim_run.py:983
+temperature_k = 5772.0               # the Sun's nominal effective temperature (IAU 2015 Resolution B3)
+spectrum_form = "irradiance"         # TSIS-1 is the Sun's irradiance at 1 AU; the rest of the constant fills its tails
+
+[host]                               # Earth stays fixed in the near-side sky
+id = "earth"
+semi_major_axis_m = 384400000.0      # the Moon's orbit about Earth: shared/constants.json earth.moon_mean_distance_m
+eccentricity = 0.0549                # moon.orbit_eccentricity, from NASA GSFC's Moon fact sheet
+inclination_to_equator_deg = 6.6874  # the orbit's 5.145 deg to the ecliptic (moon.orbit_inclination_to_ecliptic_deg) and
+                                     # the equator's 1.5424 deg on the far side of the ecliptic's pole, as Cassini's laws
+                                     # set them
+neglected = ["earthshine, under 0.1 W/m2", "lunar eclipses, a few hours about twice a year"]   # climate/gcm/boundary.py:171-172
+
+[surface]
+geometry = "lola-ldem16-grail-jggrx0420a"  # LOLA's 16 ppd heights over the GRAIL geoid, from the PDS by pinned hash,
+                                            # as Terluna's geography/fetch_inputs.py takes them
+geoid_degree = 330                   # GL0420A's coefficients up to 330, beyond which a Kaula constraint shapes them (its
+                                     # label); degrees 201-330 add 1.9 m rms and up to 31 m to Terluna's degree-200 geoid
+
+[surface.tide]                       # Earth's permanent tide on the equipotential the seas follow, which GL0420A's
+                                     # degree-2 coefficients leave out (its label)
+from = "host"                        # Earth's GM from lab/worlds/earth, its potential's time mean over the orbit in [host]
+love_k2 = 0.0248                     # the k2 GL0420A held fixed (its label), so that the tide it removed returns whole
+sub_longitude_deg = 0.0              # the mean sub-Earth point, on the equator at 0 E, which sets the mean-Earth/polar-axis
+                                     # frame of LOLA's heights

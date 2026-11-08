@@ -1,0 +1,371 @@
+{
+ "schema": "worldlab.validation/0",
+ "check": "the time-step guard: each run's largest wind against the advective limit of its step",
+ "made": "2026-10-18",
+ "made_by": "PYTHONPATH=lab <env>/bin/python -m worldlab.winds <folder> terluna-drive:gcm-runs",
+ "source": "terluna-drive:gcm-runs/*/model/MOST.*.nc",
+ "files": 526,
+ "note": "The winds are the largest of each file's means over its levels and grid, 3-day means on the Moon, below the instantaneous winds of the run's steps. Every file holds finite winds, which the scan checks. The record shows the guard silent on these runs; holding no unstable run, it leaves the guard's warning ahead of instability untested.",
+ "runs": {
+  "A": {
+   "m_s": 19.82573703534754,
+   "model_year": 24,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28": {
+   "m_s": 22.121413010148295,
+   "model_year": 21,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_cal_co2_1022": {
+   "m_s": 30.584099385249356,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_cal_control": {
+   "m_s": 30.159544988174417,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_cal_control_patched": {
+   "m_s": 30.159544988174417,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_9655": {
+   "m_s": 30.025650446448402,
+   "model_year": 1,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_9685": {
+   "m_s": 29.466414104193927,
+   "model_year": 19,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_970": {
+   "m_s": 30.284862145409853,
+   "model_year": 11,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_970_eddies": {
+   "m_s": 34.326930085786366,
+   "model_year": 1,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_970_heating": {
+   "m_s": 28.217529112248762,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_970_icecheck": {
+   "m_s": 32.94529886548336,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_970_lw_ice": {
+   "m_s": 38.39513720270088,
+   "model_year": 9,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_970_lwcheck": {
+   "m_s": 32.200599584155114,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_970_lwcheck_rebuilt": {
+   "m_s": 32.200599584155114,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_gases_glow": {
+   "m_s": 28.764119562591524,
+   "model_year": 12,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_corrected_gases_glow_held": {
+   "m_s": 29.17144078766524,
+   "model_year": 2,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim3": {
+   "m_s": 21.59756090176339,
+   "model_year": 3,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim5": {
+   "m_s": 22.33552333579009,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim5_moon": {
+   "m_s": 31.170056345029305,
+   "model_year": 24,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim5_moon_geometry": {
+   "m_s": 30.204146679864156,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim5_moon_geometry_gases": {
+   "m_s": 30.212733011877322,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim5_moon_low_cloud": {
+   "m_s": 29.89222689106594,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim5_moon_thin_convective": {
+   "m_s": 31.5929442948829,
+   "model_year": 1,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim5_moon_twilight": {
+   "m_s": 31.588978730779118,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim5_sun_test": {
+   "m_s": 20.003651215435003,
+   "model_year": 1,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_dim8": {
+   "m_s": 20.25209604951592,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_gases": {
+   "m_s": 30.639976365554112,
+   "model_year": 18,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_gases_glow": {
+   "m_s": 29.834875974802777,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A28_gases_glow_held": {
+   "m_s": 30.72437149666855,
+   "model_year": 6,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A_corrected_clouds": {
+   "m_s": 23.099064996966252,
+   "model_year": 8,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A_earth_path_clouds": {
+   "m_s": 20.802285897407256,
+   "model_year": 13,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A_full_column_clouds": {
+   "m_s": 19.638903426186747,
+   "model_year": 2,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A_invalid_ir_tail": {
+   "m_s": 28.990378422523737,
+   "model_year": 7,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A_kill": {
+   "m_s": 18.62522555856353,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A_patch_check": {
+   "m_s": 18.45369432033773,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A_ref": {
+   "m_s": 18.62522555856353,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "A_uncalibrated": {
+   "m_s": 27.86095438724645,
+   "model_year": 10,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "B": {
+   "m_s": 22.336498439604167,
+   "model_year": 37,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "cal_cold_rs1.5_th0.012": {
+   "m_s": 13.611048747226448,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "cal_cold_rs1.9_th0.004": {
+   "m_s": 13.265470353062428,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "cal_warm_rs1.5_th0.012": {
+   "m_s": 28.324274651985483,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "cal_warm_rs1.9_th0.004": {
+   "m_s": 20.185865666874108,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "patch_regression": {
+   "m_s": 27.86095438724645,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "regression_convday_off": {
+   "m_s": 20.47542812885149,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  },
+  "regression_convday_on": {
+   "m_s": 20.85590073670553,
+   "model_year": 0,
+   "latitudes": 32,
+   "truncation": 21,
+   "timestep_min": 30.0,
+   "radius_m": 1737459.9949772405
+  }
+ }
+}

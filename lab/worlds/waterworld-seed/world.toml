@@ -1,0 +1,35 @@
+# A seed waterworld for the ExoPlaSim adapter's test (plan.md, stage 2): all ocean, locked to a red dwarf. Draft
+# schema 0. Its size follows the relation of Sotin et al. (2007) that Arnscheidt, Wordsworth and Ding (2019) take
+# for waterworlds (lab/design/waterworlds.md); the star's values are provisional round numbers, unsourced, for the
+# test alone, until the author chooses AD Leonis's at plan stage 9.
+
+schema = "worldlab.world/0"
+id = "waterworld-seed"
+kind = "illustrative"
+title = "A seed waterworld: 0.05 Earth masses, all ocean, locked to a red dwarf at 0.16 AU"
+
+[body]
+radius_m = 3243226.0                 # 1.258 (M/M_E)^0.302 Earth radii at 0.05 Earth masses (Sotin et al. 2007, as the
+                                     # paper's eq. 1), with Earth's 6,371,000 m (lab/worlds/earth)
+gm_m3_s2 = 1.993002209e13            # 0.05 of Earth's GM (lab/worlds/earth)
+
+[rotation]
+locked_to = "star"                   # one face to the star: the rotation's period is the orbit's
+substellar_longitude_deg = 180.0     # ExoPlaSim's default substellar point (exoplasim/__init__.py:2144-2145)
+obliquity_deg = 0.0
+
+[orbit]
+star = "ad-leonis-provisional"
+semi_major_axis_au = 0.16            # inside the paper's range for AD Leonis, 0.145 to 0.18 AU (its Figure 4)
+eccentricity = 0.0                   # circular, as a locked orbit is taken; the year follows Kepler's third law
+
+[star]
+id = "ad-leonis-provisional"
+spectrum = "blackbody"               # the paper's treatment of its stars
+temperature_k = 3400.0               # provisional
+constant_w_m2 = 32.664               # provisional: 0.024 of the Sun's luminosity, as W/m2 at 1 AU: 0.024 of
+                                     # 1361 W/m2, the Sun's nominal total irradiance (IAU 2015 Resolution B3)
+gm_m3_s2 = 5.57392248e19            # provisional: 0.42 of the Sun's nominal GM, 1.3271244e20 m3/s2 (IAU 2015 Resolution B3)
+
+[surface]
+geometry = "ocean"                   # all ocean: no land and no heights

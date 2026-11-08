@@ -1,0 +1,58 @@
+# ExoPlaSim's shared defaults: the settings of Terluna's corrected radiation since 2026-10-14
+# (climate/gcm/exoplasim_run.py, MODEL at :98-145 and the defaults of configuration() at :803), stated for any
+# world. A study's GCM run extends them; the world's values come from the study's scenario, and each
+# calibration from the stage that fits it to that scenario. Draft schema 0 (lab/design/world_spec.md).
+
+schema = "worldlab.defaults.exoplasim/0"
+id = "exoplasim/defaults"
+upstream = "exoplasim-3.4.2"                   # models/pins.sha256
+patches = "models/exoplasim/patches/series"    # all eleven applied, Terluna's ten and the lab's patch 11; each
+                                               # switch below, at its default when omitted
+
+resolution = "T21"
+levels = 10
+timestep_min = 30.0                            # checked against the advective limit at the world's radius and the
+                                               # truncation (architecture.md, ExoPlaSim's guards)
+ranks = 4                                      # Terluna's design case ran on 4 MPI ranks
+precision = 8
+seed = 1
+initial = "model-default"                      # ExoPlaSim's own starting state; a run may branch from another run of its study
+mean_interval_days = 3.0                       # below a model day, rounded to the divisor of the steps per model day
+                                               # whose mean lies nearest: 10 of 143 steps on the Moon (2.98 d); from a
+                                               # model day up, to the divisor of the year's model days nearest it
+whole_model_days = true                        # defect log A3; Terluna's whole_lunar_days
+fixed_orbit = true                             # defect log A2; NFIXORB 1
+clear_sky = true                               # NDIAGCF 1
+heating_diagnostics = false                    # NDIAGGP
+output = ["ta", "ua", "va", "hus", "cl", "ts", "tas", "maxt", "mint", "ps", "psl", "pr", "prc", "evap", "prw",
+          "clt", "sic", "sit", "snd", "mrso", "rst", "rsut", "rlut", "ntr", "nbr", "rss", "rls", "hfss", "hfls",
+          "alb", "czen", "lsm"]
+
+[guards]
+wind_share_of_limit = 0.9                      # a warning where a run's largest 3-day-mean wind passes this share of the
+                                               # advective limit a/(N·Δt): the author's choice of 2026-10-18, above the
+                                               # 83.5% that the hottest of Terluna's stable runs reached at 30 minutes
+                                               # (lab/validation/timestep_guard.json)
+
+[switches]                                     # patch: namelist setting
+sun_clock = "synodic"                          # 04: NSUNCLOCK 2
+convective_day_s = 86400.0                     # 03: CONVDAY
+cloud_water = "earth_path"                     # 02: CWGREF = standard gravity, CWSCALE = g / standard gravity
+surface_cloud_rcrit = 0.0                      # PlaSim's own RCRIT in the lowest layer
+twilight = "full"                              # 07: NTWILIGHT, NTWILW, ZMLUNAR, from the curved-air ledger
+gas_bands = true                               # 08: NGASBANDS, ZGASQ, ZGASW, ZMAIRLUNAR
+longwave_correction = false                    # 09: NLWCORR
+ice_optics = false                             # 10: NICEOPT, TICEOPT
+ice_weights = "from-spectrum"                  # 11: ZICEW, the near-infrared weights from the spectrum at the top of the
+                                               # air; a build without patch 11 keeps patch 10's, from the unfiltered Sun
+top_infrared = "from-scenario"                 # 06: IRTOPDAY, IRTOPNIGHT
+
+[calibration]                                  # the stages whose products, fitted to the study's scenario, a run reads
+                                               # where its switches use them
+shortwave = "calibration:plasim-shortwave"     # Open Moon: RAYSCALE 2.237, SWH2OSCALE 1.292, typed into MODEL from
+                                               # climate/results/gcm/shortwave_fit_A28_dim5_lunar.json
+water_continuum = "calibration:plasim-th2oc"   # Open Moon: TH2OC 0.004, from hand trials on cloud-free columns at 280 and 310 K
+ledger = "ledger:curved-air"                   # Open Moon: climate/results/gcm/twilight.json
+gas_bands = "calibration:plasim-gas-bands"     # Open Moon: climate/results/gcm/shortwave_gases.json
+longwave = "calibration:plasim-longwave"       # read with longwave_correction on. Open Moon:
+                                               # climate/results/gcm/longwave_A28_corrected_970_heating.json

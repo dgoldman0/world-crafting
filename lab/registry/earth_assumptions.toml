@@ -1,0 +1,197 @@
+# The registry of Earth assumptions: a seed of fourteen entries in draft schema 0 (lab/design/architecture.md,
+# "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
+# it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
+# specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
+# calibration's envelope (calibration). Tolerances are relative (rel_tolerance).
+# Thresholds marked "proposed" come from the design and await the author's decision before the reach report uses
+# them. A field a world leaves out holds no value, so that `ne` holds for it: A1 tests every world but one locked to
+# its star (rotation.locked_to), whose star ExoPlaSim's synchronous mode holds still.
+#
+# action: require-switch | require-build | require-refit | warn | refuse
+# state:  repaired | calibrated | bounded | open
+
+schema = "worldlab.registry/0"
+
+[[entry]]
+id = "A1"
+model = "exoplasim"
+where = "plasim/src/radmod.f90, solang"
+form = "latent defect"
+assumes = "a rotation of exactly one day (rotspd = 1)"
+when = [{ field = "rotation.locked_to", ne = "star" }, { q = "exoplasim_rotationperiod_days", ne = 1.0 }]
+effect = "the Sun skips back 1/(N-1) of a turn each model day: 2 deg at a 2-day rotation, 10 deg at 10 and 12 days, 16 deg from just above 12 days to 20, 33 deg above 20"
+state = "repaired"
+repair = { patch = "04-sun-clock", switch = "NSUNCLOCK", value = 2, default = 0 }
+action = "require-switch"
+evidence = ["notes/defect_log.md A1", "notes/exoplasim.md, The Sun's clock"]
+
+[[entry]]
+id = "A2"
+model = "exoplasim"
+where = "plasim/src/radmod.f90, the orb_params call"
+form = "latent defect"
+assumes = "Earth's orbit for the start year"
+when = []                                    # always: the configured tilt and eccentricity are otherwise discarded
+effect = "Earth's 23.695 deg tilt and 0.0175 eccentricity replace the configured orbit, silently"
+state = "repaired"
+repair = { setting = "fixed_orbit", value = true, default = false }
+action = "require-switch"
+evidence = ["notes/defect_log.md A2"]
+
+[[entry]]
+id = "B1"
+model = "cm1"
+where = "constants.F, module_ra_etc.F, getcape.F, morrison.F (g = 9.81)"
+form = "constant"
+assumes = "g = 9.81 m/s2"
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 1e-6 }]
+effect = "dynamics, RRTMG's layer masses, CAPE and fall speeds at Earth's gravity"
+state = "repaired"
+repair = { patches = ["core/01-04"], build_constant = "TERLUNA_G" }
+action = "require-build"
+note = "a planned core patch reads g from the namelist (architecture.md, Model adapters); once it passes, the action becomes require-switch"
+evidence = ["notes/defect_log.md B1", "notes/cm1.md, Gravity"]
+
+[[entry]]
+id = "cm1-earth-g-schemes"
+model = "cm1"
+where = "module_sf_mynn.F, module_gfs_physcons.F, module_sf_gfdl.F, module_sf_exchcoef.F, module_mp_p3.F, mp_wsm6.F, module_mp_jensen_ishmael.F, lfoice.F, radtrns3d.F"
+form = "constant"
+assumes = "Earth's gravity in schemes the lunar cases do not select"
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 0.005 },   # proposed; the Earth control's 9.80665 passes
+        { config = "cm1.physics", any_in = ["mynn", "gfs-edmf", "gfdl", "hurricane-exchange", "p3", "wsm6", "jensen-ishmael", "lfo", "goddard"] }]
+effect = "the scheme brings Earth's gravity back"
+state = "open"
+action = "refuse"
+evidence = ["notes/cm1.md, Earth's gravity left in CM1 outside the lunar cases' paths"]
+
+[[entry]]
+id = "B11"
+model = "exoplasim"
+where = "plasim/src/rainmod.f90, mkclouds (zrfac = solar_day * 1000)"
+form = "unit of time"
+assumes = "a one-day solar day"
+when = [{ q = "model_day_days", ne = 1.0, rel_tolerance = 1e-3 }]
+effect = "Slingo's cover gains 0.125 ln(day / 1 d), capped at 0.8"
+state = "repaired"
+repair = { patch = "03-convective-day", switch = "CONVDAY", value = 86400.0, default = 0.0 }
+action = "require-switch"
+evidence = ["notes/defect_log.md B11"]
+
+[[entry]]
+id = "B12"
+model = "exoplasim"
+where = "plasim/src/rainmod.f90, mkclouds (CCM3 cloud water in geometric height)"
+form = "fit beyond its range"
+assumes = "Earth's gravity, so that metres stand for pressure"
+when = [{ q = "gravity_m_s2", ne = 9.80665, rel_tolerance = 1e-3 }]
+effect = "too dry aloft under weaker gravity, too wet under stronger"
+state = "repaired"
+repair = { patch = "02-cloud-water-gravity", switch = "CWGREF, CWSCALE", choices = ["earth_path", "full_column"] }
+action = "require-switch"
+note = "the repair keeps CCM3's Earth fit in pressure terms; its calibration against a CRM is open"
+evidence = ["notes/defect_log.md B12", "notes/exoplasim.md, Cloud water in metres"]
+
+[[entry]]
+id = "B13"
+model = "exoplasim"
+where = "plasim/src/radmod.f90, swr (35 / sqrt(1 + 1224 mu^2))"
+form = "geometry"
+assumes = "Earth's horizon air mass, sqrt(pi R / 2H) = 35"
+when = [{ q = "chapman_horizon", outside = [31.5, 38.5] }]    # proposed: 10% either side of 35
+effect = "the low Sun's water path is wrong, most for the tallest air"
+state = "repaired"
+repair = { patches = ["07-curved-air", "08-gas-bands"], switch = "ZMLUNAR (07), ZMAIRLUNAR (08)", from = "ledger:curved-air" }
+action = "require-refit"                     # a ledger of the world's own column
+evidence = ["notes/defect_log.md B13", "notes/reference_radiation.md, section 2"]
+
+[[entry]]
+id = "B17"
+model = "exoplasim"
+where = "plasim/src/radmod.f90, swr (Lacis and Hansen's water absorptivity)"
+form = "fit beyond its range"
+assumes = "Earth's water paths"
+when = [{ calibration = "calibration:plasim-shortwave", outside_envelope = true }]
+effect = "the air absorbed 7.7-8.2 points too little of the arriving sunlight on the Moon's columns before the fit"
+state = "calibrated"
+repair = { patch = "05-water-shortwave-absorptivity", switch = "SWH2OSCALE" }
+action = "require-refit"
+evidence = ["notes/defect_log.md B17"]
+
+[[entry]]
+id = "B21"
+model = "exoplasim, cm1"
+where = "both dynamical cores"
+form = "geometry"
+assumes = "constant gravity and a thin shell"
+when = [{ q = "scale_height_over_radius", gt = 0.01 }]       # proposed: about 7.5 times Earth's
+effect = "the column holds more air than p/g and heights read low aloft; on the Moon about 5% more air and heights 5% low at 86 km"
+state = "open"
+action = "warn"
+evidence = ["notes/defect_log.md B21", "paper/data/regime_calc.json"]
+
+[[entry]]
+id = "B22"
+model = "cm1"
+where = "module_ra_rrtmg_lw.F 3845-3848 (reference pressures from 1053.63 hPa)"
+form = "fit beyond its range"
+assumes = "surface pressures below 1053.63 hPa"
+when = [{ q = "lowest_level_pressure_hpa", gt = 1053.63 }]
+effect = "the pressure interpolation extrapolates over the lowest H ln(p/1053.63) of air: about 7.5 km on the Open Moon"
+state = "open"
+action = "warn"
+evidence = ["notes/defect_log.md B22", "notes/cm1.md, Radiation inputs and range"]
+
+[[entry]]
+id = "B28"
+model = "cm1"
+where = "morrison.F (slope bounds, LAMMINR; brkup_db)"
+form = "fit beyond its range"
+assumes = "Earth's largest raindrops and breakup, (sigma / (delta-rho g))^(1/2)"
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 0.005 }, { config = "cm1.physics.microphysics", eq = "morrison" },
+        { config = "cm1.physics.rain_size_limits", ne = "capillary" }]
+effect = "rain's mean diameter capped at 2.8 mm, breakup from 0.3 mm; at lunar gravity the stable drop is about 2.5 times larger"
+state = "open"
+action = "warn"
+planned = { namelist = "brkup_db", patch = "core, after 17: rain's mean-diameter cap from the namelist, identity default 2.8 mm", scaling = "(9.81/g)^(1/2)", setting = "cm1.physics.rain_size_limits" }
+note = "the repair is a scaling law, which no low-gravity measurement in the sources tests; NSSL's two-moment rain has its explicit breakup off (irainbreak), and any other size limit stage 3 finds in it joins this entry; snow's and graupel's 2 mm caps stay Earth's, since surface tension limits liquid drops alone"
+evidence = ["notes/defect_log.md B28", "notes/cm1.md, Fall speeds"]
+
+[[entry]]
+id = "cm1-soil-day"
+model = "cm1"
+where = "init_surface.F, slab_dzs: five layers doubling from CM1's 1 cm top layer; Terluna's patch 08 sets 5 cm on every world"
+form = "unit of time"
+assumes = "layers sized for one solar day: CM1's for Earth's, patch 08's for the Moon's"
+when = [{ q = "soil_layer_ratio", outside = [0.9, 1.1] }]    # proposed; the case's top layer against 1 cm x (solar day / 1 d)^(1/2)
+effect = "the day's heat wave is resolved in too few layers or too many: patch 08's 5 cm top layer is five times CM1's own on Earth"
+state = "open"
+action = "warn"
+planned = { patch = "core, after 17: the top layer from the namelist, identity default patch 08's 5 cm", setting = "cm1.diurnal.soil_top_layer_m" }
+evidence = ["models/cm1/README.md, patch 08"]
+
+[[entry]]
+id = "cm1-equinox-sun"
+model = "cm1"
+where = "radiation_driver.F, patch 05: coszen = cos(latitude) cos(hour angle)"
+form = "geometry"
+assumes = "the Sun at the equinox, its declination zero"
+when = [{ field = "rotation.obliquity_deg", gt = 5.0 }, { config = "cm1.physics.sun_declination", eq = "equinox" }]   # proposed
+effect = "a case's Sun misses its season's declination, up to the obliquity: 25.19 deg on Mars"
+state = "open"
+action = "warn"
+planned = { patch = "core, after 17: the declination from the namelist, identity default the equinox", setting = "cm1.physics.sun_declination" }
+evidence = ["models/cm1/patches/core/05-a-solar-day-of-var19-s.patch:43", "lab/design/regeneration.md, example (c)"]
+
+[[entry]]
+id = "exoplasim-ice-weights"
+model = "exoplasim"
+where = "patch 10, zew(4): the near-infrared weights within PlaSim's band 2 (10-ice-optics.patch:70), which patch 11 reads from the namelist as ZICEW"
+form = "constant"
+assumes = "the unfiltered Sun's spectrum, from which Terluna computed the weights"
+when = [{ config = "exoplasim.switches.ice_optics", eq = true }, { config = "exoplasim.switches.ice_weights", ne = "from-spectrum" }]
+effect = "the ice clouds weight the near infrared by a spectrum other than the one at the top of the air"
+state = "repaired"
+repair = { patch = "11-ice-weights", switch = "ZICEW", default = "patch 10's constants", setting = "exoplasim.switches.ice_weights" }
+action = "warn"
+evidence = ["lab/design/regeneration.md, cross-dependency 13", "lab/tests/test_builds.py, patch 11's identity test"]

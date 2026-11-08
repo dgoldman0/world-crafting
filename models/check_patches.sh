@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Apply every patch series to a pristine copy of its pinned upstream source and compare the result with
-# the recorded hashes (the sources Terluna compiled). Nothing is compiled.
+# the recorded hashes: the sources Terluna compiled, and for ExoPlaSim the lab's whole series after them.
+# Nothing is compiled.
 #
 #   models/check_patches.sh [UPSTREAM_DIR]      # default: ./upstream (ignored by Git)
 #
@@ -34,9 +35,13 @@ echo "== ExoPlaSim 3.4.2"
 if [ -e "$UP/exoplasim-3.4.2.tar.gz" ]; then
     mkdir -p "$TMP/exo" && tar -xzf "$UP/exoplasim-3.4.2.tar.gz" -C "$TMP/exo" \
         exoplasim-3.4.2/exoplasim/plasim/src/radmod.f90 exoplasim-3.4.2/exoplasim/plasim/src/rainmod.f90
-    ( cd "$TMP/exo/exoplasim-3.4.2/exoplasim" && sed 's|^|patches/|' "$HERE/exoplasim/patches/series" > "$TMP/exo.series" \
-      && apply_series "$HERE/exoplasim" "$TMP/exo.series" && sha256sum -c --quiet "$HERE/exoplasim/expected.sha256" ) \
-      && echo "ok  10 patches; radmod.f90 and rainmod.f90 match the deployed copy" || fail "ExoPlaSim series"
+    # Patches 01-10 are Terluna's deployed copy (expected.sha256); the lab's patches follow them (expected-series.sha256).
+    ( cd "$TMP/exo/exoplasim-3.4.2/exoplasim" && sed '/^[[:space:]]*$/d; s|^|patches/|' "$HERE/exoplasim/patches/series" > "$TMP/exo.series" \
+      && head -n 10 "$TMP/exo.series" > "$TMP/exo.deployed" && tail -n +11 "$TMP/exo.series" > "$TMP/exo.lab" \
+      && apply_series "$HERE/exoplasim" "$TMP/exo.deployed" && sha256sum -c --quiet "$HERE/exoplasim/expected.sha256" \
+      && apply_series "$HERE/exoplasim" "$TMP/exo.lab" && sha256sum -c --quiet "$HERE/exoplasim/expected-series.sha256" ) \
+      && echo "ok  patches 01-10 give the deployed copy, and the series of $(wc -l < "$TMP/exo.series") gives its expected sources" \
+      || fail "ExoPlaSim series"
 fi
 
 echo "== CM1 r22.0"

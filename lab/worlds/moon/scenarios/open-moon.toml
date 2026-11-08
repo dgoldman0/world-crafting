@@ -1,0 +1,48 @@
+# The Open Moon's design case: the state of the Moon that Terluna's corrected design run A28_corrected_970
+# simulates. Draft schema 0. Values are Terluna's at 186b294, with their sources there.
+
+schema = "worldlab.scenario/0"
+id = "moon/open-moon"
+world = "moon"
+kind = "crafted"
+title = "The Open Moon: 1.2 atm at the water level, 28% seas with rain-fed lakes, under the titania stack"
+
+[air]
+reference_level = "water"            # pressures are stated at the water level; land stands above it
+surface_pressure_pa = 121590.0       # 1.2 atm (exoplasim_run.py:92, EXPERIMENTS['A28'])
+o2_partial_pressure_pa = 21227.0     # Earth's (exoplasim_run.py:78)
+co2_ppm = 400.0                      # of the total pressure (exoplasim_run.py:80, :820)
+ar_per_n2 = 0.011961477383330772   # Earth's 0.00934/0.78084, the double Terluna's runner computes (exoplasim_run.py:79)
+balance = "N2"
+reference_temperature_k = 295.0      # the design aim near 295 K, which the paper's table of reach takes. Terluna's target
+                                     # became the resort's 301 K on 2026-10-18 (research/decisions.md on domain/climate);
+                                     # this scenario stays the design case. Terluna's design column holds 294.9 K,
+                                     # A28_dim5_moon's mean (atmosphere/lower_air.py:29), in its recorded products
+cloud_droplets_per_cm3 = 100.0       # cloud droplets the air's aerosol supports: Terluna's rings (cm1_run.py, CASES['ring'])
+ozone = "none"                       # the titania stack's design (moon_gcm_configuration.json, atmosphere.ozone)
+water_vapour = "prognostic"
+
+[water]
+seas_share = 0.28                    # shared/scenarios/water.json, chosen 2026-09-25
+seas = "from-heights"                # the world's heights flooded to the seas share (Terluna: geography/atlas.py)
+lakes_start = "terluna:climate/gcm/products/climatology_A28_dim5_moon.npz"   # the runoff chain's first link: the
+                                     # runoff of Terluna's run A28_dim5_moon, which the lab routes over its own heights,
+                                     # as Terluna routed it over Terluna's into geography/products/drainage_28pct_16ppd.npz,
+                                     # the routing the lab's lakes are compared with; the chain's later links come from
+                                     # the lab's own runs. The design run A28_corrected_970, whose climatology Terluna
+                                     # also holds, has a surface with earlier lakes, from run A's runoff (Terluna:
+                                     # climate/gcm/products/moon_28pct_water_lakes_gaussian_T21.nc)
+lakes = "from-runoff"                # rain-fed lakes at their own levels, from a GCM run's runoff (geography/drainage.py);
+                                     # with them the GCM's mask holds about 40% water (land share 0.5995 in A28_corrected_970)
+ocean = { kind = "slab", mixed_layer_m = 50.0, sea_ice = true }   # exoplasim_run.py:92
+
+[land]
+albedo = 0.2                         # placeholder: no soil or vegetation map yet (exoplasim_run.py:98)
+# roughness, soil and bucket: each model's own defaults, recorded by its adapter
+
+[sunlight]
+filter = "terluna:protection/spectra/shield_transmission.json#titania_stack"
+scale = "to-reference-temperature"   # found by the lab's target stage; Terluna's trials gave 0.970 (295.02 K)
+
+[forcing]
+top_infrared_w_m2 = { day = 0.0, night = 0.0 }   # none in the design case; the glow runs had 10.1718 and 0.5165

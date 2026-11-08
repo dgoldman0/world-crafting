@@ -50,6 +50,7 @@ passages a revision of the paper would change.
 | `python/` | In-house reference and calibration tools, under their Terluna package paths |
 | `notes/` | Each component's correctness, limits and room for improvement |
 | `paper/` | The paper: notes, sections, figures, data extracts, source records, review records |
+| `lab/` | The integrated lab's design, its draft specifications and its registry of Earth assumptions, at the design stage |
 
 `PROVENANCE.md` records every brought file's Terluna path and hash and every upstream pin.
 

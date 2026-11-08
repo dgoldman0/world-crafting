@@ -3,8 +3,8 @@
 # Dependencies: numpy, scipy, pytest; numba for the sky solver's tests; netCDF4 for the drivers that read GCM output.
 
 [tool.pytest.ini_options]
-testpaths = ["python"]
+testpaths = ["python", "lab/tests"]
 python_files = ["test_*.py"]
-pythonpath = ["python"]
+pythonpath = ["python", "lab"]
 addopts = "--import-mode=importlib"
 norecursedirs = [".*", "__pycache__", "results", "inputs", "cache"]

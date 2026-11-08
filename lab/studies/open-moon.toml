@@ -1,0 +1,67 @@
+# The Open Moon design study: the lab's chain on the Open Moon's design case, two GCM runs and three CM1 cases
+# forced from the first, each extending its model's shared defaults (lab/configs/). Draft schema 0
+# (lab/design/world_spec.md); the subject of plan.md stages 2 and 3, and the lab files each run under its
+# product key. The chain follows the one Terluna ran on its corrected design case (climate/gcm/exoplasim_run.py,
+# EXPERIMENTS and MODEL; climate/crm/cm1_run.py, CASES, :1093-1526), whose runs A28_corrected_970 and
+# A28_corrected_970_lw_ice, rings ring_45n_corrected and ring_45n_corrected_twilight and box box_jura the
+# comparisons cite.
+
+schema = "worldlab.study/0"
+id = "open-moon"
+scenario = "moon/open-moon"
+
+[gcm.design]
+model = "exoplasim"
+extends = "exoplasim/defaults"
+model_years = 20
+purpose = "the design case, at the sunlight scale that holds the reference temperature"
+
+[gcm.design_lw_ice]
+extends = "design"
+purpose = "the design case with the longwave correction by height and ice optics, from the design run's year 19"
+# Terluna's run of the same pair, A28_corrected_970_lw_ice, settled near 307 K.
+
+[gcm.design_lw_ice.set]                         # the declared delta; the lab refuses the pair if anything else differs
+"initial" = { from = "design", model_year = 19 }
+"switches.longwave_correction" = true
+"switches.ice_optics" = true
+"heating_diagnostics" = true                    # diagnostics only: nine more outputs, the same prognostic fields
+
+[crm.ring_45n]
+model = "cm1"
+extends = "cm1/defaults"
+forced_by = "design"
+reference_model_years = [10, 19]                # the GCM's model years averaged into the reference, 10 to 19 inclusive
+kind = "ring"                                   # a circle of latitude
+latitude_deg = 45.0
+band_deg = 3.0                                  # the GCM row nearest the latitude
+solar_longitude_deg = 0.0                       # the equinox; with the obliquity it sets the Sun's declination
+                                                # (cm1/defaults, sun_declination)
+large_scale_w = "gcm"
+land_moisture = "gcm"
+purpose = "the 45 N ring on the design case"
+
+[crm.ring_45n_twilight]
+extends = "ring_45n"
+variants = ["twilight"]                         # the declared delta (cm1/defaults, [variants.twilight])
+purpose = "the 45 N ring with the curved air's twilight and side light"
+# Both cases take their builds from the same defaults, at -O3 -march=native, and differ by the twilight variant
+# alone. Terluna ran its control on a build compiled at -O2 and its twilight case at -O3 (defect log C8), the
+# fault the lab's pair check catches.
+
+[crm.box_jura]
+model = "cm1"
+extends = "cm1/defaults"
+forced_by = "design"
+reference_model_years = [10, 19]
+kind = "box"
+solar_longitude_deg = 0.0
+variants = ["terrain", "sea", "twilight"]
+site = { ring = "ring_45n", latitude_deg = 45.0, longitude_deg = 323.875, radius_m = 100000.0 }   # the ring whose grid and reference the box takes
+columns = { nx = 100, ny = 90 }
+terrain = { half_width_deg = 0.125, passes = 2, taper_km = 50.0 }
+day_night = { from_case = "ring_45n_twilight", from_solar_days = 1.0, wavenumbers = 5, bins = 36, harmonics = 4 }
+large_scale_w = "gcm"
+land_moisture = "gcm"
+surface_output = true
+purpose = "Jura Island at its heights with the sea and islets round it, forced by the design case and the 45 N twilight ring's day-night circulation"

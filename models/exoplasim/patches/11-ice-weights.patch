@@ -1,0 +1,50 @@
+--- a/plasim/src/radmod.f90
++++ b/plasim/src/radmod.f90
+@@ -138,6 +138,7 @@
+       real :: lwct(NLEV+1) = 0.0 ! Terluna: the temperatures they are given at
+       integer :: niceopt = 0     ! Terluna: ice optics for cold cloud, 1 for cloud colder than ticeopt
+       real :: ticeopt = 235.15   ! Terluna: the temperature below which cloud is ice
++      real :: zicew(4) = (/0.6164, 0.2283, 0.0811, 0.0742/) ! world-crafting: ice bands 2-5 in band 2, patch 10's
+       integer :: ngasbands = 0   ! Terluna: 1 adds CO2 and O2 to the sunlight's absorbers
+       real :: zgasq(5,3) = 0.0   ! Terluna: their fits (a, b, c, d, n): CO2 and O2 near infrared, O2 visible
+       real :: zgasw(2) = 0.0     ! Terluna: the mass fractions of CO2 and O2
+@@ -636,7 +637,7 @@
+      &               ,nsol,nclouds,nswrcl,nrscat,rcl1,rcl2,acl2,clgray,tpofmt   &
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+      &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale,irtopday,irtopnight  &
+-     &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar,nlwcorr,niceopt,ticeopt
++     &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar,nlwcorr,niceopt,ticeopt,zicew
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -831,6 +832,7 @@
+       call mpbci(nlwcorr)
+       call mpbci(niceopt)
+       call mpbcr(ticeopt)
++      call mpbcrn(zicew,4)
+       if (nlwcorr == 1) then   ! Terluna: the longwave by height
+        if (mypid == NROOT) then
+         open(48,file='lwcorr.dat',form='formatted',status='old')
+@@ -2717,7 +2719,6 @@
+       real, parameter :: zed(5) = (/0.000e+00, 1.405e-05, 6.867e-04, 1.284e-03, 2.050e-05/)
+       real, parameter :: zee(5) = (/7.661e-01, 7.730e-01, 7.865e-01, 8.172e-01, 9.595e-01/)   ! asymmetry: zee + zef r
+       real, parameter :: zef(5) = (/5.851e-04, 5.665e-04, 7.204e-04, 7.463e-04, 1.076e-04/)
+-      real, parameter :: zew(4) = (/0.6164, 0.2283, 0.0811, 0.0742/)   ! bands 2-5 in band 2
+       real, external :: ice_radius
+       integer :: jhor, jb
+       real :: zre, zwp, ztau, zmu, zrd, ztd, zrf, ztf, zr, zt, zrs, zts
+@@ -2737,10 +2738,10 @@
+        zts = 0.
+        do jb = 2, 5
+         call ice_pifm(ztau,1.-zec(jb)-zed(jb)*zre,min(zee(jb)+zef(jb)*zre,0.9999),zmu,zrd,ztd,zrf,ztf)
+-        zr = zr+zew(jb-1)*zrd
+-        zt = zt+zew(jb-1)*ztd
+-        zrs = zrs+zew(jb-1)*zrf
+-        zts = zts+zew(jb-1)*ztf
++        zr = zr+zicew(jb-1)*zrd
++        zt = zt+zicew(jb-1)*ztd
++        zrs = zrs+zicew(jb-1)*zrf
++        zts = zts+zicew(jb-1)*ztf
+        enddo
+        zr2s(jhor) = zrs
+        zt2s(jhor) = zts

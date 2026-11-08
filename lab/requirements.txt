@@ -1,0 +1,22 @@
+# The lab's Python environment, beside the system Python that runs make check: ExoPlaSim's dependencies, netCDF4
+# to read its output, and pytest with its own for the checks that run there, at the versions installed on
+# 2026-10-18, with Python 3.13. ExoPlaSim's first model compile needs gfortran and MPI (mpif90, mpirun).
+#
+#   python3.13 -m venv <env>
+#   <env>/bin/pip install -r lab/requirements.txt
+#   <env>/bin/pip install --no-deps upstream/exoplasim-3.4.2.tar.gz     # the pinned archive (models/pins.sha256)
+#
+# Name <env> as the root `env` in lab/local.toml. ExoPlaSim's Model compiles PlaSim the first time a run asks for
+# the resolution, levels and ranks of lab/configs/exoplasim/defaults.toml: 40 s at T21 on 2026-10-18.
+numpy==2.5.3
+scipy==1.18.1
+netCDF4==1.7.4
+cftime==1.6.5
+certifi==2026.7.22
+meson==1.12.1
+ninja==1.13.2
+pytest==9.1.1
+iniconfig==2.3.1
+packaging==26.3
+pluggy==1.7.0
+Pygments==2.21.0
