@@ -1,0 +1,93 @@
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -402,6 +402,7 @@
+       top_cd = 0.0
+       side_cd = 0.0
+       brkup_db = 0.0
++      ipbl2_per_mass = 0   ! Lab: CM1's own unless the namelist sets 1
+       solconrce = 0.0
+       zenanglrce = 0.0
+       trn_swirl = 0.0
+--- a/src/input.F
++++ b/src/input.F
+@@ -289,6 +289,7 @@
+       integer*8 :: count_last
+ 
+ !-----------------------------------------------------------------------
++      integer :: ipbl2_per_mass   ! Lab: 1 gives the simple boundary layer's tendencies per unit mass; 0 keeps CM1's own
+ !  Begin namelists:
+ 
+       namelist /param0/ nx,ny,nz,ppnode,                                &
+@@ -309,7 +310,7 @@
+           irandp,irandprst,numrand,ibalance,iorigin,axisymm,imove,iptra,npt,pdtra, &
+           iprcl,nparcels
+       namelist /param3/ kdiff2,kdiff6,fcor,kdiv,alph,rdalpha,zd,xhd,alphobc, &
+-                        umove,vmove,v_t,l_h,lhref1,lhref2,l_inf,brkup_db,ndcnst,nt_c, &
++                        umove,vmove,v_t,l_h,lhref1,lhref2,l_inf,brkup_db,ipbl2_per_mass,ndcnst,nt_c, &
+                         csound,cstar,solconrce,zenanglrce
+       namelist /param4/ stretch_x,dx_inner,dx_outer,nos_x_len,tot_x_len
+       namelist /param5/ stretch_y,dy_inner,dy_outer,nos_y_len,tot_y_len
+--- a/src/param.F
++++ b/src/param.F
+@@ -414,6 +414,7 @@
+       call MPI_BCAST(lhref2 ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(l_inf  ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(brkup_db,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
++      call MPI_BCAST(ipbl2_per_mass,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)   ! Lab
+       call MPI_BCAST(ndcnst ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(nt_c   ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(csound ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+@@ -3164,6 +3165,7 @@
+       if(dowr) write(outfile,*) 'lhref2    =',lhref2
+       if(dowr) write(outfile,*) 'l_inf     =',l_inf
+       if(dowr) write(outfile,*) 'brkup_db  =',brkup_db
++      if(dowr) write(outfile,*) 'ipbl2_per_mass =',ipbl2_per_mass   ! Lab
+       if(dowr) write(outfile,*) 'ndcnst    =',ndcnst
+       if(dowr) write(outfile,*) 'nt_c      =',nt_c
+       if(dowr) write(outfile,*) 'csound    =',csound
+--- a/src/turb.F
++++ b/src/turb.F
+@@ -106,6 +106,7 @@
+                         bl_mynn_cloudmix,bl_mynn_mixqt,initflag,spp_pbl,bl_mynn_output,  &
+                         dx_inner,dy_inner,oml_gamma,nx,ny,axisymm,                       &
+                         timestats,mytime,time_turb,time_sfcphys,time_cuprm,time_pbl,time_misc
++      use input, only : ipbl2_per_mass   ! Lab: the simple boundary layer's tendencies per unit mass
+       use constants, only : cmemin,c_l,ri_c,pi,rv,rd,g,repsm1,karman,rkarman,cp,rp00,rovcp,  &
+                             xlv,lv1,lv2,svp1,svp2,svp3,svpt0,th0r
+       use bc_module, only : bc2d,bcs
+@@ -2239,6 +2240,35 @@
+ 
+       ENDIF
+ 
++      ! Lab: with ipbl2_per_mass = 1, the simple boundary layer's tendencies per unit mass. turbsz, turbuz and turbvz
++      ! return rho times the change per second, as turbtend.F's own path expects before it divides by the density;
++      ! solve1.F adds thpten, qvpten, qcpten, qipten, upten and vpten as changes per second, so the density is
++      ! divided out here, at u and v points for the wind. From Terluna's PBL_DENSITY_PATCH (domain/climate 13e7123).
++      IF( ipbl2_per_mass.eq.1 )THEN
++      !$omp parallel do default(shared)   &
++      !$omp private(i,j,k)
++      do k=1,nk
++        do j=1,nj
++        do i=1,ni
++          thpten(i,j,k) = thpten(i,j,k)*rr(i,j,k)
++          qvpten(i,j,k) = qvpten(i,j,k)*rr(i,j,k)
++          qcpten(i,j,k) = qcpten(i,j,k)*rr(i,j,k)
++          qipten(i,j,k) = qipten(i,j,k)*rr(i,j,k)
++        enddo
++        enddo
++        do j=1,nj
++        do i=1,ni+1
++          upten(i,j,k) = upten(i,j,k)/(0.5*(rho(i-1,j,k)+rho(i,j,k)))
++        enddo
++        enddo
++        do j=1,nj+1
++        do i=1,ni
++          vpten(i,j,k) = vpten(i,j,k)/(0.5*(rho(i,j-1,k)+rho(i,j,k)))
++        enddo
++        enddo
++      enddo
++      ENDIF
++
+       endif  dobr09
+ 
+       !c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c!

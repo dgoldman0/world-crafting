@@ -50,7 +50,8 @@ CM1's longwave comes within 0.013 K a day of the correlated-k model in every lay
 this air; the tendency CM1 applies converts it back, so the air takes RRTMG's own heating. To compare a stored
 tendency with another radiation code, a reader multiplies it by cvm/cp, and in a heat budget beside CM1's other θ
 tendencies by cv/cp. CM1 also hands RRTMG the ground's temperature for the air at the ground, which an offline
-column has to match (Terluna keeps these conventions in `climate/crm/cm1_output.py`, `domain/atmosphere` fe49ad9).
+column has to match (`python/climate/crm/cm1_output.py`, brought with its tests from Terluna's file of that path at `bdda5a07`,
+holds these conventions and both conversions; Terluna `domain/atmosphere` fe49ad9).
 Terluna's earlier analyses read the stored tendencies as rates at constant pressure, overstating the radiation by
 38–40%, and extrapolated the air at the ground from the two lowest layers; the extra cooling of 4.5, 8.5 and
 10.2 W/m² in the three lowest GCM layers that the paper's first released draft reports (claim V08) came from those
@@ -206,9 +207,22 @@ build `moon_omp_rain_law_pbl`, `domain/climate` 13e7123), the boundary layer's w
 evaporation. On Earth, where the boundary layer's air weighs 1.0 to 1.2 kg/m³, the same lines inflate the
 tendencies by up to about 20%, a figure from the code, untested on an Earth case. Of Terluna's 59 CM1 runs, 51 used
 the scheme, every ring and box the paper reports among them, and each carries the bias until a rerun with the fix
-sizes it. The series in [../models/cm1/](../models/cm1/) holds the stock scheme; the `lab` branch drafts the
-report to CM1's developer (`models/cm1/upstream-ipbl2-density.md`) and adds the fix before any lab case runs (its
-plan, stage 3).
+sizes it. The lab's series in [../models/cm1/](../models/cm1/) (`series-lab`, patch 01) divides the density out
+when a case sets `ipbl2_per_mass = 1`, and keeps CM1's own scheme at the default 0;
+`models/cm1/upstream-ipbl2-density.md` drafts the report to CM1's developer.
+
+## The surface layer's gust over water
+
+CM1's MM5 surface layer (`sfcmodel = 2`, `sfclay.F`) adds a convective gust to the wind in its bulk formulas. Over
+land it takes Beljaars's form, vconvc (g/T_s h B)^⅓ with vconvc 1, from the build's gravity, the boundary layer's
+depth h and its buoyancy flux B; over water it keeps the old MM5 formula √Δθv m/s, for Δθv in K, which has no
+gravity in it, so it gives the gust that Δθv would drive at Earth's gravity. Over the lunar sea the air's virtual
+temperature is 3–4 K below the sea's, and that formula gave Terluna's sea box a gust of 1.6–2.1 m/s, which raised the wind in its bulk formulas 1.6–1.8
+times, where Beljaars's form from the box's own fluxes raises it 1.1–1.2 times (Terluna `climate/crm/cm1_run.py`
+and `research/decisions.md` lines 560–561, at `bdda5a07`). Every CM1 run over the seas behind the paper's first
+released draft took the MM5 formula. The lab's series (`series-lab`, patch 02) takes Beljaars's form over water too
+when a case sets `gust_over_water = 1`. Since the change also moves Earth's output, the Earth control's test decides
+whether it serves every world (`PLAN.md`).
 
 ## The twilight hook (series-twilight)
 

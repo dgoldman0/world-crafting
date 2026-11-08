@@ -15,6 +15,10 @@ Terluna's runners to pristine upstream sources and recording each group's unifie
 | `models/cm1/patches/` (core, terrain, sea, twilight, earth-fall, Makefiles) | `climate/crm/cm1_run.py`: `MAKEFILE`, `PATCHES`, `TERRAIN_PATCHES`, `SEA_COLUMNS_PATCH`, `TWILIGHT_PATCH`, `EARTH_FALL_PATCH`, `optimization_patch` | c779ac6e6ac20f50 |
 | `models/cm1/patches/elec/` | `climate/crm/cm1_elec.py`: `quiet_msz`, `PATCHES` | 2619025f7b0a647e |
 | `models/swan/patches/` | `climate/waves/build.py` | 74afe80f1161372e |
+| `models/cm1/patches/lab/` (written 2026-11-08, from Terluna `bdda5a07`) | `climate/crm/cm1_run.py`: `PBL_DENSITY_PATCH`, `GUST_PATCH`, moved behind namelist switches | c0337fc8be2635ac |
+
+The row for `models/cm1/patches/lab/` differs: those patches were written by hand on 2026-11-08 from Terluna's
+edits at `bdda5a07`, with namelist switches added.
 
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).
@@ -47,15 +51,17 @@ drive. Upstream source code is never committed whole.
 
 ## Python tools
 
-The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna at
-186b294, under their Terluna package paths; `python/provenance.json` lists the 120 files they hold with their
+The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna, at
+186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 122 files they hold with their
 sha256 (98 brought first; the electricity package's conductivity column, muon ionization and charging laws, with
 their three tests and committed products, added on 2026-10-17; and on 2026-10-18 the geography package's
 heights above the geoid, storage levels, atlas, drainage and gazetteer reader, with their three tests and the
-package's `.gitignore`).
+package's `.gitignore`; and on 2026-11-08 CM1's output conventions and their test, from `bdda5a07`).
 `python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
 `models/exoplasim/patches/10-ice-optics.patch` in place of the runner's Python string (both hashes recorded).
 The geography package came over byte for byte (82b4b59), with its input restorer and manifest, the level table
 one test read and Terluna's water scenario, and was then generalised for any world: its five tools and three
 tests hold both hashes and a note of each change, `tests/test_topography.py` is the lab's own, and the lab's
 data manifest and specifications took over from the four files the generalisation removed.
+On 2026-11-08 `climate/crm/cm1_output.py` came over byte for byte from Terluna at `bdda5a07`, with its test, whose
+last check reads the pinned CM1 archive in place of Terluna's lunar build; both entries record that commit.

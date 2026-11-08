@@ -619,7 +619,21 @@
    "path": "shared/provenance.py",
    "sha256": "c59d32186d453a80992eb02203b644fe759aca869dc892d91af9aa74fd65c7f8",
    "bytes": 3275
+  },
+  {
+   "path": "climate/crm/cm1_output.py",
+   "sha256": "2ce1d689ddb33f9dc3ed92fb3ce131d5b559de688885715bd6ad1da655c74d5e",
+   "bytes": 3190,
+   "terluna_commit": "bdda5a07"
+  },
+  {
+   "path": "climate/tests/test_cm1_output.py",
+   "sha256": "bd97a4abf13a5391a86132e1682d35064bee1eae4a905d837d8e7e2c80273001",
+   "bytes": 4098,
+   "terluna_sha256": "1e656ffdcd3327eb8f92cd085cf9ff976b5501bc54969786b7d2b94028b4a6ed",
+   "terluna_commit": "bdda5a07",
+   "modified": "test_the_conventions_are_the_lunar_builds renamed test_the_conventions_are_cm1s_own, which reads radiation_driver.F and constants.F from the pinned cm1r22.0 archive in place of Terluna's lunar build (rrtmg_edge.BUILD); the rrtmg_edge import dropped"
   }
  ],
- "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography package brought from 186b294 byte for byte (82b4b59), then generalised, its modified files holding both hashes"
+ "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography package brought from 186b294 byte for byte (82b4b59), then generalised, its modified files holding both hashes; 2026-11-08: climate/crm/cm1_output.py brought from Terluna bdda5a07 byte for byte, and its test with one check adapted"
 }

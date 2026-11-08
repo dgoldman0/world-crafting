@@ -1,0 +1,79 @@
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -403,6 +403,7 @@
+       side_cd = 0.0
+       brkup_db = 0.0
+       ipbl2_per_mass = 0   ! Lab: CM1's own unless the namelist sets 1
++      gust_over_water = 0  ! Lab: CM1's own unless the namelist sets 1
+       solconrce = 0.0
+       zenanglrce = 0.0
+       trn_swirl = 0.0
+--- a/src/init_physics.F
++++ b/src/init_physics.F
+@@ -120,6 +120,8 @@
+ 
+       ENDIF
+ 
++      lab_gust_water = gust_over_water   ! Lab: the namelist's choice for the MM5 surface layer's gust over water
++
+       IF( isfcflx.eq.1 )THEN
+         if( sfcmodel.eq.2 )then
+           call sfclayinit
+--- a/src/input.F
++++ b/src/input.F
+@@ -290,6 +290,7 @@
+ 
+ !-----------------------------------------------------------------------
+       integer :: ipbl2_per_mass   ! Lab: 1 gives the simple boundary layer's tendencies per unit mass; 0 keeps CM1's own
++      integer :: gust_over_water   ! Lab: 1 takes Beljaars's gust over water as over land; 0 keeps CM1's own
+ !  Begin namelists:
+ 
+       namelist /param0/ nx,ny,nz,ppnode,                                &
+@@ -310,7 +311,7 @@
+           irandp,irandprst,numrand,ibalance,iorigin,axisymm,imove,iptra,npt,pdtra, &
+           iprcl,nparcels
+       namelist /param3/ kdiff2,kdiff6,fcor,kdiv,alph,rdalpha,zd,xhd,alphobc, &
+-                        umove,vmove,v_t,l_h,lhref1,lhref2,l_inf,brkup_db,ipbl2_per_mass,ndcnst,nt_c, &
++                        umove,vmove,v_t,l_h,lhref1,lhref2,l_inf,brkup_db,ipbl2_per_mass,gust_over_water,ndcnst,nt_c, &
+                         csound,cstar,solconrce,zenanglrce
+       namelist /param4/ stretch_x,dx_inner,dx_outer,nos_x_len,tot_x_len
+       namelist /param5/ stretch_y,dy_inner,dy_outer,nos_y_len,tot_y_len
+--- a/src/param.F
++++ b/src/param.F
+@@ -415,6 +415,7 @@
+       call MPI_BCAST(l_inf  ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(brkup_db,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(ipbl2_per_mass,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)   ! Lab
++      call MPI_BCAST(gust_over_water,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)  ! Lab
+       call MPI_BCAST(ndcnst ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(nt_c   ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(csound ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+@@ -3166,6 +3167,7 @@
+       if(dowr) write(outfile,*) 'l_inf     =',l_inf
+       if(dowr) write(outfile,*) 'brkup_db  =',brkup_db
+       if(dowr) write(outfile,*) 'ipbl2_per_mass =',ipbl2_per_mass   ! Lab
++      if(dowr) write(outfile,*) 'gust_over_water =',gust_over_water  ! Lab
+       if(dowr) write(outfile,*) 'ndcnst    =',ndcnst
+       if(dowr) write(outfile,*) 'nt_c      =',nt_c
+       if(dowr) write(outfile,*) 'csound    =',csound
+--- a/src/sfclay.F
++++ b/src/sfclay.F
+@@ -5,6 +5,7 @@
+  REAL    , PARAMETER ::  VCONVC=1.
+  REAL    , PARAMETER ::  CZO=0.0185
+  REAL    , PARAMETER ::  OZO=1.59E-5
++ INTEGER, SAVE :: lab_gust_water = 0   ! Lab: 1 takes Beljaars's gust over water too (namelist gust_over_water)
+ 
+  REAL,   DIMENSION(0:1000 ),SAVE          :: PSIMTB,PSIHTB
+ 
+@@ -499,7 +500,9 @@
+ !
+ !       VCONV = 0.25*sqrt(g/tskv*pblh(i)*dthvm)
+ !      Use Beljaars over land, old MM5 (Wyngaard) formula over water
+-        if (xland(i).lt.1.5) then
++        ! Lab: with gust_over_water = 1, Beljaars's gust over water as over land, at the build's gravity;
++        ! from Terluna's GUST_PATCH (Beljaars 1995; COARE's gust over the ocean has the same form)
++        if (xland(i).lt.1.5 .or. lab_gust_water.eq.1) then
+         fluxc = max(hfx(i)/rhox(i)/cp                    &
+               + ep1*tskv*qfx(i)/rhox(i),0.)
+         VCONV = vconvc*(g/tgdsa(i)*pblh(i)*fluxc)**.33

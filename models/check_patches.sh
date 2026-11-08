@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Apply every patch series to a pristine copy of its pinned upstream source and compare the result with
-# the recorded hashes: the sources Terluna compiled, and for ExoPlaSim the lab's whole series after them.
+# the recorded hashes: the sources Terluna compiled, and for ExoPlaSim and CM1 the lab's series after them.
 # Nothing is compiled.
 #
 #   models/check_patches.sh [UPSTREAM_DIR]      # default: ./upstream (ignored by Git)
@@ -74,6 +74,18 @@ if [ -e "$UP/cm1r22.0.tar.gz" ]; then
             [ "$got" = "$want" ]
         ) && echo "ok  $label" || fail "CM1 $label"
     done < "$C/expected.sha256"
+    # The lab's own patches (series-lab) follow the core series on the OpenMP makefile; expected-series.sha256
+    # records the sources they give.
+    while read -r want label; do
+        R="$TMP/cm1-$label"; cp -r "$TMP/cm1r22.0" "$R"
+        (
+            cd "$R" || exit 1
+            patch -p1 --quiet < "$C/patches/makefile-gnu-omp.patch" || exit 1
+            apply_series "$C" "$C/series-core" "$C/series-lab" || exit 1
+            got=$( (cd src && sha256sum *.F Makefile | sort -k2) | sha256sum | cut -d' ' -f1)
+            [ "$got" = "$want" ]
+        ) && echo "ok  $label: the lab's series after the core" || fail "CM1 $label"
+    done < "$C/expected-series.sha256"
 fi
 
 echo "== SWAN 41.51"

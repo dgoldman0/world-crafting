@@ -16,7 +16,7 @@ corrected there. The companion note `verification_record.md` describes the check
 - Repository paths are Terluna's at commit 186b294. `climate/gcm/exoplasim_run.py:212` means line 212 of that
   file at that commit. The checkout at `/home/kir/Documents/Projects/terluna` (f03b839) differs from 186b294 only in
   `research/integration/five-branches.md`, so its line numbers match. Entries and findings that Terluna recorded
-  after 186b294 (A9, B29–B34, C19, C20 and the updates to B18, B22 and B28) cite the Terluna commit and branch that
+  after 186b294 (A9, B29–B35, C19, C20 and the updates to B18, B22 and B28) cite the Terluna commit and branch that
   record them, and their paths are at that commit.
 - Upstream line numbers are those of the pinned sources:
   - CM1 r22.0: `cm1r22.0.tar.gz`, sha256 `05f990bb…6226`.
@@ -54,7 +54,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | A6 | CM1 r22.0 | Threaded runs part from one another; cause uncertain, most likely CM1's own threaded loops | 10-04, b85eb5c | None; one thread repeats | Paired multithread runs are separate realizations | Open | R |
 | A7 | WRF-ELEC | No conduction by default; ion charge persists for weeks in month-long runs | 10-05, e09aa30 | `leakage` (lunar 1), 4499e35 | ~20 kV/m at the ground over the whole box; lightning unchanged | Fixed for lunar runs | R |
 | A8 | WRF-ELEC `lightmsz` | Channel reach marked only above threshold `scth` | 10-05, a5205d2 | Flash log takes reach from charge handed to ions | 13 flashes logged no reach | Fixed (logging) | R |
-| A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | Density divided out in Terluna's build `moon_omp_rain_law_pbl`; none in this repository's series | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Open here; fixed in Terluna's new builds | R |
+| A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | `ipbl2_per_mass` (0): the lab's series, patch 01, from Terluna's build `moon_omp_rain_law_pbl` | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant; fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
@@ -89,6 +89,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B32 | PlaSim | Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and 1 m/s wind floor | 10-26, b182515; compared 10-27, 21d98fc | None yet; a nonlocal scheme with the stretched length, tested in single columns, misses the sea night's stop rule (6d0c707) | Over the sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour through 5.2 km where PlaSim's median diffusivity is 0.1–0.3 m²/s | Open | R |
 | B33 | PlaSim | Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³, from a tank law that scales as (g/p_s)^⅓ | 10-26, b182515 | In Terluna: `cfree` in `fluxmod`'s namelist, `--free-convection lunar` (0.00083) | Near-side Sea's evaporation 3.82 → 3.62 mm/day (CM1 2.98); global evaporation and rain 3% lower | Open here; switch in Terluna | R |
 | B34 | PlaSim | Shallow convection's tops capped at 700 hPa | 10-25, 1d05c3d | In Terluna: `--sbm-shallow-cap`, tied to the depth test (ea1b62f) | Near 28 km in the Moon's air; binds in 1–1.4% of cells | Open here; switch in Terluna | R |
+| B35 | CM1 r22.0 | The MM5 surface layer's gust over water, √Δθv m/s, has no gravity in it; over land the same scheme takes Beljaars's gust from the build's gravity | 10-28, Terluna `domain/climate` 238638f | `gust_over_water` (0): the lab's series, patch 02, from Terluna's `GUST_PATCH` | Raised the sea box's surface wind 1.6–1.8 times, where Beljaars's gust, computed from the box's own fluxes, raises it 1.1–1.2 times; every CM1 run over the seas behind the paper's first released draft | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
 | C2 | CM1–GCM check | GCM's missing sunlight booked as reflection | 09-29, be50d8b retracts 36e29c4 | Each model's own arriving sunlight | A false "reflects too much" finding | Fixed | R |
 | C3 | Twilight ledger | Sky model's channels overstate absorbed energy by 58%; ledger's first channels put near-IR sunlight too high | 10-14, 2ac4359 and 55e5020 | 10,697 channels keeping heights | First two 20-year GCM tests used the old terms | Fixed | R |
@@ -276,9 +277,11 @@ options, which would place A6 in or out of the released code.
   Earth, where the boundary layer's air weighs 1.0–1.2 kg/m³, the code implies up to about 20%, untested on an
   Earth case.
 - **Fix.** Divide the density out at the end of the `ipbl = 2` block, as Terluna's build `moon_omp_rain_law_pbl`
-  does; its boundary layer passes on 0.995–1.000 of the evaporation. This repository's series holds the stock
-  scheme. The `lab` branch plans the fix as a patch (its plan, stage 3) and drafts the report to CM1's developer
-  (`models/cm1/upstream-ipbl2-density.md`).
+  does; its boundary layer passes on 0.995–1.000 of the evaporation. Patch 01 of the lab's `models/cm1/series-lab` makes the
+  same fix, switched by `ipbl2_per_mass` (default 0, CM1's own scheme); its sources compile, and stage 3's CM1 builds
+  will measure its effect in the lab's runs. `solve1.F` then averages `upten` and `vpten` as fields at scalar
+  points, while this scheme fills them at u and v points, and the patch leaves that averaging as CM1 has it.
+  `models/cm1/upstream-ipbl2-density.md` drafts the report to CM1's developer.
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
@@ -751,6 +754,22 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   (1d05c3d).
 - **Status.** Terluna's `--sbm-shallow-cap`, off by default, ties the cap to the depth test's threshold above each
   column's condensation level (ea1b62f).
+
+### B35. CM1 r22.0: the MM5 surface layer's gust over water (R)
+
+- **Earth value.** CM1's MM5 surface layer (`sfclay.F`, `sfcmodel = 2`) adds a convective gust to the wind in its
+  bulk formulas: over land Beljaars's form, vconvc (g/T_s h B)^⅓, from the build's gravity, and over water the old
+  MM5 formula √Δθv m/s for Δθv in K, with no gravity in it. The comment on the branch reads "Use Beljaars over land,
+  old MM5 (Wyngaard) formula over water".
+- **Found** in Terluna's sea boxes and recorded on 2026-10-28 (`domain/climate` 238638f; `research/decisions.md`
+  lines 560–561 at `bdda5a07`).
+- **Effect.** Over the lunar sea, with the air 3–4 K below the sea in virtual temperature, the formula gave a gust
+  of 1.6–2.1 m/s and raised the wind in the bulk formulas 1.6–1.8 times; Beljaars's form from the box's own fluxes
+  raises it 1.1–1.2 times. Every CM1 run over the seas behind the paper's first released draft took the formula. At
+  Earth's gravity the formula serves as fitted.
+- **Fix.** Beljaars's form over water too, at the build's gravity: Terluna's build variants with `GUST_PATCH`, and
+  patch 02 of the lab's `models/cm1/series-lab`, switched by `gust_over_water` (default 0, CM1's own formula). Its
+  sources compile, and stage 3's CM1 builds will measure its effect in the lab's runs and on the Earth control.
 
 ## (c) Defects in Terluna's own work
 

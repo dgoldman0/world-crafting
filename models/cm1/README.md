@@ -90,6 +90,23 @@ sub-step, `var6` charging, `var7` charging law, `var8` lightning (4: branched wi
 `var9` leakage, `var10` cylinder radius. The lunar defaults: sub-step 6.8 s, WRF-ELEC's −7 °C ground rule
 with the leader's crossing at 1 kV/m, the cap lifted, leakage on.
 
+**The lab's** (`series-lab`, after `series-core`). The lab's own patches move two of Terluna's build-variant
+patches (`climate/crm/cm1_run.py` at `bdda5a07`) behind integers in `&param3`, so that one build serves every case;
+at each switch's default, 0, the build skips the added code and keeps CM1's own path.
+
+| # | Files | Switch | Change | Kind |
+|---|---|---|---|---|
+| 01 | turb.F; input.F, cm1.F, param.F | `ipbl2_per_mass` = 1 | The simple boundary layer's (`ipbl = 2`) tendencies of θ, the mixing ratios and the wind divided by the density, at u and v points for the wind, so that `solve1.F` adds changes per second, as it does for the other schemes (Terluna's `PBL_DENSITY_PATCH`). `solve1.F` then averages `upten` and `vpten` as fields at scalar points, while this scheme fills them at u and v points; the patch leaves that averaging as CM1 has it | General repair of a defect (A9) |
+| 02 | sfclay.F, init_physics.F; input.F, cm1.F, param.F | `gust_over_water` = 1 | The MM5 surface layer (`sfcmodel = 2`) takes Beljaars's convective gust over water as over land, at the build's gravity, in place of the old MM5 formula √Δθv m/s, which has no gravity in it (Terluna's `GUST_PATCH`) | General repair of an Earth value (B35), for convective surface layers; a stable surface layer takes no gust |
+
+Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the two patches give the sources
+`expected-series.sha256` records (`models/check_patches.sh`), and on 8 November 2026 those sources compiled with
+gfortran and OpenMP. Stage 3's CM1 builds will test a compiled case's identity at the
+defaults and measure each fix's effect in the lab's own runs. Terluna ran the same code as build variants: with the
+density divided out, its boxes' boundary layer passed on 0.995–1.000 of the evaporation in its trials, and Beljaars's
+gust, computed from the sea box's own fluxes, raises its wind 1.1–1.2 times, where the MM5 formula raised it 1.6–1.8
+times.
+
 ## Settings of the lunar cases
 
 The Rayleigh damping rate `rdalpha` = (g/9.81)/300 s⁻¹ and the boundary-layer scheme's asymptotic
@@ -105,4 +122,5 @@ fully from 16 km. Case set-up stays in Terluna (`climate/crm/cm1_run.py`).
 [builds.json](builds.json) lists the 14 build variants, the patches each applies, its gravity and
 flags, and the cases recorded on its deployed executable. On 2026-10-17 the series applied with GNU
 patch to pristine CM1 r22.0 reproduced every Fortran source of the deployed builds behind the current
-results; the details and the exceptions are in that file.
+results; the details and the exceptions are in that file. The lab's series follows the core on the OpenMP
+makefile, and `expected-series.sha256` records the sources it gives.
