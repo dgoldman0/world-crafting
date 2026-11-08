@@ -20,24 +20,24 @@
   "formula": "p_s / g_s (constant gravity)"
  },
  "scale_height": {
-  "moon_km": 52.37664362087367,
+  "moon_km": 53.486318273858274,
   "earth_km": 8.430182229150557,
-  "moon_T_K": 295.0,
+  "moon_T_K": 301.25,
   "earth_T_K": 288.0,
-  "moon_over_radius": 0.030146565915087874,
+  "moon_over_radius": 0.030785264345492273,
   "earth_over_radius": 0.0013232117766678003,
-  "ratio_of_ratios": 22.782873041687218,
+  "ratio_of_ratios": 23.265561029858553,
   "formula": "H = R T / (M g)"
  },
  "horizon_air_mass_chapman": {
-  "moon": 7.218401170053189,
+  "moon": 7.143129027931051,
   "earth": 34.454445094007795,
   "formula": "sqrt(pi R / 2H), exponential atmosphere"
  },
  "one_day_after_sunset": {
   "sun_depression_deg": 12.190748644033187,
   "shadow_height_km": 40.08221788886676,
-  "mass_above_isothermal": 0.4652088067172743,
+  "mass_above_isothermal": 0.47265384896127266,
   "formula": "h = R (sec d - 1); mass above exp(-h/H), refraction ignored",
   "mass_above_design_profile": 0.45279428470799504
  },
@@ -51,7 +51,7 @@
   "area_ratio_at_48_6km": 1.0567281453219086
  },
  "column_with_falling_gravity": {
-  "exponential": 1.058664349916867,
+  "exponential": 1.059875596469239,
   "design_profile": 1.053112952935119,
   "design_profile_mass_mean_height_km": 46.8643588799005,
   "formula": "int rho dz / int rho (R/r)^2 dz for an exponential rho; sum(dp/g(z)) / (p_s/g_s) for the profile"

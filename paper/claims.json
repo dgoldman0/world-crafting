@@ -1,5 +1,5 @@
 {
- "about": "Every number the text cites, with its source and evidence state. Sources: terluna:<path> at commit 186b294, repo:<path> in this repository, drive:<path> on Terluna's research drive, calc:<text>. States: observation, calculation, conditional model, calibration, reproduction, identity, sensitivity, documented, finding.",
+ "about": "Every number the text cites, with its source and evidence state. Sources: terluna:<path> at commit 186b294, terluna@<commit>:<path> at a later commit (the version 2 numbers, at bdda5a07), repo:<path> in this repository, drive:<path> on Terluna's research drive, calc:<text>. States: observation, calculation, conditional model, calibration, reproduction, identity, sensitivity, documented, finding.",
  "claims": [
   {
    "id": "S01",
@@ -39,41 +39,42 @@
   },
   {
    "id": "S05",
-   "text": "121,590 Pa at the water level; O2 21,227 Pa (17.5%); Earth's Ar/N2; 400 ppm CO2; global mean 1.16 atm, range 1.02-1.22 atm (A28_corrected_970, year 19)",
+   "text": "121,590 Pa at the water level; O2 21,227 Pa (17.5%); Earth's Ar/N2; 400 ppm CO2; on the turned design case's grid a global mean of 1.16 atm (1,174.8 hPa) and a range of 1.03-1.21 atm by cell (A28R_301k_design_l15_snow_s924_turned_refit, year 19)",
    "source": [
     "terluna:climate/gcm/README.md#L161-163",
     "terluna:climate/gcm/boundary.py#L238",
     "repo:paper/data/regime_calc.json#air",
-    "drive:/media/projectspace/terluna-research/gcm-runs/A28_corrected_970"
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit"
    ],
    "state": "documented"
   },
   {
    "id": "S06",
-   "text": "Seas at 28% of the surface; with rain-fed lakes, 759 of the GCM's 2,048 cells, 40% of its surface, are water",
+   "text": "Seas at 28% of the surface; with the rebuilt rain-fed lakes on the turned surface, 667 of the GCM's 2,048 cells, 38% of its area (land share 0.6160), are water",
    "source": [
-    "terluna:climate/gcm/README.md#L512-517"
+    "terluna@bdda5a07:climate/gcm/README.md#L4433",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit"
    ],
    "state": "documented"
   },
   {
    "id": "S07",
-   "text": "TSIS-1 through the titania shield: 1,235 W/m2 at the top of the air, dimmed to 1,198 W/m2 (scale 0.970) in the design case; no ozone behind the shield",
+   "text": "TSIS-1 through the titania shield: 1,235 W/m2 at the top of the air, dimmed to 1,141 W/m2 (scale 0.924) in the design case, the scale chosen to hold the 301.25 K design temperature; no ozone behind the shield",
    "source": [
     "terluna:climate/gcm/README.md#L169-171",
-    "terluna:climate/gcm/README.md#L561",
     "terluna:climate/gcm/boundary.py#L241-242",
-    "terluna:research/decisions.md#L372"
+    "terluna@bdda5a07:research/decisions.md#L757",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit"
    ],
    "state": "documented"
   },
   {
    "id": "S08",
-   "text": "Column water vapour 170 kg/m2 in the design case and 348 kg/m2 in the longwave-and-ice test (years 15-19 of each); Earth about 25",
+   "text": "Column water vapour 303 kg/m2 in the design case (global mean of prw over years 15-19) and 348 kg/m2 in the longwave-and-ice test (years 15-19); Earth about 25",
    "source": [
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
     "terluna:climate/gcm/README.md#L1155",
-    "drive:/media/projectspace/terluna-research/gcm-runs/A28_corrected_970_lw_ice",
-    "repo:notes/exoplasim.md#L218-221"
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28_corrected_970_lw_ice"
    ],
    "state": "conditional model"
   },
@@ -460,25 +461,25 @@
   },
   {
    "id": "H32",
-   "text": "The first box rained in the mornings and was stopped at day 47; at 45 N the missing sideways transport is about a third of CM1's warm offset",
+   "text": "The first box, forced with the advection along the rings alone, rained in the mornings and was stopped at day 47",
    "source": [
     "repo:notes/defect_log.md#C6",
     "terluna:climate/crm/README.md#L830-832",
-    "terluna:climate/crm/README.md#L405-408",
-    "terluna:climate/crm/README.md#L1125-1128"
+    "terluna:climate/crm/README.md#L405-408"
    ],
    "state": "finding"
   },
   {
    "id": "R01",
-   "text": "Ten ExoPlaSim patches, each with a namelist switch written to reproduce the released code at its default (identity run for five); CM1 gravity, CO2 and O2 as preprocessor constants and var1-var20; the patch series generated from the runners' edit lists",
+   "text": "Ten ExoPlaSim patches, each with a namelist switch written to reproduce the released code at its default (identity run for five); CM1 gravity, CO2 and O2 as preprocessor constants and var1-var20; the boundary layer's density, the gust over water and the raindrop limits each a namelist switch (ipbl2_per_mass and gust_over_water in the lab's series, brkup_gscale in Terluna's builds); the patch series generated from the runners' edit lists",
    "source": [
     "repo:models/exoplasim/README.md",
     "repo:models/cm1/README.md",
     "repo:models/swan/README.md",
     "repo:models/check_patches.sh",
     "repo:PROVENANCE.md",
-    "repo:models/cm1/builds.json"
+    "repo:models/cm1/builds.json",
+    "terluna@bdda5a07:climate/crm/README.md#L1369"
    ],
    "state": "reproduction"
   },
@@ -580,7 +581,7 @@
   },
   {
    "id": "R11",
-   "text": "The longwave correction, fitted on ~2,100 cloud-free 3-day means over land and sea and scaled with T^4, removes each layer's mean error, leaving 1-5 W/m2 column to column",
+   "text": "The longwave correction, fitted on ~2,100 cloud-free 3-day means over land and sea and scaled with T^4, removes each layer's mean error on its state, leaving 1-5 W/m2 column to column",
    "source": [
     "terluna:climate/gcm/README.md#L767-797",
     "repo:python/climate/results/gcm/longwave_A28_corrected_970_heating.json"
@@ -610,10 +611,12 @@
   },
   {
    "id": "R14",
-   "text": "Ring columns each with their own Sun (a box takes one) and Coriolis on tilted rings; nudging only above 8-16 km; the GCM's vertical wind through CM1's large-scale advection",
+   "text": "Ring columns each with their own Sun (a box takes one) and Coriolis on tilted rings; the GCM's vertical wind through CM1's large-scale advection; in the boxes on the refined state the GCM's own heating and moistening (storage less physics) through the whole column, temperature and vapour held only above the GCM's convection top (the lowest level above which under 1% of its convective rain forms, 72 km at both sites), from 93 km, fully from 129 km; the rings and the earlier boxes nudged from 8 km, fully from 16 km",
    "source": [
     "repo:models/cm1/README.md",
-    "repo:notes/cm1.md#L101-108"
+    "repo:notes/cm1.md#L101-108",
+    "terluna@bdda5a07:climate/crm/README.md#L1570-1704",
+    "terluna@bdda5a07:climate/crm/gcm_site.py"
    ],
    "state": "documented"
   },
@@ -704,11 +707,11 @@
   },
   {
    "id": "V08",
-   "text": "RRTMG within 2.5 points at the crossing; on 990 cloud-free 45 N columns it cools 4.5, 8.5 and 10.2 W/m2 more than correlated-k at 0-1.8, 1.8-6.5 and 6.5-13.7 km",
+   "text": "RRTMG within 2.5 points at the crossing; on 990 cloud-free 45 N columns CM1's longwave, read at constant volume as CM1 stores it under eqtset = 2 (x cvm/cp against another code) and with the ground's temperature at the lowest level, comes within 0.013 K/day (0.2-1.3 W/m2) of the correlated-k model in every layer; read as rates at constant pressure it is 38-40% too large",
    "source": [
     "terluna:climate/crm/README.md#L911-919",
-    "terluna:climate/crm/README.md#L1173-1180",
-    "repo:notes/verification_record.md#L157"
+    "repo:notes/defect_log.md#C20",
+    "terluna@bdda5a07:climate/crm/cm1_output.py"
    ],
    "state": "calibration"
   },
@@ -810,7 +813,7 @@
   },
   {
    "id": "G04",
-   "text": "With the curved air on the ledger's corrected terms and the gas bands, at a sunlight scale of 0.970 (3.0% dimming, eased from 5%), the design case settles at 295.02 K with 2.31 mm/day; the scale was chosen to hold the design temperature",
+   "text": "With the curved air on the ledger's corrected terms and the gas bands, at a sunlight scale of 0.970 (3.0% dimming, eased from 5%), the 295 K design state settles at 295.02 K with 2.31 mm/day; the scale was chosen to hold that state's design temperature",
    "source": [
     "terluna:climate/gcm/README.md#L1148-1158",
     "terluna:research/decisions.md#L370-372",
@@ -829,41 +832,6 @@
     "terluna:climate/gcm/README.md#L422",
     "terluna:climate/gcm/README.md#L900",
     "terluna:climate/gcm/README.md#L870"
-   ],
-   "state": "sensitivity"
-  },
-  {
-   "id": "G06",
-   "text": "45 N ring: lowest 1.8 km 5.9 K above the GCM; the imposed transport (~15 W/m2 out of the air below 8 km) cuts it to 3.7 K",
-   "source": [
-    "repo:paper/data/gap45n.json",
-    "terluna:climate/crm/README.md#L1125-1196",
-    "repo:notes/cm1.md#L117-120"
-   ],
-   "state": "conditional model"
-  },
-  {
-   "id": "G07",
-   "text": "Against correlated-k, PlaSim's longwave cools its lowest layer 10.6 W/m2 too much on 151 cloud-free 3-day means at 47 N and RRTMG CM1's lowest 1.8 km 4.5 W/m2 too much: ~6 W/m2, ~1.5 K of the 3.7 K at the ring's estimated 4 W/m2 per K; at the 0 E crossing on A28_dim5 forcing (12% too little sunlight), a 3-D box ran warmer, land at most 0.3 C, Earth-speed rain +1.0 C, each a pair of realisations; the remainder, a degree or two, plausibly from boundary-layer transport, with the high ice and the 45 N dry-ground test open",
-   "source": [
-    "repo:notes/cm1.md#L120-124",
-    "terluna:climate/crm/README.md#L1147-1196",
-    "terluna:climate/crm/README.md#L960-990",
-    "terluna:climate/crm/README.md#L1171-1172",
-    "terluna:climate/crm/README.md#L1195-1196",
-    "terluna:climate/crm/README.md#L1190-1196",
-    "repo:notes/exoplasim.md#L264",
-    "terluna:climate/crm/README.md#L947-950",
-    "terluna:climate/crm/README.md#L1186-1192"
-   ],
-   "state": "conditional model"
-  },
-  {
-   "id": "G08",
-   "text": "The small box on pre-correction forcing: 34 mm per lunar day at the ground against the forcing GCM's 129 mm and the corrected GCM's 180 mm; 85% of falling water evaporated against 64% at Earth's fall speeds",
-   "source": [
-    "terluna:climate/crm/README.md#L960-978",
-    "terluna:climate/crm/README.md#L944-956"
    ],
    "state": "sensitivity"
   },
@@ -932,7 +900,7 @@
   },
   {
    "id": "W02",
-   "text": "Chapman factors 22 (Mars), 24.5 (Venus), 14 (Titan), 7.2 (Moon); columns 10x, 100x, 7.25x Earth's; Slingo bias 0.35 at 16 d and 0.60 at 117 d; Sun-clock skip 1/(N-1) turn with N rounded to a multiple of 12 and never below 12: ~1, 2, 10 deg and 33 deg for any rotation slower than 20 days",
+   "text": "Chapman factors 22 (Mars), 24.5 (Venus), 14 (Titan), 7.1 (Moon, at the 301.25 K design temperature); columns 10x, 100x, 7.25x Earth's; Slingo bias 0.35 at 16 d and 0.60 at 117 d; Sun-clock skip 1/(N-1) turn with N rounded to a multiple of 12 and never below 12: ~1, 2, 10 deg and 33 deg for any rotation slower than 20 days",
    "source": [
     "repo:paper/data/worlds.json",
     "repo:notes/exoplasim.md#L23-34",
@@ -1033,18 +1001,19 @@
   },
   {
    "id": "N03",
-   "text": "Snow takes the drops' gravity exponent where its own laws give a larger one; 85% of falling water evaporates in the boxes and 57-73% in the rings",
+   "text": "Morrison's rain limits scaled to lunar gravity: the small box's rain at the ground 33 to 63 mm per lunar day and its evaporated share 86% to 48%; ice-crystal size limits stay Earth's; snow takes the drops' gravity exponent where its own laws give a larger one",
    "source": [
-    "repo:notes/cm1.md#L64-66",
-    "terluna:climate/crm/README.md#L939-940"
+    "repo:notes/defect_log.md#B28",
+    "repo:notes/cm1.md#L64-66"
    ],
    "state": "conditional model"
   },
   {
    "id": "H33",
-   "text": "PlaSim's ten sigma levels, set for Earth's air, put the top three layers above 107 km, at 81-107 km and at 63-81 km, each spanning about 25 K, ice saturation changing 55-fold across the 81-107 km layer, and leave two layers for the lowest 6.5 km",
+   "text": "PlaSim's ten sigma levels, set for Earth's air, put the top three layers above 107 km, at 81-107 km and at 63-81 km, each spanning about 25 K, ice saturation changing 55-fold across the 81-107 km layer, the lowest layer across 0-1.73 km, and two layers in the lowest 6.5 km",
    "source": [
-    "repo:notes/exoplasim.md#L262-264"
+    "repo:notes/exoplasim.md#L262-264",
+    "repo:notes/defect_log.md#B31"
    ],
    "state": "documented"
   },
@@ -1146,6 +1115,281 @@
     "repo:paper/review/slice_reason_2026-10-18.md"
    ],
    "state": "documented"
+  },
+  {
+   "id": "S17",
+   "text": "The seas and lakes, 1.47e19 kg (0.02% of the Moon's mass), add products of inertia 13% of C-A; elastic, within years: the pole moves 8.05 deg toward 167 W, the point beneath Earth to 8.0 N, 6.1 E, the tilt from 1.54 to 1.61 deg; the central case eases to 6.59 deg at 10 Myr; a shallow mantle as warm as the warmest published profile brings 1.89 deg within ~1,000 years, the least likely case by the measured heat flow; the design case runs on the elastic state, tilt 1.613 deg",
+   "source": [
+    "terluna@bdda5a07:research/studies/moon_orientation/README.md",
+    "terluna@bdda5a07:research/decisions.md#L708-709",
+    "terluna@bdda5a07:climate/gcm/README.md#L4433-4435",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "H34",
+   "text": "CM1 r22.0's simple boundary layer (ipbl = 2) hands the solver tendencies multiplied by the air's density: the error is the factor rho/(1 kg/m3), about +20% near Earth's sea level and +40% over the lunar seas (1.40 kg/m3); the boxes' boundary layer took 1.32-1.35 times the surface's evaporation and 1.46-1.51 times its sensible heat",
+   "source": [
+    "repo:notes/defect_log.md#A9",
+    "repo:notes/cm1.md#L197-212"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H35",
+   "text": "RRTMG's extrapolation in ln p beyond 1,053.63 hPa moves the lowest layers' cooling by 0.002-0.003 K/day against tables computed offline to 1.2 atm",
+   "source": [
+    "repo:notes/defect_log.md#B22",
+    "repo:notes/cm1.md#L219-230"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "H36",
+   "text": "PlaSim evaporates falling rain by one constant (gamma 0.01 in rainmod.f90), with no drop size or fall speed: 29% of its rain evaporated against 61% in CM1's boxes",
+   "source": [
+    "repo:notes/defect_log.md#B30"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H37",
+   "text": "PlaSim's Kuo-type scheme turns a column's moisture supply, surface evaporation included, into rain wherever an undiluted surface parcel is buoyant, so it rains under sinking air; its upper air within 1.3 K of the undiluted adiabat against CM1's 3.0-6.3 K below; shallow convection capped at 700 hPa, near 28 km; mixing lengths 160 m and 438 m; least wind 1 m/s",
+   "source": [
+    "repo:notes/defect_log.md#B29",
+    "repo:notes/defect_log.md#B32",
+    "repo:notes/defect_log.md#B34",
+    "terluna@bdda5a07:climate/gcm/README.md#L1723-1740"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "H38",
+   "text": "PlaSim's free-convection constant over water, 0.0016 m s-1 K-1/3, from a tank law scaling as (g/p_s)^(1/3), raises its transfer 1.7-2.1 times; CM1's MM5 gust over water, sqrt(dthv) m/s, omits gravity while the same surface layer takes Beljaars's gust from the build's gravity over land; it raised the sea box's surface wind 1.6-1.8 times where Beljaars's gust from the box's own fluxes raises it 1.1-1.2 times",
+   "source": [
+    "repo:notes/defect_log.md#B33",
+    "terluna@bdda5a07:research/decisions.md#L560",
+    "terluna@bdda5a07:climate/gcm/surface_gust.py"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H39",
+   "text": "The rings and the boxes forced from the states before the design case were nudged toward the GCM from 8 km, fully from 16 km; lunar convection reaches 55-80 km; in a box over the Near-side Sea the nudging supplied 89 of the 107 W/m2 its radiation removed, and the box rained 0.06 mm/day against the GCM's 2.72",
+   "source": [
+    "repo:notes/defect_log.md#C19",
+    "repo:notes/cm1.md#L123-196",
+    "terluna@bdda5a07:climate/crm/README.md#L1600-1660"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "R17",
+   "text": "Switched on, the patched simple boundary layer divides its tendencies by the air's density before the solver applies them; the repair holds in every run with ipbl = 2",
+   "source": [
+    "repo:notes/defect_log.md#A9",
+    "repo:notes/cm1.md#L197-212"
+   ],
+   "state": "implementation"
+  },
+  {
+   "id": "R18",
+   "text": "Morrison's rain limits scaled with gravity (brkup_gscale): the breakup lengths and the cap on rain's mean diameter by (9.81/g)^1/2, the fall-speed cap by (g/9.81)^1/4, with a refinement for the air's density computed for gravities from the Moon's to Earth's",
+   "source": [
+    "repo:notes/defect_log.md#B28",
+    "terluna@bdda5a07:climate/crm/README.md#L1369"
+   ],
+   "state": "implementation"
+  },
+  {
+   "id": "R19",
+   "text": "Beljaars's gust w* = (g h B/theta_v)^(1/3) at the run's gravity: in CM1 over water, as over land, and in PlaSim over ice-free water (ngust 1) in place of the free-convection term and the 1 m/s least wind; PlaSim takes CM1's surface-layer similarity over ice-free water (nsimw 1) at its lowest level's height, with Earth air's viscosity in the smooth-flow roughness (0.11 x 1.5e-5/u*) and a 2.85 mm cap on the roughness",
+   "source": [
+    "terluna@bdda5a07:climate/gcm/surface_gust.py",
+    "terluna@bdda5a07:climate/gcm/surface_similarity.py",
+    "terluna@bdda5a07:research/decisions.md#L561",
+    "terluna@bdda5a07:research/decisions.md#L570"
+   ],
+   "state": "implementation"
+  },
+  {
+   "id": "R20",
+   "text": "Fifteen sigma levels (l15) for the lunar scale height: the lowest level at sigma 0.99415, 0.30 km, the next at 0.97745, 1.16 km; the released ten levels give the lowest layer 0-1.73 km",
+   "source": [
+    "terluna@bdda5a07:climate/gcm/README.md#L2467-2480",
+    "repo:notes/defect_log.md#B31"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "R21",
+   "text": "Simplified Betts-Miller convection (nprc 2): relaxation over 7,200 s toward a moist adiabat and 0.7 relative humidity; convection spanning more than 200 hPa deep, 16% of 1,216 hPa; the scheme and its closures under test, none passing the agreement test",
+   "source": [
+    "terluna@bdda5a07:climate/gcm/exoplasim_run.py",
+    "terluna@bdda5a07:research/decisions.md#L711",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "R22",
+   "text": "Rain evaporated from drop sizes (nevapprec 2): new drops of mean diameter 0.439 mm for rain formed as rain (CM1's sea boxes) and 2.95 mm for rain melted from lunar snow, self-collection, breakup scaled with gravity, fall laws at the world's gravity and air; about half the rain formed evaporates in a first lunar day against a fifth with gamma",
+   "source": [
+    "terluna@bdda5a07:climate/gcm/rain_drops.py",
+    "terluna@bdda5a07:research/plan.md#L500-505"
+   ],
+   "state": "implementation"
+  },
+  {
+   "id": "R23",
+   "text": "The cold cloud's factors on the water and crystal radius of cloud below -38 C in the top three layers (water 6.1, 36.6, 42.1; radius 1.00, 1.68, 1.60), from slabs of rising air at lunar and Earth gravity; snow sublimed from McSnow's lunar flakes, fitted on two design boxes (nsnowsub 1)",
+   "source": [
+    "terluna@bdda5a07:climate/gcm/README.md#L1560-1575",
+    "terluna@bdda5a07:climate/gcm/snow_sublimation.py",
+    "terluna@bdda5a07:research/decisions.md#L576",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "R24",
+   "text": "The design case takes the curved-air terms from a 301 K column (net -8.00 W/m2, against -5.83 on the 294.9 K column), keeps the 294.9 K column's slant factors, against which the shortwave calibration was refitted, and applies the terms in each layer's clear share (NTWLCLEAR 1), which cools the climate by about 1 K",
+   "source": [
+    "terluna@bdda5a07:climate/gcm/README.md#L1400-1441",
+    "terluna@bdda5a07:climate/gcm/README.md#L1500-1506"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "R25",
+   "text": "A longwave correction fitted at 295 K leaves layers up to 6.8 W/m2 off at 301 K, and a refit on 301 K columns holds within 0.3 W/m2; the design case runs the refit l15_turned, fitted on the turned climate; each state, level set and convection scheme takes its own refit",
+   "source": [
+    "terluna@bdda5a07:climate/gcm/README.md#L1347-1380",
+    "terluna@bdda5a07:research/decisions.md#L741",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit"
+   ],
+   "state": "calibration"
+  },
+  {
+   "id": "G18",
+   "text": "The refined state A28R_301k_design_l15_snow_s934 at sunlight 0.934 (6.6% dimming), years 10-19: 300.84 K and 2.00 mm/day, against the 301.25 K target",
+   "source": [
+    "terluna@bdda5a07:research/decisions.md#L615",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s934"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G19",
+   "text": "Single changes: the cold cloud's factors settled 2.8 K cooler (298.5 against 301.25 K) with 19% less rain; the clear share cools the climate by about 1 K (twins settling near 301.0 and 301.9 K); Beljaars's gust in PlaSim's transfer would settle the Moon about 0.7 K warmer",
+   "source": [
+    "terluna@bdda5a07:climate/gcm/README.md#L1576-1619",
+    "terluna@bdda5a07:climate/gcm/README.md#L1500-1506",
+    "terluna@bdda5a07:climate/gcm/README.md#L3926-3932"
+   ],
+   "state": "sensitivity"
+  },
+  {
+   "id": "G20",
+   "text": "The agreement test set before the boxes ran: at each box the lunar-day rain within 10% of the GCM's, at most 15% in a different quarter of the lunar day, the processes agreeing as the rules set them, every change to either model justified on evidence apart from the comparison",
+   "source": [
+    "terluna@bdda5a07:research/decisions.md#L623"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "G21",
+   "text": "Boxes forced by the refined state's years 10-19: sea 1.17 against 1.42 mm/day, 41% in another quarter, the evening rain missing, upper air 8-10 K colder; land at 0 E 17% short, timing agreeing, upper air 3.5-4.6 K colder; dry south-east 0.513 against 0.609 (16% short), 24% displaced, 7.5-7.7 K colder; the sea box carrying the weather 22% displaced",
+   "source": [
+    "terluna@bdda5a07:research/plan.md#L500-510",
+    "terluna@bdda5a07:research/decisions.md#L657",
+    "terluna@bdda5a07:research/decisions.md#L688"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G22",
+   "text": "Carrying the GCM's weather, the sea box follows the GCM's lunar days (r 0.91) and rains 17.5% less; CM1 evaporates 0.69 of its falling rain against the GCM's 0.51",
+   "source": [
+    "terluna@bdda5a07:research/decisions.md#L657",
+    "terluna@bdda5a07:research/plan.md#L500-510"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G23",
+   "text": "CM1's lunar plumes dilute at 2.0e-4 per metre where Earth's thermal structure, translated, implies 0.25-0.66e-4; most of the colder upper air comes from the updrafts' mixing; which free troposphere is right stays open",
+   "source": [
+    "terluna@bdda5a07:research/decisions.md#L703"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "G24",
+   "text": "Turned at sunlight 0.934, years 10-19: 301.64 K against the refined state's 300.84 K (+0.80 K), mainly weaker cloud cooling; rain 2.02 mm/day and the drylands' share of land 57.5% hold, the near side's north wetter and the southern highlands drier; with the longwave refit l15_turned and sunlight 0.924 (7.6% dimming): 301.33 K over years 10-19, 301.20 K and 1.97 mm/day over years 10-49",
+   "source": [
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s934_turned",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
+    "terluna@bdda5a07:research/decisions.md#L738",
+    "terluna@bdda5a07:research/decisions.md#L741",
+    "terluna@bdda5a07:research/decisions.md#L757",
+    "terluna@bdda5a07:research/decisions.md#L804"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G25",
+   "text": "Forced by the fifteen-level GCM, CM1's sea box rains 1.62-1.88 mm/day after midnight against that GCM's 2.28 and the Kuo-forced box's 0.14: by the rule set before the run, CM1's quiet nights came with the Kuo GCM's forcing",
+   "source": [
+    "terluna@bdda5a07:research/decisions.md#L557"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "W07",
+   "text": "Surface water turns a body beneath its spin axis as its products of inertia approach the differences among the body's moments; the Moon's largest and smallest moments differ by 2.5e-4 MR^2; its seas, 0.02% of its mass and roughly opposite each other, add products of inertia 13% of C-A and turn it about 8 deg; the long-term turn needs an interior model",
+   "source": [
+    "terluna@bdda5a07:research/studies/moon_orientation/README.md"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "N05",
+   "text": "None of the closures tried with the simplified Betts-Miller scheme passes; the second refinement (nclos_bm 3) convects 0.93-0.95 of the boxes' rain with the free troposphere inside the proposed target, yet dries the land to about 40% of its soil water and leaves 58-74% of the tropics' rain to the large-scale condensation; PlaSim's single column convects unlike the GCM, so its results cannot choose a closure",
+   "source": [
+    "terluna@bdda5a07:research/decisions.md#L696",
+    "terluna@bdda5a07:research/decisions.md#L703",
+    "terluna@bdda5a07:research/decisions.md#L711"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "N06",
+   "text": "CM1's dilution of 2.0e-4 per metre is 3-8 times Earth's translated 0.25-0.66e-4; one finer-grid pair sampled a higher dilution; 3 or 2 km columns in place of 6 cost (6/3)^3 = 8 or (6/2)^3 = 27 times; a free troposphere where observations put it would warm the ground beyond 301 K at the design sunlight",
+   "source": [
+    "terluna@bdda5a07:research/decisions.md#L703",
+    "calc:(6/3)^3 = 8 and (6/2)^3 = 27 for a three-dimensional box at the same domain size"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "N07",
+   "text": "In raining windows PlaSim's anvils at sigma 0.12-0.21 cover 0.16-0.29 of the sky against CM1's 0.57-0.75",
+   "source": [
+    "terluna@bdda5a07:research/decisions.md#L711"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "N08",
+   "text": "Read at constant volume, RRTMG's longwave is within 0.013 K/day of the correlated-k model in every layer; its extrapolation to 1.2 atm moves the lowest layers' cooling by 0.002-0.003 K/day; RRTMG takes the Sun's unfiltered spectrum, about 5 W/m2 of difference in the air's absorbed sunlight",
+   "source": [
+    "repo:notes/defect_log.md#C20",
+    "repo:notes/defect_log.md#B22",
+    "repo:notes/cm1.md#L219-230"
+   ],
+   "state": "finding"
   }
  ]
 }

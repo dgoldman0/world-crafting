@@ -232,7 +232,7 @@ def test_the_papers_regime_quantities_agree_with_the_derivations():
     molar_mass = derive.molar_mass_g_mol(fractions)
     assert molar_mass == _paper(air['molar_mass_g_mol'])
     assert derive.column_mass_kg_m2(121590.0, gm) == _paper(REGIME['column_mass']['moon_kg_m2'])
-    h_moon = derive.scale_height_m(295.0, molar_mass, gm)
+    h_moon = derive.scale_height_m(REGIME['scale_height']['moon_T_K'], molar_mass, gm)   # the paper's stated basis
     h_earth = derive.scale_height_m(288.0, 28.9647, derive.STANDARD_G)
     assert (h_moon / 1e3, h_earth / 1e3) == _paper((REGIME['scale_height']['moon_km'], REGIME['scale_height']['earth_km']))
     assert derive.chapman_horizon(1737400.0, h_moon) == _paper(REGIME['horizon_air_mass_chapman']['moon'])

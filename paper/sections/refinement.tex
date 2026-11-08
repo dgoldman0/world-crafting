@@ -1,0 +1,57 @@
+\section{Refinement of the models}
+
+After the paper's first version, comparing CM1 with the GCM budget against budget refined both models, the forcing
+between them and the reading of their output, while a study of the Moon's orientation changed the scenario itself.
+The comparison could refine the models only once CM1 convected through the depth in which the GCM convects. The
+rings and the boxes forced from the ten-level states held CM1's air toward the GCM's from 8~km, fully from 16~km, a height that leaves an
+Earth-scale boundary layer and its convection free, yet lunar convection reaches 55--80~km, so the hold covered most
+of the convecting column: in a box over the Near-side Sea it supplied 89 of the 107~W\,m$^{-2}$ that the box's
+radiation removed, in place of the deep convection, and the box rained 0.06~mm a day against the GCM's
+2.72.\claim{H39} Taking the GCM's heating and moistening from its own budget through the whole column, and holding
+CM1's air only above the GCM's convection top, sets the hold's height from a quantity the forcing GCM computes, on a
+world of any scale height.\claim{R14} The boxes so forced were judged by a test set before they ran, in rain, timing
+and processes, with every change to either model justified on evidence apart from the comparison, so that neither
+model was tuned to the other.\claim{G20}
+
+Closing the boxes' heat and water budgets against the GCM's identified a defect and two Earth values in CM1 and an
+error in the reading of its output. CM1's simple boundary layer hands its solver tendencies multiplied by the air's
+density, so the boxes' boundary layer took up 1.32--1.35 times the surface's evaporation and 1.46--1.51 times its
+sensible heat, an error that grows with the air's density and reaches about 20\% in Earth's air near sea
+level.\claim{H34} Its surface layer computes the convective gust over water from a formula that omits gravity, which
+raised the sea box's surface wind 1.6--1.8 times where Beljaars's form, computed from the box's own fluxes, raises it
+1.1--1.2 times.\claim{H38} Morrison's limits on rain, set for Earth's drops, held lunar rain to drops too small for
+its gravity, most of which evaporated as they fell: scaled with the capillary length, the limits nearly doubled a
+box's rain at the ground and cut its evaporated share from 86 to 48\%.\claim{N03} The error in the reading concerns
+every comparison of CM1's radiation with another code: under its moist equations CM1 stores its radiative tendencies
+at constant volume, and read as rates at constant pressure, as they were for the comparisons of the first version,
+they overstate its radiative cooling by 38--40\%, whereas read as stored, CM1's longwave agrees with the reference
+within 0.013~K a day in every layer, so the extra cooling once attributed to RRTMG belonged to the
+reading.\claim{V08}
+
+In the GCM the same comparison traced the remaining differences to PlaSim's lower air. Its Kuo-type scheme rains
+wherever an undiluted surface parcel is buoyant, under sinking air as well, and the quiet sea nights that CM1 showed
+under that GCM's forcing came with the forcing: forced by the fifteen-level GCM, CM1's sea box rains 1.62--1.88~mm a
+day after midnight against that GCM's 2.28.\claim{G25} Fifteen levels put PlaSim's lowest level at 0.3~km, where
+similarity theory describes the surface layer, so over ice-free water PlaSim takes CM1's own similarity, with
+Beljaars's gust in place of the free-convection constant, and the two models exchange heat and vapour with the sea by
+one law, while drops falling at lunar speeds evaporate about half the rain formed, against a fifth under PlaSim's
+constant.\claim{R19}\claim{R22} On the GCM so refined, CM1's boxes rain 82--84\% of its rain, and the differences
+that remain, in the sea's evening rain and the upper air's temperature, lie in convection: none of the closures tried
+with the simplified Betts--Miller scheme passes the test, the nearest drying the land, and since PlaSim's single
+column convects unlike the GCM, closures are judged in the GCM against the boxes.\claim{N05}
+
+The scenario itself changed with the water it adds. Angular momentum holds a body's spin axis fixed in space, so a
+load that tilts the body's principal axes turns the body beneath that axis until its axis of greatest moment lies
+along the spin and, under a tidal lock, its axis of least moment points to the host. The Moon's figure departs
+little from a sphere, and its seas and lakes, 0.02\% of its mass, lie roughly opposite each other through it, the
+South Pole--Aitken sea in the far side's south and the Near-side Sea in the near side's north, adding products of
+inertia 13\% of $C - A$. Within years of the seas' filling, while the crust responds elastically, the pole moves
+8.05\textdegree\ toward 167\textdegree~W, the point beneath Earth moves to 8.0\textdegree~N, 6.1\textdegree~E and
+the spin axis's tilt rises from 1.54\textdegree\ to 1.61\textdegree; the mantle then eases the turn, in the central
+case of the Moon's present thermal state to 6.6\textdegree\ at ten million years, and to 1.9\textdegree\ within about
+a thousand years only under a shallow mantle as warm as the warmest published profile, which the measured heat flow
+disfavours.\claim{S17} On the turned Moon, at the same sunlight, the climate runs 0.8~K warmer, its global rain and
+drylands unchanged while the near side's north grows wetter and the southern highlands drier.\claim{G24} A world's
+orientation is thus an output of its scenario: an ensemble that adds water to a body derives the orientation from
+the water's load before running the body's climate, and again whenever the lakes that climate routes move the load,
+since the order in which the basins fill sets the path from today's orientation to the turned one.

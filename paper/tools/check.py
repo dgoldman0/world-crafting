@@ -6,6 +6,7 @@
 - every cited key is in references.bib;
 - every \\claim{ID} in the text is in claims.json, and every claim's source exists:
     terluna:<path>[#...]   a file in Terluna at commit 186b294 (checked with git cat-file in the local checkout);
+    terluna@<commit>:<path>[#...]  a file in Terluna at a later commit, for the numbers of the paper's version 2;
     repo:<path>[#...]      a file in this repository;
     drive:<path>           a file on Terluna's research drive (a warning when the drive is absent);
     calc:<text>            a calculation stated in the claim (its script or formula named in the text);
@@ -75,11 +76,12 @@ def main() -> int:
         for src in ([c['source']] if isinstance(c['source'], str) else c['source']):
             kind, _, rest = src.partition(':')
             path = rest.split('#')[0]
-            if kind == 'terluna':
-                ok = subprocess.run(['git', '-C', str(TERLUNA), 'cat-file', '-e', f'{COMMIT}:{path}'],
+            if kind == 'terluna' or kind.startswith('terluna@'):
+                commit = kind.partition('@')[2] or COMMIT
+                ok = subprocess.run(['git', '-C', str(TERLUNA), 'cat-file', '-e', f'{commit}:{path}'],
                                     capture_output=True).returncode == 0
                 if not ok:
-                    errors.append(f'claim {cid}: {path} absent from Terluna at {COMMIT}')
+                    errors.append(f'claim {cid}: {path} absent from Terluna at {commit}')
             elif kind == 'repo':
                 if not (REPO / path).exists():
                     errors.append(f'claim {cid}: {path} absent from this repository')

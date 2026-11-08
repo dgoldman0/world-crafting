@@ -68,8 +68,9 @@ against other codes, kept as numbers alone, with their harness outside the repos
 of Rayleigh scattering up to an optical depth of 1.5, where the lunar column's Rayleigh depth is about 4 at
 360~nm. Its carbon dioxide, oxygen, collision-induced absorption and sunlight on the lunar column, however, have
 yet to be compared with an independent code.\claim{V16} RRTMG, checked against the same reference and left uncalibrated, computes shares of reflected, air-absorbed and ground-absorbed sunlight within 2.5 points of the line-by-line model's at the site where the rings cross the equator at 0\textdegree~E, and on 990 cloud-free columns of the
-45\textdegree\,N ring it cools the air more than the correlated-$k$ model does, by 4.5~W\,m$^{-2}$ in the lowest
-1.8~km, 8.5 at 1.8--6.5~km and 10.2 at 6.5--13.7~km.\claim{V08}
+45\textdegree\,N ring its longwave comes within 0.013~K a day of the correlated-$k$ model's in every layer,
+0.2--1.3~W\,m$^{-2}$, once its tendencies are read as CM1 stores them under its moist equations, at constant volume,
+and its lowest layer is given the ground's temperature, as CM1 gives it to RRTMG.\claim{V08}
 
 \textbf{Benchmarks on Earth.} In the Weisman--Klemp supercell \autocite{weisman1982dependence} the electrified
 graft stays within 6\% of CM1's own NSSL scheme in its largest updrafts, within 3.4~dBZ in reflectivity at every
@@ -90,12 +91,15 @@ reported here: the GCM runner's first solar spectrum, extended past 2.73~\textmu
 build discharged once per step after all the step's charging, multiplied memory the scheme had left unset and
 made private a variable its threads shared; the first terrain build placed its forcing by a corner column
 2.9~km up; and the sky solver's production grid of 114 channels absorbed 58\% too much sunlight above 500~nm with
-the Sun overhead, which had made PlaSim look short of its calibration. Four remain in reported runs, two of them
+the Sun overhead, which had made PlaSim look short of its calibration. Five remain in reported runs, three of them
 across whole sets of runs. The first channels of the curved-air table, bisected on the whole column alone, absorbed near-infrared sunlight too high in the air, 19.0 against 10.7~W\,m$^{-2}$ at 66--85~km, and the curved-air and gas-band runs
-of Table~\ref{tab:states} ran on them.\claim{H30} Every CM1 case set up before 2026-10-17, and so every CM1 run
-reported here, started from soundings with the vapour of the GCM's top level, near 130~km, held constant above it,
-and on the 45\textdegree\,N rings, the only cases examined for it, the air began 6--15 times saturated over ice at
-140--150~km and every column kept 1.1~g\,m$^{-2}$ of ice above 107~km through both lunar days. The other two affect single comparisons. The first lunar gravity patch scaled the NSSL fall speeds and left the ventilation tied to them
+of Table~\ref{tab:states} ran on them.\claim{H30} The rings and the boxes forced from the ten-level states started from soundings with the vapour of
+the GCM's top level, near 130~km, held constant above it, and on the 45\textdegree\,N rings, the only cases
+examined for it, the air began 6--15 times saturated over ice at 140--150~km and every column kept
+1.1~g\,m$^{-2}$ of ice above 107~km through both lunar days. The same rings and boxes were held toward the GCM from
+8~km, fully from 16~km, a hold that spans most of a column whose convection reaches 55--80~km: in a box over the
+Near-side Sea it supplied 89 of the 107~W\,m$^{-2}$ that the box's radiation removed, in place of the deep
+convection, and the box rained 0.06~mm a day against the GCM's 2.72.\claim{H39} The other two affect single comparisons. The first lunar gravity patch scaled the NSSL fall speeds and left the ventilation tied to them
 at Earth's values, so that lunar rain evaporated 1.3--1.5 times too fast for its size, and a code review found the
 omission after the windows used in the storm results to compare the charging laws had run, though before the main
 electrified run began.\claim{H29} Likewise, the 45\textdegree\,N rings with and without the curved-air terms ran on

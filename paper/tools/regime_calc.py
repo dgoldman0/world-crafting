@@ -36,7 +36,7 @@ AR_PER_N2 = 0.00934 / 0.78084     # Earth's ratio
 CO2 = 400e-6
 M = dict(N2=28.0134, O2=31.9988, Ar=39.948, CO2=44.0095)   # g/mol
 M_EARTH_AIR = 28.9647
-T_MOON_S = 295.0                  # design-case surface, K
+T_MOON_S = 301.25                 # design-case surface, K: the design value the GCM's sunlight is set to hold
 T_EARTH_S = 288.0
 PLASIM_STEP_S = 1800.0
 PLASIM_MODEL_DAY_STEPS = 1430
