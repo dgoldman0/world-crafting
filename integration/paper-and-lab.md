@@ -33,3 +33,16 @@ In the integration's worktree, the pinned upstream sources and three input folde
 sources and the waterworld inputs from the main and lab checkouts, the radiative-convective inputs from the lab's
 copy, and the middle atmosphere's from Terluna's. The electricity inputs, the radiative-convective cache and the
 lab's `local.toml` are copied.
+
+## The review
+
+One fresh reviewer read the round's commit and the three merged files against the direction for the round, the
+decisions the plan carries and the writing rules, and checked the plan's numbers against Terluna at `bdda5a07`. It
+confirmed the decisions, the numbers, the cited commits and paths, and the merged files' coherence, and it raised
+three findings, each answered in the plan:
+
+| Finding | Answer |
+|---|---|
+| The plan's count of five defects read as if CM1's gust over water made the fifth | The count stands at five, the first version's four and the simple boundary layer's density fault (A9), as `notes/defect_log.md` and the root README record it. Both passages name A9 as the fifth and the gust as an Earth value |
+| The defect log's states for B29–B34 ran as a string of fragments | A list, each entry with its name |
+| The turn's 1.9° lacked its condition | It comes with a shallow mantle as warm as the warmest published profile, within about a thousand years, and the measured heat flow favours the cooler profiles |

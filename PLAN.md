@@ -16,8 +16,9 @@ greatest moment lies along the spin and, under the tidal lock, its axis of least
 years the pole moves 8.05° toward 167° W, the point beneath Earth moves to 8.0° N, 6.1° E, and the spin axis's
 tilt rises from 1.54° to 1.61°: an offline calculation, reproduced independently (Terluna
 `research/studies/moon_orientation/`). The order in which the basins fill sets the path. Over geological time the
-mantle's response eases the turn, to 6.6° at 10 million years in the central case of the present thermal state and
-to 1.9° under a warm mantle (Terluna `geology/`, `45c3d817`). At the same sunlight the turned Moon's climate runs
+mantle's response eases the turn, to 6.6° at 10 million years in the central case of the present thermal state. A
+shallow mantle as warm as the warmest published profile would bring it to 1.9° within about a thousand years, and
+the measured heat flow favours the cooler profiles (Terluna `geology/`, `45c3d817`). At the same sunlight the turned Moon's climate runs
 0.8 K warmer, its global rain and dry-land share unchanged while the near side's north grows wetter and the
 southern highlands drier (model runs). Terluna's runner checks a turned surface's record when a run is started with
 `--frame`; a run started without it takes today's orientation with no warning.
@@ -45,8 +46,8 @@ over years 10–49.
 - The lab validates configurations, the orientation included. It derives a world's orientation from its surface
   loads whenever they change, and it warns or refuses when a run's orientation departs from the derived one.
 - CM1's gust over water is an Earth value: an empirical formula, right at Earth's gravity, in a surface layer that
-  scales its gust with gravity over land. It joins the inventory of Earth values with its repair, and the released
-  codes' defects number five.
+  scales its gust with gravity over land. It joins the inventory of Earth values with its repair. The released
+  codes' defects number five: the first version's four and the simple boundary layer's density fault (A9).
 - The paper's version 2 states the current understanding throughout and adds one section, just before the
   Conclusion, on how the models were refined. It is drafted on the local branch `paper/v2`, which stays off GitHub
   until the CM1 results are realigned (below).
@@ -78,9 +79,15 @@ Five steps follow this integration. Each change in them is small and tested and 
 **1. The records.** The defect log, `notes/cm1.md`, `notes/exoplasim.md`, `notes/verification_record.md` and the
 root README's "Where current understanding differs from the paper" take the findings above.
 
-- B29: Kuo's scheme replaced in Terluna's design runs by simplified Betts–Miller, under test. B30: γ replaced by
-  drop sizes. B31: fifteen levels. B32 stays open, with the gust in place of the least wind. B33: Beljaars's gust
-  and similarity. B34: the cap kept. A9, C19 and C20 stand.
+- The defect log's entries for PlaSim take these states:
+  - B29, Kuo's convection: replaced in Terluna's design runs by simplified Betts–Miller, under test;
+  - B30, the evaporation constant γ: replaced by drop sizes and fall speeds;
+  - B31, the ten levels: fifteen, as an option;
+  - B32, the mixing lengths and the 1 m/s wind floor: the lengths still Earth's, the floor replaced by the gust;
+  - B33, the free-convection constant: replaced by Beljaars's gust with similarity theory;
+  - B34, shallow convection's cap at 700 hPa: kept.
+
+  A9, C19 and C20 stand as recorded.
 - A new Earth value: CM1's gust over water, in every CM1 run behind the paper's first version. CM1's clipped water
   is examined before it is classed.
 - The README's rows: CM1's quiet sea nights came with the forcing of the GCM that ran Kuo's scheme; the longwave row
@@ -147,7 +154,7 @@ each stage and a full editorial review to close, each recorded in `paper/review/
 
 | Passage | What version 2 states | Ready, or waiting on |
 |---|---|---|
-| `abstract.tex` 15, `introduction.tex` 85, `assumptions.tex` 92 and its inventory | Five defects in the released codes, with CM1's gust over water among the Earth values | Ready |
+| `abstract.tex` 15, `introduction.tex` 85, `assumptions.tex` 92 and its inventory | Five defects in the released codes, the fifth the simple boundary layer's density fault (A9); CM1's gust over water among the Earth values | Ready |
 | `introduction.tex` 67 | The GCM's convection, levels, gust and rain evaporation as run, convection the open item | The ports |
 | `worlds.tex` 97 (H24), `appendix.tex` 62 | The turned Moon: its tilt of 1.61° and its orientation | Ready; the settled orientation if step 3 moves it |
 | `repairs.tex` and the appendix's repairs table | The repairs above, each with its kind and limits | The ports |
