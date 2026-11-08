@@ -30,6 +30,8 @@ offline tools and tests.
 | The paper | `paper/`: notes, sections, figures, data extracts, source records, review records |
 | Fortran for an in-house tool: a kernel whose speed or numerics needs compiled code | Beside its Python tool in `python/`, built by `make` and called from Python, which keeps the orchestration. A model's own routines compile from its patched source in `models/<model>/`, with their bindings beside the tools that call them. Scaffolding stays in Python (`lab/design/architecture.md`, "Native code") |
 | The integrated lab: its design, specifications and registry of Earth assumptions and, as it is built, its code, case set-up, run bookkeeping and analyses | `lab/` (see `lab/README.md`; on the `lab` branch since 2026-10-17) |
+| The plan across the lines of work | `PLAN.md`, on main, brought up to date in each integration round |
+| An integration round's record: the heads merged, how shared files were joined, its checks and its review | `integration/`, one file for each round |
 
 World-crafting is a standalone project (the author's decision of 2026-10-17). What the lab uses for its
 own work, case set-up, run bookkeeping, analyses and data included, lives in `lab/` and the lab's store,
@@ -215,9 +217,10 @@ Findings on wording the author has approved go to the author.
 
 Code, patches and tools follow a conventional software workflow, in small tested changes:
 
-- **One branch for each line of work.** Work stays on its line's branch, the lab's on `lab`; a separate
-  branch serves a separate line of work. Each change is a commit or a short series of them, committed once
-  it passes.
+- **One branch for each line of work.** Work stays on its line's branch, the paper's on
+  `paper/conclusion-development` and the lab's on `lab`; a separate line of work takes a separate branch, in a
+  directory of its own ("Branches and integration", below). Each change is a commit or a short series of them,
+  committed once it passes.
 - **Tests with the code.** A change adds or updates the tests that pin its behaviour, and `make check`
   passes before it is committed; a bug fix starts from a failing test.
 - **Review of the change.** A change of more than a few lines gets one code review of its diff, by the
@@ -227,6 +230,23 @@ Code, patches and tools follow a conventional software workflow, in small tested
   describe.
 - **Evidence.** The file and evidence practice above holds for code: a passing test checks the code, and
   validation of the physics is recorded separately.
+
+## Branches and integration
+
+Main holds the integrated state of every line of work, with the plan (`PLAN.md`) and the integration records
+(`integration/`), and the repository's own directory, `world-crafting/`, keeps main checked out. Each line of work
+has its branch checked out in a worktree beside it: the paper's in `../world-crafting-paper`, the lab's in
+`../world-crafting-lab`. A new line of work takes a new branch and a new directory. The files kept outside Git, the
+pinned upstream sources in `upstream/`, the tools' inputs and caches, the paper's archived sources and the lab's
+`local.toml`, are copied or linked into each new checkout.
+
+The lines come together in integration rounds on the standing branch `maintenance/integration`, checked out in
+`../world-crafting-integration`. In each round the integration branch is fast-forwarded to main, each line's branch
+is merged by its exact head in an ordinary merge commit, and files that more than one branch changed are joined by
+meaning, keeping every branch's entries and each topic's newest statement. `PLAN.md` is then brought up to date,
+`make check` and `make paper` run, one independent reviewer reads the round, and its record goes in
+`integration/`. Main fast-forwards to the round's head at the author's word, and each line's branch then
+fast-forwards to main. Nothing is committed on the integration branch between rounds.
 
 ## Checks
 

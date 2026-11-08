@@ -50,9 +50,13 @@ passages a revision of the paper would change.
 | `python/` | In-house reference and calibration tools, under their Terluna package paths |
 | `notes/` | Each component's correctness, limits and room for improvement |
 | `paper/` | The paper: notes, sections, figures, data extracts, source records, review records |
-| `lab/` | The integrated lab's design, its draft specifications and its registry of Earth assumptions, at the design stage |
+| `lab/` | The integrated lab: its design, specifications, registry of Earth assumptions, builds and runner (`lab/README.md`) |
+| `integration/` | The record of each integration round, in which the lines of work join on main |
 
-`PROVENANCE.md` records every brought file's Terluna path and hash and every upstream pin.
+`PROVENANCE.md` records every brought file's Terluna path and hash and every upstream pin. `PLAN.md` orders the
+work across the models, the lab and the paper. Main holds every line of work; the paper is developed on the branch
+`paper/conclusion-development` and the lab on `lab`, and the two join on main in integration rounds (`AGENTS.md`,
+"Branches and integration").
 
 ## The paper
 
