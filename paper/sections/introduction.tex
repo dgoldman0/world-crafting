@@ -57,14 +57,20 @@ and constructed worlds therefore requires identifying which changes follow from 
 Toward such an ensemble, the adaptations and couplings described here began with the Open Moon as their test
 world. Its air is close to Earth's in composition and surface pressure, while four ratios on which the models'
 Earth values depend are far from Earth's at once: the column over each square metre holds 7.25 times Earth's air,\claim{S02} the
-scale height of about 52~km is 23 times Earth's in proportion to the radius,\claim{S03} gravity is a sixth of
+scale height of about 53~km is 23 times Earth's in proportion to the radius,\claim{S03} gravity is a sixth of
 Earth's, and the solar day lasts 29.53 Earth days. In a run of a natural planet that departs from Earth along one of these ratios, a slow rotator or a smaller world, only the Earth values that depend on that ratio err, whereas
 on the test world the values of all four err together, by amounts large enough to measure. PlaSim, for example,
-fixes the horizon air mass at Earth's 35, where the Moon's well-mixed air has about 7.
+fixes the horizon air mass at Earth's 35, where the Moon's well-mixed air has about 7. The water the design adds sets
+the test world's orientation as well: on a body so nearly spherical, its seas and lakes turn the Moon about
+8\textdegree\ beneath its spin axis, so the geography and tilt under which the models run are themselves
+computed.\claim{S17}
 
 The global climate is computed by ExoPlaSim~3.4.2 \autocite{paradise2022exoplasim,paradise2025exoplasim}, PlaSim
 \autocite{fraedrich2005planet} extended for other worlds (the appendix gives each code's configuration), which runs
-decades of the test world's climate in an hour or two on four processor cores, the speed for which it was chosen,\claim{S14} parameterizes its convection with a Kuo-type scheme, computes its radiation with broadband fits to Earth's columns and diagnoses its clouds from formulas fitted to Earth. Slices of that climate
+decades of the test world's climate in a few hours on four processor cores, the speed for which it was chosen,\claim{S14}
+and which, on fifteen levels laid out for the test world's scale height, parameterizes its convection with a
+simplified Betts--Miller scheme \autocite{frierson2007dynamics}, computes its radiation with broadband fits to Earth's columns
+and diagnoses its clouds from formulas fitted to Earth. Slices of that climate
 force CM1 release~22 \autocite{bryan2002benchmark,bryan2026cm1} on two-dimensional rings of columns around latitude
 circles or tilted great circles and in doubly periodic boxes, where it resolves the convection the GCM
 parameterizes and forms its own clouds and rain; with the electrification of WRF-ELEC grafted in
@@ -82,20 +88,22 @@ Adapting these codes to the test world meant finding two things in them: Earth v
 a model that agrees with Earth because it was set or fitted there, and defects, code that contradicts its own
 inputs, units or intent. In the four codes the Earth values have four forms: dimensional constants written into
 the code, units of time, geometry, and empirical fits and simplifications used beyond the range they were made
-for. On the paths the lunar runs take, the released codes also contain four defects, three of which produce
+for. On the paths the lunar runs take, the released codes also contain five defects. Three of them produce
 little or no error at Earth's values yet, by ExoPlaSim's own arithmetic, bias its runs that meet their
-conditions, runs of slowly rotating and tidally locked planets among them. Of the repairs made to these values
+conditions, runs of slowly rotating and tidally locked planets among them, while a fourth, in CM1's simple
+boundary layer, makes its mixing too strong in proportion to the air's density, by about a fifth in Earth's own air
+near sea level. Of the repairs made to these values
 and defects, most belong to three classes, which differ in the worlds they hold for. A general repair, which
 corrects a unit, applies a scaling law or a parameterization fitted over a wider range, or removes a defect,
 contains no coefficient fitted to the test world and is built to hold on another world within the limits of its
 laws; a general method holds wherever its table is computed from that world's own column, as for the curved
-geometry of a tall atmosphere; and a calibration, fitted to the reference model on columns of the test world,
-holds near those columns and must be refitted for another world. Settings, added capabilities, couplings, a
+geometry of a tall atmosphere; and a calibration, fitted on columns or states of the test world to the reference model or to resolved runs, holds
+near them and must be refitted for another world. Settings, added capabilities, couplings, a
 bound, a mitigation and avoidances by configuration make up the remaining changes. The class of a repair followed
 largely from the form of the Earth value it removed. Of the four forms, moreover, the fits had the largest effects on the test world's climate, effects of the order of the spreads measured among exoplanet GCMs, and every lunar climate number is therefore a conditional model result, holding given the
-scenario and the Earth values that remain. Replacing those fits
-comes first in the ensemble's further development, with a radiation scheme reduced with existing tools from the
-reference model's spectroscopy \autocite{hogan2022tool,hogan2020evaluating} and cloud calibrated against
-cloud-resolving runs of each world; runs on planets that other studies model, among them slowly rotating planets of
+scenario and the Earth values that remain. In the ensemble's next
+steps, the GCM's convection is closed, and its cloud calibrated, against cloud-resolving runs of each world, where
+the two atmospheric models still differ most, and a radiation scheme reduced with existing tools from the reference
+model's spectroscopy \autocite{hogan2022tool,hogan2020evaluating} replaces the broadband fits; runs on planets that other studies model, among them slowly rotating planets of
 \textcite{way2018climates} and the cases of the SAMOSA intercomparison \autocite{haqqmisra2022samosa}, would then
 test how far the general repairs hold.
