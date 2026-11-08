@@ -88,7 +88,7 @@ Each fix enters the lab opt-in, as the decisions above set out, in the form belo
 
 | Fix | Confidence | Form in the lab | Cost of a run | Waits on |
 |---|---|---|---|---|
-| CM1's radiative tendencies read at constant volume | High: CM1's code, and CM1 within 0.01 K/day of RRTMG run offline | One rule for every reader, keyed on `eqtset` | ×1 | — |
+| CM1's radiative tendencies read at constant volume | High: CM1's code; read so, CM1 comes within 0.01 K/day of RRTMG run offline and within 0.013 K/day of the correlated-k model | One rule for every reader, keyed on `eqtset` | ×1 | — |
 | CM1's density fault under `ipbl = 2` | High: the fault in the lab's own CM1 source; the boxes' boundary layer took 1.32–1.35 times the surface's evaporation and 1.46–1.51 times its sensible heat | One patch, which the registry's A9 requires in every run with `ipbl = 2` | ×1 | — |
 | CM1's gust over water at the run's gravity | High: CM1's own form over land; the old formula made the sea box's wind 1.6–1.8 times stronger | One component, for convective surface layers | ×1 | The Earth control's test |
 | PlaSim's gust with similarity theory over water | High on the physics; over one lunar day it raised the sea's evaporation 17% and the rain 5% | One component, its air's viscosity derived for each world and its 2.85 mm roughness cap stated as Earth's; it ports with the depth rule it shares with the nonlocal scheme | ×1, with a calculation in each column | The Earth control's test |
@@ -97,7 +97,7 @@ Each fix enters the lab opt-in, as the decisions above set out, in the form belo
 | Reorientation by surface loads | High within years, medium over geological time | One tool, rebuilt from the Moon's constants with branches for the rotation state, the source of the moments and the interior's response; the long-term branch assessed first | Offline minutes; one or two extra GCM passes for a world with land | — |
 | PlaSim's rain evaporated from drop sizes | Medium | One scheme with tables for each world; its starting drop sizes a calibration fitted on the Moon's CM1 boxes, with γ outside that calibration's envelope | ×1; the calibration takes CM1 boxes of 2–27 hours each | The Earth control's test |
 | Level sets | Medium | Generated for each world from its scale height, the calibrations keyed to the set | ×1.5–2.25 at fifteen levels, ×3–9 at thirty | The Earth control's test |
-| PlaSim's clear-share twilight | Medium: one paired run, 1.0–1.2 K of cooling | One component, its ledger computed for each world | ×1; the ledger about 50 minutes on six threads | — |
+| PlaSim's clear-share twilight | Medium: one paired run, about 1 K of cooling | One component, its ledger computed for each world | ×1; the ledger about 50 minutes on six threads | — |
 | PlaSim's 10 m wind | High: a diagnostic | One output | ×1 | — |
 | Simplified Betts–Miller convection | Low to medium | A setting with Kuo's scheme its default; the depth test a fraction of the surface pressure | ×1 | Terluna's CM1 analysis |
 | The box forcings: converging inflow, carried weather and the box's own ascent | Low to medium | Case variants; carried weather an option for the studies that need it | Carried weather ×3.5–7 a box, up to about 380 GB for a large one; the ascent ×2 | Terluna's CM1 analysis |
