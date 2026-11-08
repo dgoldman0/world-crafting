@@ -1404,13 +1404,15 @@
   },
   {
    "id": "H40",
-   "text": "With PlaSim's cloud-forcing diagnostic on (NDIAGCF 1), radstep zeroes the shortwave fluxes once (radmod.f90 lines 994-995 of the pinned ExoPlaSim 3.4.2) and calls swr twice (lines 1021-1046), swr writing the fluxes only where the Sun is up, while patch 07's twilight_term, called at the end of swr, adds the curved air's sunlight below the horizon in each pass: the night's twilight is counted twice. Over the turned design case's years 10-49 it adds 2.70 W/m2 at the top of the air in the global mean, 1.5% of the 178.2 W/m2 absorbed, from 1.7 W/m2 at the equator to 10.9 at 80 deg and 17.7 at 86 deg, all on the night side; without it the design temperature takes a sunlight scale near 0.938 in place of 0.924 at first order. Every run with the twilight also ran the diagnostic.",
+   "text": "With PlaSim's cloud-forcing diagnostic on (NDIAGCF 1), radstep zeroes the shortwave fluxes once (radmod.f90 lines 994-995 of the pinned ExoPlaSim 3.4.2) and calls swr twice (lines 1021-1046), swr writing the fluxes only where the Sun is up, while patch 07's twilight_term, called at the end of swr, adds the curved air's sunlight below the horizon in each pass: the night's twilight is counted twice. Over the turned design case's years 10-49 it adds 2.70 W/m2 at the top of the air in the global mean, 1.5% of the 178.2 W/m2 absorbed, from 1.7 W/m2 at the equator to 10.9 at 80 deg and 17.7 at 86 deg, all on the night side; without it the design temperature takes a sunlight scale near 0.938 in place of 0.924 at first order. Every run with the twilight also ran the diagnostic. Terluna's NTWLZERO 1 (2762669e) sets the three fluxes to zero where the Sun is down before twilight_term adds, leaving sunlit columns bit for bit.",
    "source": [
     "repo:notes/defect_log.md#C21",
     "repo:models/exoplasim/patches/07-curved-air.patch",
     "repo:upstream/exoplasim-3.4.2.tar.gz",
     "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
-    "drive:/media/projectspace/terluna-research/gcm-runs/A28_dim5_moon_geometry"
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28_dim5_moon_geometry",
+    "terluna@2762669e:climate/gcm/README.md#L1446",
+    "terluna@2762669e:climate/gcm/exoplasim_run.py"
    ],
    "state": "finding"
   }

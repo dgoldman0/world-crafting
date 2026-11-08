@@ -109,7 +109,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | C18 | Records | Seven record errors corrected without code change | various | — | — | Corrected | R, V |
 | C19 | CM1 set-up | Nudging toward the GCM from 8 km (full at 16 km), with the day–night table stopping at 16 km | 10-21, Terluna `domain/climate` 13e7123 | Site forcing through the column, each layer's total kept, air held only above the GCM's convection top (`gcm_site.py`; 2cc5179, 5a44e5e) | Sea box: the nudging supplied 89 of the 107 W/m² its radiation removed, rain 0.06 against the GCM's 2.72 mm/day; the interpolation dried the column 0.55 mm/day | Fixed in Terluna's site boxes; every earlier ring and box ran it | R |
 | C20 | CM1 analyses | Stored radiative tendencies (`lwten`, `swten`, at constant volume under `eqtset = 2`) read as rates at constant pressure | 10-20, Terluna `domain/atmosphere` fe49ad9 | Conventions in `climate/crm/cm1_output.py`: × cvm/cp against another code, × cv/cp in a θ budget | Radiation overstated by 38–40%: the extra RRTMG cooling of 4.5–10.2 W/m² and the 45° N ring's heat budget | Fixed | R |
-| C21 | PlaSim, curved-air patch (07) with `NDIAGCF` 1 | The twilight added below the horizon counted twice: the cloud-forcing diagnostic zeroes the shortwave once and calls `swr` twice, and `twilight_term` accumulates in each pass | 11-08, Terluna `domain/climate` (uncommitted); checked here in the pinned `radmod.f90` and patch 07 | Each sunlight pass from zero where the Sun is down (Terluna's switch, ready, unapplied) | +2.70 W/m² absorbed in the global mean of the turned design case (1.5%), 10.9 at 80° and 17.7 at 86°, all on the night side; absorbed by the dimming (0.924 against about 0.938); every run with the twilight and the diagnostic, the paper's curved-air runs among them | Open | V; R pending |
+| C21 | PlaSim, curved-air patch (07) with `NDIAGCF` 1 | The twilight added below the horizon counted twice: the cloud-forcing diagnostic zeroes the shortwave once and calls `swr` twice, and `twilight_term` accumulates in each pass | 11-08, Terluna `domain/climate` 2762669e; checked here in the pinned `radmod.f90` and patch 07 | `NTWLZERO` (0): each sunlight pass from zero where the Sun is down, in Terluna's runner (2762669e); to be ported into patch 07 | +2.70 W/m² absorbed in the global mean of the turned design case (1.5%), 10.9 at 80° and 17.7 at 86°, all on the night side; absorbed by the dimming (0.924 against about 0.938); every run with the twilight and the diagnostic, the paper's curved-air runs among them | Open here; fixed in Terluna's runner | V; R |
 
 ## (a) Upstream defects exposed by the adaptation
 
@@ -1001,7 +1001,7 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
 - **Fix.** One module of conventions, `climate/crm/cm1_output.py`: a stored tendency times cvm/cp against another
   radiation code, times cv/cp in a budget beside CM1's other θ tendencies (fe49ad9).
 
-### C21. PlaSim's twilight with the cloud-forcing diagnostic: the night's twilight counted twice (V; R pending)
+### C21. PlaSim's twilight with the cloud-forcing diagnostic: the night's twilight counted twice (V; R)
 
 - **Defect.** With PlaSim's cloud-forcing diagnostic on (`NDIAGCF` 1), `radstep` sets the shortwave fluxes to zero
   once (`radmod.f90` lines 994–995 of the pinned ExoPlaSim 3.4.2) and calls `swr` twice, first without cloud and then
@@ -1011,8 +1011,9 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
   clear pass's twilight and adds its own: under cover c the ground takes T(2 − c) of the clear twilight T where
   T(1 − c) was meant, and each layer its clear term beside its term in the clear share. The diagnostic's own clear-sky
   fluxes stay right.
-- **Found** on 2026-11-08 in Terluna's work on the polar sunlight (`domain/climate`, uncommitted on that day); the two
-  halves checked here in the pinned source and in `models/exoplasim/patches/07-curved-air.patch`.
+- **Found** on 2026-11-08 in Terluna's work on the polar sunlight and recorded with its fix in `domain/climate`
+  2762669e (`climate/gcm/README.md`, "Each sunlight pass from zero where the Sun is down"); the two halves checked
+  here in the pinned source and in `models/exoplasim/patches/07-curved-air.patch`.
 - **Effect.** Every run with the twilight and the diagnostic, which includes every curved-air run behind the paper:
   the curved-air and gas-band states, the corrected-curved-air state and its longwave test, and the refined-physics,
   turned and design states. Over the turned design case's years 10–49 the double count adds 2.70 W/m² at the top of
@@ -1021,8 +1022,10 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
   search for the design temperature took it into the sunlight scale: without it the target takes about 0.938 in place
   of 0.924 at first order. The paper's first version measured the curved air's effect (−0.65 K) with the double count
   in the curved-air run alone, so that cooling is too small.
-- **Fix.** Each sunlight pass starts from zero where the Sun is down, behind one switch; in Terluna's standalone build
-  it gives the night's single count and leaves sunlit columns bit for bit. To be ported into patch 07 here.
+- **Fix.** `NTWLZERO` 1 (Terluna 2762669e): `swr` sets the three fluxes to zero where the Sun is down before
+  `twilight_term` adds, so each pass starts there from zero; sunlit columns are unchanged bit for bit, 0 leaves the
+  model as it was, and a test of a stand-in `swr` through `radstep`'s two passes finds T(2 − c) with the switch off
+  and T(1 − c) with it on. Terluna's runner sets it for every run with the twilight. To be ported into patch 07 here.
 
 ## (d) Record inconsistencies found in this pass, not yet corrected in Terluna (V)
 

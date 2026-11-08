@@ -60,20 +60,23 @@ Earth values depend are far from Earth's at once: the column over each square me
 scale height of about 53~km is 23 times Earth's in proportion to the radius,\claim{S03} gravity is a sixth of
 Earth's, and the solar day lasts 29.53 Earth days. In a run of a natural planet that departs from Earth along one of these ratios, a slow rotator or a smaller world, only the Earth values that depend on that ratio err, whereas
 on the test world the values of all four err together, by amounts large enough to measure. PlaSim, for example,
-fixes the horizon air mass at Earth's 35, where the Moon's well-mixed air has about 7. The water the design adds sets
-the test world's orientation as well: on a body so nearly spherical, its seas and lakes turn the Moon about
-8\textdegree\ beneath its spin axis, so the geography and tilt under which the models run are themselves
-computed.\claim{S17}
+fixes the horizon air mass at Earth's 35, where the Moon's well-mixed air has about 7. The design's seas and lakes
+also set the test world's orientation: on a body whose largest and smallest moments of inertia differ by
+$2.5\times10^{-4}$ of $MR^2$, their uneven load turns the Moon about 8\textdegree\ beneath its spin axis while its
+crust responds elastically, and the geography and tilt under which the models run follow from that
+turn.\claim{S17}\claim{W07}
 
 The global climate is computed by ExoPlaSim~3.4.2 \autocite{paradise2022exoplasim,paradise2025exoplasim}, PlaSim
 \autocite{fraedrich2005planet} extended for other worlds (the appendix gives each code's configuration), which runs
-decades of the test world's climate in a few hours on four processor cores, the speed for which it was chosen,\claim{S14}
-and which, on fifteen levels laid out for the test world's scale height, parameterizes its convection with a
-simplified Betts--Miller scheme \autocite{frierson2007dynamics}, computes its radiation with broadband fits to Earth's columns
-and diagnoses its clouds from formulas fitted to Earth. Slices of that climate
-force CM1 release~22 \autocite{bryan2002benchmark,bryan2026cm1} on two-dimensional rings of columns around latitude
-circles or tilted great circles and in doubly periodic boxes, where it resolves the convection the GCM
-parameterizes and forms its own clouds and rain; with the electrification of WRF-ELEC grafted in
+decades of the test world's climate in a few hours on four processor cores, the speed for which it was
+chosen.\claim{S14} On fifteen levels laid out for the test world's scale height, the GCM parameterizes its convection
+with a simplified Betts--Miller scheme \autocite{frierson2007dynamics}, computes its radiation with broadband fits to
+Earth's columns and diagnoses its clouds from formulas fitted to Earth.\claim{R20}\claim{R21} Slices of the GCM's
+climate force CM1 release~22 \autocite{bryan2002benchmark,bryan2026cm1} on two-dimensional rings of columns around
+latitude circles or tilted great circles and in doubly periodic boxes, where it resolves the convection the GCM
+parameterizes and forms its own clouds and rain. In the boxes the GCM's heating and moistening enter through the
+whole column, and CM1's air is held to the GCM's only above the GCM's convection top, a height the forcing model
+computes on any world.\claim{R14} With the electrification of WRF-ELEC grafted in
 \autocite{mansell2010simulated,fierro2013implementation,mansell2026wrfelec}, it also separates charge and makes
 lightning. These rings and boxes were sized to fit the hardware at hand, one laptop with eight processor cores,
 and chosen on a best guess at which features would be of interest.\claim{S16} The GCM's surface stress drives
@@ -90,20 +93,28 @@ inputs, units or intent. In the four codes the Earth values have four forms: dim
 the code, units of time, geometry, and empirical fits and simplifications used beyond the range they were made
 for. On the paths the lunar runs take, the released codes also contain five defects. Three of them produce
 little or no error at Earth's values yet, by ExoPlaSim's own arithmetic, bias its runs that meet their
-conditions, runs of slowly rotating and tidally locked planets among them, while a fourth, in CM1's simple
-boundary layer, makes its mixing too strong in proportion to the air's density, by about a fifth in Earth's own air
-near sea level. Of the repairs made to these values
+conditions, runs of slowly rotating and tidally locked planets among them, while the other two err on Earth as well:
+CM1's simple boundary layer multiplies its mixing by the air's density in kilograms per cubic metre, and SWAN reads
+a parameter it has left unset.\claim{H34} Several of these values and defects leave a run plausible on its own, and
+were found only when CM1's heat and water budgets were closed against the GCM's, layer by layer, under an agreement
+test fixed before the runs.\claim{G20} Of the repairs made to these values
 and defects, most belong to three classes, which differ in the worlds they hold for. A general repair, which
 corrects a unit, applies a scaling law or a parameterization fitted over a wider range, or removes a defect,
 contains no coefficient fitted to the test world and is built to hold on another world within the limits of its
 laws; a general method holds wherever its table is computed from that world's own column, as for the curved
-geometry of a tall atmosphere; and a calibration, fitted on columns or states of the test world to the reference model or to resolved runs, holds
-near them and must be refitted for another world. Settings, added capabilities, couplings, a
+geometry of a tall atmosphere; and a calibration, fitted to a reference on columns or states of the test world, holds near them and is refitted
+whenever the state or the world changes. Settings, added capabilities, couplings, a
 bound, a mitigation and avoidances by configuration make up the remaining changes. The class of a repair followed
 largely from the form of the Earth value it removed. Of the four forms, moreover, the fits had the largest effects on the test world's climate, effects of the order of the spreads measured among exoplanet GCMs, and every lunar climate number is therefore a conditional model result, holding given the
-scenario and the Earth values that remain. In the ensemble's next
-steps, the GCM's convection is closed, and its cloud calibrated, against cloud-resolving runs of each world, where
-the two atmospheric models still differ most, and a radiation scheme reduced with existing tools from the reference
-model's spectroscopy \autocite{hogan2022tool,hogan2020evaluating} replaces the broadband fits; runs on planets that other studies model, among them slowly rotating planets of
-\textcite{way2018climates} and the cases of the SAMOSA intercomparison \autocite{haqqmisra2022samosa}, would then
-test how far the general repairs hold.
+scenario and the Earth values that remain.
+
+Of what remains, convection separates the two atmospheric models most. Forced through the whole column, CM1's boxes
+rain 82--84\% of the GCM's rain, part of it at other hours of the lunar day, and their air at 40--60~km runs
+3.5--10~K colder, so none passes the agreement test.\claim{G21} The ensemble's next steps start there. Which free
+troposphere the GCM's convection should be closed toward depends on whether the dilution that cools CM1's upper air
+belongs to lunar convection or to its 6~km columns; with the convection closed, PlaSim's cloud would be calibrated
+against the resolved cloud of each world, and a radiation scheme reduced with existing tools from the reference
+model's spectroscopy \autocite{hogan2022tool,hogan2020evaluating} would replace the broadband fits once that
+spectroscopy is checked against an independent code. Runs on planets that other studies model, among them slowly
+rotating planets of \textcite{way2018climates} and the cases of the SAMOSA intercomparison
+\autocite{haqqmisra2022samosa}, would then test how far the general repairs hold.
