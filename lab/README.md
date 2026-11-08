@@ -30,6 +30,7 @@ understanding differs from the paper").
 | [design/world_spec.md](design/world_spec.md) | The draft specification schema, with the Open Moon worked through value by value |
 | [design/plan.md](design/plan.md) | The stages that build the lab, each with its acceptance check and its state |
 | [design/waterworlds.md](design/waterworlds.md) | The flagship study: low-gravity waterworlds after Arnscheidt, Wordsworth and Ding (2019), in steam, in Gaean air and with protection where needed |
+| [design/terluna_fixes.md](design/terluna_fixes.md) | Terluna's fixes of October and November weighed for the lab: each one's general form, the worlds where it holds and where it is untested, one component or several, and its cost |
 | [worlds/](worlds/) | Seed worlds and scenarios: the Moon with the Open Moon at 1.2 and 1.0 atm, Earth as the control, and Mars with an illustrative 1 bar of Earth-like air; the 1.0 atm scenario and Mars wait as later additions |
 | [configs/](configs/) | Each model's shared defaults, stated for any world: ExoPlaSim's, and CM1's with its variants and its lengths, times and rates given at a reference state |
 | [studies/](studies/) | The Open Moon study: the design case's two GCM runs and three CM1 cases forced from the first, each extending its model's defaults; the subjects of plan stages 2 and 3 |
