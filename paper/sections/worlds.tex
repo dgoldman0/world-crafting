@@ -27,7 +27,7 @@ state and solar days of 16, 64 and 243 days); blue points are the Open Moon at 1
 \end{figure}
 
 The models take the test world's scenario as fixed conditions. The TSIS-1 solar spectrum
-\autocite{coddington2021tsis}, passed through a titania shield in space, totals 1,235~W\,m$^{-2}$ at the top of the air, dimmed evenly at every wavelength to 1,141~W\,m$^{-2}$ in the design case, a scale of 0.924 chosen so
+\autocite{coddington2021tsis}, passed through a titania shield in space, totals 1,235~W\,m$^{-2}$ at the top of the air, dimmed evenly at every wavelength to 1,159~W\,m$^{-2}$ in the design case, a scale of 0.938 chosen so
 that the GCM's global-mean surface temperature settles at the design value of 301~K, and each sensitivity test
 reported below holds the sunlight of the state it starts from. The shield removes
 the ultraviolet that would make ozone, so the air holds none.\claim{S07}\claim{G04} Beneath the shield the air has a pressure of 1,216~hPa at the water level, with oxygen at Earth's partial pressure of 212~hPa (17.5\% of the air),
@@ -69,7 +69,7 @@ Grid for deep convection (km) & 1 & 6 & Cost; the meaning of a resolution \\
 
 In this scenario's air, every absorber path is longer than its counterpart on Earth, and every layer the models
 treat as flat is curved. With 7.25 times Earth's mass over each square metre, the design case's GCM column holds
-303~kg\,m$^{-2}$ of water vapour, and 348~kg\,m$^{-2}$ in the warmest test, where Earth's holds about 25
+296~kg\,m$^{-2}$ of water vapour, and 348~kg\,m$^{-2}$ in the warmest test, where Earth's holds about 25
 \autocite{trenberth2005trends}.\claim{S08} The curvature matters because the air is tall: in the 295~K column on
 which the curved geometry was computed, the scale height is about 52~km over a radius of 1,737~km, while Titan's air, at
 0.8\% of its radius, is about a quarter as tall in proportion. The air's mass lies on average 48.6~km above the
@@ -97,4 +97,6 @@ wave to about 0.6~m, $\sqrt{29.53}\approx5.4$ times the depth of Earth's diurnal
 formula written per Earth day but applied per lunar day takes nearly thirty times its intended input. The rotation
 is nearly as slow: at 27.32 days it sets a Coriolis parameter of \SI{5.2e-6}{s^{-1}} at 80\textdegree, the
 latitude of the polar CM1 rings, an inertial period of 14 Earth days.\claim{S13} The tilt, by contrast, is small:
-at 1.61\textdegree\ on the turned Moon, against 1.54\textdegree\ today, the Sun stays near the horizon at the poles all year, whereas ExoPlaSim's default orbit has Earth's tilt of 1~AD, 23.7\textdegree.\claim{H24}
+at 1.61\textdegree\ on the turned Moon, against 1.54\textdegree\ today, the Sun stays near the horizon at the poles all year, whereas ExoPlaSim's default orbit has Earth's tilt of 1~AD, 23.7\textdegree.\claim{H24} The spin axis precesses
+with the orbit's node every 18.6 years, so the slight seasons that tilt makes follow the 346.6-day eclipse year and
+alternate their stronger summers between the poles.\claim{H41}

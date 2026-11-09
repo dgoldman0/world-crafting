@@ -34,7 +34,9 @@ derives its gradient from Earth's rotation and radius.\claim{H06}
 
 Earth's day is the unit of time in the calendars of ExoPlaSim and CM1. ExoPlaSim's year of 360 days in 17,280 half-hour steps
 holds 12.08 lunar model days of 1,430 steps, so output kept by model time slips 120 steps a year against the
-model day, and with it against the released code's Sun.\claim{H08} In CM1, the solar routine computes the Sun's position from Earth's 24-hour day, Earth's calendar and an obliquity of 23.5\textdegree, and the five soil layers, 1--16~cm thick, are sized for Earth's diurnal thermal wave, whereas under the month-long day the wave reaches about 0.6~m, below the deepest of them.\claim{H09}
+model day, and with it against the released code's Sun.\claim{H08} PlaSim's orbit also holds the equinox fixed, as
+Earth's moves too slowly to matter over a run, whereas the Moon's regresses with its orbit's node in 18.6 years, so
+held fixed it puts the seasons out of step with the eclipse year.\claim{H41} In CM1, the solar routine computes the Sun's position from Earth's 24-hour day, Earth's calendar and an obliquity of 23.5\textdegree, and the five soil layers, 1--16~cm thick, are sized for Earth's diurnal thermal wave, whereas under the month-long day the wave reaches about 0.6~m, below the deepest of them.\claim{H09}
 
 PlaSim and RRTMG treat each column as a stack of flat layers lit only while the Sun stands above that column's
 horizon, a geometry made for air a tenth of a percent of the radius tall. The test world's air is far taller.
@@ -181,6 +183,7 @@ Sun clock & Restarts each model day & Skips back 32.5\textdegree\ a day & Time &
 Convective cover, unit & Rain converted per model day & Cover $+0.42$ & Time & D & General \\
 Orbit default & Earth's orbit for 1~AD in place of the configured one & Tilt 23.7\textdegree\ for 1.61\textdegree & Constant & D & Avoided \\
 Calendar & 360-day year of 17,280 steps & Output slips 120 steps a year & Time & L & Avoided \\
+Equinox & Held fixed, as Earth's over a run & Seasons out of step with the eclipse year & Time & L & General \\
 Cloud water & CCM3 height scale in metres & Cloud above 20~km nearly dry & Constant & L & General \\
 Vertical grid & Earth's $\sigma$ levels & Lowest layer 0--1.73~km; top three above 63~km & Geometry & L & Setting near the ground; open aloft \\
 Slant path & Horizon factor 35 & 13.5 for water, 7.1 for air & Geometry & L & Method, lunar table \\

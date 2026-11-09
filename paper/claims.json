@@ -39,12 +39,12 @@
   },
   {
    "id": "S05",
-   "text": "121,590 Pa at the water level; O2 21,227 Pa (17.5%); Earth's Ar/N2; 400 ppm CO2; on the turned design case's grid a global mean of 1.16 atm (1,174.8 hPa) and a range of 1.03-1.21 atm by cell (A28R_301k_design_l15_snow_s924_turned_refit, year 19)",
+   "text": "121,590 Pa at the water level; O2 21,227 Pa (17.5%); Earth's Ar/N2; 400 ppm CO2; on the turned design case's grid a global mean of 1.16 atm (1,174.8 hPa) and a range of 1.03-1.21 atm by cell (A28R_301k_design_l15_snow_s938_turned_refit_precession, year 19)",
    "source": [
     "terluna:climate/gcm/README.md#L161-163",
     "terluna:climate/gcm/boundary.py#L238",
     "repo:paper/data/regime_calc.json#air",
-    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit"
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession"
    ],
    "state": "documented"
   },
@@ -59,20 +59,21 @@
   },
   {
    "id": "S07",
-   "text": "TSIS-1 through the titania shield: 1,235 W/m2 at the top of the air, dimmed to 1,141 W/m2 (scale 0.924) in the design case, the scale chosen to hold the 301.25 K design temperature; no ozone behind the shield",
+   "text": "TSIS-1 through the titania shield: 1,235 W/m2 at the top of the air, dimmed to 1,159 W/m2 (scale 0.938) in the design case, the run with the night's twilight counted once and the equinox regressing, its scale chosen to hold the 301.25 K warm edge (years 10-19 at 301.04 K); no ozone behind the shield",
    "source": [
     "terluna:climate/gcm/README.md#L169-171",
     "terluna:climate/gcm/boundary.py#L241-242",
-    "terluna@bdda5a07:research/decisions.md#L757",
-    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit"
+    "terluna@03da9585:research/decisions.md#L828",
+    "terluna@03da9585:research/decisions.md#L839",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession"
    ],
    "state": "documented"
   },
   {
    "id": "S08",
-   "text": "Column water vapour 303 kg/m2 in the design case (global mean of prw over years 15-19) and 348 kg/m2 in the longwave-and-ice test (years 15-19); Earth about 25",
+   "text": "Column water vapour 296 kg/m2 in the design case (global mean of prw over years 15-19 of the corrected run) and 348 kg/m2 in the longwave-and-ice test (years 15-19); Earth about 25",
    "source": [
-    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession",
     "terluna:climate/gcm/README.md#L1155",
     "drive:/media/projectspace/terluna-research/gcm-runs/A28_corrected_970_lw_ice"
    ],
@@ -1267,11 +1268,12 @@
   },
   {
    "id": "R24",
-   "text": "The design case takes the curved-air terms from a 301 K column with 331 kg/m2 of water, in 11,559 channels (267 by multiple scattering): net -8.00 W/m2, the widening -8.74 and the curved light +0.73, against -5.83 on the 294.9 K column; it keeps the 294.9 K column's slant factors, against which the shortwave calibration was refitted, and applies the terms in each layer's clear share (NTWLCLEAR 1), which cools the climate by about 1 K",
+   "text": "The design case takes the curved-air terms from a 301 K column with 331 kg/m2 of water, in 11,559 channels (267 by multiple scattering): net -8.00 W/m2, the widening -8.74 and the curved light +0.73, against -5.83 on the 294.9 K column; it keeps the 294.9 K column's slant factors, against which the shortwave calibration was refitted, and applies the terms in each layer's clear share (NTWLCLEAR 1), which cools the climate by about 1 K; the twilight's ground term is an absorbed flux at a ground albedo of 0.1 whatever the ground's own, 11% too much over the turned run's land and 3% too little over its sea",
    "source": [
     "terluna@bdda5a07:climate/gcm/README.md#L1390-1441",
     "terluna@bdda5a07:climate/gcm/README.md#L1500-1506",
-    "terluna@bdda5a07:climate/results/gcm/twilight_301k.json"
+    "terluna@bdda5a07:climate/results/gcm/twilight_301k.json",
+    "terluna@2762669e:climate/gcm/README.md#L1446"
    ],
    "state": "calculation"
   },
@@ -1343,7 +1345,7 @@
   },
   {
    "id": "G24",
-   "text": "Turned at sunlight 0.934, years 10-19: 301.64 K against the refined state's 300.84 K (+0.80 K), mainly weaker cloud cooling; rain 2.02 mm/day and the drylands' share of land 57.5% hold, the near side's north wetter and the southern highlands drier; with the longwave refit l15_turned and sunlight 0.924 (7.6% dimming): 301.33 K over years 10-19, 301.20 K and 1.97 mm/day over years 10-49; the turned state ran the refined-physics state's longwave fit, which strays past its 2.5 W/m2 rule at sea to 3.56 W/m2 in the fourth layer from the ground by year 19; the design case cooled about 0.008 K a year, years 40-49 at 301.09 K",
+   "text": "Turned at sunlight 0.934, years 10-19: 301.64 K against the refined state's 300.84 K (+0.80 K), mainly weaker cloud cooling; rain 2.02 mm/day and the drylands' share of land 57.5% hold, the near side's north wetter and the southern highlands drier; with the longwave refit l15_turned and sunlight 0.924 (7.6% dimming), the turned state at the target: 301.33 K over years 10-19, 301.20 K and 1.97 mm/day over years 10-49, its dimming set with the night twilight's double count present; the turned state ran the refined-physics state's longwave fit, which strays past its 2.5 W/m2 rule at sea to 3.56 W/m2 in the fourth layer from the ground by year 19; the design case cooled about 0.008 K a year, years 40-49 at 301.09 K",
    "source": [
     "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s934_turned",
     "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
@@ -1410,7 +1412,7 @@
   },
   {
    "id": "H40",
-   "text": "With PlaSim's cloud-forcing diagnostic on (NDIAGCF 1), radstep zeroes the shortwave fluxes once (radmod.f90 lines 994-995 of the pinned ExoPlaSim 3.4.2) and calls swr twice (lines 1021-1046), swr writing the fluxes only where the Sun is up, while patch 07's twilight_term, called at the end of swr, adds the curved air's sunlight below the horizon in each pass: the night's twilight is counted twice. Over the turned design case's years 10-49 it adds 2.70 W/m2 at the top of the air in the global mean, 1.5% of the 178.2 W/m2 absorbed, from 1.7 W/m2 at the equator to 10.9 at 80 deg and 17.7 at 86 deg, all on the night side; without it the design temperature takes a sunlight scale near 0.938 in place of 0.924 at first order. Every run with the twilight also ran the diagnostic. Terluna's runner switch NTWLZERO 1 (2762669e), still to be ported into patch 07, sets the three fluxes to zero where the Sun is down before twilight_term adds, leaving sunlit columns bit for bit.",
+   "text": "With PlaSim's cloud-forcing diagnostic on (NDIAGCF 1), radstep zeroes the shortwave fluxes once (radmod.f90 lines 994-995 of the pinned ExoPlaSim 3.4.2) and calls swr twice (lines 1021-1046), swr writing the fluxes only where the Sun is up, while patch 07's twilight_term, called at the end of swr, adds the curved air's sunlight below the horizon in each pass: the night's twilight is counted twice. Over the turned state's years 10-49 (the target run) it adds 2.70 W/m2 at the top of the air in the global mean, 1.5% of the 178.2 W/m2 absorbed, from 1.7 W/m2 at the equator to 10.9 at 80 deg and 17.7 at 86 deg, all on the night side; without it the design temperature takes a sunlight scale near 0.938 in place of 0.924 at first order. Every run with the twilight also ran the diagnostic. Terluna's runner switch NTWLZERO 1 (2762669e), still to be ported into patch 07, sets the three fluxes to zero where the Sun is down before twilight_term adds, leaving sunlit columns bit for bit. The design case runs with the fix at sunlight 0.938.",
    "source": [
     "repo:notes/defect_log.md#C21",
     "repo:models/exoplasim/patches/07-curved-air.patch",
@@ -1418,7 +1420,9 @@
     "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
     "drive:/media/projectspace/terluna-research/gcm-runs/A28_dim5_moon_geometry",
     "terluna@2762669e:climate/gcm/README.md#L1446",
-    "terluna@2762669e:climate/gcm/exoplasim_run.py"
+    "terluna@2762669e:climate/gcm/exoplasim_run.py",
+    "terluna@03da9585:research/decisions.md#L828",
+    "terluna@03da9585:research/decisions.md#L839"
    ],
    "state": "finding"
   },
@@ -1430,6 +1434,55 @@
     "terluna@bdda5a07:climate/crm/README.md#L3103-3130"
    ],
    "state": "conditional model"
+  },
+  {
+   "id": "G27",
+   "text": "The design case, A28R_301k_design_l15_snow_s938_turned_refit_precession: the twilight counted once (NTWLZERO) and the equinox regressing with the node, at sunlight 0.938 (6.2% dimming) from the target run's year 49; years 10-19 at 301.04 K (top of the air -0.23 W/m2), years 10-49 at 301.00 K with 1.95 mm/day, cooling about 0.04 K a decade; against the turned state at the target over years 10-19 the air poleward of 70 deg cools 0.7 K and the clouds' shortwave effect strengthens 3.5 W/m2 at unchanged cover; the run changes the twilight, the equinox and the sunlight together",
+   "source": [
+    "terluna@03da9585:research/decisions.md#L839",
+    "terluna@03da9585:research/decisions.md#L847",
+    "terluna@79d0fefa:climate/gcm/README.md#L4563",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G28",
+   "text": "The sea box forced by the turned state at the target (years 10-49), read by the design years' rules unchanged: CM1 rains 1.06 against 1.41 mm/day (0.75), 8.5% of its rain at night against the GCM's 50%, evaporates 0.74 of the GCM's, runs 7.7 and 9.1 K colder at 40 and 60 km; its low air, column vapour, radiation and wettest tenth agree; it misses the night-wind check and its vapour still falls on day 5, so it reads as observations",
+   "source": [
+    "terluna@03da9585:research/decisions.md#L829"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "G29",
+   "text": "The two ways of tying a CM1 box to the large scale bracket the GCM: under its imposed motion the turned sea box rains 0.75 of its rain, 0.09 mm/day of it at night against the GCM's 0.70; making its own motion by the damped gravity wave the design-years sea box rains twice its rain, its night rain 0.66 against 0.72 mm/day and the excess in the afternoon; both read as observations, and the spread between the methods exceeds the gap, which is carried as a range",
+   "source": [
+    "terluna@03da9585:research/decisions.md#L840",
+    "terluna@03da9585:research/decisions.md#L846",
+    "terluna@bdda5a07:research/decisions.md#L740"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "H41",
+   "text": "PlaSim's orbit holds the equinox fixed (MVELP), as Earth's precesses too slowly to matter over a run; the Moon's spin axis precesses with its orbit's node in 6,798.38 days (18.6 years), so the tilt's seasons follow the 346.6-day eclipse year and the stronger summers alternate between the poles over 18.6 years, changing the polar light by about +/-3.4%",
+   "source": [
+    "terluna@03da9585:research/decisions.md#L826-827",
+    "terluna@79d0fefa:climate/gcm/README.md#L4547-4562",
+    "terluna@39ac7f0c:climate/gcm/precession.py"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "R26",
+   "text": "Terluna's precession patch adds to PlaSim's orbit the angle the equinox has regressed by, a turn in the nodal period of 6,798.38 days counted from the run's first step, so the Sun's distance keeps its year and the tilt seasons follow the eclipse year; its copy of the orbit reproduces the turned run's year 49 to 3e-6 in the cosine of the zenith angle",
+   "source": [
+    "terluna@03da9585:research/decisions.md#L827",
+    "terluna@39ac7f0c:climate/gcm/precession.py",
+    "terluna@79d0fefa:climate/gcm/README.md#L4547-4562"
+   ],
+   "state": "implementation"
   }
  ]
 }
