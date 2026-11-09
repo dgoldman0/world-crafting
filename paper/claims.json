@@ -1345,7 +1345,7 @@
   },
   {
    "id": "G24",
-   "text": "Turned at sunlight 0.934, years 10-19: 301.64 K against the refined state's 300.84 K (+0.80 K), mainly weaker cloud cooling; rain 2.02 mm/day and the drylands' share of land 57.5% hold, the near side's north wetter and the southern highlands drier; with the longwave refit l15_turned and sunlight 0.924 (7.6% dimming), the turned state at the target: 301.33 K over years 10-19, 301.20 K and 1.97 mm/day over years 10-49, its dimming set with the night twilight's double count present; the turned state ran the refined-physics state's longwave fit, which strays past its 2.5 W/m2 rule at sea to 3.56 W/m2 in the fourth layer from the ground by year 19; the design case cooled about 0.008 K a year, years 40-49 at 301.09 K",
+   "text": "The turned state at sunlight 0.934, years 10-19: 301.64 K against the refined state's 300.84 K (+0.80 K), mainly weaker cloud cooling; rain 2.02 mm/day and the drylands' share of land 57.5% hold, the near side's north wetter and the southern highlands drier; with the longwave refit l15_turned and sunlight 0.924 (7.6% dimming), the turned state at the target: 301.33 K over years 10-19, 301.20 K and 1.97 mm/day over years 10-49, its dimming set with the night twilight's double count present; the turned state ran the refined-physics state's longwave fit, which strays past its 2.5 W/m2 rule at sea to 3.56 W/m2 in the fourth layer from the ground by year 19; the turned state at the target cooled about 0.008 K a year, years 40-49 at 301.09 K",
    "source": [
     "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s934_turned",
     "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
@@ -1437,12 +1437,13 @@
   },
   {
    "id": "G27",
-   "text": "The design case, A28R_301k_design_l15_snow_s938_turned_refit_precession: the twilight counted once (NTWLZERO) and the equinox regressing with the node, at sunlight 0.938 (6.2% dimming) from the target run's year 49; years 10-19 at 301.04 K (top of the air -0.23 W/m2), years 10-49 at 301.00 K with 1.95 mm/day, cooling about 0.04 K a decade; against the turned state at the target over years 10-19 the air poleward of 70 deg cools 0.7 K and the clouds' shortwave effect strengthens 3.5 W/m2 at unchanged cover; the run changes the twilight, the equinox and the sunlight together",
+   "text": "The design case, A28R_301k_design_l15_snow_s938_turned_refit_precession: the twilight counted once (NTWLZERO) and the equinox regressing with the node, at sunlight 0.938 (6.2% dimming) from the target run's year 49; years 10-19 at 301.04 K (top of the air -0.23 W/m2), years 10-49 at 301.00 K with 1.95 mm/day, cooling about 0.04 K a decade; against the turned state at the target over years 10-49 the air poleward of 70 deg cools 0.7 K and the clouds' shortwave effect strengthens 3.5 W/m2 at unchanged cover, as the double count leaves the all-sky pass and the sunlight rises 1.5%; the run changes the twilight, the equinox and the sunlight together",
    "source": [
     "terluna@03da9585:research/decisions.md#L839",
     "terluna@03da9585:research/decisions.md#L847",
     "terluna@79d0fefa:climate/gcm/README.md#L4563",
-    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession"
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession",
+    "drive:/media/projectspace/terluna-research/session-tools/precession"
    ],
    "state": "conditional model"
   },

@@ -16,6 +16,7 @@ state what the runs did, and wait on work in this repository, or on new runs, be
 | `reach.tex`, "Worlds turned by their water"; `refinement.tex`, last paragraph | The practice of deriving a world's orientation from its loads | The lab's orientation check (`PLAN.md`, step 3), which the text then names |
 | `results.tex`, the curved air's 0.65 K (claim G03) | Measured with the double count in the curved-air run alone, stated as too small | A corrected pair, if the realignment runs one; otherwise the statement stands |
 | `verification.tex`, the double count; `notes/defect_log.md` C21 | Terluna's finding and fix (`NTWLZERO`, `domain/climate` 2762669e), the mechanism checked here in the pinned `radmod.f90` and patch 07; the design case runs with the fix | The fix ported into patch 07 with its switch |
+| `repairs.tex`, the equinox's regression (claim R26); Table `tab:repairs` | Terluna's precession patch (`domain/climate` 39ac7f0c), run in the design case | The patch ported into `models/exoplasim/` with its switch and identity default |
 | `availability.tex` | The first version's statement | Terluna's commit for version 2 (`bdda5a07`, or the commit the realignment reaches) beside 186b294; the AI-use statement checked against version 2's work |
 
 At release, `corrections_after_v1.md` becomes the record of what version 2 changed, and the root README's

@@ -10,18 +10,18 @@
   "originals": "Files under paper/sources/originals/ (git-ignored); upstream archives under upstream/ (git-ignored, pinned in models/pins.sha256)."
  },
  "summary": {
-  "total": 177,
+  "total": 178,
   "with_local_original": 89,
-  "blocked": 88,
+  "blocked": 89,
   "deferred": 89,
   "passed": 0,
   "depth": {
    "claim-locators": 73,
-   "abstract-only": 82,
+   "abstract-only": 83,
    "not read": 21,
    "full": 1
   },
-  "cited_in_paper": 106,
+  "cited_in_paper": 107,
   "cited_blocked": [
    "battalio2022interaction",
    "battjes1985calibration",
@@ -59,6 +59,7 @@
    "mckay1991making",
    "mlawer2012development",
    "nicoll2012measurements",
+   "peale1969generalized",
    "prather2019round",
    "price1992simple",
    "rafkin2022interaction",
@@ -7691,6 +7692,49 @@
     }
    ],
    "notes": "Version 2 source (8 November 2026). Read at the claim locators only."
+  },
+  {
+   "key": "peale1969generalized",
+   "citation": "Peale (1969). Generalized Cassini's laws. Astron. J., 74, 483. doi:10.1086/110825",
+   "entry_type": "article",
+   "doi": "10.1086/110825",
+   "verified_via": "Crossref api.crossref.org/works/10.1086/110825 (2026-11-09)",
+   "corrections": [
+    "Crossref gives the first page only"
+   ],
+   "open_access": {
+    "status_openalex": "closed",
+    "local_copy_obtained": false
+   },
+   "license": null,
+   "original": null,
+   "additional_files": null,
+   "reading": {
+    "depth": "abstract-only",
+    "reader": "this agent",
+    "locators": [
+     {
+      "claim_id": "H41",
+      "location": "Abstract (OpenAlex record)",
+      "quote": "All of the possible stable, coplanar configurations of a planet's or satellite's spin vector, orbit normal, and the vector designating the precession of the orbit",
+      "read_in": "abstract via OpenAlex metadata",
+      "quote_check": "quote found in text"
+     }
+    ]
+   },
+   "admission": "BLOCKED",
+   "admission_reason": "No legal local original: closed access (OpenAlex, 2026-11-09)",
+   "cited_in_paper": true,
+   "paper_use": [
+    {
+     "claim_id": "H41",
+     "section": "worlds.tex",
+     "statement": "The Moon's spin axis stays coplanar with its orbit's normal and precesses with the orbit's node (a Cassini state)",
+     "support": "supported (abstract)",
+     "note": ""
+    }
+   ],
+   "notes": "Version 2 source (9 November 2026), added where the paper states the Moon's precession."
   }
  ]
 }

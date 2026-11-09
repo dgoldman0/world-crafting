@@ -83,11 +83,10 @@ similarity.\claim{R04}
 
 Other general repairs remove an Earth value directly. CM1's gravity becomes one build constant for its
 dynamics, its radiation, its CAPE diagnostic and both microphysics schemes, and its Sun is computed from a solar day, a flux and a starting hour angle read from spare namelist reals, with each column of a ring at its own longitude;
-PlaSim's orbit, in turn, regresses the equinox with the orbit's node, a turn in 6,798 days counted from the run's
-first step, so that the Sun's distance keeps its year while the tilt's seasons follow the eclipse
-year;\claim{R26}
 to match that Sun, CM1's five soil layers are thickened to 5--80~cm, 1.55~m in all, so that they reach below
-the thermal wave of any solar day from a few Earth days to the Moon's. In the electrification grafted into CM1,
+the thermal wave of any solar day from a few Earth days to the Moon's. PlaSim's orbit regresses the equinox with the
+orbit's node, a turn in 6,798 days counted from the run's first step, so that the Sun's distance keeps its year
+while the tilt's seasons follow the eclipse year.\claim{R26} In the electrification grafted into CM1,
 two limits set at Earth's values are removed: lifting WRF-ELEC's 180~kV\,m$^{-1}$ cap lets the breakdown field's
 scaling with the air's density act wherever flashes start, however dense the air there, and in the patched
 graft the flash log records each channel's reach from the charge the flash adds to the ions, where the
@@ -132,8 +131,9 @@ still receives 1.3\% less sunlight than the two-stream's, so by day the terms al
 water, in 11,559 channels, where they sum to a net loss of 8.0~W\,m$^{-2}$, the shells' widening losing 8.7 and the
 curved light gaining 0.7; it keeps the 295~K column's slant factors, against which the shortwave calibration was
 fitted, and applies each layer's terms in the share of its column clear of cloud above it, a refinement that cools
-the climate by about 1~K, while the ground's twilight is taken at a ground albedo of 0.1, whatever the ground's own,
-11\% too strong over the land and 3\% too weak over the sea.\claim{R24} Since the table
+the climate by about 1~K, while the ground's twilight is taken at a ground albedo of 0.1, whatever the ground's own, 11\% too strong
+over the turned run's land and 3\% too weak over its sea, and 1.5--4.5 times too strong over snow or sea ice, which
+that run never holds.\claim{R24} Since the table
 is computed for one column, for another world it is recomputed from that world's own column and starlight, and how close to
 the horizon a flat treatment holds there depends on the height of the scattering layer against the radius: the
 plane-parallel codes that separate surface and aerosol in remote sensing hold typically to about
