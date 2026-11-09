@@ -142,7 +142,9 @@ generates CM1's case families into explicit entries (architecture.md, "Specifica
   lifetimes, given the printed escape's difference from the paper's figures (stage 9). Set on 2026-10-19, in
   stage 9's acceptance check (plan.md).
 - The Gaean air's composition and pressure, such as Earth's at 1 atm or the Open Moon's at 1.2 atm (stage 11).
-- The day of the worlds turning around the Sun, and the anchors themselves (stage 12).
+- The day of the worlds turning around the Sun, and the anchors themselves (stage 12). For the anchor near the
+  transition, the gap series proposes the Moon's 29.5-day solar day and the Open Moon's air at 1.2 atm, making it
+  the Moon's all-ocean twin in the comparison of ExoPlaSim with CM1 ([gap_series.md](gap_series.md)).
 
 ## Possible later additions
 

@@ -135,6 +135,15 @@ each with an identity default equal to the released model:
 The disagreement Terluna finds is largest over its open sea, which covers the whole of each stage 12 anchor, so the
 anchors take the settings that the Open Moon's comparison with CM1 supports.
 
+The account above comes from the ten-level runs under Kuo's scheme. On fifteen levels under simplified Betts–Miller,
+boxes forced with the GCM's ascent rain 0.75–0.84 of its rain, while boxes that make their own ascent rain more than
+the GCM at the sea and at 0° E, so that the two couplings bracket the GCM's rain at those sites; no closure tried in
+PlaSim has passed (`terluna_fixes.md`, rows 12 and 13; the paper's version 2 draft, "The gap between the models").
+On 9 November 2026 Terluna moved the work of closing the gap to this project, carrying the gap as a range in its own
+studies (Terluna's `research/decisions.md` at `03da9585`, line 846). [gap_series.md](gap_series.md) proposes runs on
+Earth, an all-ocean twin of the Moon and the Moon that separate the gap's causes, Earth first; `PLAN.md` step 4
+revises this section with the ports.
+
 ## Order and cost
 
 - **Stages 1, 2, 4 and 6** cost seconds to minutes of one core.
