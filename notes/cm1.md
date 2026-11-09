@@ -85,7 +85,10 @@ warmer and more humid near the ground.
 2.8 mm and graupel's at 2 mm, and raindrop self-collection turns to breakup above a 300 µm mean diameter (CM1's
 default `brkup_db`). The largest stable raindrop scales as (σ/(Δρ g))^½, about 2.5 times larger at lunar gravity,
 and slower drops collide more gently, so Earth's caps and breakup keep lunar drops small, and small drops evaporate
-faster. Autoconversion and accretion rates carry no gravity and stay Earth's fits.
+faster. Autoconversion and accretion rates carry no gravity and stay Earth's fits. By the scaling above, cloud
+droplets overtake one another 6 times slower at lunar gravity and rain sweeps up cloud 2.9 times slower, while air
+spends six times as long in a lunar cloud, so at Earth's rates the scheme forms rain several times too readily in
+each passage; the effect is unmeasured (defect log B38).
 
 **The lunar limits, in Terluna.** Terluna's later patches read the limits' scaling from `&param3` (`brkup_gscale`,
 `brkup_rhor`, `brkup_rhoexp`; 0 gives stock CM1 bit for bit): the breakup lengths and the cap on the mean diameter
@@ -256,9 +259,12 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
    results carry.
 3. Bring the lunar rain limits, the solver's fall law and lunar self-collection into the series, and give NSSL's
    rain the same treatment.
-4. Give RRTMG the shield's spectrum.
-5. Two-way coupling, or nesting in the GCM, so that the slice's own state feeds back on its forcing.
-6. Find and fix the source of CM1's threaded parting, first by a threaded run of stock CM1 with these boxes' options.
-7. Gravity falling with height in the base state and hydrostatics for a 150 km domain.
-8. Upstream: report the boundary layer's density fault, and make gravity one namelist parameter in CM1, honoured by
+4. Read two factors from the namelist for Morrison's autoconversion and accretion, 0.165 and 0.34 at lunar gravity
+   with identity defaults, and size them in a sea box of two lunar days (defect log B38).
+5. Give RRTMG the shield's spectrum.
+6. Let a sea box follow the GCM's sea temperature by local time, as it follows the wind (defect log B37).
+7. Two-way coupling, or nesting in the GCM, so that the slice's own state feeds back on its forcing.
+8. Find and fix the source of CM1's threaded parting, first by a threaded run of stock CM1 with these boxes' options.
+9. Gravity falling with height in the base state and hydrostatics for a 150 km domain.
+10. Upstream: report the boundary layer's density fault, and make gravity one namelist parameter in CM1, honoured by
    every scheme.

@@ -70,6 +70,13 @@ The CM1 steps wait on stage 3 with Terluna's DGW ported (`terluna_fixes.md`, row
 and 6 on the GCM ports of `PLAN.md` step 2. Steps 1–6 take about 52 four-thread hours, three or four nights at the
 eight-thread budget [calc].
 
+**Checks ahead of the series** [prop]. A pass over the models on 9 November 2026 logged five entries that bear on
+what the series would compare (`notes/defect_log.md`, B36–B39 and C22): the horizontal diffusion's Earth times, the
+slab sea's 50 m, Morrison's warm rain at Earth's rates, the relaxation time of 2 h, and the Moon's monthly swing in
+sunlight. One GCM run or one sea box of two lunar days sizes each of the first four: the mixed layer at 15 m, the
+warm-rain factors at 0.165 and 0.34, the relaxation time at 12 h, and the diffusion times multiplied by 0.27. The
+sea's rain by time of day depends most directly on the mixed layer and the warm rain, so those two come first.
+
 **The series' limits.** If Earth passes and steps 5 and 6 implicate lunar physics, the lab learns which physics
 matters, and with no observation of lunar convection it has no measure of which model represents it. Finer lunar grids
 then remain, ×8 at 3 km and ×27 at 2 km [read: `terluna_fixes.md`]; GATE's cores, mostly under 2 km, translate to

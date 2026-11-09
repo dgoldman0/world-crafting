@@ -298,6 +298,9 @@ radiation. The same hook carries any infrared source above the air: a host plane
   divided by 6,371,000 m, so PlaSim's radius is 60 m (0.0035%) long. Negligible.
 - **Placeholder land** (albedo 0.2, roughness 2 m, a 0.5 m bucket), a 50 m slab ocean without ocean heat
   transport, no ozone (the titania shield's design).
+- **The Sun's distance**: the set-up takes the Earth–Moon barycentre's orbit, so the Moon's monthly swing toward
+  and away from the Sun is left out. That swing moves the sunlight ±0.51% in step with the lunar day, and the far
+  side's noon receives 1.0% more than the near side's (defect log C22).
 
 ## What stays Earth's in PlaSim
 
@@ -311,7 +314,10 @@ radiation. The same hook carries any infrared source above the air: a host plane
 | Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and 1 m/s wind floor | Over the Near-side Sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour up through 5.2 km, mostly by resolved motion, where PlaSim's median diffusivity is 0.1–0.3 m²/s (21d98fc) | Lengths scaled with gravity, an untested scaling; a nonlocal scheme with explicit entrainment, tested in single columns, brings the land's afternoon mixed layer down toward CM1's and misses the sea's night, where Terluna reads CM1's 10–12 W/m² of heat carried down through 6–7 km as entrainment driven from the cloud's top (6d0c707; defect log B32) |
 | Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³ (Miller, Beljaars and Palmer 1992) | Its tank law goes as (g/p_s)^⅓, 0.00083 on the Moon; at that value the Near-side Sea's evaporation falls from 3.82 to 3.62 mm/day, against CM1's 2.98 (b182515) | The lunar value, a namelist variable in Terluna's build (defect log B33) |
 | Shallow convection's tops capped at 700 hPa | An Earth height, near 28 km in the Moon's air; binds in 1–1.4% of cells (1d05c3d) | A cap tied to the deep-convection depth test (defect log B34) |
-| Constant gravity and a thin shell | The column holds about 5% more air per unit area than p_s/g_s (the radiative–convective model's g(z) column); constant-g heights read about 5% low at 86 km; g there is 9% lower | Deep-atmosphere dynamics (White et al. 2005); or correct the mass and heights |
+| Horizontal diffusion's damping times at the truncation scale: 0.2, 1.1, 5.6 and 0.1 days for divergence, vorticity, temperature and humidity, counted in 24-hour days | Earth's T21 times on a wave 3.7 times shorter: a given wind crosses the Moon's smallest wave 3.7 times faster while the damping keeps its time. The design run's spectra fall smoothly to the truncation except in the vertical motion, flat to wavenumber 18 | The Earth control's spectra as the comparison; one run with the times multiplied by 0.27 (defect log B36) |
+| A slab sea 50 m deep (`MLDEPTH`) | Earth's seasonal mixed layer under a 29.5-day cycle of sunlight: the Near-side Sea site's surface swings 0.63 K through the lunar day, and by estimate two to four times that if the heat stays in the top 10–20 m; the sea's rain by time of day depends on the swing | One run at 15 m; the depth as a setting by world (defect log B37) |
+| The simplified Betts–Miller scheme's relaxation time, 2 h (`tau_bm`, with Terluna's `nprc` 2) | Frierson's value for Earth; 12 h by the similarity that scales CM1's times | One run at 12 h; the time as a setting scaled with the world (defect log B39) |
+| Constant gravity and a thin shell | The column holds about 5% more air per unit area than p_s/g_s (the radiative–convective model's g(z) column), and about 12% more over a square metre of ground once the shells' growing area is counted (defect log B21); constant-g heights read about 5% low at 86 km; g there is 9% lower | Deep-atmosphere dynamics (White et al. 2005); or correct the mass and heights |
 | Top layer from 112 km to the top of the air (575 km for 0.1 Pa) | One layer carries the whole upper atmosphere's radiation | A higher-resolution top; the middle-atmosphere model for the base of the thermosphere |
 | Sasamori longwave, Lacis–Hansen shortwave | Calibrated near the design column only | k-distributions from the same spectroscopy |
 
