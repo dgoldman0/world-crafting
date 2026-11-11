@@ -665,7 +665,71 @@
    "terluna_sha256": "33916165f82fc4c47a4141b2f5f0bc2b6adb81f625eabb84d9d945168e9045f1",
    "terluna_commit": "39c5ee04",
    "modified": "the Fortran taken from the lab's patch series as in test_surface_gust.py; similarity_column called with a viscosity, and the neutral limit checked at the Moon's gravity and Earth's; tests of the world's viscosity and of Terluna's numbers at the viscosity CM1's two lines share added; the test of the patch's application rewritten for a unified patch; the runner's test left in Terluna"
+  },
+  {
+   "path": "atmosphere/rain/drops.py",
+   "sha256": "8e0d67ec86b357cca1ab83866c5714bbd261cd1075ea7ee3562679c66b3054aa",
+   "bytes": 24040,
+   "terluna_commit": "39c5ee04"
+  },
+  {
+   "path": "atmosphere/rain/sources.json",
+   "sha256": "92cece854def014727727f55d1392135a9b726182a5edf9f75634978c3173484",
+   "bytes": 12784,
+   "terluna_commit": "39c5ee04"
+  },
+  {
+   "path": "atmosphere/rain/vendor/rainprops/LICENSE",
+   "sha256": "ff9be83eeebc75391eccabec6f701a22c7fff9509dd45b33ddc5b5c438f61526",
+   "bytes": 1071,
+   "terluna_commit": "39c5ee04"
+  },
+  {
+   "path": "atmosphere/rain/vendor/rainprops/data/gunn1949_r_m_v_mpers.csv",
+   "sha256": "00a3c9c22f57225759a7b2d9e64ddf5c690bcf6846f7908ff11e471ba8439f94",
+   "bytes": 441,
+   "terluna_commit": "39c5ee04"
+  },
+  {
+   "path": "atmosphere/rain/breakup.py",
+   "sha256": "38ab0aea3e327b1515dc9d5eeba0dc4b715051274a798c26c7a22ce4619c7038",
+   "bytes": 19853,
+   "terluna_sha256": "39a2d73b11182e1186860191823255daa7d8cb7eda5b06d1ce06106db87187ea",
+   "terluna_commit": "39c5ee04",
+   "modified": "the product builder and its bindings to Terluna's target climates left out (SCHEMA, OUT, CODE, EVIDENCE, READING_RULE, ASSUMPTIONS, GENERAL, ADOPTED, general_column, fall_speed_cap, lunar_limits, build, main, and the imports of product.py, targets.py and shared.provenance); Morrison's constants taken from the lab's atmosphere/rain/morrison.py in place of shared.constants, whose pinned copy predates them; Speeds, collision, straub, low_list, rising_size, pair_scale, breakup_weights, scale, low_list_literal, comparison and mass_weighted_speed unchanged; earth_column and density_exponent added, for any world's air; limits added, Terluna's lunar_limits for any gravity joined with the mirror of the patch in its runner (climate/crm/cm1_run.py, rain_limits, sha256 ba507fc66d1ea4fd); the docstring rewritten for a world, with the evidence and the assumptions of Terluna's product"
+  },
+  {
+   "path": "atmosphere/rain/fall_law.py",
+   "sha256": "984aadfc723fd194e0d8b7af99367bbd4d124f0d14078ea8225d498e3e016be3",
+   "bytes": 12930,
+   "terluna_sha256": "903e45fa545c61107579a9ae88bba5bd0e308498e6575646d71be19d649f6639",
+   "terluna_commit": "39c5ee04",
+   "modified": "the product builder and its bindings to Terluna's resort climate and breakup product left out (SCHEMA, OUT, BREAKUP, CODE, TARGET, COMPARISON_MM, KERNEL_MEAN_MM, VENTILATION, EVIDENCE, READING_RULE, ASSUMPTIONS, sha256, best_power_law, ratios, build, main, and the imports of scipy, shared.constants, shared.provenance, product.py and targets.py); Morrison's constants and density factor taken from the lab's atmosphere/rain/morrison.py; solved_speeds, speed_law, power_law, moments, closed_forms, table_lambda, interpolate and kernel_sum unchanged; table, self_collection and settings added, for any world's air, the kernels summed to the smaller of the two stability screens; table_text added, the table's text as Terluna's runner writes it (climate/crm/cm1_run.py, rain_law_settings); TABLE_FILE added; the docstring rewritten for a world, with the evidence and the assumptions of Terluna's product"
+  },
+  {
+   "path": "atmosphere/tests/test_rain_drops.py",
+   "sha256": "acaf4a83d328bee83a8cfa1dd4a4c5ea0d6287ba4dbc95576a6141fcd11e21a6",
+   "bytes": 13165,
+   "terluna_sha256": "10565a8025f1bf98fdbed1da4802d37b73780230c81f62485d6ed1466e70bf22",
+   "terluna_commit": "39c5ee04",
+   "modified": "the two tests that run the recovered solver's vapour diffusivity left out with the import of recovered.py (test_port_reproduces_the_recovered_representative_drops, test_recovered_diffusivity_stands_below_massmans); the test of the vendored rainprops names the two files the lab keeps; the docstring says so"
+  },
+  {
+   "path": "atmosphere/tests/test_rain_breakup.py",
+   "sha256": "a705f302234f5f49742208ad4774f9a9628fc0230ae86355844eed076129a425",
+   "bytes": 16608,
+   "terluna_sha256": "50398bdcf8dd4f53404ed6e1933d7bc2e4d1747080019d8b94d2da0056ad553d",
+   "terluna_commit": "39c5ee04",
+   "modified": "rewritten around the lab's module: the tests of Terluna's product and its bindings replaced by the same calculation run on the Open Moon's air and pinned to the product's numbers (scale.resort.surface, general, lunar_limits); test_earth_against_itself_is_scale_one and test_both_coalescence_laws_coalesce_more_in_gentler_lunar_collisions kept; tests added of Morrison's constants against the pinned CM1 source, of the limits by hand arithmetic at the Moon's gravity, Earth's and 3.7 m/s2, of the default's limits (after Terluna's climate/tests/test_cm1_rain_limits.py), and of the calculation below the Moon's gravity and above Earth's"
+  },
+  {
+   "path": "atmosphere/tests/test_rain_fall_law.py",
+   "sha256": "3c1c25420a7a4d2337fb2b292509222b70820aacf0d8c1e33211b8832abae00d",
+   "bytes": 15903,
+   "terluna_sha256": "e862b9604e633e5fe95e186abbfb859222e906e72c817cfa1164f7e3735bf1ae",
+   "terluna_commit": "39c5ee04",
+   "modified": "rewritten around the lab's module: the tests of Terluna's product and its bindings replaced by the same calculation run on the Open Moon's air and pinned to the product's numbers (air, table, checks, power_laws, lunar_equilibrium, self_collection, namelist); the quadrature's test kept, with Morrison's law by hand at Earth's gravity and the Moon's; the table's and the moments' tests run on the lab's table, for the Moon and for Earth; fortran_rain and the table text's test taken from Terluna's climate/tests/test_cm1_rain_law.py (sha256 9b918bed01e841db); tests added of Earth's own air, of the kernels on a heavier world, of the namelist's pressure ratio beside the density ratio of the exponent's fit and of the solver's bounds"
   }
  ],
- "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography package brought from 186b294 byte for byte (82b4b59), then generalised, its modified files holding both hashes; 2026-11-08: climate/crm/cm1_output.py brought from Terluna bdda5a07 byte for byte, and its test with one check adapted; 2026-11-11: climate/gcm/surface_gust.py and surface_similarity.py and their two tests brought from Terluna 39c5ee04 (domain/climate) and changed as their entries record"
+ "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography package brought from 186b294 byte for byte (82b4b59), then generalised, its modified files holding both hashes; 2026-11-08: climate/crm/cm1_output.py brought from Terluna bdda5a07 byte for byte, and its test with one check adapted; 2026-11-11: climate/gcm/surface_gust.py and surface_similarity.py and their two tests brought from Terluna 39c5ee04 (domain/climate) and changed as their entries record; 2026-11-11: atmosphere/rain/drops.py, sources.json and the licence and Gunn-Kinzer fall speeds of its vendored rainprops brought from Terluna 39c5ee04 byte for byte, and breakup.py, fall_law.py and three tests brought from it and changed as their entries record"
 }

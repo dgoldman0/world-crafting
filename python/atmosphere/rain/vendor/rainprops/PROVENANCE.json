@@ -1,0 +1,21 @@
+{
+  "repository": "https://github.com/kaitlyn-loftus/rainprops",
+  "commit": "e2df9c2102112526f05109051dfffeeb5c318967",
+  "license": "MIT",
+  "retrieved_date": "2026-10-11",
+  "retrieved_by": "Terluna, whose atmosphere/rain/vendor/rainprops at 39c5ee04 keeps the code and the other data files; these two came from that copy on 2026-11-11",
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 1071,
+      "sha256": "ff9be83eeebc75391eccabec6f701a22c7fff9509dd45b33ddc5b5c438f61526",
+      "url": "https://raw.githubusercontent.com/kaitlyn-loftus/rainprops/e2df9c2102112526f05109051dfffeeb5c318967/LICENSE"
+    },
+    {
+      "path": "data/gunn1949_r_m_v_mpers.csv",
+      "bytes": 441,
+      "sha256": "00a3c9c22f57225759a7b2d9e64ddf5c690bcf6846f7908ff11e471ba8439f94",
+      "url": "https://raw.githubusercontent.com/kaitlyn-loftus/rainprops/e2df9c2102112526f05109051dfffeeb5c318967/data/gunn1949_r_m_v_mpers.csv"
+    }
+  ]
+}

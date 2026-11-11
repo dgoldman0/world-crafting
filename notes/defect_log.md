@@ -86,7 +86,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B25 | SWAN | Air density fixed at 1.28 kg/m³ | 10-02, 8785f7e | Patched to 1.40390 kg/m³ in the coupled build | Not quantified | Fixed in coupled build | R |
 | B26 | SWAN | INIT 2-s period; ST6 and exact-XNL paths at Earth's g; Earth radius default | 10-02, 8785f7e | Bypassed or set by input | None in the selected configuration | Avoided | R |
 | B27 | SWAN, SWASH | Earth-calibrated laws: Wu drag, Komen, AGROW coefficient, breaker index 0.73, SWASH breaking 0.6/0.3 | 10-02 to 10-03 | Retained | Not quantified | Open | R |
-| B28 | CM1 Morrison | Rain's mean diameter capped at 2.8 mm and breakup begun at 0.3 mm, Earth's values | 10-17 | In Terluna: limits scaled from `&param3` (0 = stock), dd89cef, 8b55847 | Lunar limits: rain at the ground 33 → 63 mm a lunar day, evaporated share 86% → 48%, air at 2 m +1.47 K | Open here; patched in Terluna | S, V; R |
+| B28 | CM1 Morrison | Rain's mean diameter capped at 2.8 mm and breakup begun at 0.3 mm, Earth's values | 10-17 | `brkup_gscale` (0), with `brkup_rhor` and `brkup_rhoexp`: the lab's series, patch 03, from Terluna's `RAIN_LIMITS_PATCHES` (dd89cef, 8b55847); patch 04 adds the solver's fall law and the world's self-collection rate (`rain_fall_law`, `rain_selfcoll`; 5a44e5e) | Lunar limits: rain at the ground 33 → 63 mm a lunar day, evaporated share 86% → 48%, air at 2 m +1.47 K | Scaled in the lab's series, off by default, before any lab run; scaled in Terluna's builds | S, V; R |
 | B29 | PlaSim | Kuo-type deep convection rains a column's moisture supply wherever an undiluted surface parcel is buoyant | 10-21, Terluna `domain/climate` f07ad8d | In Terluna: simplified Betts–Miller (`nprc` 2) and mass-flux (`nprc` 3) schemes, Kuo kept at `nprc` 1 | Near-side Sea rains 2.9 mm/day after midnight against CM1's 0.14–0.17; upper air within 1.3 K of the undiluted adiabat, where CM1's mixing updrafts hold theirs 3.0–6.3 K below | Open; replacements under test in Terluna | R |
 | B30 | PlaSim | Falling rain evaporates by one constant (`gamma` 0.01 in `rainmod.f90`), with no drop size or fall speed | 10-21, 05b1384 | In Terluna: `--rain-evaporation` | PlaSim evaporates 29% of its rain against 61% in CM1's boxes; matching takes 0.027 over the sea and about 0.046 over land | Open | R |
 | B31 | PlaSim | Ten σ levels set for Earth: on the Moon the lowest layer spans 0–1.73 km and one layer 6.4–13.7 km | 10-26, 697ac36, a75fd47 | In Terluna: 14- and 15-level sets (`--levels`) with a conservative restart remap | The lowest layer averages away 1.4–2.3 kJ/kg of surface-layer moist static energy; CM1's 6 km night boundary layer and 7–8 km cloud tops fall inside one layer | Open; 14 and 15 levels under test in Terluna | R |
@@ -687,7 +687,7 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 - **Remains.** Lunar calibration of these laws is open. `waves.json` records `empirical_validation: "Not
   established"`.
 
-### B28. CM1 Morrison: rain's size limits and breakup (S, V; open)
+### B28. CM1 Morrison: rain's size limits and breakup (S, V; scaled in the lab's series, off by default)
 
 - **Defect.** Morrison bounds each species' slope parameter (`morrison.F:486-503`, "SIZE LIMITS FOR LAMBDA"). For
   rain, `LAMMINR = 1/2800 µm` caps the mean diameter at 2.8 mm; snow and graupel are capped at 2 mm. Rain's
@@ -704,7 +704,16 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   0.13 K between realizations, the lunar limits nearly doubled the rain at the ground (33 to 63 mm a lunar day), cut
   the share of falling water evaporated from 86% to 48% and the cloud cover from 47% to 36%, and warmed the air at
   2 m by 1.47 K.
-- **Status.** Open in this repository's series; the `lab` branch plans the patch for its stage 3.
+- **Fix.** Patch 03 of the lab's `models/cm1/series-lab`, switched by `brkup_gscale` (default 0, CM1's own limits),
+  scales the breakup's lengths and the two caps from the build's gravity and from the namelist's density ratio and
+  exponent, which `python/atmosphere/rain` computes for a world; patch 04 gives rain the single-drop solver's fall
+  law from a table and the world's self-collection rate (`rain_fall_law`, `rain_selfcoll`; defaults 0, CM1's own).
+  In the suite, one column of the patched scheme keeps its bits at the defaults, takes the limits the Python
+  computes and settles at their breakup balance (`python/climate/tests/test_cm1_rain.py`). The sources compile, and
+  in a single scratch run on 11 November 2026 CM1's released supercell case kept its output byte for byte at the
+  defaults. Stage 3's CM1 builds will repeat that identity on a lunar case and measure the effect in the lab's
+  runs. The scaling is a similarity of the drops' collisions, which no measurement at another gravity tests, and
+  the registry warns below 1.62 m/s² (`models/cm1/README.md`, "Rain's limits, fall law and self-collection").
 
 ### B29. PlaSim: Kuo-type deep convection (R; open)
 

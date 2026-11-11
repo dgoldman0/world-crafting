@@ -1,4 +1,4 @@
-# The registry of Earth assumptions: a seed of fourteen entries in draft schema 0 (lab/design/architecture.md,
+# The registry of Earth assumptions: a seed of fifteen entries in draft schema 0 (lab/design/architecture.md,
 # "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
 # it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
 # specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
@@ -145,17 +145,31 @@ evidence = ["notes/defect_log.md B22", "notes/cm1.md, Radiation inputs and range
 [[entry]]
 id = "B28"
 model = "cm1"
-where = "morrison.F (slope bounds, LAMMINR; brkup_db)"
+where = "morrison.F (slope bounds, LAMMINR; brkup_db; the breakup law's 2300 /m; VCAPR)"
 form = "fit beyond its range"
 assumes = "Earth's largest raindrops and breakup, (sigma / (delta-rho g))^(1/2)"
 when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 0.005 }, { config = "cm1.physics.microphysics", eq = "morrison" },
         { config = "cm1.physics.rain_size_limits", ne = "capillary" }]
 effect = "rain's mean diameter capped at 2.8 mm, breakup from 0.3 mm; at lunar gravity the stable drop is about 2.5 times larger"
+state = "repaired"
+repair = { patch = "lab/03-raindrop-limits-at-the-builds-gravity", switch = "brkup_gscale", value = 1, default = 0, namelist = ["brkup_rhor", "brkup_rhoexp"], scaling = "(9.81/g)^(1/2) on the cap; (9.81/g)^(1/2) brkup_rhor^brkup_rhoexp on the breakup's lengths; 9.1 (g/9.81)^(1/4) m/s on the fall speeds", setting = "cm1.physics.rain_size_limits" }
+action = "warn"
+note = "the repair scales Earth's breakup by the drops' Weber number, a similarity that no low-gravity measurement in the sources tests; with the switch on, brkup_db stays Morrison's 300 um, which the patch scales, and python/atmosphere/rain computes brkup_rhor and brkup_rhoexp for the world; one column of the patched scheme keeps its bits at the default in the suite, CM1's released supercell case kept its output there in a single scratch run on 11 November 2026, and stage 3 tests a lunar case on the lab's builds; the action stays warn, since each fix enters the lab opt-in (PLAN.md), where row 5 of lab/design/terluna_fixes.md proposed that B28 require the scaling off 9.81 m/s2; NSSL's two-moment rain has its explicit breakup off (irainbreak), and any other size limit stage 3 finds in it joins this entry; snow's and graupel's 2 mm caps stay Earth's, since surface tension limits liquid drops alone"
+evidence = ["notes/defect_log.md B28", "notes/cm1.md, Fall speeds", "models/cm1/README.md, the lab's patches 03 and 04"]
+
+[[entry]]
+id = "cm1-rain-limits-range"
+model = "cm1"
+where = "morrison.F, the lab's patch 03: brkup_rhor**brkup_rhoexp on the breakup's lengths, and the scaling of the limits by (9.81/g)^(1/2)"
+form = "fit beyond its range"
+assumes = "a gravity from the Moon's to Earth's, the range over which Terluna computed the breakup's scale and its exponent on the air's density; the entry tests the lower side alone"
+when = [{ q = "gravity_m_s2", lt = 1.62 }, { config = "cm1.physics.microphysics", eq = "morrison" },
+        { config = "cm1.physics.rain_size_limits", eq = "capillary" }]
+effect = "the run's scaled limits, fall-law table and self-collection rate are computed below the gravities for which Terluna computed the scale; within them the scale lay within 0.2% of the capillary ratio at Earth's air density and the exponent between 0.69 and 0.71 at 1.2 times that density"
 state = "open"
 action = "warn"
-planned = { namelist = "brkup_db", patch = "core, after 17: rain's mean-diameter cap from the namelist, identity default 2.8 mm", scaling = "(9.81/g)^(1/2)", setting = "cm1.physics.rain_size_limits" }
-note = "the repair is a scaling law, which no low-gravity measurement in the sources tests; NSSL's two-moment rain has its explicit breakup off (irainbreak), and any other size limit stage 3 finds in it joins this entry; snow's and graupel's 2 mm caps stay Earth's, since surface tension limits liquid drops alone"
-evidence = ["notes/defect_log.md B28", "notes/cm1.md, Fall speeds"]
+note = "the threshold is PLAN.md's, which sets a warning on the lower side; above Earth's 9.81 m/s2, where Terluna computed no scale either, the entry is silent. Outside the range the lab's own calculation gives an exponent of 0.692 at 1.21 m/s2 and 1.2 times Earth's density, a scale 0.4% above the capillary ratio at 1.3 m/s2 and Earth's density, and a scale 0.3% above it at 15 m/s2 (python/atmosphere/tests/test_rain_breakup.py), each a runnable calculation, as the values within the range are; the single-drop solver stops below about 0.48 m/s2, where the largest stable drop exceeds its 30 mm"
+evidence = ["PLAN.md, Porting: confidence, form and cost", "models/cm1/README.md, the lab's patches 03 and 04", "notes/cm1.md, Fall speeds"]
 
 [[entry]]
 id = "cm1-soil-day"

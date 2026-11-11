@@ -1,0 +1,127 @@
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -404,6 +404,9 @@
+       brkup_db = 0.0
+       ipbl2_per_mass = 0   ! Lab: CM1's own unless the namelist sets 1
+       gust_over_water = 0  ! Lab: CM1's own unless the namelist sets 1
++      brkup_gscale = 0     ! Lab: CM1's own rain limits unless the namelist sets 1
++      brkup_rhor = 1.0     ! Lab: read with brkup_gscale = 1
++      brkup_rhoexp = 0.0   ! Lab: read with brkup_gscale = 1
+       solconrce = 0.0
+       zenanglrce = 0.0
+       trn_swirl = 0.0
+--- a/src/input.F
++++ b/src/input.F
+@@ -291,6 +291,8 @@
+ !-----------------------------------------------------------------------
+       integer :: ipbl2_per_mass   ! Lab: 1 gives the simple boundary layer's tendencies per unit mass; 0 keeps CM1's own
+       integer :: gust_over_water   ! Lab: 1 takes Beljaars's gust over water as over land; 0 keeps CM1's own
++      integer :: brkup_gscale   ! Lab: 1 scales Morrison's rain limits to the build's gravity; 0 keeps CM1's own
++      real :: brkup_rhor,brkup_rhoexp   ! Lab: the surface air's density over Earth's, and its exponent
+ !  Begin namelists:
+ 
+       namelist /param0/ nx,ny,nz,ppnode,                                &
+@@ -312,6 +314,7 @@
+           iprcl,nparcels
+       namelist /param3/ kdiff2,kdiff6,fcor,kdiv,alph,rdalpha,zd,xhd,alphobc, &
+                         umove,vmove,v_t,l_h,lhref1,lhref2,l_inf,brkup_db,ipbl2_per_mass,gust_over_water,ndcnst,nt_c, &
++                        brkup_gscale,brkup_rhor,brkup_rhoexp, &
+                         csound,cstar,solconrce,zenanglrce
+       namelist /param4/ stretch_x,dx_inner,dx_outer,nos_x_len,tot_x_len
+       namelist /param5/ stretch_y,dy_inner,dy_outer,nos_y_len,tot_y_len
+--- a/src/morrison.F
++++ b/src/morrison.F
+@@ -256,6 +256,7 @@
+      REAL, PRIVATE ::      MMULT   ! MASS OF SPLINTERED ICE PARTICLE
+      REAL, PRIVATE ::      LAMMAXI,LAMMINI,LAMMAXR,LAMMINR,LAMMAXS,LAMMINS,LAMMAXG,LAMMING
+      REAL, PRIVATE ::      D_b     ! cutoff diameter for breakup
++     REAL, PRIVATE ::      KB_r    ! Lab: the breakup law's rate (1/m), CM1's 2300 unless brkup_gscale = 1
+ 
+ ! CONSTANTS TO IMPROVE EFFICIENCY
+ 
+@@ -303,6 +304,7 @@
+ 
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ SUBROUTINE GRAUPEL_INIT(cm1hail,cm1inum,cm1ndcnst,cm1db)
++      use input, only : brkup_gscale,brkup_rhor,brkup_rhoexp,dowr,outfile   ! Lab: rain limits
+       use constants, only : terluna_g_host => g
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ ! THIS SUBROUTINE INITIALIZES ALL PHYSICAL CONSTANTS AMND PARAMETERS 
+@@ -316,6 +318,7 @@
+       integer, intent(inout) :: cm1inum
+       real,    intent(in) :: cm1ndcnst
+       real,    intent(inout) :: cm1db
++      real :: lab_scap,lab_scol   ! Lab: rain limits
+       integer n,i
+ 
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+@@ -510,6 +513,29 @@
+                           ! (if value from namelist.input is essentially 0.)
+        endif
+          D_b = cm1db  ! cutoff diameter for breakup
++         ! Lab: rain's limits at the build's gravity, with brkup_gscale = 1 (param3); CM1's own at the default 0.
++         ! Morrison limits rain's exponential spectrum, of mean diameter Dm = 1/lambda, with Earth's values:
++         ! self-collection turns to breakup above Dm = D_b by the factor 2 - exp(2300/m (Dm - D_b)), Dm is capped at
++         ! 2.8 mm (LAMMINR), and the mean fall speeds at VCAPR. With s = sqrt(9.81/G), the ratio of the capillary
++         ! lengths sqrt(sigma/(rho_w g)), the breakup's two lengths D_b and 1/KB_r are multiplied by
++         ! s*brkup_rhor**brkup_rhoexp and the cap on Dm by s, and VCAPR becomes 9.1*(G/9.81)**0.25 m/s. brkup_rhor is
++         ! the surface air's density over that of Earth's sea-level air at the same temperature: in CM1 the surface
++         ! pressure over 1013.25 hPa. From Terluna's RAIN_LIMITS_PATCHES (domain/atmosphere dd89cef, 8b55847);
++         ! python/atmosphere/rain/breakup.py computes the exponent and these limits for a world.
++         KB_r = 2300.
++         IF (brkup_gscale.EQ.1) THEN
++           IF (brkup_rhor.LE.0.) STOP 'Lab rain limits: brkup_rhor must be positive'
++           lab_scap = SQRT(9.81/G)
++           lab_scol = lab_scap*brkup_rhor**brkup_rhoexp
++           D_b = D_b*lab_scol
++           KB_r = KB_r/lab_scol
++           LAMMINR = LAMMINR/lab_scap
++           VCAPR = 9.1*(G/9.81)**0.25
++         ELSE IF (brkup_gscale.NE.0) THEN
++           STOP 'Lab rain limits: brkup_gscale must be 0 or 1'
++         END IF
++         if(dowr) write(outfile,*) '  Lab rain limits: brkup_gscale',brkup_gscale,' D_b',D_b,' rate',KB_r,  &
++                                   ' cap on 1/lambda',1./LAMMINR,' VCAPR',VCAPR
+ 
+          LAMMAXS = 1./10.E-6
+          LAMMINS = 1./2000.E-6
+@@ -2284,7 +2310,7 @@
+             if (1./lamr(k).lt.dum1) then
+             dum=1.
+             else if (1./lamr(k).ge.dum1) then
+-            dum=2.-exp(2300.*(1./lamr(k)-dum1))
++            dum=2.-exp(KB_r*(1./lamr(k)-dum1))   ! Lab: the rate, 2300/m unless brkup_gscale = 1
+             end if
+             nragg(k) = -5.78*dum*qr3d(k)*nr3d(k)*rho(k)
+ 
+@@ -3613,7 +3639,7 @@
+             if (1./lamr(k).lt.dum1) then
+             dum=1.
+             else if (1./lamr(k).ge.dum1) then
+-            dum=2.-exp(2300.*(1./lamr(k)-dum1))
++            dum=2.-exp(KB_r*(1./lamr(k)-dum1))   ! Lab: the rate, 2300/m unless brkup_gscale = 1
+             end if
+             nragg(k) = -5.78*dum*qr3d(k)*nr3d(k)*rho(k)
+ 
+--- a/src/param.F
++++ b/src/param.F
+@@ -416,6 +416,9 @@
+       call MPI_BCAST(brkup_db,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(ipbl2_per_mass,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)   ! Lab
+       call MPI_BCAST(gust_over_water,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)  ! Lab
++      call MPI_BCAST(brkup_gscale,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)     ! Lab
++      call MPI_BCAST(brkup_rhor,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)          ! Lab
++      call MPI_BCAST(brkup_rhoexp,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)        ! Lab
+       call MPI_BCAST(ndcnst ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(nt_c   ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(csound ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+@@ -3168,6 +3171,9 @@
+       if(dowr) write(outfile,*) 'brkup_db  =',brkup_db
+       if(dowr) write(outfile,*) 'ipbl2_per_mass =',ipbl2_per_mass   ! Lab
+       if(dowr) write(outfile,*) 'gust_over_water =',gust_over_water  ! Lab
++      if(dowr) write(outfile,*) 'brkup_gscale =',brkup_gscale  ! Lab
++      if(dowr) write(outfile,*) 'brkup_rhor =',brkup_rhor  ! Lab
++      if(dowr) write(outfile,*) 'brkup_rhoexp =',brkup_rhoexp  ! Lab
+       if(dowr) write(outfile,*) 'ndcnst    =',ndcnst
+       if(dowr) write(outfile,*) 'nt_c      =',nt_c
+       if(dowr) write(outfile,*) 'csound    =',csound

@@ -66,11 +66,12 @@ scenario, and the waterworlds' anchors are illustrative worlds under illustrativ
      against the 44.0095 g/mol of the lab's derivations.
    - **CM1's Earth gravity** is 9.81 m/s².
    - **Planned settings.** A setting whose planned patch the build lacks resolves to what the build does:
-     `capillary` to `breakup-only`, the scaled `brkup_db` under Morrison's own 2.8 mm cap; `from-season` to
-     the equinox; the day's soil depth to patch 08's 5 cm top layer; and `from-spectrum` to patch 10's
-     weights in a build whose series stops before patch 11. The registry tests the resolved settings, so
-     their entries warn wherever their conditions hold until the patches land. On the Moon the soil and equinox entries stay silent, since patch 08's 5 cm lies
-     within 10% of the day's 5.4 cm and the obliquity is 1.54°.
+     `capillary` to `breakup-only`, the scaled `brkup_db` under Morrison's own 2.8 mm cap, in a build without
+     patch 03 of the lab's CM1 series; `from-season` to the equinox; the day's soil depth to patch 08's 5 cm top
+     layer; and `from-spectrum` to patch 10's weights in a build whose series stops before patch 11. The registry
+     tests the resolved settings, so their entries warn wherever their conditions hold until the patches land. On
+     the Moon the soil and equinox entries stay silent, since patch 08's 5 cm lies within 10% of the day's 5.4 cm
+     and the obliquity is 1.54°.
 8. **Studies extending studies.** A study may extend another: it inherits that study's runs and cases, adds
    its own and redefines none. An inherited item keeps its settings and their hash, and its product key
    differs from the parent study's where the scenario or an upstream key differs. A study extending
@@ -151,7 +152,7 @@ scenario, and the waterworlds' anchors are illustrative worlds under illustrativ
 | The lowest point's pressure | The pressure at the reference level times exp(M g Δz/(R T)), with M the dry air's molar mass and Δz from the reference level down to the lowest exposed surface (sea, lake or dry ground) on the heights' grid, isothermal at `air.reference_temperature_k` | 1,215.9 hPa: the lowest exposed surface is the seas' own, the reference level | Registry entry B22, against RRTMG's 1,053.63 hPa (`lowest_level_pressure_hpa`) |
 | Ring length and columns | 2πR cos(latitude); the column count a multiple of the ranks | At 45° N: 7,719 km, 1,288 columns of 5,993 m | CM1 `nx`, `dx`, `var16` (`cm1_run.py:2051-2056`) |
 | CM1 lengths, times and rates | Lengths × H/H_ref, times × (H/c)/(H/c)_ref, rates × (c/H)/(c/H)_ref (rule 9) | A factor of 1 at the reference state, and 1 + 5.05 × 10⁻⁶ on the Moon with the spin term: 6 km columns, a 150 km top, nudging from 8 to 16 km (replaced in plan stage 3 by a hold above the forcing GCM's convection top), a 40 s step | CM1's grid, top, nudging heights, `dtl`, `l_inf` and `rdalpha` (`cm1_run.py:1979-2035`) |
-| CM1's raindrop limits | Morrison's 0.3 mm breakup and 2.8 mm cap on rain's mean diameter × (9.81/g)^½ | × 2.4576: 0.737 mm and 6.88 mm | `brkup_db`; the cap through a planned patch (registry B28), which plan stage 3 takes from Terluna's patch, whose density refinement gives 0.84 mm and adds a 5.80 m/s cap on the fall speed |
+| CM1's raindrop limits | Morrison's 0.3 mm breakup and 2.8 mm cap on rain's mean diameter × (9.81/g)^½ | × 2.4576: 0.737 mm and 6.88 mm | `brkup_db`; the cap through patch 03 of the lab's CM1 series (`brkup_gscale`, registry B28), which scales Morrison's own values inside CM1, refines the breakup's lengths by the air's density to 0.84 mm and sets a 5.80 m/s cap on the fall speed; with it the case writer hands CM1 the unscaled `brkup_db` (plan stage 3) |
 | CM1's soil layers | CM1's 1 cm top layer × (solar day/1 d)^½, the four below doubling | × 5.4342: a 5.4 cm top layer, 5.4 to 86.9 cm | `slab_dzs`, through a planned patch after core 17 (registry `cm1-soil-day`) |
 | CM1's Sun | Declination asin(sin ε · sin L_s), from the obliquity ε and the case's solar longitude L_s | 0 at the equinox the study's cases take | A planned patch after core 17 (registry `cm1-equinox-sun`); the case's sunrise, −acos(−tan φ tan δ) |
 | Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | 0.6295, 0.2276, 0.0752 and 0.0677 through the shield, the fourth 0.0581 were the shield opaque past 5 µm. From the unfiltered TSIS-1, 0.6202, 0.2297, 0.0816 and 0.0685; patch 10's 0.6164, 0.2283, 0.0811 and 0.0742 came from a tail 11% brighter than the rest of the constant, with the whole spectrum scaled to it | ExoPlaSim's `ZICEW`, through patch 11; a build without it keeps patch 10's constants, of which registry entry `exoplasim-ice-weights` warns |

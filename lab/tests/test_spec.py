@@ -5,6 +5,7 @@ import textwrap
 
 import pytest
 
+from worldlab import derive
 from worldlab.spec import LAB, Library, SpecError, get_path, spec_hash, unchosen
 
 LIB = Library()
@@ -42,7 +43,7 @@ def test_every_seed_loads():
     study = LIB.study('open-moon')
     assert set(study.gcm) == {'design', 'design_lw_ice'}
     assert set(study.crm) == {'ring_45n', 'ring_45n_twilight', 'box_jura'}
-    assert {'A1', 'B1', 'B28', 'cm1-soil-day', 'cm1-equinox-sun', 'exoplasim-ice-weights'} <= {
+    assert {'A1', 'B1', 'B28', 'cm1-rain-limits-range', 'cm1-soil-day', 'cm1-equinox-sun', 'exoplasim-ice-weights'} <= {
         e['id'] for e in LIB.registry()}
 
 
@@ -112,6 +113,24 @@ def _has(tree: dict, path: str) -> bool:
         return True
     except KeyError:
         return False
+
+
+def test_the_raindrop_limits_warn_off_earths_gravity_and_below_the_moons():
+    """B28 warns where Morrison's rain keeps Earth's limits off Earth's gravity, and names the switch of the lab's
+    patch 03 as its repair; with the limits scaled, a second entry warns below 1.62 m/s2, under the gravities the
+    scaling's density refinement was computed for (PLAN.md)."""
+    entries = {e['id']: e for e in LIB.registry()}
+    b28, low = entries['B28'], entries['cm1-rain-limits-range']
+    assert (b28['state'], b28['action']) == ('repaired', 'warn') and 'planned' not in b28
+    assert b28['repair']['patch'] == 'lab/03-raindrop-limits-at-the-builds-gravity'
+    assert (b28['repair']['switch'], b28['repair']['value'], b28['repair']['default']) == ('brkup_gscale', 1, 0)
+    assert (LAB.parent / 'models' / 'cm1' / 'patches' / (b28['repair']['patch'] + '.patch')).exists()
+    assert {'config': 'cm1.physics.rain_size_limits', 'ne': 'capillary'} in b28['when']
+    assert (low['state'], low['action']) == ('open', 'warn')
+    assert low['when'] == [{'q': 'gravity_m_s2', 'lt': 1.62}, {'config': 'cm1.physics.microphysics', 'eq': 'morrison'},
+                           {'config': 'cm1.physics.rain_size_limits', 'eq': 'capillary'}]
+    # The Open Moon's gravity lies above the threshold, so its own cases draw the first warning alone.
+    assert 1.62 < derive.planet(LIB.world('moon'), LIB.scenario('moon/open-moon'))['gravity_m_s2'] < 1.63
 
 
 def test_the_registrys_config_paths_name_fields_of_the_defaults():

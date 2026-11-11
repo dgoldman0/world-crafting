@@ -17,14 +17,24 @@ Terluna's runners to pristine upstream sources and recording each group's unifie
 | `models/swan/patches/` | `climate/waves/build.py` | 74afe80f1161372e |
 | `models/cm1/patches/lab/` (written 2026-11-08, from Terluna `bdda5a07`) | `climate/crm/cm1_run.py`: `PBL_DENSITY_PATCH`, `GUST_PATCH`, moved behind namelist switches | c0337fc8be2635ac |
 | `models/exoplasim/patches/12-surface-gust.patch`, `13-similarity-over-water.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/surface_gust.py`: `GUST_EDITS`; `climate/gcm/surface_similarity.py`: `SIMW_EDITS`; `climate/gcm/pbl_fortran.py`: the declarations of the five constants the depth rule reads | fb163850a4aa62d0, b676096169aa7f25, 66a8edb841195d7e |
+| `models/cm1/patches/lab/03-raindrop-limits-at-the-builds-gravity.patch`, `04-rains-fall-law-and-self-collection-for-the-world.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/crm/cm1_run.py`: `RAIN_LIMITS_PATCHES`, `RAIN_LAW_PATCHES` | ba507fc66d1ea4fd |
 
-The last two rows differ. The patches of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
+The last three rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
 Terluna's edits at `bdda5a07`, with namelist switches added. ExoPlaSim's patches 12 and 13 were written on
 2026-11-11 from Terluna's edit lists at `39c5ee04`, applied to the pinned `fluxmod.f90` without Terluna's
 free-convection and nonlocal boundary-layer patches, which they follow there, and with the air's viscosity derived
 in each column. Their routines, from `gustnl` through `simwcol`, equal those of Terluna's deployed `fluxmod.f90`
 (research drive, `exoplasim-twilight/exoplasim/plasim/src/`, sha256 `0eadda0bb213cf83…`, read on 2026-11-11) but for
-comment lines and the two viscosity lines.
+comment lines and the two viscosity lines. CM1's patches 03 and 04 were written on 2026-11-11 from Terluna's two edit
+lists at `39c5ee04`, applied after the lab's patches 01 and 02, with the entries of `&param3` under Terluna's names.
+The identifiers, the comments and the table's file name are the lab's, and the headers Terluna's lists set at the
+top of `morrison.F` are left out. The code differs from the lists in two ways: the two mean fall speeds that rain's
+collection of snow and graupel reads are set once in a level, where Terluna's list branches at each of four
+statements, and the scheme stops on a `brkup_gscale` other than 0 and 1 and on a table of fewer than two rows or
+with a step of zero or less, which the lists leave unchecked (`models/cm1/README.md`). In a single scratch run on
+2026-11-11, one column of the patched scheme returned the fields of the `morrison.F` of Terluna's build
+`moon_omp_rain_law_pbl_wind_gust_aloft_inflow` (research drive, `cm1/build/`, sha256 `79170284b1487597…`) to the bit
+on 21 test columns under CM1's flags, at the defaults and with the Open Moon's settings.
 
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).
@@ -58,12 +68,14 @@ drive. Upstream source code is never committed whole.
 ## Python tools
 
 The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna, at
-186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 126 files they hold with their
+186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 135 files they hold with their
 sha256 (98 brought first; the electricity package's conductivity column, muon ionization and charging laws, with
 their three tests and committed products, added on 2026-10-17; and on 2026-10-18 the geography package's
 heights above the geoid, storage levels, atlas, drainage and gazetteer reader, with their three tests and the
 package's `.gitignore`; on 2026-11-08 CM1's output conventions and their test, from `bdda5a07`; and on 2026-11-11
-the Python copies of PlaSim's gust and similarity over water with their two tests, from `39c5ee04`).
+the Python copies of PlaSim's gust and similarity over water with their two tests, from `39c5ee04`; and that day
+the rain package's solver, breakup scale and fall law with their three tests, its record of sources and two files of
+its vendored rainprops, from the same commit).
 `python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
 `models/exoplasim/patches/10-ice-optics.patch` in place of the runner's Python string (both hashes recorded).
 The geography package came over byte for byte (82b4b59), with its input restorer and manifest, the level table
@@ -81,3 +93,15 @@ series applied to the pinned archive, through a fixture of the lab's own in `cli
 the gust's copy gave every number of Terluna's module bit for bit on that
 module's 24 test columns, and the similarity's column agreed with Terluna's to 3 × 10⁻¹⁶ at the viscosity that
 CM1's two lines share at 20 °C.
+The same day `atmosphere/rain/` came over from Terluna at `39c5ee04`. `drops.py`, the single-drop solver, and
+`sources.json`, Terluna's record of each source and of how far it was read, are Terluna's byte for byte. The solver
+adapts the equations of K. Loftus's rainprops (github.com/kaitlyn-loftus/rainprops, commit `e2df9c2`, MIT licence),
+which Terluna vendors whole; the lab keeps two of its files byte for byte under `atmosphere/rain/vendor/rainprops/`,
+the licence and the transcription of Gunn and Kinzer's (1949) fall speeds that the solver's test on Earth reads,
+with a record of their hashes and URLs. Where `drops.py` and `sources.json`, kept as Terluna wrote them, say that
+rainprops' code is kept or vendored in `vendor/rainprops`, they describe Terluna's tree: the lab holds those two
+files of it and none of its code. `breakup.py` and `fall_law.py` keep Terluna's functions and take any world's
+air where Terluna's product builders took its target climates; `morrison.py`, the scheme's constants, is the lab's
+own, with a test that reads each from the pinned CM1 archive. From the Open Moon's air the lab's modules returned
+the numbers of Terluna's `rain_breakup.json` and `rain_fall_law.json` that were compared, the breakup scale with its
+exponent, the five limits, the kernel ratio and the table's 903 entries, with no difference in any digit.

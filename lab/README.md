@@ -37,7 +37,7 @@ understanding differs from the paper").
 | [studies/](studies/) | The Open Moon study: the design case's two GCM runs and three CM1 cases forced from the first, each extending its model's defaults; the subjects of plan stages 2 and 3 |
 | [requirements.txt](requirements.txt) | The lab's Python environment, which holds ExoPlaSim and netCDF4, and how to build it; [local.example.toml](local.example.toml) names its folder and the other roots on a machine |
 | [data/manifest.toml](data/manifest.toml) | The data the lab's stages read, each file with its source, size, hash, licence and credit; the lab's copies sit in the store |
-| [registry/](registry/) | A seed of the registry of Earth assumptions: fourteen entries, eleven converted from the defect log and three from the models' patches, with the thresholds awaiting the author's decision marked "proposed" |
+| [registry/](registry/) | A seed of the registry of Earth assumptions: fifteen entries, eleven converted from the defect log and four from the models' patches, with the thresholds awaiting the author's decision marked "proposed" |
 
 ## What the lab is built from
 

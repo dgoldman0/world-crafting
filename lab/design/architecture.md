@@ -342,13 +342,17 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   - **Unscaled:** with the world's Sun in a case, the run length is set in the world's solar days, and the
     output, restart and nudging intervals stay in seconds. Terluna's gravity pair, which ran without a Sun,
     scaled those too (`time_scale`, `cm1_run.py:1974-2029`).
-- **Raindrops, soil and the Sun.** Each follows the world through a planned patch with an identity
-  default (registry B28, `cm1-soil-day`, `cm1-equinox-sun`):
+- **Raindrops, soil and the Sun.** Each follows the world through a patch with an identity default, the
+  rain's in the lab's series since 11 November 2026 and the other two planned (registry B28, `cm1-soil-day`,
+  `cm1-equinox-sun`):
   - Morrison's breakup diameter and its cap on rain's mean diameter scale as (9.81/g)^½, the capillary
-    length, through the namelist's `brkup_db` and a planned patch, which plan stage 3 takes from Terluna's patch
-    with its refinement by the air's density (`notes/cm1.md`, "Fall speeds"). NSSL's two-moment rain, which the
-    electrified box runs, has its explicit breakup off (`irainbreak`), and stage 3 identifies any other size
-    limit it holds.
+    length. Patch 03 of the lab's CM1 series scales both inside CM1 at the build's gravity where the namelist
+    sets `brkup_gscale = 1`, refines the breakup's lengths by the air's density and sets the cap on the fall
+    speeds; patch 04 gives rain the single-drop solver's fall law and the world's self-collection rate; and
+    `python/atmosphere/rain` computes their entries for a world (`models/cm1/README.md`; `notes/cm1.md`, "Fall
+    speeds"). The registry warns of the scaling below 1.62 m/s² (`cm1-rain-limits-range`). NSSL's two-moment
+    rain, which the electrified box runs, has its explicit breakup off (`irainbreak`), and stage 3 identifies
+    any other size limit it holds.
   - The slab soil's layers scale as (solar day/1 d)^½, where patch 08 fixes the lunar 5–80 cm on every
     world.
   - The Sun takes the declination of the case's season, where patch 05's stands at the equinox. Each case

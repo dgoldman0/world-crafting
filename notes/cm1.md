@@ -67,7 +67,7 @@ LFO (`lfoice.F` 122) microphysics, and the Goddard radiation (`radtrns3d.F` 1725
 replace and the boxes leave off. A case that switches to any of these options brings Earth's gravity
 back, and a port to another world should either patch them or refuse them.
 
-## Fall speeds (core patch 04)
+## Fall speeds (core patch 04; the lab's patches 03 and 04)
 
 **The repair.** In Morrison's scheme a particle regime V = A·D^B has a Reynolds number growing as the
 Best number X to the power (B + 1)/3; X is proportional to g, so at a fixed size V ∝ g^((B+1)/3): cloud
@@ -81,7 +81,7 @@ Sensitivity: with Earth's fall speeds (the `earth-fall` control) the same box br
 ground (60 against 34 mm per lunar day), evaporates 64% of its falling water against 85%, and runs 1.0 °C
 warmer and more humid near the ground.
 
-**Limits.** Morrison's size limits in this series stay Earth's: the slope bounds cap rain's mean diameter at
+**Limits.** In the core series Morrison's size limits stay Earth's: the slope bounds cap rain's mean diameter at
 2.8 mm and graupel's at 2 mm, and raindrop self-collection turns to breakup above a 300 µm mean diameter (CM1's
 default `brkup_db`). The largest stable raindrop scales as (σ/(Δρ g))^½, about 2.5 times larger at lunar gravity,
 and slower drops collide more gently, so Earth's caps and breakup keep lunar drops small, and small drops evaporate
@@ -90,17 +90,55 @@ droplets overtake one another 6 times slower at lunar gravity and rain sweeps up
 spends six times as long in a lunar cloud, so at Earth's rates the scheme forms rain several times too readily in
 each passage; the effect is unmeasured (defect log B38).
 
-**The lunar limits, in Terluna.** Terluna's later patches read the limits' scaling from `&param3` (`brkup_gscale`,
-`brkup_rhor`, `brkup_rhoexp`; 0 gives stock CM1 bit for bit): the breakup lengths and the cap on the mean diameter
-grow as (9.81/g)^½, the cap on the mean fall speed shrinks as (g/9.81)^¼, and a density-ratio refinement follows
-from the drops' Weber number (after Straub et al. 2010), giving breakup from 0.84 mm, a 6.88 mm cap and a
-5.80 m/s fall-speed cap on the Open Moon (Terluna `domain/atmosphere` dd89cef, 8b55847). Over the small box's
-second lunar day the lunar limits nearly doubled the rain at the ground, from 33 to 63 mm a lunar day while the box
-condensed 43% less water, cut the share of falling water evaporated from 86% to 48% and the cloud cover from 47% to
-36%, and warmed the air at 2 m by 1.47 K (90% range 1.24–1.71 K, against a spread of 0.13 K between realizations;
-21529d2). A second patch gives Morrison's rain the single-drop solver's fall law as a table and self-collection its
-lunar rate, 1.98 times slower than Earth's (Terluna `domain/climate` 5a44e5e). Both are edit lists in Terluna's
-runner (`climate/crm/cm1_run.py`), outside this repository's series.
+**The limits at the world's gravity.** Terluna's later patch reads the limits' scaling from `&param3`
+(`brkup_gscale`, `brkup_rhor`, `brkup_rhoexp`): the breakup lengths and the cap on the mean diameter grow as
+(9.81/g)^½, the cap on the mean fall speed shrinks as (g/9.81)^¼, and a density-ratio refinement follows from the
+drops' Weber number (after Straub et al. 2010), giving breakup from 0.84 mm, a 6.88 mm cap and a 5.80 m/s fall-speed
+cap on the Open Moon (Terluna `domain/atmosphere` dd89cef, 8b55847). Over the small box's second lunar day the lunar
+limits nearly doubled the rain at the ground, from 33 to 63 mm a lunar day while the box condensed 43% less water, cut
+the share of falling water evaporated from 86% to 48% and the cloud cover from 47% to 36%, and warmed the air at 2 m
+by 1.47 K (90% range 1.24–1.71 K, against a spread of 0.13 K between realizations; 21529d2). A second patch gives
+Morrison's rain the single-drop solver's fall law as a table and self-collection its lunar rate, 1.98 times slower
+than Earth's (Terluna `domain/climate` 5a44e5e).
+
+Since 11 November 2026 the lab's series includes both, as patches 03 and 04 of `series-lab`, each off by default
+([../models/cm1/README.md](../models/cm1/README.md), "Rain's limits, fall law and self-collection"), and
+`python/atmosphere/rain/` computes the density exponent, the table and the rate for any world from its air at 2 m,
+where Terluna's products give the Moon's. The evidence so far, by its state:
+
+| Evidence state | What was found | How it is held |
+|---|---|---|
+| Reproduction of Terluna's calculation | The lab's modules return Terluna's numbers for the Open Moon | In the suite |
+| Agreement with Terluna's code | On 21 test columns the lab's patched scheme returned the fields of Terluna's `morrison.F` to the bit under CM1's flags | A single scratch run, 11 November 2026 |
+| Identity at the defaults, of the scheme's routine | One column of the scheme, compiled from the series, keeps its bits under CM1's flags and under `-O3 -march=native` | In the suite |
+| Identity at the defaults, of a compiled case | CM1's released supercell case, on scratch builds of the whole model, kept its output byte for byte over 125 steps under both flag sets | A single scratch run, 11 November 2026 |
+| The Fortran against the Python | The limits CM1 sets and the three moments it reads from the table are the Python's | In the suite |
+| Effect, in one column | Rain settles at the breakup balance of the limits in force, 1.68 mm on the Open Moon against CM1's 0.60 mm, and falls and evaporates by the table | In the suite |
+| Identity of a lunar case on the lab's builds; effect in a lab run | None yet | Waits for stage 3 |
+
+Two findings came with the port. The first concerns the default path's last bits. On 21 October Terluna recorded
+that its build with the second patch at its default parted from its rain-limits build in the last digits at
+`-O3 -march=native` and matched it bit for bit when both were built with `-ffp-contract=off -nostdinc`, and it
+attributed the parting to vectorisation and glibc's vector exp and log (`climate/crm/README.md` at `39c5ee04`, "The
+build and the smoke test"). That strict build removes fused multiply-adds and vector maths together, and the lab's
+scratch runs of 11 November removed them one at a time. With Terluna's branch at each of the four statements where
+rain's collection of snow and graupel computes rain's mean fall speeds, the default path lost its last bits in 13 of
+21 test columns under each of four flag sets with which gfortran fused products, three of which call no vector
+maths, and kept them in all 21 under each of four sets with which it fused none, two of which call it. In CM1's
+released case the same form changed 39 of the 2.4 million values of the fields after 125 steps under
+`-O3 -march=native` and 53 in a build without vector maths, and none with `-ffp-contract=off`. In the lab's runs the
+cause is therefore the fusing of products, and for Terluna's box the same cause is inferred, the lab having run
+neither that box nor a build of Terluna's series. The lab's patch 04 sets rain's two mean fall speeds where its
+slope is set, which leaves the collection free of branches, and it kept the bits on the columns under all eight flag
+sets and in the compiled case under CM1's flags and under `-O3 -march=native` (`models/cm1/README.md`, "The default
+path's last bits"). The column test repeats the check on each later patch to the scheme under those two flag sets.
+
+The second finding concerns Earth. At 9.81 m/s² in Earth's air the scaled limits are CM1's own, and
+`fall_law.settings` returns a self-collection rate of 5.7808 m³/kg/s, 0.01% above CM1's 5.78, since the Earth it
+measures a world against is at the standard 9.80665 m/s². The table there is the solver's, of which Morrison's Earth
+fit gives 0.87 to 1.12 in the mass-weighted speed under its cap, 0.93 to 1.23 in the number-weighted speed and 0.95
+to 1.31 in the ventilation integral over mean diameters of 0.2 to 3 mm. An Earth control that reads the table
+therefore changes its rain, and at the defaults it keeps Morrison's law and CM1's rate.
 
 ## The Sun, the rings and the boxes (core patches 05, 15, 16)
 
@@ -266,8 +304,8 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
    build does.
 2. Rerun a reference ring with that fix and the forcing taken through the column, to size the bias the rings'
    results carry.
-3. Bring the lunar rain limits, the solver's fall law and lunar self-collection into the series, and give NSSL's
-   rain the same treatment.
+3. Give NSSL's rain the limits, the fall law and the self-collection that Morrison's rain takes since patches 03
+   and 04 of the lab's series, and run a box with them on the lab's own builds.
 4. Read two factors from the namelist for Morrison's autoconversion and accretion, 0.165 and 0.34 at lunar gravity
    with identity defaults, and size them in a sea box of two lunar days (defect log B38).
 5. Give RRTMG the shield's spectrum.
@@ -277,3 +315,6 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
 9. Gravity falling with height in the base state and hydrostatics for a 150 km domain.
 10. Upstream: report the boundary layer's density fault, and make gravity one namelist parameter in CM1, honoured by
    every scheme.
+11. Choose how the lab's builds treat fused multiply-adds: time a build with `-ffp-contract=off`, under which the
+   rain patches' default path kept its bits in Terluna's form as in the lab's on 11 November, against the present
+   `-O3 -march=native`.

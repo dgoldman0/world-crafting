@@ -56,7 +56,9 @@ rayleigh_rate_per_s = 0.0005518922448388763    # rdalpha, (g/9.81)/300 at the re
                                                # length (sigma/(rho_w g))^(1/2). Given at CM1's Earth gravity, where
                                                # Morrison set them; 2.46 times larger on the Moon (registry B28)
 breakup_diameter_m = 3.0e-4                    # brkup_db, read from the namelist (cm1.F:404; morrison.F:494-498)
-rain_max_mean_diameter_m = 2.8e-3              # 1/LAMMINR (morrison.F:486-503); a planned patch reads it from the namelist
+rain_max_mean_diameter_m = 2.8e-3              # 1/LAMMINR (morrison.F:486-503). Patch 03 of the lab's CM1 series scales
+                                               # both inside CM1 where the namelist sets brkup_gscale = 1; with it
+                                               # the case writer hands CM1 Morrison's own brkup_db (plan stage 3)
 
 [diurnal]                                      # times (solar day / 1 d)^(1/2), the depth the day's heat reaches
 soil_top_layer_m = 0.01                        # CM1's slab soil: five layers doubling from this one (init_surface.F,
@@ -85,7 +87,7 @@ surface_layer = "mm5"                          # sfcmodel 2, oceanmodel 1
 pbl = "cm1-simple"                             # ipbl 2
 twilight = "none"                              # the curved air's twilight in RRTMG, var20; the twilight variant sets it
 rain_size_limits = "capillary"                 # the [capillary] values; "earth" keeps Morrison's own, the identity
-                                               # default of the planned patch (registry B28)
+                                               # default of the lab's patch 03 (registry B28)
 sun_declination = "from-season"                # from the world's obliquity and the case's solar longitude, through a
                                                # planned patch after core 17; patch 05's Sun stands at the equinox
 
