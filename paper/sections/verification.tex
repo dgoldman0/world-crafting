@@ -21,16 +21,9 @@ against builds that already held the Sun clock and the water scaling, and for th
 and longwave patches as well; those patches were written to reproduce the released code at their off settings
 and have yet to be run that way, so these two checks establish identity with the released model only once those patches are,
 while for the water scaling at its default the identity already follows from arithmetic on this
-spectrum.\claim{V01} The recorded sources were checked next, against the pinned upstream archives: applied to them,
-the patch series rebuild byte for byte the two patched sources of the ExoPlaSim copy deployed for the ten-level
-states and the Fortran of the lunar CM1 builds behind the results from those states, eight rebuilt directly and the
-45\textdegree\,N rings' build through sources identical to one of them, while the Earth-gravity benchmark builds were
-compiled from earlier states of the runners' edit lists, and the refined physics and the builds of the boxes forced
-from it lie outside the series. The GCM runs are traced to the same series through their source hashes: prefixes of the
-ExoPlaSim series reproduce the source hashes of 32 of the 34 ten-level GCM runs that recorded one; of the ten-level
-states in Table~\ref{tab:states}, the uncalibrated and first calibrated runs predate source hashing, and the
-convective-cover run compiled a draft of its patch whose committed form repeats its first year byte for
-byte.\claim{V03} In the last kind of check the runs themselves are restarted or repeated: a GCM run killed a minute into a model year and resumed writes the same restart and the same values in every output variable as the uninterrupted run, runs of CM1 repeat bit
+spectrum.\claim{V01} Applied to the pinned upstream archives, the patch series rebuild byte for byte the patched
+ExoPlaSim sources and the Fortran of the lunar CM1 builds behind the ten-level states' results; the refined physics
+and the builds of the boxes forced from it lie outside the series.\claim{V03} In the last kind of check the runs themselves are restarted or repeated: a GCM run killed a minute into a model year and resumed writes the same restart and the same values in every output variable as the uninterrupted run, runs of CM1 repeat bit
 for bit on one thread, and the Earth supercell, restarted on four threads and on two, repeats its fields and its 41
 flashes. In the lunar boxes, however, which ran on several threads, runs part from one another after
 3,000--7,400~s, so each box run is one realisation. Table~\ref{tab:verification} lists the other CM1 and SWAN
@@ -88,29 +81,20 @@ an Earth benchmark of its own: the conductivity column through which the code le
 that, run for Earth at a geomagnetic cutoff rigidity of 3~GV, reproduces Earth's measured fair-weather positive
 conductivity \autocite{nicoll2012measurements} within 2--8\% from 5 to 30~km.\claim{V11}
 
-\textbf{Defects of the adaptation.} The patches and runners written for the test world contained defects of
-their own, found by these checks, by code review or in the course of the work. Six were removed before the runs
-reported here: the GCM runner's first solar spectrum, extended past 2.73~\textmu m at its last value, had 86\% of its energy in the near infrared, and the first run on it warmed past 320~K;\claim{H28} the first electrified
-build discharged once per step after all the step's charging, multiplied memory the scheme had left unset and
-made private a variable its threads shared; the first terrain build placed its forcing by a corner column
-2.9~km up; and the sky solver's production grid of 114 channels absorbed 58\% too much sunlight above 500~nm with
-the Sun overhead, which had made PlaSim look short of its calibration. Six remain in reported runs, four of them
-across whole sets of runs. The first channels of the curved-air table, bisected on the whole column alone, absorbed near-infrared sunlight too high in the air, 19.0 against 10.7~W\,m$^{-2}$ at 66--85~km, and the curved-air and gas-band runs
+\textbf{Defects of the adaptation.} The patches and scripts written for the test world contained defects of
+their own, found by these checks, by code review or in the course of the work. Of those that remain in reported
+runs, four bear on results given here, three of them across whole sets of runs. The first channels of the curved-air table, bisected on the whole column alone, absorbed near-infrared sunlight too high in the air, 19.0 against 10.7~W\,m$^{-2}$ at 66--85~km, and the curved-air and gas-band runs
 of Table~\ref{tab:states} ran on them.\claim{H30} Every run with the curved-air terms before the design case counted the night's
 twilight twice: PlaSim's diagnostic of cloud forcing computes the shortwave fluxes in two passes, and the curved-air
 patch added its twilight in each, 2.70~W\,m$^{-2}$ too much in the global mean of the last such state, all of it on
 the night side. A switch that starts each pass from zero where the Sun is down removes the double count and leaves
-sunlit columns bit for bit, and the design case runs with it.\claim{H40} The rings and the boxes forced from the ten-level states started from soundings with the vapour of
-the GCM's top level, near 130~km, held constant above it, and on the 45\textdegree\,N rings, the only cases
-examined for it, the air began 6--15 times saturated over ice at 140--150~km and every column kept
-1.1~g\,m$^{-2}$ of ice above 107~km through both lunar days. The same rings and boxes were held toward the GCM from
+sunlit columns bit for bit, and the design case runs with it.\claim{H40} The rings and the boxes forced from the ten-level states were held toward the GCM from
 8~km, fully from 16~km, a hold that spans most of a column whose convection reaches 55--80~km: in a box over the
 Near-side Sea it supplied 89 of the 107~W\,m$^{-2}$ that the box's radiation removed, in place of the deep
-convection, and the box rained 0.06~mm a day against the GCM's 2.72.\claim{H39} The other two affect single comparisons. The first lunar gravity patch scaled the NSSL fall speeds and left the ventilation tied to them
-at Earth's values, so that lunar rain evaporated 1.3--1.5 times too fast for its size, and a code review found the
-omission after the windows used in the storm results to compare the charging laws had run, though before the main
-electrified run began.\claim{H29} Likewise, the 45\textdegree\,N rings with and without the curved-air terms ran on
-builds compiled at different optimisation levels, so their 0.013--0.021~K difference is below what the pair resolves.\claim{H31}
+convection, and the box rained 0.06~mm a day against the GCM's 2.72.\claim{H39} The fourth affects a single comparison: the two windows of an electrified run that compare the charging laws
+(Results) ran with the NSSL
+ventilation tied to Earth's fall speeds, so their rain evaporated 1.3--1.5 times too fast for its
+size.\claim{H29} The repository's defect log lists the others, which bear on no result given here.
 
 \textbf{Checks that fell short.} Five checks fell short, and three of the five shortfalls concern reported
 results, two of them along the wave chain from the open sea to the shore. SWAN's early growth depends on the time

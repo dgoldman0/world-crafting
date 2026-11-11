@@ -418,15 +418,6 @@
    "state": "finding"
   },
   {
-   "id": "H28",
-   "text": "The runner's held infrared tail put 86% of sunlight in the near infrared and warmed the first run past 320 K",
-   "source": [
-    "repo:notes/defect_log.md#C1",
-    "drive:/media/projectspace/terluna-research/gcm-runs/A_invalid_ir_tail/model/MOST_DIAG.00000"
-   ],
-   "state": "finding"
-  },
-  {
    "id": "H29",
    "text": "First electrified build: field a median 3.2x breakdown at discharge, 150 C removed; uninitialised scaling and a privatised variable caught by thread-count changes; ventilation missed, rain evaporating 1.3-1.5x too fast",
    "source": [
@@ -446,21 +437,6 @@
     "repo:notes/defect_log.md#C3",
     "terluna:climate/gcm/README.md#L987-991",
     "terluna:climate/gcm/README.md#L993-998"
-   ],
-   "state": "finding"
-  },
-  {
-   "id": "H31",
-   "text": "Terrain forcing by a corner column at 2.9 km; constant vapour above the GCM's top level near 130 km, the 45 N rings 6-15x ice-saturated at 140-150 km and holding 1.1 g/m2 of ice above 107 km in every column through both lunar days; the 45 N twilight pair on -O2 and -O3 builds, its 0.013-0.021 K effect below what the pair resolves",
-   "source": [
-    "repo:notes/defect_log.md#C5",
-    "repo:notes/defect_log.md#C4",
-    "repo:notes/defect_log.md#C8",
-    "terluna:climate/crm/README.md#L1248-1258",
-    "terluna:climate/crm/README.md#L1197-1209",
-    "drive:/media/projectspace/terluna-research/cm1/build/moon_omp/src/Makefile",
-    "terluna:climate/crm/README.md#L1197-1206",
-    "repo:notes/cm1.md#L13-22"
    ],
    "state": "finding"
   },

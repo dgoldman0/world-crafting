@@ -6,21 +6,16 @@ measured against the original code. The changes that depart from the rule act in
 them or reproduce the released code only under a stated condition, and Table~\ref{tab:repairs} gives each
 one's condition.
 
-\textbf{Switches and builds.} The lunar runs were made with runners, scripts that configure, compile and run
-each model and insert each change into the installed source at a marked anchor. The patch series in the code
-repository, generated from the runners' edit lists, record the changes behind the ten-level states and the CM1
-runs forced from them, each against a pinned upstream archive with its switch or condition, its default and the
-checks made on it, and list beside the changes the settings of the released codes on which the runs depend; the
-changes of the refined physics, and the builds of the boxes forced from it, are the runners' own, recorded with
-the runs. In PlaSim, eleven patches change the radiation, cloud and Sun code, each adding a namelist switch written
+\textbf{Switches and builds.} The patch series in the code
+repository record the changes behind the ten-level states and the CM1 runs forced from them, each against a pinned
+upstream archive with its switch or condition, its default and the checks made on it; the changes of the refined
+physics, and the builds of the boxes forced from it, are recorded with the runs. In PlaSim, eleven patches change the radiation, cloud and Sun code, each adding a namelist switch written
 to reproduce the released code at its default; runs confirm that identity for five of them
 (Table~\ref{tab:verification}), while the near-infrared water scaling reproduces the released code at its default
 only for spectra like the design case's. In CM1 the switches have two other forms: gravity and the air's carbon
 dioxide and oxygen become preprocessor constants that default to 9.81~m\,s$^{-2}$, 400~ppm and Earth's oxygen, and
 CM1's twenty spare namelist reals hold the settings of the lunar Sun, the forcing, the electrification and the
-curved-air terms. The builds of the boxes on the refined-physics state also compile in the fix to the boundary
-layer's density and the gust over water at the build's gravity, and take the raindrop limits behind a namelist
-switch.\claim{R01}
+curved-air terms.\claim{R01}
 
 Whatever their switches, most repairs belong to three classes, which differ in what was fitted to the test
 world. A general repair contains no coefficient fitted to the test world or chosen for it, since its values
@@ -164,8 +159,7 @@ with gravity falling as $GM/r^2$ and a pseudo-spherical direct beam; its emulati
 longwave within 0.4~W\,m$^{-2}$ at 288--290~K and within 1.4~W\,m$^{-2}$ for a saturated 330~K lunar
 column.\claim{R08} Each calibration was fitted to the residual of the one before. The first fitted a Rayleigh
 multiplier and a weaker water continuum to two totals on global-mean columns, bringing the clear-sky albedo
-within 0.007 and the outgoing longwave within about 2~W\,m$^{-2}$. The second, made with the removal of the
-Sun-clock and orbit defects, refitted the Rayleigh multiplier with a multiplier on the near-infrared water
+within 0.007 and the outgoing longwave within about 2~W\,m$^{-2}$. The second refitted the Rayleigh multiplier with a multiplier on the near-infrared water
 absorptivity on eleven columns and brought the share of arriving sunlight absorbed in the air from 7.7--8.2
 percentage points short to within 0.3 points rms.\claim{R09} By layer the fit still placed sunlight low: on the
 295~K column, PlaSim put almost nothing above 85~km, where the reference absorbs
@@ -222,17 +216,15 @@ conductivity column computed for the lunar air. Ground strikes had to be bounded
 rules bracket them widely on the Moon: under its stopping field every lunar channel stops 15--25~km up, while
 its $-7$\,\textdegree C rule alone counts every channel that reaches that level. Between them, the bound counts a
 downward channel that reaches the $-7$\,\textdegree C level as a strike only if its potential can drive a leader the rest of the way down, at an internal field of 1~kV\,m$^{-1}$ at sea-level density, scaled with the
-air's density. Point discharge from the ground was added to the graft as well, as an option, and after running
-in one test window it stays off.\claim{R13} For the graft's ice a mitigation was added: where the ice outgrows RRTMG's optics, CM1's radiation reads sizes capped at 140~\textmu m and logs the excess. PlaSim, too, is given a
+air's density. Point discharge from the ground was added to the graft as well, as an option that stays off in the lunar runs.\claim{R13} For the graft's ice a mitigation was added: where the ice outgrows RRTMG's optics, CM1's radiation reads sizes capped at 140~\textmu m and logs the excess. PlaSim, too, is given a
 capability, a broadband downward infrared flux at the model top, by day and by night, for a source above the
 air, such as a giant host planet's glow on a moon.
 
 \textbf{Forcing from the GCM.} Running CM1 inside the GCM's climate adds structural limits to the Earth values
 in the code: a ring of columns along a latitude circle lacks the transport across the circle, and a box lacks
 any day--night circulation larger than itself; stock CM1 also lacks a lunar Sun, forcing above its boundary
-layer and nudging that follows terrain. One of these absences had a visible effect in the runs: the first box, forced with
-the advection along the rings alone, rained in the mornings and stayed clear and hot in the afternoons until
-it was stopped at day 47.\claim{H32} CM1 receives what the slice lacks from the GCM's fields, which the GCM computed with the Earth values that remain in it. For the two structural absences, a
+layer and nudging that follows terrain; a box forced with the advection along the rings alone rained in the mornings and
+stayed clear and hot in the afternoons.\claim{H32} CM1 receives what the slice lacks from the GCM's fields, which the GCM computed with the Earth values that remain in it. For the two structural absences, a
 heating and moistening by local time and height, taken from the GCM, imposes the effect of the day--night
 circulation a box lacks and, as a single local-time bin, of the transport across the circle a ring lacks. The
 absences of stock CM1 are filled in turn: each ring column has its own Sun, a box one Sun for all its columns,

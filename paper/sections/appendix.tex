@@ -68,7 +68,7 @@ Cloud water (patch 02) & \code{CWGREF}, \code{CWSCALE} (0, 1) & 9.80665, $g/9.80
 Curved air, slant paths (patch 07) & \code{NTWILIGHT}, \code{NTWILW}, \code{ZMLUNAR} (0) & On; the 301~K column's terms, the 295~K column's slant factors & Method, lunar table \\
 Curved air in the clear share & \code{NTWLCLEAR} (0) & 1 & Method, lunar table \\
 Twilight from zero where the Sun is down & \code{NTWLZERO} (0) & 1 & General \\
-Equinox regressing with the node & Runner's precession (off, a fixed equinox) & A turn in 6,798.38~d from the run's first step & General \\
+Equinox regressing with the node & Precession switch (off, a fixed equinox) & A turn in 6,798.38~d from the run's first step & General \\
 CO$_2$ and O$_2$ bands (patch 08) & \code{NGASBANDS} (0) & On; lunar fits & Calibration (structure general) \\
 Rayleigh (patch 01) & \code{RAYSCALE} (1) & 2.237 & Calibration \\
 Water continuum & \code{TH2OC} (0.024) & 0.004 & Calibration \\
@@ -145,10 +145,10 @@ Check & Result & Leaves open \\
 \multicolumn{3}{@{}l}{\textit{Identity and reproduction}} \\
 ExoPlaSim patches at neutral settings, five runs & Restart identical to the build before the patch; identity with the release established for patches 01--03 & Patches 04, 05 and 07--09 off, at runtime \\
 Kill and resume, one model year & Restart identical; output identical in all 39 variables & 12 header bytes differ \\
-CM1 tilted rings, local-time advection & First model day bit for bit, in Terluna's written record & Runs on several threads \\
+CM1 tilted rings, local-time advection & First model day bit for bit, as recorded & Runs on several threads \\
 Electrified supercell restarted on 4 and 2 threads & Fields and 41 flashes bit for bit & The lunar boxes' parting on threads \\
 SWAN wind-input patch at standard gravity & Output identical & --- \\
-Patch series against pinned archives & ExoPlaSim's two patched sources and the lunar CM1 builds behind the ten-level states' results byte for byte; 32 of 34 hashed ten-level GCM runs & 11 runs unhashed; the Earth-gravity benchmark builds; the refined physics and the boxes' builds, outside the series \\
+Patch series against pinned archives & ExoPlaSim's patched sources and the lunar CM1 builds behind the ten-level states' results byte for byte & The refined physics and the boxes' builds, outside the series \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{Similarity and arithmetic}} \\
 SWAN at a sixth of Earth's gravity & 0.303\% in height, 0.326\% in period (stock 5.44\%, 3.91\%) & Wind input, whitecapping, breaking on the Moon \\
