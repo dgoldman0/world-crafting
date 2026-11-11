@@ -10,7 +10,7 @@ proposal: its runs wait on the stages and ports named below, and on the author's
 
 Tags: [read] a named source; [calc] arithmetic here; [lit] published work, "to verify" marking a figure unchecked
 against its source; [int] interpretation; [prop] proposal. The paper is cited from its version 2 draft on
-`paper/conclusion-development` at `1d330f8`. "The dilution report" is Terluna's
+`paper/conclusion-development` at `b272157`. "The dilution report" is Terluna's
 `session-tools/agents/gap_boxes/dilution_question/report.md`, on its research drive.
 
 **Answers.** Comparing the two models on the Moon, a waterworld and Earth, the lab can separate four causes: the
@@ -52,7 +52,7 @@ Moon, about ×8 in cost, would test it [calc; prop].
 | The box's ascent | Earth boxes, imposed and by the damped gravity wave (DGW); DGW against its own world's radiative–convective equilibrium, the test of Daleu et al. (2015) [lit] | Earth's imposed boxes rain within 10% of the forcing's rain, as 13 CRM runs did over TWP-ICE's active period [lit: Fridlind et al. 2012, to verify], where lunar ones rain 0.75–0.84 of it [read: paper `results.tex`]; or the lunar DGW leaves its reference while Earth's holds | Which method is right on the Moon |
 | Microphysics at low gravity | The gravity pair under prescribed, scaled cooling [read: Terluna `climate/crm/README.md`, "The gravity pair"]; the family's gravities | The pair departs from similarity in dilution or in the rain evaporated (CM1 0.69, GCM 0.51 at sea [read: paper]), more as g falls | Morrison's Earth-calibrated ice at low gravity |
 | Radiation | The pair, which removes it; the Moon at 1.0 against 1.2 atm, 17% less column [read: `lab/worlds/moon`; calc] | An excess survives the pair and grows with column mass | Errors in the reference spectroscopy that both models share |
-| Surface exchange | One law over water in both already [read: paper `refinement.tex`]; the box's wind 0.72–0.81 of its target after midnight [read: Terluna `climate/crm/README.md`, branch `domain/climate`] | The twin repeats the shortfall | Little from the series; a lunar box nudged faster tests it [prop] |
+| Surface exchange | One law over water in both already [read: paper `repairs.tex`]; the box's wind 0.72–0.81 of its target after midnight [read: Terluna `climate/crm/README.md`, branch `domain/climate`] | The twin repeats the shortfall | Little from the series; a lunar box nudged faster tests it [prop] |
 
 **The steps, Earth first** [prop]. A GCM year costs 8.7 minutes on four threads [read: `terluna_fixes.md`], and the
 boxes cost as in the first table.
