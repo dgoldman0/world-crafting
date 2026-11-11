@@ -1,0 +1,41 @@
+\section{Changes from the first version}
+
+The first version (\code{paper-v1}, 19 October 2026) reported the ensemble as first adapted to the test world.
+Since then CM1 has been forced through the whole column and read against the GCM budget by budget, a comparison
+that corrected the first version's account of both models, and the design case has moved to a GCM with refined
+physics on a Moon turned by its water. Table~\ref{tab:changes} sets beside each other the statements in which the
+two versions differ.
+
+\begin{table}[t]
+\caption{Statements in which the first version and this version differ.\claim{C01}}
+\label{tab:changes}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.31\textwidth}L@{}}
+\toprule
+Subject & First version & This version \\
+\midrule
+CM1's longwave against the reference model & RRTMG cooled the three lowest GCM layers of a ring 4.5, 8.5 and 10.2~W\,m$^{-2}$ more than the correlated-$k$ model & Within 0.013~K a day of the correlated-$k$ model in every layer; the first version's figures read as rates at constant pressure the tendencies that CM1 stores at constant volume, 38--40\% too large\claim{V08} \\
+Forcing CM1 from the GCM & CM1's air held toward the GCM's from 8~km, fully from 16~km, a hold described as leaving its boundary layer and convection free & That hold covered most of a column whose convection reaches 55--80~km, a defect of the adaptation; the boxes take the GCM's heating and moistening through the whole column, their air held only above the GCM's convection top\claim{H39}\claim{R14} \\
+Defects in the released codes & Four & Six: CM1's simple boundary layer multiplies its tendencies by the air's density, and ExoPlaSim's mean output holds a humidity recomputed once in each output interval\claim{H34}\claim{H42} \\
+CM1 as adapted & Gravity, fall speeds, the Sun and the soil & The same, with the boundary layer's tendencies per unit mass, Beljaars's gust over water at the run's gravity and raindrop limits scaled with gravity\claim{R17}\claim{R18}\claim{R19} \\
+The GCM & Ten levels, Kuo-type convection, the released exchange over water and one constant for rain's evaporation & Fifteen levels laid out for the lunar scale height, simplified Betts--Miller convection, Beljaars's gust with similarity theory over water, rain evaporated from drop sizes, and the cold cloud's water and crystal size computed at lunar gravity\claim{R20}\claim{R21}\claim{R22}\claim{R23} \\
+The design case & 295~K at a dimming of 3.0\%, on the Moon's present orientation & 301~K at a dimming of 6.2\%, on the Moon turned 8\textdegree\ by its seas and lakes, with the night's twilight counted once and the equinox regressing with the orbit's node\claim{G27}\claim{S17} \\
+Rain in CM1 against the GCM & A box rained about a quarter of the GCM's rain & Boxes forced with the GCM's ascent rain 75--84\% of its rain; boxes that make their own ascent rain a tenth more than the GCM at a land site and twice its rain at sea; no box passes the agreement test set for them\claim{G29} \\
+The air near the ground at 45\textdegree~N & CM1's lowest 1.8~km ran 3.7~K warmer than the GCM's, about 1.5~K of it attributed to the GCM's longwave & Withdrawn with its figure until the ring is rerun with the boundary layer's fix and the whole-column forcing \\
+RRTMG beyond its pressure tables & The extrapolation named as a possible cause of the extra cooling, to be tested & Computed offline: 0.002--0.003~K a day in the lowest layers\claim{H35} \\
+The first of the next steps & The radiation's and the cloud's fits & Convection's closure and the upper air's temperature, then cloud and a reduced radiation scheme\claim{N05}\claim{N06} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Beyond these corrections, this version adds an agreement test fixed before the boxes ran, boxes that make their own
+large-scale ascent, and the orientation that a world's seas and lakes give it (Reach).\claim{G20}\claim{G26}\claim{W07}
+Its inventory of Earth values gains PlaSim's convection, levels, mixing lengths, exchange over water, horizontal
+diffusion and slab sea, and CM1's gust over water and formation of rain.\claim{H37}\claim{H38}\claim{H43}\claim{H44}\claim{H45}
+
+The first version's results on a slice's direction, on the storms and on their lightning stand, now under the
+condition that their runs held CM1's air from 8~km and carried the boundary layer's fault (Results). Its figure of
+the gap between the models at 45\textdegree~N is withdrawn until that ring is rerun, and the histories of single
+runs that it told in places are kept in the code repository's notes.

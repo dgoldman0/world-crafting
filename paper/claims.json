@@ -1337,14 +1337,6 @@
    "state": "conditional model"
   },
   {
-   "id": "G25",
-   "text": "Forced by the fifteen-level GCM, CM1's sea box rains 1.62-1.88 mm/day after midnight against that GCM's 2.28 and the Kuo-forced box's 0.14: by the rule set before the run, CM1's quiet nights came with the Kuo GCM's forcing",
-   "source": [
-    "terluna@bdda5a07:research/decisions.md#L557"
-   ],
-   "state": "conditional model"
-  },
-  {
    "id": "W07",
    "text": "Surface water turns a body beneath its spin axis as its products of inertia approach the differences among the body's moments; the Moon's largest and smallest moments differ by 2.5e-4 MR^2, so its seas and lakes (0.02% of its mass) turn it about 8 deg; the long-term turn needs an interior model",
    "source": [
@@ -1569,6 +1561,15 @@
     "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession_eddies"
    ],
    "state": "conditional model"
+  },
+  {
+   "id": "C01",
+   "text": "The first version (tag paper-v1, 19 October 2026; PDF sha256 1ce697ac) stated: RRTMG cooling the 45 N ring's three lowest GCM layers by 4.5, 8.5 and 10.2 W/m2 more than the correlated-k model (its claim V08); CM1 nudged toward the GCM only above 8-16 km, so that its boundary layer and convection develop freely (R14); four defects in the released codes on the lunar runs' paths; the models differing on rain by a factor of about four, the box raining about a quarter of the GCM's rain; CM1's lowest 1.8 km at 45 N 3.7 K warmer than the GCM's, about 1.5 K of it the GCM's longwave over-cooling; a design case at 295.0 K with the dimming eased to 3.0% (the corrected-curved-air state), on ten levels with Kuo-type convection, the released exchange over water, the evaporation constant gamma and today's orientation; the extension of RRTMG's tables past 1,053.63 hPa as a test of the extra cooling; and radiation and cloud as the fits to replace first",
+   "source": [
+    "repo:paper/notes/corrections_after_v1.md",
+    "repo:README.md"
+   ],
+   "state": "documented"
   }
  ]
 }

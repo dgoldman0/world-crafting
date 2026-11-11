@@ -17,7 +17,12 @@ another world, a modeller, in order:
 Leakage and the slice forcing then read that world's conductivity column and GCM fields, and the condition for
 ground strikes stays a bound between two of WRF-ELEC's rules. The reference model, the code that computes the
 curved-air table and offline copies of PlaSim's radiation, all in the code repository, compute the new table and the
-radiation's refits.\claim{W01}
+radiation's refits.\claim{W01} Two checks belong to every such extension. Each model's budgets are closed against
+its own surface and against a second model, since on the test world a boundary layer that took up more heat and
+water than its surface supplied left its run plausible on its own.\claim{H34} After each retune, moreover, a design
+climate is checked for where its heat goes as well as for its mean, since a dimming tuned to a design temperature
+takes up whatever imbalance the physics leaves, as tuned parameters do in climate models generally
+\autocite{hourdin2017art}, and here it took up a twilight counted twice.\claim{H40}
 
 \textbf{The defects in other configurations.} ExoPlaSim's four defects remain in the released code. Three of them,
 two removed here by general repairs and the third avoided with the fixed-orbit switch, bias, by the code's
@@ -75,7 +80,8 @@ factor from its own column among them, though there the released cloud water err
 reverse of the test world's error, and the same general repair corrects it. Around a giant planet, modelling a breathable moon requires, besides its column, the downward infrared that PlaSim now adds at its top for the host's glow.\claim{W04}
 
 \textbf{Worlds turned by their water.} Surface water that loads a world unevenly can turn it beneath its spin axis,
-as mass loads reorient planets and satellites \autocite{matsuyama2014planetary}, by an angle that grows as the
+as mass loads reorient planets and satellites \autocite{matsuyama2014planetary} and as the South Pole--Aitken
+basin is thought to have turned the Moon itself \autocite{keane2014evidence}, by an angle that grows as the
 water's products of inertia approach the differences among the body's own moments.
 On a body as nearly spherical as the Moon, whose largest and smallest moments differ by
 2.5$\times10^{-4}$ of $MR^2$, seas and lakes turn the body by several degrees, so its orientation, and with it its tilt and the places its grid puts under its sun, is derived from its loads before its
