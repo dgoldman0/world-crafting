@@ -1,10 +1,10 @@
 \section{Changes from the first version}
 
 The first version (\code{paper-v1}, 19 October 2026) reported the ensemble as first adapted to the test world.
-Since then CM1 has been forced through the whole column and read against the GCM budget by budget, a comparison
-that corrected the first version's account of both models, and the design case has moved to a GCM with refined
-physics on a Moon turned by its water. Table~\ref{tab:changes} sets beside each other the statements in which the
-two versions differ.
+Since then the two atmospheric models have been compared budget by budget, and from that comparison this version
+understands the ensemble's parts, the tie between them and the order of the work ahead differently. The paragraphs
+below summarise those changes for a reader of either version, and Table~\ref{tab:changes} sets the altered
+statements side by side.
 
 \begin{table}[t]
 \caption{Statements in which the first version and this version differ.\claim{C01}}
@@ -30,12 +30,59 @@ The first of the next steps & The radiation's and the cloud's fits & Convection'
 \end{tabularx}
 \end{table}
 
-Beyond these corrections, this version adds an agreement test fixed before the boxes ran, boxes that make their own
-large-scale ascent, and the orientation that a world's seas and lakes give it (Reach).\claim{G20}\claim{G26}\claim{W07}
-Its inventory of Earth values gains PlaSim's convection, levels, mixing lengths, exchange over water, horizontal
-diffusion and slab sea, and CM1's gust over water and formation of rain.\claim{H37}\claim{H38}\claim{H43}\claim{H44}\claim{H45}
+The largest change is in the tie between the cloud-resolving model and the GCM. The first version held CM1's air
+toward the GCM's above a height taken from Earth's practice and read what still separated the models, a lower
+atmosphere several kelvin warmer in CM1 and a quarter of the GCM's rain, largely as a measure of the GCM's fits. Most of
+that separation came from how CM1 was run and read: on the test world the hold covered most of the column that
+convects, CM1's boundary layer carried a defect, its raindrops kept Earth's limits on their size, and its radiative
+output, stored at constant volume, had been read as rates at constant
+pressure.\claim{H39}\claim{H34}\claim{R18}\claim{V08} This version forces CM1 with the GCM's heating and moistening
+through the whole column and judges the pair by an agreement test fixed before the runs.\claim{R14}\claim{G20} So
+forced, CM1 rains most of the GCM's rain, and the models part in the timing of the rain over the sea and in the
+temperature of the upper air.\claim{G21} The way a box receives its large-scale ascent moves its rain by more than
+the models differ, since boxes that make their own ascent rain on the other side of the GCM's rain; the difference
+between the models is therefore given as a range between the two couplings, and a change to either model waits on
+evidence apart from their comparison.\claim{G26}\claim{G29}
 
-The first version's results on a slice's direction, on the storms and on their lightning stand, now under the
-condition that their runs held CM1's air from 8~km and carried the boundary layer's fault (Results). Its figure of
-the gap between the models at 45\textdegree~N is withdrawn until that ring is rerun, and the histories of single
-runs that it told in places are kept in the code repository's notes.
+The GCM's Earth values lie in more places than the first version found. That version placed them in PlaSim's
+radiation, cloud, geometry and units of time. This one finds more in the physics of its lower air: a convection
+scheme driven by the moisture supply, levels laid out for Earth's scale height, mixing lengths and a least wind
+fixed in metres and metres per second, and an exchange over water sized for Earth's
+gravity.\claim{H37}\claim{H38} The design case accordingly runs on levels laid out for the lunar scale height, with
+convection that relaxes toward a moist adiabat, the gust and the similarity theory that CM1 applies over water,
+rain evaporated from drop sizes and a cold cloud computed at lunar
+gravity.\claim{R19}\claim{R20}\claim{R21}\claim{R22}\claim{R23} The convection's closure remains open and heads the
+next steps, and two further Earth values, the damping times of the horizontal diffusion and the depth of the slab
+sea, are named with their effects unmeasured.\claim{N05}\claim{H43}\claim{H44} The calibrations are read more
+narrowly as well: a longwave correction fitted on one state misplaces the cooling of another, so each state, level
+set and convection scheme takes a fit of its own.\claim{R25}
+
+CM1 is now audited as the GCM is. The first version, having given CM1 the test world's gravity, Sun and soil, took
+it as the resolved reference for the GCM. This version finds a defect in its simple boundary layer that errs in
+Earth's air as well, a gust over water that omits gravity, and rates of rain formation that stay
+Earth's;\claim{H34}\claim{H38}\claim{H45} its radiation, by contrast, agrees with the reference model once its
+output is read at constant volume.\claim{V08} CM1's boxes become the GCM's target only once they make their own
+ascent and their convection holds on finer grids (Conclusion).
+
+The scenario has changed as well. Water added to a world loads its figure and turns it beneath its spin axis, a
+known process that the first version left out of the scenario: the design case now runs on a Moon turned about
+8\textdegree\ by its seas and lakes, and deriving a world's orientation from its loads has become the first step of
+setting one up (Reach).\claim{S17}\claim{W07} The scenario's design temperature is 301~K, where the first version's
+was 295~K, and the sunlight that holds it is set with the night's twilight counted once, after a fault of the
+adaptation that counted it twice, and with the equinox regressing with the orbit's node.\claim{G27}\claim{H40}
+
+The inventory of defects and Earth values is longer. The released codes hold six defects on the lunar runs' paths,
+where the first version counted four: the two added are the fault in CM1's boundary layer and a humidity that
+ExoPlaSim's mean output holds from the start of each interval.\claim{H34}\claim{H42} Since several of these faults
+left runs that looked plausible on their own, the set-up of a further world closes each model's budgets against its
+own surface and against a second model, and examines a design climate after each retune for where its heat goes
+(Reach).
+
+The work ahead is ordered differently as a result. The first version's next steps began with PlaSim's longwave
+correction at the settled state and with its cloud, to be calibrated against CM1's. This version's begin where the
+two models now part: the ascent of the boxes, the closure of the GCM's convection toward the free troposphere such
+boxes support, and the temperature of the upper air; cloud and a radiation scheme reduced from the reference
+spectroscopy follow, and single runs would size each Earth value whose effect is unmeasured (Next
+steps).\claim{N05}\claim{N06} The CM1 results that the first version drew from rings held from 8~km, on a slice's
+direction, on the storms and on their lightning, stand under that condition until the rings are rerun, and its
+figure of the gap between the models at 45\textdegree~N is withdrawn until then (Results).

@@ -32,8 +32,24 @@ what is new, and what was taken out.
   defect log and `notes/cm1.md` hold them. Claim G25 leaves the register.
 - `paper/notes/v2_realignment.md` names the section's new file.
 
+## The second draft, the same day
+
+The author read the first draft and found it too short: "It includes nothing on the change of understanding of the
+lab ensemble and its components and what's planned. I wanted it from 'Changes from the first version' focused on
+the changes in what the paper says. You did that. You also threw out ALL detail. You can avoid annoying specifics.
+It should at least give the reader a general understanding."
+
+The section now opens as before and keeps the table, and six paragraphs give the changes in general terms: the tie
+between the cloud-resolving model and the GCM, from a hold above an Earth height read largely as a measure of the
+GCM's fits to forcing through the whole column, an agreement test and a difference given as a range between two
+couplings; the GCM's Earth values, found also in the physics of its lower air, with what the design case now runs
+and what stays open; CM1 audited as the GCM is; the scenario, turned by its water and held at its design
+temperature with the twilight counted once; the longer inventory and the checks it brings to a further world's
+set-up; and the order of the work ahead, with the first version's results that stand under a condition. The first
+draft's two closing paragraphs are folded into these.
+
 ## Checks
 
-`make paper` builds with no warning to 44 pages, the section on page 29; `paper/tools/check.py` passes with 146
-claims cited of 148 registered; the sections hold neither excluded word; the drafting session read the section in
+`make paper` builds with no warning, to 44 pages for the first draft and 45 for the second, the section on page 29;
+`paper/tools/check.py` passes with 146 claims cited of 148 registered; the sections hold neither excluded word; the drafting session read the section in
 the built PDF's text. The draft goes to the author, whose reading comes ahead of any reviewer's.
