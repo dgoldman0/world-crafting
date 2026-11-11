@@ -88,6 +88,11 @@ ExoPlaSim's output and five open entries to the defect log on the lab's branch (
 - Sunlight taken at the Earth–Moon barycentre's distance is an idealisation of the scenario as run, stated in its
   set-up, and stays outside the count of defects. The lab offers the Moon's monthly swing in sunlight as an option
   that a study switches on or off (11 November 2026).
+- A study states the heights of its GCM's levels near the ground, and the lab also offers a rule that places them
+  for a world automatically, as an option beside the stated heights (11 November 2026). The rule is still to be
+  designed.
+- The Open Moon's study counts its level heights at Terluna's 51 km, which returns Terluna's fifteen levels, so
+  that the lab's runs compare with Terluna's on the same levels (11 November 2026).
 
 ## Each fix: general or the Moon's
 
@@ -158,7 +163,7 @@ tests, and its compute is the tests' short runs.
 |---|---|---|---|
 | 1 | Beljaars's gust with similarity theory over ice-free water | — | Done (`lab` fc20979) |
 | 2 | Rain evaporated from drop sizes, its fall-law tables computed for each world (`python/climate/gcm/rain_drops.py`) | — | Done (`lab` 42a6bad) |
-| 3 | Level sets generated from a world's scale height, with the restart's remap (the input writer; `python/climate/gcm/levels.py`) | — | Done (`lab` 173fca2), with no patch: a study states the heights of the half levels near the ground, counted at a scale height. A rule that places them from the scale height alone is open, as are the scale height the Open Moon's study states (Terluna's 51 km or the scenario's own) and the registry's threshold for the lowest level, proposed at 350 m |
+| 3 | Level sets generated from a world's scale height, with the restart's remap (the input writer; `python/climate/gcm/levels.py`) | — | Done (`lab` 173fca2), with no patch: a study states the heights of the half levels near the ground, counted at a scale height. Still to do: the automatic rule that places them for a world, an option beside the stated heights ("Decisions"), and the registry's threshold for the lowest level, proposed at 350 m and open. The Open Moon's study states Terluna's 51 km |
 | 4 | The clear share of the twilight, and the night's twilight counted once in patch 07 (defect log C21) | — | To start |
 | 5 | The 10 m wind | — | To start |
 | 6 | Simplified Betts–Miller convection as an option beside Kuo's scheme, its depth test a fraction of the surface pressure and its relaxation time a setting scaled with the world (B39) | — | To start |
