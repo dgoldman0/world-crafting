@@ -157,7 +157,7 @@ tests, and its compute is the tests' short runs.
 | Order | ExoPlaSim (`models/exoplasim`, patch 12 on) | Waits on | State |
 |---|---|---|---|
 | 1 | Beljaars's gust with similarity theory over ice-free water | — | Done (`lab` fc20979) |
-| 2 | Rain evaporated from drop sizes, its fall-law tables computed for each world (`python/climate/gcm/rain_drops.py`) | — | To start |
+| 2 | Rain evaporated from drop sizes, its fall-law tables computed for each world (`python/climate/gcm/rain_drops.py`) | — | Done (`lab` 42a6bad) |
 | 3 | Level sets generated from a world's scale height, with the restart's remap (the input writer; `python/climate/gcm/levels.py`) | — | To start |
 | 4 | The clear share of the twilight, and the night's twilight counted once in patch 07 (defect log C21) | — | To start |
 | 5 | The 10 m wind | — | To start |
@@ -283,8 +283,9 @@ survey and the anchors call for it.
 
 - **The records.** A defect that stays unfixed acts through the registry, which warns or refuses a run outside its
   tested range. The upstream reports go out as their fixes land: ExoPlaSim's Sun clock (reported as issue 69), its
-  convective cover counted per model day and its held humidity (A10), and CM1's density fault, whose report is
-  drafted in `models/cm1/upstream-ipbl2-density.md`.
+  held humidity (A10; reported as issue 71 on 11 November 2026, its text in the lab's
+  `models/exoplasim/upstream-held-humidity.md`), its convective cover counted per model day, and CM1's density
+  fault, whose report is drafted in `models/cm1/upstream-ipbl2-density.md`.
 - **Integration.** A joint integration brings the lab's and the paper's work to main at the author's word. The next
   one follows this version's draft of the paper and the first ports (11 November 2026), and it joins the defect
   log's entries that the two branches added: A10, B35–B39, C21 and C22.
