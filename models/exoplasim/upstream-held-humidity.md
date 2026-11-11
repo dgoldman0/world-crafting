@@ -5,9 +5,14 @@ the title "Low-I/O output: `hus` holds the humidity at the start of each output 
 mean". Terluna's climate work found the fault on 2026-10-27 (branch `domain/climate`, commit 984606a5), and the lab
 read the code on 2026-11-11. On the day of posting each line reference was checked against the pinned 3.4.2 archive,
 the three source files were found identical on upstream's `master`, and the run settings were read from the namelists
-of Terluna's runs. Upstream's open pull request #54, which builds on #53, already holds the change of the "Possible
-fix". The defect log's A10 gives the lab's account, with the reader's rule the lab's tools follow. The issue's text
-follows as posted.
+of Terluna's runs. The defect log's A10 gives the lab's account, with the reader's rule the lab's tools follow.
+
+**Outcome.** ExoPlaSim's maintainer closed the issue the same day as redundant: upstream's pull requests #53 and
+#54, open since 2026-08-19, already state the fault and fix it, #54's change to `gridpointd` with a comment that
+names the cause. The check ahead of posting had searched upstream's issues and had read #54 for its fix alone. The
+fix is unmerged, so the released model and `master` keep the fault, and the lab's handling of it stands. The file
+stays as the record of what was sent; a later report to any upstream project follows a reading of its open pull
+requests as well as its issues. The issue's text follows as posted.
 
 ---
 

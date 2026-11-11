@@ -437,8 +437,9 @@ radiation. The same hook carries any infrared source above the air: a host plane
   the interval before each record, where the temperature, pressure, winds and fluxes beside it are means, and each
   year file's first record holds about 2% of the vapour. A reader takes each interval's mean as the average of a
   record and the next and leaves out each file's first and last records, Terluna's rule; Terluna's switch `nhusmean`
-  writes the true mean as a further field (defect log A10). The fault was reported upstream on 2026-11-11 as
-  ExoPlaSim's issue #71 (`models/exoplasim/upstream-held-humidity.md`).
+  writes the true mean as a further field (defect log A10). Upstream's open pull requests #53 and #54 state the
+  fault and fix it, unmerged as of 2026-11-11; the lab's issue #71 of that day was closed as redundant with them
+  (`models/exoplasim/upstream-held-humidity.md`).
 - **The equinox's regression**: Terluna's precession patch (`domain/climate` 39ac7f0c, awaiting its port) counts
   the regression from a starting step. A branch from a precessing run inherits its parent's count; started again at
   zero, the equinox would have jumped back 189° in Terluna's first such branch (43b14b38). The port carries the count

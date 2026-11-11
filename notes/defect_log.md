@@ -316,8 +316,10 @@ options, which would place A6 in or out of the released code.
   them. Terluna's runner writes the humidity's true mean as a further field behind a switch (`nhusmean`,
   `domain/climate` b93a046e), the fix to port, and an open pull request upstream (ExoPlaSim #54, on #53) recomputes
   the field at every step in low-I/O mode. The paper counts the fault as the sixth defect in the released codes
-  (the author's decision of 2026-11-11). The report to ExoPlaSim's developers was posted on 2026-11-11 as issue #71
-  of its repository, and `models/exoplasim/upstream-held-humidity.md` keeps its text.
+  (the author's decision of 2026-11-11). Upstream already holds the report: pull requests #53 and #54, open since
+  2026-08-19, state the fault and fix it, and the fix is unmerged, so the released model and `master` keep the
+  fault. The lab's issue #71, posted on 2026-11-11, was closed by the maintainer the same day as redundant with
+  them; `models/exoplasim/upstream-held-humidity.md` keeps its text.
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
