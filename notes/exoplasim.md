@@ -350,14 +350,16 @@ radiation. The same hook carries any infrared source above the air: a host plane
 - **The humidity in the output**: in low-I/O mode with spectral humidity, `hus` holds the humidity at the end of
   the interval before each record, where every other field is a mean, and each year file's first record holds about
   2% of the vapour. A reader takes each interval's mean as the average of a record and the next and leaves out each
-  file's first and last records, Terluna's rule (defect log A10).
+  file's first and last records, Terluna's rule; Terluna's switch `nhusmean` writes the true mean as a further field
+  (defect log A10).
 - **The equinox's regression**: Terluna's precession patch (`domain/climate` 39ac7f0c, awaiting its port) counts
   the regression from a starting step. A branch from a precessing run inherits its parent's count; started again at
   zero, the equinox would have jumped back 189° in Terluna's first such branch (43b14b38). The port carries the count
   through restarts and branches.
 - **The Sun's distance**: the set-up takes the Earth–Moon barycentre's orbit, so the Moon's monthly swing toward
   and away from the Sun is left out. That swing moves the sunlight ±0.51% in step with the lunar day, and the far
-  side's noon receives 1.0% more than the near side's (defect log C22).
+  side's noon receives 1.0% more than the near side's. The set-up states the choice, an idealisation of the scenario,
+  and the lab offers the swing as an option (defect log C22).
 
 ## What stays Earth's in PlaSim
 

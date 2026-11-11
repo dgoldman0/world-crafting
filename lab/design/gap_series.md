@@ -10,7 +10,7 @@ proposal: its runs wait on the stages and ports named below, and on the author's
 
 Tags: [read] a named source; [calc] arithmetic here; [lit] published work, "to verify" marking a figure unchecked
 against its source; [int] interpretation; [prop] proposal. The paper is cited from its version 2 draft on
-`paper/conclusion-development` at `64d4906`. "The dilution report" is Terluna's
+`paper/conclusion-development` at `1d330f8`. "The dilution report" is Terluna's
 `session-tools/agents/gap_boxes/dilution_question/report.md`, on its research drive.
 
 **Answers.** Comparing the two models on the Moon, a waterworld and Earth, the lab can separate four causes: the
@@ -26,7 +26,7 @@ MITgcm adds little; as an ocean it would suit the lab later [prop].
 |---|---|---|---|
 | g (m/s²); H (km) | 1.62; 53 [read] | 1.48; 58 at 301 K [read: `waterworlds.md`; calc] | 9.81; 8.4 [read] |
 | Air per m² (t) | 74.9 [read] | 82 at 1.2 atm; the family at 1 bar, 40–83 [calc] | 10.3 [read] |
-| Solar day; rotation | 29.5; 27.3 d [read] | 29.5; 27.3 d, a choice for stage 12 [prop]; if locked, the star fixed at each site | 1; 1 d |
+| Solar day; rotation | 29.5; 27.3 d [read] | 29.5; 27.3 d, the Moon's, set on 11 November 2026 with the Open Moon's air at 1.2 atm (`PLAN.md`, "Decisions") | 1; 1 d |
 | T21 cell in scale heights | 3.2 [calc] | 4.5; the family 3.2–11.4 at 301 K [calc] | 74 [calc] |
 | CM1 box of 32 × 32 columns, minutes per Earth day on 4 threads | 2.0 [read: Terluna `climate/crm/README.md`, 59 days in 2.0 h] | 1.9 [calc] | 12.3 [calc] |
 
@@ -41,7 +41,8 @@ with the departure from Earth's gravity, column mass or day [prop].
 
 The table names one further cause. The Moon's T21 cell spans the equivalent of 27 km on Earth [calc], fine enough for
 resolved ascent to take part of the convection scheme's place, as it does under the nearest closure tried, which
-leaves 58–74% of the tropics' rain to large-scale condensation [read: paper `next.tex`; prop]. A T21–T42 pair on the
+leaves 58–74% of the tropics' rain to large-scale condensation [read: `notes/exoplasim.md` on the paper's branch,
+"The closures tried with simplified Betts–Miller convection"; prop]. A T21–T42 pair on the
 Moon, about ×8 in cost, would test it [calc; prop].
 
 | Cause | Comparison that separates it | Implicated if | Left unseparated |
@@ -74,7 +75,8 @@ eight-thread budget [calc].
 what the series would compare (`notes/defect_log.md`, B36–B39 and C22): the horizontal diffusion's Earth times, the
 slab sea's 50 m, Morrison's warm rain at Earth's rates, the relaxation time of 2 h, and the Moon's monthly swing in
 sunlight. One GCM run or one sea box of two lunar days sizes each of the first four: the mixed layer at 15 m, the
-warm-rain factors at 0.165 and 0.34, the relaxation time at 12 h, and the diffusion times multiplied by 0.27. The
+warm-rain factors at 0.166 and 0.34, the design scheme's relaxation time at 12 h, which Terluna's closures ran only
+with reference profiles of their own, and the diffusion times multiplied by 0.27. The
 sea's rain by time of day depends most directly on the mixed layer and the warm rain, so those two come first.
 Terluna's records of 10 November add two facts about the sea's exchange [read: Terluna `research/decisions.md` at `59dcda1c`, lines
 860–871]: its lake model puts a calm sea's surface at 37.1 °C in the hottest hours where the slab shows 30.9 °C, and

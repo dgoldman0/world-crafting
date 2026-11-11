@@ -95,7 +95,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B34 | PlaSim | Shallow convection's tops capped at 700 hPa | 10-25, 1d05c3d | In Terluna: `--sbm-shallow-cap`, tied to the depth test (ea1b62f) | Near 28 km in the Moon's air; binds in 1–1.4% of cells | Open here; switch in Terluna | R |
 | B35 | CM1 r22.0 | The MM5 surface layer's gust over water, √Δθv m/s, has no gravity in it; over land the same scheme takes Beljaars's gust from the build's gravity | 10-28, Terluna `domain/climate` 238638f | `gust_over_water` (0): the lab's series, patch 02, from Terluna's `GUST_PATCH` | Raised the sea box's surface wind 1.6–1.8 times, where Beljaars's gust, computed from the box's own fluxes, raises it 1.1–1.2 times; every CM1 run over the seas behind the paper's first released draft | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | B36 | PlaSim | Horizontal diffusion's damping times at the truncation scale, 0.2–5.6 Earth days, Earth's for T21 | 11-09 | None | Unmeasured; the Moon's smallest wave is 3.7 times shorter than Earth's and damped as slowly | Open | P |
-| B37 | PlaSim; CM1 set-up | A slab sea 50 m deep, Earth's seasonal mixed layer; CM1's sea boxes hold its mean temperature | 11-09 | `MLDEPTH` (50 m) | The sea site's surface swings 0.63 K through the lunar day; two to four times that in a layer of 10–20 m, by estimate; Terluna's calm column reaches 37.1 °C where the slab shows 30.9 °C | Open | P, R |
+| B37 | PlaSim; CM1 set-up | A slab sea 50 m deep, Earth's seasonal mixed layer; CM1's sea boxes hold its mean temperature | 11-09 | `MLDEPTH` (50 m) | The sea site's surface swings 0.63 K through the lunar day; 2.5 to 5 times that in a layer of 10–20 m, by estimate; Terluna's calm column reaches 37.1 °C where the slab shows 30.9 °C | Open | P, R |
 | B38 | CM1 Morrison | Cloud turns into rain at Earth's rates: Khairoutdinov and Kogan's autoconversion and accretion carry no gravity | Limit noted 10-17; sized 11-09 | None | Unmeasured; by scaling, rain forms about 6 and 3 times too readily in each passage through a lunar cloud | Open | V, P |
 | B39 | PlaSim, Terluna's `nprc` 2 | The simplified Betts–Miller scheme relaxes over 2 h, Frierson's value for Earth | 11-09, `lab/design/gap_series.md` | `tau_bm` (7,200 s) | Unmeasured; 12 h by similarity | Open | P |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
@@ -118,7 +118,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | C18 | Records | Seven record errors corrected without code change | various | — | — | Corrected | R, V |
 | C19 | CM1 set-up | Nudging toward the GCM from 8 km (full at 16 km), with the day–night table stopping at 16 km | 10-21, Terluna `domain/climate` 13e7123 | Site forcing through the column, each layer's total kept, air held only above the GCM's convection top (`gcm_site.py`; 2cc5179, 5a44e5e) | Sea box: the nudging supplied 89 of the 107 W/m² its radiation removed, rain 0.06 against the GCM's 2.72 mm/day; the interpolation dried the column 0.55 mm/day | Fixed in Terluna's site boxes; every earlier ring and box ran it | R |
 | C20 | CM1 analyses | Stored radiative tendencies (`lwten`, `swten`, at constant volume under `eqtset = 2`) read as rates at constant pressure | 10-20, Terluna `domain/atmosphere` fe49ad9 | Conventions in `climate/crm/cm1_output.py`: × cvm/cp against another code, × cv/cp in a θ budget | Radiation overstated by 38–40%: the extra RRTMG cooling of 4.5–10.2 W/m² and the 45° N ring's heat budget | Fixed | R |
-| C22 | GCM and CM1 set-up | Sunlight taken at the Earth–Moon barycentre's distance: the Moon's monthly swing toward and away from the Sun left out | 11-09 | None | ±0.51% of the sunlight through each lunar day; the far side's noon 1.0% brighter than the near side's | Open | P |
+| C22 | GCM and CM1 set-up | Sunlight taken at the Earth–Moon barycentre's distance: the Moon's monthly swing toward and away from the Sun left out | 11-09 | None | ±0.51% of the sunlight through each lunar day; the far side's noon 1.0% brighter than the near side's | An idealisation of the scenario, stated with it; an option in the lab | P |
 
 ## (a) Upstream defects exposed by the adaptation
 
@@ -297,8 +297,10 @@ options, which would place A6 in or out of the released code.
 - **Defect.** In low-I/O mode (`nlowio`) ExoPlaSim adds each field to its output mean at every step. With spectral
   humidity (`nqspec = 1`) the field it adds for `hus` is recomputed only at output steps (`plasim.f90`, the test
   `mod(nstep,nafter)==0 .and. nqspec == 1` ahead of `sqout`), so each record holds the humidity at the end of the
-  interval before it, where the other fields are means. The held field is absent from the restart, which leaves each
-  year file's first record with about 2% of the vapour.
+  interval before it, where the temperature, pressure, winds and fluxes beside it are means (the gridpoint
+  diagnostics are single steps by design). The held field is absent from the restart, so a call's first record lacks
+  the steps before its first recompute: about 2% of the vapour remains in each year file's first record in Terluna's
+  runs, whose calls start three steps before a write.
 - **Found** in Terluna on 2026-10-27 (`domain/climate` 984606a5; `climate/gcm/README.md`, "The humidity in the year
   files"): the column's vapour from a record matches the average of that record's precipitable-water mean and the
   one before, within 7.6 kg/m² rms, better than its own, 10.4. The code was read here on 2026-11-11 in the copy
@@ -311,8 +313,10 @@ options, which would place A6 in or out of the released code.
 - **Rule and status.** Terluna's `climate/gcm/year_files.py` takes each interval's mean as the average of a record
   and the next and leaves out each year file's first and last records; `gcm_site`, the CM1 boxes' forcing, has read
   by it since 984606a5. The lab's readers of ExoPlaSim's output need the same rule, stage 3's extraction among
-  them. A fix in the model, recomputing the field at every step or carrying it in the restart, is open, and its
-  place in the paper's count of the released codes' defects is the author's to decide at the paper's next revision.
+  them. Terluna's runner writes the humidity's true mean as a further field behind a switch (`nhusmean`,
+  `domain/climate` b93a046e), the fix to port, and an open pull request upstream (ExoPlaSim #54, on #53) recomputes
+  the field at every step in low-I/O mode. The paper counts the fault as the sixth defect in the released codes
+  (the author's decision of 2026-11-11), and a report to ExoPlaSim's developers is drafted for the author's review.
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
@@ -602,8 +606,9 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   (`climate/gcm/README.md:963`), 10.6% lower at 100 km, and 15.3% lower at CM1's 150 km top.
 - **Arithmetic (P).** Integrated with g(r) and the shells' area through air at 250 K, whose mass-mean height is
   49 km, a straight column holds 5.5% more air than p_s/g_s, and the air over a square metre of ground 11.6%; at
-  270–290 K the second figure is 12.7–13.8%. The models' p_s/g_s, 74.9 t/m², measures the pressure; the air the
-  scenario needs, with the vapour and heat it holds over the ground, stands about 12% above it.
+  270–290 K the second figure is 12.7–13.8%. The paper already gave 11.5% for its 295 K column (claim S10). The
+  models' p_s/g_s, 74.9 t/m², measures the pressure; the air the scenario needs, with the vapour and heat it holds
+  over the ground, stands about 12% above it.
 - **Status.** The radiative side of the shells' widening enters the GCM through the twilight `full` terms (B14). The
   dynamics are unchanged, and the effect is not quantified.
 
@@ -864,7 +869,7 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   at midnight with the wind (P).
 - **Estimate (P).** Under a wind of 2 m/s and 200 W/m² of heating the sea's Monin–Obukhov depth is one to two
   metres, so a fortnight of sunlight would stay within the 10–20 m that visible light reaches, and the swing would be
-  two to four times the slab's, 2.1 K for 15 m. No ocean model ran, and the estimate leaves out the sea's own
+  2.5 to 5 times the slab's, 2.1 K for 15 m. No ocean model ran, and the estimate leaves out the sea's own
   convection at night.
 - **Terluna's column (R).** Terluna's lake model, run offline at five sites of the corrected design climate, puts
   the surface of calm water at 37.1 °C in its hottest hundredth of hours at the 8° sea cell, where the GCM's slab
@@ -880,11 +885,11 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 ### B38. CM1 Morrison: cloud turned into rain at Earth's rates (V; sized P; open)
 
 - **Earth value.** Morrison's scheme forms rain from cloud by Khairoutdinov and Kogan's (2000) fits, the
-  autoconversion `1350 q_c^2.47 (N_c ρ)^−1.79` and the accretion `67 (q_c q_r)^1.15` (`morrison.F` 2105–2106 and
-  2239–2240 in r22.0), fitted to drop spectra computed at Earth's gravity. The gravity patch and the lunar rain
+  autoconversion `1350 q_c^2.47 (N_c ρ)^−1.79` and the accretion `67 (q_c q_r)^1.15` (`morrison.F` 2106–2107 and
+  2241 in r22.0), fitted to drop spectra computed at Earth's gravity. The gravity patch and the lunar rain
   patches leave both as they are, a limit `cm1.md` has recorded since 2026-10-17 ("Fall speeds").
 - **Scaling (P).** Cloud droplets fall in the Stokes regime, so the speed at which one overtakes another, and the
-  collision kernel with it, goes as g: 0.165 at lunar gravity, before any loss of collision efficiency. Rain sweeps
+  collision kernel with it, goes as g: 0.166 at lunar gravity, before any loss of collision efficiency. Rain sweeps
   up cloud at its fall speed, which goes as g^0.6: 0.34. A lunar cloud is six times deeper at the same updraught
   speed, so the air spends six times as long in it, and at Earth's rates the scheme forms rain about six times too
   readily by autoconversion, and three times by accretion, in each passage.
@@ -892,19 +897,20 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   drawn from CM1's boxes, the new rain's size of 0.439 mm and the evaporated share among them, inherit both rates.
   The boxes take 100 droplets per cm³ (`ndcnst`), a number without a lunar basis, and the autoconversion goes as
   its −1.79 power.
-- **Status.** Open. Two factors read from the namelist with identity defaults, set to 0.165 and 0.34 in a sea box of
+- **Status.** Open. Two factors read from the namelist with identity defaults, set to 0.166 and 0.34 in a sea box of
   two lunar days, would size it.
 
 ### B39. PlaSim, Terluna's simplified Betts–Miller scheme: a relaxation time of 2 h (P; open)
 
 - **Earth value.** The scheme relaxes temperature and vapour toward its references over `tau_bm`, 7,200 s, the value
-  Frierson (2007) took for Earth, in every lunar run that used it (`rainmod.f90`, `mksbm`; the design run's
-  `rainmod_namelist`).
+  Frierson (2007) took for Earth, in the design case and the 68 runs that share its closure (`rainmod.f90`, `mksbm`;
+  the design run's `rainmod_namelist`). The closures Terluna tried relaxed over 18 h (three runs) or 12 h (five),
+  each with reference profiles of its own.
 - **Scaling.** By the similarity under which CM1's lengths and times follow the scale height
   (`lab/design/world_spec.md`, rule 9), 2 h becomes 12 h on the Moon, within the 11–27 h over which CM1's boxes
   remove lunar instability (`lab/design/gap_series.md`).
-- **Effect.** Unmeasured.
-- **Status.** Open. One GCM run at 43,200 s would size it; `lab/design/terluna_fixes.md`, row 12, holds the scheme
+- **Effect.** Unmeasured for the time alone, since the closures changed their reference profiles with it.
+- **Status.** Open. One GCM run of the design scheme at 43,200 s would size it; `lab/design/terluna_fixes.md`, row 12, holds the scheme
   for assessment before its port.
 
 ## (c) Defects in Terluna's own work
@@ -1168,8 +1174,11 @@ integration.
   step with the lunar day: the near side's noon falls at full Moon and the far side's at new Moon, so the far side's
   noon receives 1.0% more sunlight than the near side's in every lunar day.
 - **Effect.** Unmeasured: a steady contrast of a hundredth in sunlight between the two faces.
-- **Status.** Open. A cosine of the subsolar longitude on the solar constant adds the swing to each model.
+- **Status.** A cosine of the subsolar longitude on the solar constant adds the swing to each model.
   Earthshine and Earth's infrared at full Earth, about 0.07 W/m² each, stay out.
+- **Classed as an idealisation (2026-11-11).** Terluna's set-up states the choice, so the omission is a known
+  simplification of the scenario: by the author's decision the paper states it with the scenario, outside its count
+  of defects, and the lab offers the swing as an option that a study switches on or off (`PLAN.md`, "Decisions").
 
 ## (d) Record inconsistencies found in this pass, not yet corrected in Terluna (V)
 
