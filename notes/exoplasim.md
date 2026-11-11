@@ -389,10 +389,11 @@ radiation. The same hook carries any infrared source above the air: a host plane
 - **Placeholder land** (albedo 0.2, roughness 2 m, a 0.5 m bucket), a 50 m slab ocean without ocean heat
   transport, no ozone (the titania shield's design).
 - **The humidity in the output**: in low-I/O mode with spectral humidity, `hus` holds the humidity at the end of
-  the interval before each record, where every other field is a mean, and each year file's first record holds about
-  2% of the vapour. A reader takes each interval's mean as the average of a record and the next and leaves out each
-  file's first and last records, Terluna's rule; Terluna's switch `nhusmean` writes the true mean as a further field
-  (defect log A10).
+  the interval before each record, where the temperature, pressure, winds and fluxes beside it are means, and each
+  year file's first record holds about 2% of the vapour. A reader takes each interval's mean as the average of a
+  record and the next and leaves out each file's first and last records, Terluna's rule; Terluna's switch `nhusmean`
+  writes the true mean as a further field (defect log A10). The fault was reported upstream on 2026-11-11 as
+  ExoPlaSim's issue #71 (`models/exoplasim/upstream-held-humidity.md`).
 - **The equinox's regression**: Terluna's precession patch (`domain/climate` 39ac7f0c, awaiting its port) counts
   the regression from a starting step. A branch from a precessing run inherits its parent's count; started again at
   zero, the equinox would have jumped back 189° in Terluna's first such branch (43b14b38). The port carries the count
