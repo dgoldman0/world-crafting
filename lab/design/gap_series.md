@@ -76,6 +76,11 @@ slab sea's 50 m, Morrison's warm rain at Earth's rates, the relaxation time of 2
 sunlight. One GCM run or one sea box of two lunar days sizes each of the first four: the mixed layer at 15 m, the
 warm-rain factors at 0.165 and 0.34, the relaxation time at 12 h, and the diffusion times multiplied by 0.27. The
 sea's rain by time of day depends most directly on the mixed layer and the warm rain, so those two come first.
+Terluna's records of 10 November add two facts about the sea's exchange [read: Terluna `research/decisions.md` at `59dcda1c`, lines
+860–871]: its lake model puts a calm sea's surface at 37.1 °C in the hottest hours where the slab shows 30.9 °C, and
+a year written every 6.5 hours shows the GCM's flow holding 1.13 times the speed of its 3-day mean vectors over
+water, speed that a box nudged to the mean vector lacks in its surface exchange (`notes/cm1.md`, "The wind inside
+the GCM's means").
 
 **The series' limits.** If Earth passes and steps 5 and 6 implicate lunar physics, the lab learns which physics
 matters, and with no observation of lunar convection it has no measure of which model represents it. Finer lunar grids

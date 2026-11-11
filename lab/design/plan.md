@@ -207,7 +207,7 @@ revises this section with the ports.
   - `climate/results/gcm/`: the ledger, gas-band, shortwave and longwave products;
   - `gcm-runs/<run>/`: `progress.json`, `inputs/`, `model/*_namelist` and the yearly output
     `model/MOST.<year>.nc`, for the comparisons, the time-step guard's check and test input to the case
-    writers and the producers;
+    writers and the producers, its `hus` records read by the rule for the held humidity (defect log A10);
   - `gcm-runs/cal_*`: the hand trials behind `TH2OC`;
   - `crm-runs/<case>/`: `case.json` and the input files, and the rings' output (`cm1out_t*_s.dat`), for the
     comparisons and the box's day–night forcing in stage 3's test;

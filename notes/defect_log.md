@@ -58,6 +58,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | A7 | WRF-ELEC | No conduction by default; ion charge persists for weeks in month-long runs | 10-05, e09aa30 | `leakage` (lunar 1), 4499e35 | ~20 kV/m at the ground over the whole box; lightning unchanged | Fixed for lunar runs | R |
 | A8 | WRF-ELEC `lightmsz` | Channel reach marked only above threshold `scth` | 10-05, a5205d2 | Flash log takes reach from charge handed to ions | 13 flashes logged no reach | Fixed (logging) | R |
 | A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | `ipbl2_per_mass` (0): the lab's series, patch 01, from Terluna's build `moon_omp_rain_law_pbl` | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
+| A10 | ExoPlaSim, low-I/O output | `hus` in the mean output is the humidity held from the last output step, where every other field is a mean; the held field is absent from the restart, so each year file's first record holds about 2% of the vapour | 10-27, Terluna `domain/climate` 984606a5 | None in the model; a reader's rule (Terluna's `climate/gcm/year_files.py`) | Read as means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as humid | Open here; read by rule in Terluna | R, P |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant; fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
@@ -94,7 +95,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B34 | PlaSim | Shallow convection's tops capped at 700 hPa | 10-25, 1d05c3d | In Terluna: `--sbm-shallow-cap`, tied to the depth test (ea1b62f) | Near 28 km in the Moon's air; binds in 1–1.4% of cells | Open here; switch in Terluna | R |
 | B35 | CM1 r22.0 | The MM5 surface layer's gust over water, √Δθv m/s, has no gravity in it; over land the same scheme takes Beljaars's gust from the build's gravity | 10-28, Terluna `domain/climate` 238638f | `gust_over_water` (0): the lab's series, patch 02, from Terluna's `GUST_PATCH` | Raised the sea box's surface wind 1.6–1.8 times, where Beljaars's gust, computed from the box's own fluxes, raises it 1.1–1.2 times; every CM1 run over the seas behind the paper's first released draft | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | B36 | PlaSim | Horizontal diffusion's damping times at the truncation scale, 0.2–5.6 Earth days, Earth's for T21 | 11-09 | None | Unmeasured; the Moon's smallest wave is 3.7 times shorter than Earth's and damped as slowly | Open | P |
-| B37 | PlaSim; CM1 set-up | A slab sea 50 m deep, Earth's seasonal mixed layer; CM1's sea boxes hold its mean temperature | 11-09 | `MLDEPTH` (50 m) | The sea site's surface swings 0.63 K through the lunar day; two to four times that in a layer of 10–20 m, by estimate | Open | P |
+| B37 | PlaSim; CM1 set-up | A slab sea 50 m deep, Earth's seasonal mixed layer; CM1's sea boxes hold its mean temperature | 11-09 | `MLDEPTH` (50 m) | The sea site's surface swings 0.63 K through the lunar day; two to four times that in a layer of 10–20 m, by estimate; Terluna's calm column reaches 37.1 °C where the slab shows 30.9 °C | Open | P, R |
 | B38 | CM1 Morrison | Cloud turns into rain at Earth's rates: Khairoutdinov and Kogan's autoconversion and accretion carry no gravity | Limit noted 10-17; sized 11-09 | None | Unmeasured; by scaling, rain forms about 6 and 3 times too readily in each passage through a lunar cloud | Open | V, P |
 | B39 | PlaSim, Terluna's `nprc` 2 | The simplified Betts–Miller scheme relaxes over 2 h, Frierson's value for Earth | 11-09, `lab/design/gap_series.md` | `tau_bm` (7,200 s) | Unmeasured; 12 h by similarity | Open | P |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
@@ -290,6 +291,28 @@ options, which would place A6 in or out of the released code.
   will measure its effect in the lab's runs. `solve1.F` then averages `upten` and `vpten` as fields at scalar
   points, while this scheme fills them at u and v points, and the patch leaves that averaging as CM1 has it.
   `models/cm1/upstream-ipbl2-density.md` drafts the report to CM1's developer.
+
+### A10. ExoPlaSim: the humidity in the mean output is a held value (R; code read P)
+
+- **Defect.** In low-I/O mode (`nlowio`) ExoPlaSim adds each field to its output mean at every step. With spectral
+  humidity (`nqspec = 1`) the field it adds for `hus` is recomputed only at output steps (`plasim.f90`, the test
+  `mod(nstep,nafter)==0 .and. nqspec == 1` ahead of `sqout`), so each record holds the humidity at the end of the
+  interval before it, where the other fields are means. The held field is absent from the restart, which leaves each
+  year file's first record with about 2% of the vapour.
+- **Found** in Terluna on 2026-10-27 (`domain/climate` 984606a5; `climate/gcm/README.md`, "The humidity in the year
+  files"): the column's vapour from a record matches the average of that record's precipitable-water mean and the
+  one before, within 7.6 kg/m² rms, better than its own, 10.4. The code was read here on 2026-11-11 in the copy
+  Terluna's runs import (P).
+- **Effect.** The model's state is untouched, and the fault lies in what a reader takes from the files. Read as
+  means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as
+  humid. By the rule below, the layers' summed storage after midnight comes within 0.3 mm/day of the precipitable
+  water's, against 0.5–1.0 with the records taken as means; Terluna's littoral forcing, corrected on 2026-11-10,
+  moved its coldest hours by up to 0.36 K by cell (`research/decisions.md` line 871 at `59dcda1c`).
+- **Rule and status.** Terluna's `climate/gcm/year_files.py` takes each interval's mean as the average of a record
+  and the next and leaves out each year file's first and last records; `gcm_site`, the CM1 boxes' forcing, has read
+  by it since 984606a5. The lab's readers of ExoPlaSim's output need the same rule, stage 3's extraction among
+  them. A fix in the model, recomputing the field at every step or carrying it in the restart, is open, and its
+  place in the paper's count of the released codes' defects is the author's to decide at the paper's next revision.
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
@@ -755,6 +778,18 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   Near-side Sea's evaporation from 3.82 to 3.62 mm/day, a quarter of its excess over CM1's 2.98, dry the lowest
   0.6 km by 0.34 g/kg toward CM1's air, lower global evaporation and rain by 3% and move the imbalance at the top of
   the air 0.4 W/m² toward balance.
+- **Evidence for the scaling, in Terluna (R).** A bounded study of 2026-11-10 examined whether the still-air laws
+  carry to lunar gravity (`research/decisions.md` line 862 at `59dcda1c`; its report and sources on the research
+  drive, `session-tools/agents/lunar_free_convection/`). Where the Rayleigh number or gravity itself was varied,
+  the transfer followed the law: effective exponents of 0.28–0.333 in water (Funfschilling and others 2005), 0.27
+  rising to a third and beyond in a centrifuge at 5–60 g (Jiang and others 2020), a heated plate at 0.05 g on
+  parabolic flights matching the standard correlation in laminar flow (Lotto and others 2017), and large-eddy
+  simulations at Mars's gravity reproducing measured boundary-layer depths (Spiga and others 2010). The study read
+  Jiang and Spiga in full and the others at their abstracts, and it found no experiment on a turbulent horizontal or
+  water surface at reduced gravity. Its bracket puts the lunar transfer by gravity alone at 0.41–0.61 of the Earth
+  law against the cube root's 0.55, the low end from the gust law under a boundary layer no deeper than Earth's, in
+  which gravity and the layer's depth enter as a product, and the high end from the lowest exponent. The bracket
+  bears on the gust of B35 as well.
 - **Status.** A namelist variable in Terluna's build (`fluxmod`'s `cfree`, `--free-convection lunar`); this
   repository's series holds the Earth constant.
 
@@ -801,7 +836,7 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 - **Status.** Open. Besides that comparison, one run with the four times multiplied by the radius ratio, 0.27, would
   size the effect.
 
-### B37. PlaSim and the CM1 set-up: a slab sea 50 m deep (P; open)
+### B37. PlaSim and the CM1 set-up: a slab sea 50 m deep (P; Terluna's column R; open)
 
 - **Earth value.** The GCM's sea is a slab 50 m deep without heat transport (`MLDEPTH`, the default of
   `oceanmod.f90` and of ExoPlaSim's `configure`), a depth of Earth's seasonal mixed layer. `exoplasim.md` lists it
@@ -815,6 +850,11 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   metres, so a fortnight of sunlight would stay within the 10–20 m that visible light reaches, and the swing would be
   two to four times the slab's, 2.1 K for 15 m. No ocean model ran, and the estimate leaves out the sea's own
   convection at night.
+- **Terluna's column (R).** Terluna's lake model, run offline at five sites of the corrected design climate, puts
+  the surface of calm water at 37.1 °C in its hottest hundredth of hours at the 8° sea cell, where the GCM's slab
+  shows 30.9 °C, and its seas' oxygen study implies a day's mixed layer of 3–6 m (`research/decisions.md` lines 860
+  and 863 at `59dcda1c`; `domain/ecology` 910f09c8, 85746366). The column meets the GCM's light winds and returns
+  nothing to the air, so it marks the calm end, and it puts the swing well above this entry's estimate.
 - **CM1.** The sea boxes hold the site's mean, 304.57 K (`oceanmodel = 1`; `sea_surface_k` in `case.json`), leaving
   out the slab's ±0.3 K, about ±6% of the evaporation by the humidity difference between sea and air.
 - **Status.** Open. The sea's rain by time of day, the largest difference between the GCM and CM1, depends on the

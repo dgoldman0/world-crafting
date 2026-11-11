@@ -191,6 +191,15 @@ GCM's air stays within 1.3 K of its own adiabat, and the GCM's lowest level carr
 energy, worth 3.1–4.0 K aloft. On the GCM's air the two models' longwave codes agree at 35–48 km and part by
 2.7–3.8 W/m² at 48–63 km (Terluna 467a146).
 
+**The wind inside the GCM's means.** The boxes' wind target is the GCM's mean wind vector by local time, and a mean
+vector's speed understates the mean speed. In a year of Terluna's corrected design climate written every 6.5 hours,
+the mean of the 6.5-hour speeds at 313 m stands 1.13 times the mean speed of the 3-day vectors over the water cells
+and 1.16 times over the land, and a window holds 0.95–1.57 m/s beyond its vector, more as the vector's speed rises
+(Terluna `domain/climate` 43b14b38, 39c5ee04; `research/decisions.md` line 870 at `59dcda1c`). A box nudged to the
+mean vector therefore meets a weaker wind in its surface exchange than the GCM's own exchange met, most of all in
+calm hours such as the sea's night, while a box that carries the GCM's weather from means of a few hours holds most
+of that speed.
+
 **Limits.** The forcing is one-way and prescribed, so the slice's own state leaves its forcing unchanged. Over
 terrain the imposed vertical wind is advected on the first column's metrics, understating vertical gradients by
 the factor 1 − z/ztop (under 6% up to 8.3 km of a 150 km model). Cases set up before 2026-10-17 started with the
