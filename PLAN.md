@@ -84,6 +84,9 @@ ExoPlaSim's output and five open entries to the defect log on the lab's branch (
   run and one CM1 box under the lab's own bookkeeping, and widened afterwards (11 November 2026).
 - The waterworld twin of the gap's series takes the Moon's 29.5-day solar day and the Open Moon's air at 1.2 atm
   (11 November 2026).
+- Sunlight taken at the Earth–Moon barycentre's distance is an idealisation of the scenario as run, stated in its
+  set-up, and stays outside the count of defects. The lab offers the Moon's monthly swing in sunlight as an option
+  that a study switches on or off (11 November 2026).
 
 ## Each fix: general or the Moon's
 
@@ -161,7 +164,7 @@ tests, and its compute is the tests' short runs.
 | 7 | The equinox's regression, its count carried through restarts and branches | — | To start |
 | 8 | The cold cloud's factors as namelist values with identity defaults | — | To start |
 | 9 | The humidity held in the output (A10): the reader's rule in `python/climate/gcm/year_files.py` first, then the true mean as a further output, Terluna's switch `nhusmean` (`domain/climate` b93a046e) | — | To start |
-| 10 | The Sun's distance through a moon's month (C22) | — | To start |
+| 10 | The Sun's distance through a moon's month (C22), an option that a study switches on or off | — | To start |
 | 11 | Snow sublimed from capped flakes | Its assessment | Waiting |
 
 | Order | CM1 (`models/cm1`, series-lab 03 on) | Waits on | State |
