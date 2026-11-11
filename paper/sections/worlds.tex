@@ -38,13 +38,15 @@ surface and rain-fed lakes stand at their own levels, so that 667 of the GCM's 2
 hold water.\claim{S06} That water, 0.02\% of the Moon's mass, lies unevenly enough to turn the Moon beneath its
 spin axis: as the basins fill and the crust responds elastically, the pole moves 8.05\textdegree\ toward
 167\textdegree~W and the point beneath Earth to 8.0\textdegree~N, 6.1\textdegree~E of today's coordinates, and the design case runs on the Moon so
-turned.\claim{S17} As modelled, the seas are a 50~m slab with sea ice, and the land has a placeholder albedo
-of 0.2.
+turned.\claim{S17} As modelled, the seas are a 50~m slab with sea ice, the land has a placeholder albedo
+of 0.2, and the Sun stands at the distance of the Earth--Moon barycentre, the Moon's own orbit about that point
+left out (Verification).\claim{H47}
 
 \begin{table}[t]
 \caption{The quantities in which the Open Moon differs from Earth, and the model parts that depend on each.
-Lunar values are for the 1.2~atm design case and are scenario inputs or calculations from them; scale heights are computed from the surface temperature and the air's mean molar mass; horizon air masses are Chapman's grazing factor
-$\sqrt{\pi R/2H}$ for an isothermal atmosphere, which PlaSim's code sets at 35 for Earth; the grid for deep
+Lunar values are for the 1.2~atm design case and are scenario inputs or calculations from them; the column is the surface pressure over the surface gravity, as the codes count the air over each square metre; scale heights are computed from the surface temperature and the air's mean molar mass; horizon air masses are Chapman's grazing factor
+$\sqrt{\pi R/2H}$ for an isothermal atmosphere, which PlaSim's code sets at 35 for Earth; the smallest wave is the
+circumference over the truncation's wavenumber, 21; the grid for deep
 convection is a nominal scale from the dry dynamics' similarity.}
 \label{tab:regime}
 \small
@@ -54,11 +56,12 @@ Quantity & Earth & Moon & Model parts that depend on it \\
 \midrule
 Surface gravity (m\,s$^{-2}$) & 9.81 & 1.62 & Dynamics; fall speeds; sea roughness; wave dispersion; heights in pressure terms \\
 Surface pressure at the water level (hPa) & 1,013 & 1,216 & RRTMG's tables, whose highest pressure is 1,053.63~hPa \\
-Air over each square metre (t) & 10.3 & 74.9 & Broadband absorber paths fitted on Earth's \\
+Column, $p_s/g_s$ (t\,m$^{-2}$) & 10.3 & 74.9 & Broadband absorber paths fitted on Earth's \\
 Scale height at the surface (km) & 8.4 & 53 & Every height-based formula \\
 Scale height over radius & 0.0013 & 0.031 & Flat, sunlit-only columns; the thin shell \\
 Horizon air mass of well-mixed air & 34.5 & 7.1 & Earth's slant factor, fixed in PlaSim \\
-Solar day (Earth days) & 1 & 29.53 & Formulas written per day; the soil's thermal wave; the model calendar \\
+Smallest wave at T21 (km) & 1,906 & 520 & PlaSim's horizontal diffusion, timed in Earth days \\
+Solar day (Earth days) & 1 & 29.53 & Formulas written per day; the soil's thermal wave; the slab sea's depth; the model calendar \\
 Sidereal rotation (Earth days) & 0.997 & 27.32 & ExoPlaSim's Sun clock; the Coriolis parameter \\
 Tilt of the equator (\textdegree) & 23.44 & 1.61 & ExoPlaSim's orbit default \\
 Fall speed of rain, relative & 1 & 0.34 & Evaporation of falling rain \\
@@ -77,9 +80,10 @@ ground, where a shell has 5.7\% more area than the ground beneath it, and along 
 written for Earth.\claim{S09}\claim{W02} Because the air is so tall, sunlight reaches far past each column's
 horizon: a full Earth day after sunset, about half the air above a place still lies above the Moon's geometric
 shadow, before refraction adds more.\claim{S04} Across that height gravity also falls, 9\% by the 86~km
-tropopause, so a column with gravity falling as $GM/r^2$ holds about 5\% more air than the $p_s/g_s$ the codes
-assume, and in spherical shells with that gravity the excess is 11.5\% per square metre of ground: for the
-same surface pressure, the lunar air holds about a tenth more mass than the models count.\claim{S10}
+tropopause, so the air's mass exceeds the $p_s/g_s$ the codes count, 74.9~t\,m$^{-2}$ at the water level: in the
+295~K column's air, with gravity falling as $GM/r^2$, a straight column of unit cross-section holds 5.5\% more than
+$p_s/g_s$, and the air over each square metre of ground, in shells that widen with height, 11.5\% more. For the
+same surface pressure, then, the lunar air holds about a tenth more mass than the models count.\claim{S10}
 
 Gravity's surface value matters more. A sixth of Earth's gravity raises every pressure level sixfold in height,
 so a code that sets a feature's height in metres puts it at a sixth of its lunar height. Fall speeds respond as

@@ -41,9 +41,9 @@ coupling, the use of one model's fields to force another; an avoidance, a config
 chosen to keep the runs clear of a defect or an Earth default; a bound, a value chosen between two rules that
 bracket an unsettled process; and a mitigation, a cap on what one scheme passes to another.
 
-\textbf{Defects and Earth defaults removed or avoided.} Two of ExoPlaSim's defects are removed in the code: the
+\textbf{Defects and Earth defaults removed or avoided.} Two of ExoPlaSim's four defects are removed in the code: the
 patched PlaSim turns the Sun at the synodic rate continuously from the first step, a mode that assumes a
-steady, non-synchronous rotation, and converts convective rain per 86,400~s. The third is avoided with
+steady, non-synchronous rotation, and converts convective rain per 86,400~s. A third is avoided with
 ExoPlaSim's own \code{fixedorbit} switch, whose documentation describes only the freezing of Milankovitch
 variations; set, it makes PlaSim use the configured orbit. These three ExoPlaSim repairs are built for other
 configurations of the released code as well, the synodic clock for any steady, non-synchronous rotation, the
@@ -56,7 +56,14 @@ defect and its Earth default are likewise avoided by configuration, the uninitia
 parameter by keeping depth-induced breaking on in every run, and its default initial state, whose 2~s peak
 period has Earth's dimensions, by starting from rest or from hotstart files. CM1's density fault, by contrast, is removed in the builds of
 the boxes on the refined-physics state, whose simple boundary layer divides its tendencies by the air's density
-before the solver applies them, a repair that holds in every run with $\code{ipbl} = 2$.\claim{R17} Two faults of uncertain cause, however, stay open, the
+before the solver applies them, a repair that holds in every run with $\code{ipbl} = 2$.\claim{R17} ExoPlaSim's
+fourth defect, the humidity held in its mean output, stays in the model, and the analyses correct for it as they
+read the output: each interval's mean humidity is taken as the average of a record and the next, and the first and
+last records of each year's file are left out. The output was read by that rule for the forcing of the boxes on the
+refined-physics state and on the turned state at the target, and for the longwave fits of the refined-physics state
+and the design case; for the forcing of the rings and of the boxes on the ten-level states, and for the
+calibrations and checks of PlaSim's radiation made on those states, the records were taken as they stand, a reading
+that leaves long means 0.8\% low in vapour and profiles by time of day half an interval late.\claim{R27} Two faults of uncertain cause stay open as well, the
 parting of CM1's threaded runs and PlaSim's cold lowest level, so CM1 runs that must repeat use one thread, and analyses of the
 lowest level screen the cold windows.
 
@@ -183,7 +190,11 @@ ten levels give the lowest layer the first 1.73~km.\claim{R20} On these levels a
 \autocite{frierson2007dynamics} replaces the Kuo-type one: it relaxes a convecting column toward a moist adiabat, and its humidity toward 0.7 of
 saturation, over two hours, and treats convection spanning more than 200~hPa as deep, a depth test set in pressure
 that spans 16\% of the lunar surface pressure and would need scaling for a world at another pressure; the same
-200~hPa above a shallow cloud's base caps its top in place of the released 700~hPa. The scheme and
+200~hPa above a shallow cloud's base caps its top in place of the released 700~hPa. The two hours are the control
+value of Frierson's Earth aquaplanet, whose equatorial rain changed by less than 5\% across relaxation times of
+1--8~h; stretched sixfold with the dry dynamics, as CM1's damping time and mixing length are, the control value
+becomes 12~h and that range 6--48~h. The closures tried with the scheme relaxed over 12 or 18~h, each with
+reference profiles of its own, so the effect of the time alone is unmeasured.\claim{H46} The scheme and
 the closures tried with it remain under test, since at every box the GCM's rain departs from CM1's beyond the
 tolerances of the test set out under Results.\claim{R21} Falling rain evaporates from drop sizes at the world's fall speeds in place of
 PlaSim's constant: its drops start at mean diameters fitted to the lunar CM1 boxes and to lunar snow, 0.44~mm for
@@ -238,8 +249,9 @@ moistening are the GCM's own, the storage of its column less its physics, taken 
 CM1's temperature and vapour are held to the GCM's only above the top of the GCM's convection, the lowest level
 above which it forms less than 1\% of its convective rain: that top stands near 73~km at the boxes' sites, and the
 hold begins near 94~km and is full near 131~km, so that CM1's temperature, moisture and convection develop freely
-through the column in which the GCM convects. Their wind is pulled toward the GCM's by local time over two hours from
-the GCM's lowest level, near 0.3~km, up, and the GCM's air is drawn in where the mean wind converges. The rings and the boxes forced from the ten-level
+through the column in which the GCM convects. Their wind is pulled toward the GCM's mean vector by local time over two hours from
+the GCM's lowest level, near 0.3~km, up, the GCM's air is drawn in where the mean wind converges, and a sea box's
+surface is held at the site's mean temperature. The rings and the boxes forced from the ten-level
 states of Table~\ref{tab:states} were held toward the GCM from 8~km, fully from 16~km.\claim{R14} Beyond the storms, the GCM forces the seas as well: SWAN is driven by the GCM's surface stress, converted through Wu's drag law inverted to an
 equivalent wind, so that its friction velocity is within $-2.5$ to $+1.2$\% of the GCM's, on spherical
 coordinates at the lunar radius and with its frequency band scaled by $g/g_\mathrm{E}$, and SWASH, run

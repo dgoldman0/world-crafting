@@ -190,5 +190,75 @@
   "290K": 7.3754352803689995,
   "295K": 7.502597957616742,
   "formula": "H ln(p_s / 1053.63 hPa), dry air at 1,215.9 hPa"
+ },
+ "column_in_shells_isothermal": {
+  "250K": {
+   "straight_column_excess": 0.05547197868550069,
+   "over_ground_excess": 0.11769669982821451,
+   "straight_column_mass_mean_height_km": 49.69667014487818
+  },
+  "270K": {
+   "straight_column_excess": 0.060336500035778506,
+   "over_ground_excess": 0.1287342687636288,
+   "straight_column_mass_mean_height_km": 54.21862445746125
+  },
+  "290K": {
+   "straight_column_excess": 0.06527157901794456,
+   "over_ground_excess": 0.14006312929655174,
+   "straight_column_mass_mean_height_km": 58.836224267557455
+  },
+  "formula": "isothermal air with g = GM/r^2: int rho dr and int rho (r/R)^2 dr over p_s/g_s = int rho (R/r)^2 dr, to 1,000 km"
+ },
+ "truncation_wave": {
+  "earth_km": 1906.1987424781496,
+  "moon_km": 519.8288644139911,
+  "earth_over_moon": 3.666973638770577,
+  "moon_over_earth": 0.2727044420028253,
+  "damping_days": {
+   "divergence": 0.2,
+   "vorticity": 1.1,
+   "temperature": 5.6,
+   "humidity": 0.1
+  },
+  "formula": "2 pi R / 21 at T21; damping times in 24-hour days at any radius"
+ },
+ "sunlight_monthly_swing": {
+  "moon_from_barycentre_km": 379729.31543151714,
+  "half_swing": 0.005076667383762664,
+  "half_swing_w_m2": 5.882182197544286,
+  "new_over_full": 0.010205076795323675,
+  "formula": "a M_E/(M_E + M_M); sunlight as 1/d^2: half swing 2a/AU, the far side's noon (new Moon) over the near side's (full Moon)"
+ },
+ "rain_formation_at_lunar_gravity": {
+  "droplet_overtaking": 0.16556767345166287,
+  "rain_sweeping": 0.33992673875932056,
+  "time_in_cloud": 6.039826369197293,
+  "autoconversion_excess_at_earth_rates": 6.039826369197293,
+  "accretion_excess_at_earth_rates": 2.9418103549307233,
+  "formula": "g/9.81; (g/9.81)^0.6; 9.81/g; rates fitted at Earth over the rates so scaled"
+ },
+ "convective_relaxation": {
+  "earth_h": 2.0,
+  "stretched_h": 12.079652738394586,
+  "formula": "2 h x 9.81/g"
+ },
+ "slab_sea": {
+  "depth_m": 50.0,
+  "swing_k": 0.63,
+  "implied_heating_w_m2": 100.98373838788864,
+  "swing_k_by_depth": {
+   "10m": 3.15,
+   "15m": 2.1,
+   "20m": 1.575
+  },
+  "wind_mixed_depth_m": {
+   "Cd_0.001": 1.2179922449125764,
+   "Cd_0.0013": 1.8053422732938447
+  },
+  "formula": "dT rho c h / (half a solar day); dT x 50 m / h; u*^3 / (kappa g alpha Q / rho c)"
+ },
+ "held_humidity_first_record": {
+  "share": 0.02097902097902098,
+  "formula": "3 steps of 143"
  }
 }

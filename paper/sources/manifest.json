@@ -5833,6 +5833,55 @@
       "quote": "version=\"3.4.2\"",
       "read_in": "archived original / record",
       "quote_check": "not machine-checked"
+     },
+     {
+      "claim_id": "H42",
+      "location": "plasim.f90 line 3218 (compute output specific humidity)",
+      "quote": "if (mod(nstep,nafter)==0 .and. nqspec == 1) then",
+      "read_in": "code:upstream/exoplasim-3.4.2.tar.gz, exoplasim/plasim/src/plasim.f90",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H42",
+      "location": "outmod.f90 line 2556 (accumulation in low-I/O mode)",
+      "quote": "aasqout(:,j) = aasqout(:,j) + sqout(:,j)",
+      "read_in": "code:upstream/exoplasim-3.4.2.tar.gz, exoplasim/plasim/src/outmod.f90",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H42",
+      "location": "plasimmod.f90 line 151",
+      "quote": "integer :: nlowio          =       1 ! Low I/O mode (0/1)",
+      "read_in": "code:upstream/exoplasim-3.4.2.tar.gz, exoplasim/plasim/src/plasimmod.f90",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H42",
+      "location": "plasimmod.f90 line 213",
+      "quote": "integer :: nqspec   = 1   ! 1: spectral q   0: gridpoint q (semi-Langrangian)",
+      "read_in": "code:upstream/exoplasim-3.4.2.tar.gz, exoplasim/plasim/src/plasimmod.f90",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H43",
+      "location": "plasimmod.f90 lines 588-591",
+      "quote": "real :: tdisst(NLEV)  =  5.60 ! diffusion time scale for temperature [days]",
+      "read_in": "code:upstream/exoplasim-3.4.2.tar.gz, exoplasim/plasim/src/plasimmod.f90",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H43",
+      "location": "plasim.f90 line 1610",
+      "quote": "tdisst(jlev) = day_24hr/(TWOPI*tdisst(jlev))",
+      "read_in": "code:upstream/exoplasim-3.4.2.tar.gz, exoplasim/plasim/src/plasim.f90",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H44",
+      "location": "oceanmod.f90 line 48",
+      "quote": "real :: mldepth           = 50.   ! mixed layer depth (scalar) (m)",
+      "read_in": "code:upstream/exoplasim-3.4.2.tar.gz, exoplasim/plasim/src/oceanmod.f90",
+      "quote_check": "quote found in text"
      }
     ]
    },
@@ -5846,9 +5895,30 @@
      "statement": "ExoPlaSim 3.4.2 as the GCM release used.",
      "support": "supported",
      "note": "release record"
+    },
+    {
+     "claim_id": "H42",
+     "section": "assumptions.tex, reach.tex, refinement.tex",
+     "statement": "In low-I/O mode with spectral humidity, the code's defaults, ExoPlaSim's mean output holds a humidity recomputed once in each output interval, and the held field is absent from the restart.",
+     "support": "supported (the pinned source at the lines listed; the first record read in two lunar runs)",
+     "note": "version 2 update of 11 November 2026"
+    },
+    {
+     "claim_id": "H43",
+     "section": "assumptions.tex",
+     "statement": "PlaSim's horizontal diffusion damps the truncation scale over 0.2, 1.1, 5.6 and 0.1 days of 24 hours at T21.",
+     "support": "supported (the pinned source)",
+     "note": ""
+    },
+    {
+     "claim_id": "H44",
+     "section": "assumptions.tex",
+     "statement": "The GCM's sea is a slab 50 m deep, ExoPlaSim's default.",
+     "support": "supported (the pinned source and the runs' namelists)",
+     "note": ""
     }
    ],
-   "notes": "Release record: PyPI sdist exoplasim-3.4.2.tar.gz uploaded 2025-01-02, sha256 fae502a9...4c2 (matches models/pins.sha256); authors in pyproject.toml: Adiv Paradise, Maureen J. Cohen, Edilbert Kirk, 'Harmut' [sic] Borth, Frank Lunkeit; GPLv2 classifier. Source code read for: plasim.f90 solar-day lines (via issue #69), radmod.f90 orb_params (Berger branch overwrites obliq when nfixorb=0, lines ~2960-3000), radmod.f90 line 38 th2oc = 0.024, __init__.py fixedorbit docstring (lines 2188-2190) and NFIXORB namelist write (line 2681)."
+   "notes": "Release record: PyPI sdist exoplasim-3.4.2.tar.gz uploaded 2025-01-02, sha256 fae502a9...4c2 (matches models/pins.sha256); authors in pyproject.toml: Adiv Paradise, Maureen J. Cohen, Edilbert Kirk, 'Harmut' [sic] Borth, Frank Lunkeit; GPLv2 classifier. Source code read for: plasim.f90 solar-day lines (via issue #69), radmod.f90 orb_params (Berger branch overwrites obliq when nfixorb=0, lines ~2960-3000), radmod.f90 line 38 th2oc = 0.024, __init__.py fixedorbit docstring (lines 2188-2190) and NFIXORB namelist write (line 2681). Read on 2026-11-11 for the version 2 update: plasim.f90 line 3218, outmod.f90 lines 2544-2560, plasimmod.f90 lines 151, 199, 213, 307 and 588-591, plasim.f90 lines 1246-1251, 1356 and 1598-1617, oceanmod.f90 line 48 and __init__.py line 2606 (NSTPW) and 2899 (MLDEPTH)."
   },
   {
    "key": "bryan2026cm1",
@@ -5937,6 +6007,27 @@
       "quote": "! following Kristjansson and Mitchell",
       "read_in": "code:upstream/cm1r22.0/src/module_ra_rrtmg_sw.F",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H45",
+      "location": "morrison.F lines 2101-2107 (autoconversion)",
+      "quote": "! FROM KHAIROUTDINOV AND KOGAN 2000, MWR",
+      "read_in": "code:upstream/cm1r22.0/src/morrison.F",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H45",
+      "location": "morrison.F lines 2106-2107",
+      "quote": "PRC(K)=1350.*QC3D(K)**2.47*",
+      "read_in": "code:upstream/cm1r22.0/src/morrison.F",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H45",
+      "location": "morrison.F lines 2235-2241 (accretion)",
+      "quote": "PRA(K) = 67.*(DUM)**1.15",
+      "read_in": "code:upstream/cm1r22.0/src/morrison.F",
+      "quote_check": "quote found in text"
      }
     ]
    },
@@ -5950,9 +6041,16 @@
      "statement": "CM1 release 22 as the cloud model used.",
      "support": "supported",
      "note": "release record"
+    },
+    {
+     "claim_id": "H45",
+     "section": "assumptions.tex",
+     "statement": "Morrison's scheme in CM1 turns cloud into rain by Khairoutdinov and Kogan's autoconversion and accretion fits, which contain no gravity.",
+     "support": "supported for the code's formulas and its attribution of them; Khairoutdinov and Kogan (2000) itself is outside the admitted sources and uncited",
+     "note": "the paper names the fits through CM1's source, as it names Brooks et al. through WRF-ELEC's"
     }
    ],
-   "notes": "Release record: cm1r22.0.tar.gz sha256 05f990bb...226 (models/pins.sha256); README dated 21 September 2026, (c) UCAR, MIT-style licence. The RRTMG pressure index jp is clipped to [1,58] (lines 3676-3682), so layers above 1053.63 hPa use the first table interval. morrison.F: LAMMINR = 1./2800.E-6 (line 492) bounds rain's mean diameter at 2.8 mm; RHOSU = 85000/(R*TMELT) (line 437) is the 850-hPa reference density for the (RHOSU/RHO)**0.54 fall-speed correction (line 1836)."
+   "notes": "Release record: cm1r22.0.tar.gz sha256 05f990bb...226 (models/pins.sha256); README dated 21 September 2026, (c) UCAR, MIT-style licence. The RRTMG pressure index jp is clipped to [1,58] (lines 3676-3682), so layers above 1053.63 hPa use the first table interval. morrison.F: LAMMINR = 1./2800.E-6 (line 492) bounds rain's mean diameter at 2.8 mm; RHOSU = 85000/(R*TMELT) (line 437) is the 850-hPa reference density for the (RHOSU/RHO)**0.54 fall-speed correction (line 1836). morrison.F lines 2106-2107 and 2241 (IRAIN 0): the autoconversion 1350 qc^2.47 (Nc rho)^-1.79 and the accretion 67 (qc qr)^1.15, attributed in the comments at lines 2102 and 2236 to Khairoutdinov and Kogan (2000, MWR); read 2026-11-11."
   },
   {
    "key": "mansell2026wrfelec",
@@ -7283,6 +7381,34 @@
       "quote": "SBM ⫽ 2 h and RHSBM ⫽ 0.7",
       "read_in": "archived original (text layer; the tau's glyph is lost in extraction)",
       "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H46",
+      "location": "PDF p. 2, Sect. 1",
+      "quote": "ally symmetric aquaplanet (ocean covered) Earth, with a slab mixed layer ocean",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H46",
+      "location": "PDF p. 12, Sect. 4a (Sensitivity to the relaxation time)",
+      "quote": "There is little change in these fields with relaxation times up to 8 h",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H46",
+      "location": "PDF p. 12, Sect. 4a",
+      "quote": "the equatorial precipitation values are all within 5%",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
+     },
+     {
+      "claim_id": "H46",
+      "location": "PDF p. 13, Sect. 4a",
+      "quote": "over 67% of the equatorial precipitation in the 16-h case is large scale",
+      "read_in": "archived original (text layer)",
+      "quote_check": "quote found in text"
      }
     ]
    },
@@ -7296,9 +7422,16 @@
      "statement": "The simplified Betts–Miller scheme relaxes a convecting column toward a moist adiabat, and its humidity toward 0.7 of saturation, over two hours.",
      "support": "supported (the scheme's reference profiles and standard parameters; the 200 hPa depth test is the lunar runs' own setting, not this paper's)",
      "note": ""
+    },
+    {
+     "claim_id": "H46",
+     "section": "repairs.tex",
+     "statement": "The two hours are the control value of Frierson's Earth aquaplanet, in which relaxation times from 1 to 8 h left the equatorial rain within 5%.",
+     "support": "supported (Sects. 3a and 4a; Table 3 gives the equatorial precipitation for 1, 2, 4, 8 and 16 h)",
+     "note": "the 16 h run, with over 67% of its equatorial precipitation large scale, is recorded in the claim and left out of the text"
     }
    ],
-   "notes": "Version 2 source (8 November 2026). Read at the claim locators only."
+   "notes": "Version 2 source (8 November 2026). Read at the claim locators only. Read again on 2026-11-11 at Sects. 1, 3a and 4a for the version 2 update."
   },
   {
    "key": "beljaars1995parametrization",

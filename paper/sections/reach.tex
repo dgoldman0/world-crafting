@@ -19,13 +19,15 @@ ground strikes stays a bound between two of WRF-ELEC's rules. The reference mode
 curved-air table and offline copies of PlaSim's radiation, all in the code repository, compute the new table and the
 radiation's refits.\claim{W01}
 
-\textbf{The defects in other configurations.} The three ExoPlaSim defects, two removed by general repairs and the
-third avoided with the fixed-orbit switch, remain in the released code, and by the code's arithmetic they bias any
-run that meets their conditions. The Sun clock skips the Sun back in any non-synchronous run on the default solar geometry whose
+\textbf{The defects in other configurations.} ExoPlaSim's four defects remain in the released code. Three of them,
+two removed here by general repairs and the third avoided with the fixed-orbit switch, bias, by the code's
+arithmetic, any run that meets their conditions. The Sun clock skips the Sun back in any non-synchronous run on the default solar geometry whose
 rotation differs from one day. The convective-cover unit, by contrast, biases synchronous runs as well, since
 ExoPlaSim's synchronous mode fixes the Sun in the sky while the code still computes the model day from the rotation period, so
 the cover rises by about $+0.23$ for TRAPPIST-1e's rotation of 6.1 days
-\autocite{yang2023cloud} and $+0.31$ for Proxima Centauri~b's 11.2 days \autocite{boutle2017exploring}. Under the third defect, the orbit default, PlaSim replaces a configured obliquity or eccentricity with Earth's, so any run that sets one without fixing the orbit has Earth's seasons.\claim{W06} CM1's density fault, for its part,
+\autocite{yang2023cloud} and $+0.31$ for Proxima Centauri~b's 11.2 days \autocite{boutle2017exploring}. Under the third defect, the orbit default, PlaSim replaces a configured obliquity or eccentricity with Earth's, so any run that sets one without fixing the orbit has Earth's seasons.\claim{W06} The fourth is in the output alone: in
+low-I/O mode with spectral humidity, the code's defaults, the humidity of the mean output is a held value on any
+world, and an analysis that reads it as a mean places it half an output interval late.\claim{H42} CM1's density fault, for its part,
 biases every run of the released code with $\code{ipbl} = 2$, by about 20\% in Earth's air near sea level, and the
 air's density sets its size on any other world.\claim{H34}
 
@@ -36,10 +38,13 @@ slant path errs for each and most for the tallest air. Along the column, PlaSim'
 column, would be applied to columns ten times Earth's on Titan, a hundred times on Venus and seven times on the
 Moon, and along gravity its cloud water, written in metres, errs at any gravity other than Earth's, too dry aloft
 under weaker gravity and too wet under stronger; beside these ratios, Slingo's cover, even with its unit repaired,
-remains a fit made on Earth's convection.\claim{W02} Among the other codes, CM1, once adapted, reads gravity as a
+remains a fit made on Earth's convection, the horizontal diffusion keeps Earth's damping times on a smallest wave
+that shortens with the world's radius, and the slab sea keeps Earth's 50~m under a day of any
+length.\claim{W02}\claim{H43}\claim{H44} Among the other codes, CM1, once adapted, reads gravity as a
 parameter on its Morrison and NSSL paths and has run storms at
 the Moon's gravity and at Earth's; its drop limits and breakup scale with gravity, their refinement for the air's density computed for
-gravities from the Moon's to Earth's, and its gust over water takes the run's gravity. Along the day, its Sun and soil are built for
+gravities from the Moon's to Earth's, and its gust over water takes the run's gravity, while its rates of rain
+formation stay Earth's at any gravity.\claim{H45} Along the day, its Sun and soil are built for
 days from a few Earth days to the Moon's, while along the column RRTMG's tables end at 1.05~bar. At sea, with
 SWAN's knee patched, the two wave models, in the configuration used, are built to run water seas at any gravity as
 the scaled image of an Earth sea, and on the code paths the similarity tests ran they have been tested at a sixth
@@ -83,8 +88,9 @@ radiation, condensation and clouds would have to be built.\claim{W05} Within the
 restrictions on the current implementation limit its use: compositions of nitrogen, oxygen, argon, water and
 modest carbon dioxide; surface pressures near RRTMG's tables, which end at 1.05~bar and extrapolate to 1.2~atm within thousandths of a
 kelvin a day; scale heights up to a few hundredths of the radius, the test world's, where thin-shell, constant-gravity
-dynamics already omit the 5--15\% fall of gravity across the air; and empirical laws of convection, cloud, sea and charge used
-near the Earth conditions they were fitted on, with narrower limits in Table~\ref{tab:reach}.
+dynamics already omit the 5--15\% fall of gravity across the air and count a tenth less air than the shells hold
+over the ground; and empirical laws of convection, cloud, sea and charge used
+near the Earth conditions they were fitted on, with narrower limits in Table~\ref{tab:reach}.\claim{S10}
 
 {\footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -103,9 +109,10 @@ Property & Errs in the released models & Represented by the adapted models & Bey
 \endhead
 \bottomrule
 \endlastfoot
-Gravity other than Earth's & CM1 throughout; PlaSim's cloud water in metres; SWAN's wind-input knee & Gravity read as a parameter on CM1's Morrison and NSSL paths, run at 1.62 and 9.81; drop limits and breakup scaled; the gust over water in both codes at the run's gravity; cloud water by pressure; SWAN and SWASH by similarity & CM1's other schemes at 9.81; the drop limits' density refinement below 1.62~m\,s$^{-2}$ \\
-Solar day other than Earth's & ExoPlaSim's Sun clock off a one-day rotation; its convective-cover unit; the output calendar; CM1's 24-hour Sun and diurnal soil; WRF-ELEC lacking clear-air conduction & Synodic clock; cover per Earth day; whole model days; CM1's Sun for any day; soil 1.55~m deep for days from a few Earth days to the Moon's; leakage & CM1's seasons; soil for days far longer than the Moon's; ExoPlaSim's model day for slow rotators; Slingo's fit itself \\
-Tilt and orbit & Earth's orbit in place of the configured one, by ExoPlaSim's default & The configured orbit, held fixed & CM1's equinox Sun \\
+Gravity other than Earth's & CM1 throughout; PlaSim's cloud water in metres; SWAN's wind-input knee & Gravity read as a parameter on CM1's Morrison and NSSL paths, run at 1.62 and 9.81; drop limits and breakup scaled; the gust over water in both codes at the run's gravity; cloud water by pressure; SWAN and SWASH by similarity & CM1's other schemes at 9.81; the drop limits' density refinement below 1.62~m\,s$^{-2}$; Morrison's rates of rain formation; the replacement convection's relaxation time \\
+Solar day other than Earth's & ExoPlaSim's Sun clock off a one-day rotation; its convective-cover unit; the output calendar; CM1's 24-hour Sun and diurnal soil; WRF-ELEC lacking clear-air conduction & Synodic clock; cover per Earth day; whole model days; CM1's Sun for any day; soil 1.55~m deep for days from a few Earth days to the Moon's; leakage & CM1's seasons; soil for days far longer than the Moon's; ExoPlaSim's model day for slow rotators; Slingo's fit itself; the slab sea's depth \\
+Tilt and orbit & Earth's orbit in place of the configured one, by ExoPlaSim's default & The configured orbit, held fixed & CM1's equinox Sun; a moon's swing in sunlight about its barycentre \\
+Radius other than Earth's & PlaSim's horizontal diffusion, damping a shorter smallest wave over Earth's times, its effect unmeasured & --- & Damping times for the world's smallest wave \\
 Starlight other than the Sun's & PlaSim's near-infrared water fit, tuned to a solar spectrum; RRTMG's solar spectrum & The shield-filtered Sun, through multipliers refitted to the reference & Other stars' spectra \\
 Air tall against the radius & Flat, sunlit-only columns; PlaSim's horizon factor of 35; Earth's $\sigma$ levels & Curved-air terms and slant factors from a table of the world's column; a level set for its scale height & Thin-shell, constant-gravity dynamics; one clear column for all; coarse layers aloft \\
 Air heavier than Earth's & Broadband shortwave and longwave fits; Rayleigh scaled to a 5772~K Sun; RRTMG's tables past 1,053.63~hPa & Multipliers, gas bands and longwave by height, refitted to the reference & RRTMG past 1.05~bar; multi-bar surfaces \\

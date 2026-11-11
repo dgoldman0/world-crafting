@@ -1,5 +1,5 @@
 {
- "about": "Every number the text cites, with its source and evidence state. Sources: terluna:<path> at commit 186b294, terluna@<commit>:<path> at a later commit (the version 2 numbers, at bdda5a07), repo:<path> in this repository, drive:<path> on Terluna's research drive, calc:<text>. States: observation, calculation, conditional model, calibration, reproduction, identity, sensitivity, documented, finding.",
+ "about": "Every number the text cites, with its source and evidence state. Sources: terluna:<path> at commit 186b294, terluna@<commit>:<path> at a later commit (the version 2 numbers, at bdda5a07 and the later commits named), repo:<path> in this repository, drive:<path> on Terluna's research drive, calc:<text>. States: observation, calculation, conditional model, calibration, reproduction, identity, sensitivity, documented, finding.",
  "claims": [
   {
    "id": "S01",
@@ -13,7 +13,7 @@
   },
   {
    "id": "S02",
-   "text": "The lunar column holds 7.25 times Earth's air per square metre (74,861 against 10,332 kg/m2)",
+   "text": "The lunar column, reckoned as the codes count it, p_s/g_s, holds 7.25 times Earth's air per square metre (74,861 against 10,332 kg/m2)",
    "source": [
     "repo:paper/data/regime_calc.json#column_mass"
    ],
@@ -93,13 +93,15 @@
   },
   {
    "id": "S10",
-   "text": "Gravity at the 86 km tropopause 9% below the surface's; a constant-area column with falling gravity holds about 5% more air than p_s/g_s (5.3% on the design profile; 5.5% on the ledger's moist column), and the spherical shells 11.5% more per square metre of ground (84,876 against 76,096 kg/m2)",
+   "text": "Gravity at the 86 km tropopause 9% below the surface's; a constant-area column with falling gravity holds about 5% more air than p_s/g_s (5.3% on the design profile; 5.5% on the ledger's moist column), and the spherical shells 11.5% more per square metre of ground (84,876 against 76,096 kg/m2); p_s/g_s, 74.9 t/m2 at the water level, is the surface pressure expressed as mass: a straight column of unit cross-section holds 5.5% more on the ledger's 295 K column (80,278 against 76,096 kg/m2) and the air over a square metre of ground 11.5% more; an isothermal 250 K column integrated with g(r) and the shells' area to 1,000 km gives 5.5% and 11.8%, and 12.9-14.0% over the ground at 270-290 K, where the lab's pass of 9 November gives 5.5%, 11.6% and 12.7-13.8% (defect log B21)",
    "source": [
     "terluna:climate/gcm/README.md#L823",
     "repo:paper/data/regime_calc.json#shell",
     "repo:paper/data/regime_calc.json#column_with_falling_gravity",
     "terluna:atmosphere/radiative_convective/METHODS.md#L42-44",
-    "repo:python/climate/results/gcm/twilight.json#column.mass_kg_m2"
+    "repo:python/climate/results/gcm/twilight.json#column.mass_kg_m2",
+    "repo:notes/defect_log.md#B21",
+    "repo:paper/data/regime_calc.json#column_in_shells_isothermal"
    ],
    "state": "calculation"
   },
@@ -615,14 +617,16 @@
   },
   {
    "id": "R14",
-   "text": "Ring columns each with their own Sun (a box takes one) and Coriolis on tilted rings; the GCM's vertical wind through CM1's large-scale advection; in the boxes on the refined-physics state the GCM's own heating and moistening through the whole column, temperature and vapour held only above the GCM's convection top (near 73 km), from 94.3 km, fully from 130.6 km (var14, var15), the wind pulled toward the GCM's by local time over 7,200 s from the GCM's lowest level, 313.8-316.1 m (var8, var10), and the GCM's air drawn in where the mean wind converges (var7 1); the rings and the boxes forced from the ten-level states nudged from 8 km, fully from 16 km",
+   "text": "Ring columns each with their own Sun (a box takes one) and Coriolis on tilted rings; the GCM's vertical wind through CM1's large-scale advection; in the boxes on the refined-physics state the GCM's own heating and moistening through the whole column, temperature and vapour held only above the GCM's convection top (near 73 km), from 94.3 km, fully from 130.6 km (var14, var15), the wind pulled toward the GCM's by local time over 7,200 s from the GCM's lowest level, 313.8-316.1 m (var8, var10), and the GCM's air drawn in where the mean wind converges (var7 1); the rings and the boxes forced from the ten-level states nudged from 8 km, fully from 16 km; the wind target is the GCM's mean wind vector by local time (the wind's fit by local time), and a sea box's surface is held at the site's mean temperature (oceanmodel 1; reference.sea_surface_k 304.57 K in the turned sea box, 304.43 K in the sea boxes on the refined-physics state)",
    "source": [
     "repo:models/cm1/README.md",
     "repo:notes/cm1.md#L101-108",
     "terluna@bdda5a07:climate/crm/README.md#L1570-1704",
     "terluna@bdda5a07:climate/crm/gcm_site.py",
     "drive:/media/projectspace/terluna-research/crm-runs/box_near_side_sea_design_years/namelist.input",
-    "drive:/media/projectspace/terluna-research/crm-runs/box_0e_design_years/case.json"
+    "drive:/media/projectspace/terluna-research/crm-runs/box_0e_design_years/case.json",
+    "drive:/media/projectspace/terluna-research/crm-runs/box_near_side_sea_turned/case.json",
+    "terluna@bdda5a07:climate/crm/cm1_run.py"
    ],
    "state": "documented"
   },
@@ -1484,6 +1488,122 @@
     "terluna@79d0fefa:climate/gcm/README.md#L4547-4562"
    ],
    "state": "implementation"
+  },
+  {
+   "id": "H42",
+   "text": "In low-I/O mode (nlowio, default 1: plasimmod.f90 line 151) ExoPlaSim 3.4.2 adds each field of its mean output to an accumulator at every step (outmod.f90 lines 2544-2560; aasqout = aasqout + sqout at 2556), but with spectral humidity (nqspec, default 1: plasimmod.f90 line 213) it recomputes sqout only where mod(nstep,nafter)==0 (plasim.f90 line 3218), so each record of hus holds the humidity from the end of the interval before it, where temperature, surface pressure, the winds, cloud, precipitable water and the fluxes are means over the interval (the gridpoint diagnostics are single steps by design); sqout is absent from the restart, so each year file's first record holds about 2% of the vapour in the lunar runs (3 steps of 143; 0.021 of the next record in year 30 of the design case and of the turned state at the target, read here on 2026-11-11; NLOWIO 1, NQSPEC 1 and NSTPW 143 in the design run's namelist). The model's state is untouched. Read as means, the records place the humidity half an interval late. Terluna's evidence: the column's vapour from a record matches the average of that record's precipitable-water mean and the one before within 7.6 kg/m2 rms, against 10.4 for its own. Counted as the sixth defect in the released codes on the lunar runs' paths, with the author's confirmation of 2026-11-11.",
+   "source": [
+    "repo:notes/defect_log.md#A10",
+    "repo:upstream/exoplasim-3.4.2.tar.gz",
+    "terluna@39c5ee04:climate/gcm/README.md#L3542-3564",
+    "terluna@39c5ee04:climate/gcm/year_files.py",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
+    "repo:paper/data/regime_calc.json#held_humidity_first_record"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H43",
+   "text": "PlaSim's horizontal diffusion damps divergence, vorticity, temperature and humidity at the truncation wavenumber over 0.2, 1.1, 5.6 and 0.1 days at T21 (plasimmod.f90 lines 588-591; nhdiff 15, ndel 2), days counted as 24 hours on any world (plasim.f90 lines 1598-1617, day_24hr); the design run's plasim_namelist sets none of the four. The smallest wave, 2 pi R/21, spans 1,906 km on Earth and 520 km on the Moon, a ratio of 3.67 (0.27 inverted). Zonal spectra of the design run's years 45-49 between 25 S and 25 N, from its 71.5-hour means, decline to the truncation in the wind, the temperature and the surface pressure, while the vertical motion at sigma 0.77 is level from wavenumber 3 to 18 (the lab's pass of 9 November; recomputed here on 11 November from ua, va, ta, ps and wap, with the same reading). An Earth control's spectra are yet to be computed, and the effect is unmeasured.",
+   "source": [
+    "repo:notes/defect_log.md#B36",
+    "repo:upstream/exoplasim-3.4.2.tar.gz",
+    "repo:paper/data/regime_calc.json#truncation_wave",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H44",
+   "text": "The GCM's sea is a slab 50 m deep without heat transport (MLDEPTH 50.0 in the oceanmod_namelist of each of the 141 GCM runs on the drive; the default of oceanmod.f90 line 48 and of ExoPlaSim's configure), a depth of Earth's seasonal mixed layer. In the turned state at the target (years 30-49, the Near-side Sea site's six cells binned by the Sun's hour angle) the slab's surface swings 0.63 K, from 304.19 K to 304.82 K in the afternoon (the lab's pass of 9 November, which places the minimum before dawn; recomputed here on 11 November at 0.62-0.65 K by bin width, the minimum of 304.18-304.21 K at or just after dawn in 71.5-hour means and the maximum of 304.83-304.84 K in the afternoon). CM1's sea boxes hold the site's mean through the lunar day (oceanmodel 1): 304.57 K in the turned sea box (reference.sea_surface_k, years 10-49) and 304.43 K in the sea boxes on the refined-physics state. Estimate: the swing implies a net heating near 100 W/m2 over half a lunar day; under a 2 m/s wind and 200 W/m2 the Monin-Obukhov depth in the water is 1.2-1.8 m at lunar gravity, so the heat would stay in the 10-20 m that visible light reaches, where the same heating swings 15 m by 2.1 K (1.6-3.2 K for 20-10 m, 2.5-5 times the slab's; the lab's log gives two to four times); the sea's convection at night is left out, and no ocean model ran. The effect on the sea's rain by time of day is unmeasured.",
+   "source": [
+    "repo:notes/defect_log.md#B37",
+    "repo:upstream/exoplasim-3.4.2.tar.gz",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s924_turned_refit",
+    "repo:paper/data/regime_calc.json#slab_sea",
+    "calc:paper/tools/regime_calc.py slab_sea",
+    "drive:/media/projectspace/terluna-research/crm-runs/box_near_side_sea_turned/case.json"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H45",
+   "text": "CM1 r22.0's Morrison scheme forms rain from cloud by the autoconversion 1350 qc^2.47 (Nc rho)^-1.79 and the accretion 67 (qc qr)^1.15 (morrison.F lines 2106-2107 and 2241 of the pinned source, IRAIN 0), which its comments attribute to Khairoutdinov and Kogan (2000, MWR; lines 2102 and 2236); neither contains gravity, and the gravity and rain patches leave both as they are. By the fall-speed scaling, droplets (Stokes, V as g) overtake one another 0.166 times as fast at lunar gravity (6.04 times more slowly) and rain (V as g^0.6) sweeps up cloud 0.340 times as fast (2.94 times more slowly), while air at the same updraught speed spends 6.04 times as long in a cloud deeper as 1/g; at Earth's rates the scheme forms rain about 6 and 3 times too readily in each passage, before any change of collision efficiency. The effect is unmeasured. The GCM's starting drop sizes (0.439 mm for rain formed in warm cloud) were fitted to boxes that ran with these rates. The paper names Khairoutdinov and Kogan through CM1's source (bryan2026cm1), their paper being outside the admitted sources.",
+   "source": [
+    "repo:notes/defect_log.md#B38",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/morrison.F#L2102-2107",
+    "drive:/media/projectspace/terluna-research/cm1/cm1r22.0/src/morrison.F#L2236-2241",
+    "repo:paper/data/regime_calc.json#rain_formation_at_lunar_gravity",
+    "calc:paper/tools/regime_calc.py rain_formation_at_lunar_gravity",
+    "repo:paper/sources/manifest.json#bryan2026cm1"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "H46",
+   "text": "The design case's simplified Betts-Miller scheme relaxes over TAU_BM 7,200 s (its rainmod_namelist; 68 of the 76 runs with the scheme on the drive), the control value of Frierson's (2007) aquaplanet Earth (tau_SBM = 2 h, Sect. 3a), in which relaxation times of 1, 2, 4 and 8 h left the equatorial precipitation within 5% and 16 h put over 67% of it into large-scale condensation (Sect. 4a). By the dry dynamics' stretch (9.81/g = 6.04) 2 h becomes 12.1 h and 1-8 h becomes 6-48 h. The closures tried with the scheme relaxed over 18 h (closure (c) and the first refinement, TAU_BM 64,800 s, three runs) or 12 h (the second refinement and its variants, 43,200 s, five runs), each with reference profiles of its own, so the effect of the time alone is unmeasured; the lab's log (B39) states the two hours for every lunar run with the scheme, which holds for the design scheme's own closure.",
+   "source": [
+    "repo:notes/defect_log.md#B39",
+    "repo:paper/sources/manifest.json#frierson2007dynamics",
+    "terluna@bdda5a07:climate/gcm/README.md#L4597",
+    "terluna@bdda5a07:climate/gcm/README.md#L4659-4665",
+    "repo:paper/data/regime_calc.json#convective_relaxation",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s934_redesign2"
+   ],
+   "state": "finding"
+  },
+  {
+   "id": "H47",
+   "text": "The set-up gives the GCM the orbit of the Earth-Moon barycentre about the Sun, 1 AU with Earth's orbital eccentricity (Terluna's climate/gcm/boundary.py line 197 on domain/climate at 39c5ee04), and CM1's cases take the GCM's sunlight; the Moon's own orbit, 379,700 km sunward of the barycentre at new Moon and as far beyond it at full Moon, is left out: a swing of +/-0.51% of the sunlight, +/-5.9 W/m2 of the design case's 1,159 W/m2, in step with the lunar day, the far side's noon (new Moon) receiving 1.0% more sunlight than the near side's (full Moon). The effect is unmeasured; a cosine of the subsolar longitude on each model's solar constant would add the swing. Counted in the paper among the adaptation's defects that remain in reported runs.",
+   "source": [
+    "repo:notes/defect_log.md#C22",
+    "terluna@39c5ee04:climate/gcm/boundary.py#L197",
+    "repo:paper/data/regime_calc.json#sunlight_monthly_swing",
+    "calc:paper/tools/regime_calc.py sunlight_monthly_swing"
+   ],
+   "state": "calculation"
+  },
+  {
+   "id": "R27",
+   "text": "The reading rule for the held humidity (Terluna's climate/gcm/year_files.py, 984606a5): each interval's mean as the average of a record and the next, each year file's first and last records left out. Read by the rule since 984606a5 (27 October): gcm_site, the forcing of the boxes on the refined-physics state and on the turned state at the target, and plasim_longwave's fitting columns, hence the longwave fits l15_design (651ed68a, 31 October) and l15_turned (121fe863, 5 November). With the records as they stand: the rings' readers and the cases set up before that date (the rings and the boxes on the ten-level states; cm1_run.py reads hus directly), the longwave fits and checks made before it, which keep the columns they were made on (the 295 K fit, b6171de0, and its check at 301 K, 6fb0958c), and the shortwave calibration's columns (plasim_shortwave.py line 186 and radiation_check.py lines 45 and 102 read hus directly at bdda5a07). For readers that take hus as it stands, long means are low by about 0.8% of the vapour and profiles by time of day lag by half an interval; on the Kuo run the record fix moved the boxes' forcing table by 0.004 g/kg/day against values near 0.15, its held profile's lowest level by 0.8% and the mean ascent by at most 2%; the size of the reading's effect on the radiation's fits is unrecorded. Terluna's runner can write the humidity's true mean as a further field, hus_mean, code 233, behind nhusmean (b93a046e, off by default); three diagnostic runs on the drive wrote it, and none of the paper's states.",
+   "source": [
+    "terluna@39c5ee04:climate/gcm/README.md#L3549-3564",
+    "terluna@39c5ee04:climate/gcm/year_files.py",
+    "terluna@bdda5a07:climate/gcm/plasim_longwave.py",
+    "repo:notes/defect_log.md#A10",
+    "terluna@bdda5a07:climate/gcm/plasim_shortwave.py",
+    "terluna@bdda5a07:climate/gcm/radiation_check.py",
+    "terluna@bdda5a07:climate/crm/cm1_run.py",
+    "terluna@bdda5a07:climate/gcm/exoplasim_run.py#L1034-1038"
+   ],
+   "state": "documented"
+  },
+  {
+   "id": "G30",
+   "text": "In the design case's year 10 written again every 6.5 hours (A28R_301k_design_l15_snow_s938_turned_refit_precession_eddies, ending on the design case's year-10 restart byte for byte), the mean of the 6.5-hour wind speeds at the GCM's lowest level, 313 m, stands 1.13 times the mean speed of the 3-day mean vectors over the water cells and 1.16 times over the land (1.16 and 1.18 in A28_corrected_970_eddies about 0.9 km up), and a window holds 0.95-1.57 m/s beyond its vector. The boxes forced by the GCM's mean circulation are pulled toward its mean wind vector by local time, so their target is weaker than the wind the GCM's own surface exchange met; a weather case follows the GCM's sequence in 100 windows of 7.08 hours a lunar day from means written every 5.5 hours (cm1_run.py, weather_windows). After midnight the turned sea box's domain-mean wind at 0.3 and 1 km averaged 0.72-0.81 of its target's, under the 0.85 its method check asks of every quarter the night-wind check it missed (0.72-0.82 in the same quarter of the sea box on the refined-physics state). The effect on the boxes' exchange and rain is unmeasured.",
+   "source": [
+    "terluna@39c5ee04:climate/gcm/README.md#L4588-4592",
+    "terluna@59dcda1c:research/decisions.md#L870",
+    "terluna@39c5ee04:climate/crm/README.md#L3140-3156",
+    "terluna@39c5ee04:climate/crm/README.md#L2677",
+    "terluna@bdda5a07:climate/crm/cm1_run.py",
+    "repo:notes/cm1.md",
+    "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession_eddies"
+   ],
+   "state": "conditional model"
+  },
+  {
+   "id": "N09",
+   "text": "Terluna's one-dimensional lake model, run offline at five sites of the design case's climate (years 10-19), puts the surface of a calm water 20 m deep at 37.1 C in its hottest hundredth of hours at the sea cell at 8 deg (36.95 C as first mapped, 37.13 C on the paired exchange with the wind raised, 37.14 C with the humidity records corrected), where the GCM's slab shows 30.91 C; the column meets the GCM's light winds and returns nothing to the air, so it marks the calm end (the lab's reading, defect log B37)",
+   "source": [
+    "terluna@59dcda1c:research/decisions.md#L860",
+    "terluna@59dcda1c:research/decisions.md#L863",
+    "terluna@59dcda1c:research/decisions.md#L871",
+    "repo:notes/defect_log.md#B37"
+   ],
+   "state": "conditional model"
   }
  ]
 }

@@ -27,6 +27,9 @@ MOON_GM = 4.902800118e12          # m3/s2
 MOON_SIDEREAL_D = 27.321661
 MOON_SYNODIC_D = 29.53059
 EARTH_R = 6_371_000.0
+EARTH_GM = 3.986004418e14         # m3/s2
+EARTH_MOON_DISTANCE = 384_400_000.0   # m, the Moon's mean distance from Earth
+AU = 149_597_870_700.0            # m
 EARTH_SIDEREAL_S = 86164.0905
 DAY_S = 86400.0
 P_EARTH = 101_325.0
@@ -42,6 +45,14 @@ PLASIM_STEP_S = 1800.0
 PLASIM_MODEL_DAY_STEPS = 1430
 PLASIM_YEAR_STEPS = 17280         # ExoPlaSim's 360-day year
 RRTMG_P_TOP_OF_TABLE_HPA = 1053.63
+PLASIM_TRUNCATION = 21            # T21, the lunar runs' resolution
+PLASIM_DAMPING_DAYS = dict(divergence=0.2, vorticity=1.1, temperature=5.6, humidity=0.1)   # plasimmod.f90 588-591
+PLASIM_OUTPUT_STEPS = 143         # the lunar runs' steps per output record (NSTPW)
+DESIGN_SUNLIGHT_W_M2 = 1158.67    # the design case's sunlight at the top of the air (GSOL0, scale 0.938)
+SLAB_DEPTH_M = 50.0               # ExoPlaSim's default mixed-layer depth (oceanmod.f90 48; MLDEPTH)
+SLAB_SWING_K = 0.63               # the slab's swing through the lunar day at the sea site (defect log B37)
+SEA_WATER_J_M3_K = 1025.0 * 3990.0    # heat capacity of sea water by volume
+BETTS_MILLER_RELAXATION_S = 7200.0    # the lunar runs' relaxation time (TAU_BM), Frierson's (2007) standard value
 
 
 def g_moon(z: float = 0.0) -> float:
@@ -195,6 +206,76 @@ def main() -> dict:
     out['rrtmg_extrapolated_depth_km'] = {f'{t:.0f}K': R_GAS * t / (m_air / 1000 * gm) * math.log(
         p_hpa / RRTMG_P_TOP_OF_TABLE_HPA) / 1e3 for t in (290.0, 295.0)}
     out['rrtmg_extrapolated_depth_km']['formula'] = 'H ln(p_s / 1053.63 hPa), dry air at 1,215.9 hPa'
+
+    # The thin shell's size on an isothermal column in hydrostatic balance with g(r) = GM/r^2 (defect log B21):
+    # rho(r) proportional to exp(-(GM M / R T)(1/R - 1/r)), so p_s/g_s = int rho (R/r)^2 dr exactly; a straight column
+    # of unit cross-section holds int rho dr, and the air over a square metre of ground int rho (r/R)^2 dr. Summed to
+    # 1,000 km, as the exponential column above.
+    shell = {}
+    for t in (250.0, 270.0, 290.0):
+        lam = MOON_GM * m_air / 1000 / (R_GAS * t)
+        ps = straight = cone = height = 0.0
+        for i in range(20000):
+            zz = (i + 0.5) * 50.0
+            r = MOON_R + zz
+            rho = math.exp(-lam * (1 / MOON_R - 1 / r))
+            ps += rho * (MOON_R / r) ** 2
+            straight += rho
+            cone += rho * (r / MOON_R) ** 2
+            height += rho * zz
+        shell[f'{t:.0f}K'] = dict(straight_column_excess=straight / ps - 1, over_ground_excess=cone / ps - 1,
+                                  straight_column_mass_mean_height_km=height / straight / 1e3)
+    out['column_in_shells_isothermal'] = shell
+    out['column_in_shells_isothermal']['formula'] = ('isothermal air with g = GM/r^2: int rho dr and int rho (r/R)^2 dr '
+                                                     'over p_s/g_s = int rho (R/r)^2 dr, to 1,000 km')
+
+    # The smallest wave PlaSim's horizontal diffusion damps, at the truncation, on each radius (defect log B36)
+    wave = {name: 2 * math.pi * radius / PLASIM_TRUNCATION / 1e3 for name, radius in (('earth_km', EARTH_R),
+                                                                                      ('moon_km', MOON_R))}
+    out['truncation_wave'] = dict(wave, earth_over_moon=EARTH_R / MOON_R, moon_over_earth=MOON_R / EARTH_R,
+                                  damping_days=PLASIM_DAMPING_DAYS,
+                                  formula='2 pi R / 21 at T21; damping times in 24-hour days at any radius')
+
+    # The Moon's own orbit about the Earth-Moon barycentre, which the set-up leaves out of the sunlight (defect log
+    # C22): its distance from the barycentre and the sunlight's swing between new and full Moon
+    arm = EARTH_MOON_DISTANCE * EARTH_GM / (EARTH_GM + MOON_GM)
+    out['sunlight_monthly_swing'] = dict(moon_from_barycentre_km=arm / 1e3, half_swing=2 * arm / AU,
+                                         half_swing_w_m2=DESIGN_SUNLIGHT_W_M2 * 2 * arm / AU,
+                                         new_over_full=((AU + arm) / (AU - arm)) ** 2 - 1,
+                                         formula='a M_E/(M_E + M_M); sunlight as 1/d^2: half swing 2a/AU, the far '
+                                                 "side's noon (new Moon) over the near side's (full Moon)")
+
+    # Rain formation at Earth's rates (defect log B38). Cloud droplets fall in the Stokes regime (B = 2), so the
+    # speed at which one overtakes another goes as g; rain sweeps up cloud at its fall speed, as g^0.6 (B = 0.8); a
+    # cloud at the same temperature is deeper as 1/g, and air rising at the same speed spends as much longer in it.
+    droplets, rain = rg, rg ** ((0.8 + 1) / 3)
+    out['rain_formation_at_lunar_gravity'] = dict(
+        droplet_overtaking=droplets, rain_sweeping=rain, time_in_cloud=1 / rg,
+        autoconversion_excess_at_earth_rates=1 / droplets, accretion_excess_at_earth_rates=1 / rain,
+        formula='g/9.81; (g/9.81)^0.6; 9.81/g; rates fitted at Earth over the rates so scaled')
+
+    # The simplified Betts-Miller scheme's relaxation time under the dry dynamics' stretch in time (defect log B39)
+    out['convective_relaxation'] = dict(earth_h=BETTS_MILLER_RELAXATION_S / 3600,
+                                        stretched_h=BETTS_MILLER_RELAXATION_S / rg / 3600,
+                                        formula='2 h x 9.81/g')
+
+    # The slab sea (defect log B37): the heating its swing implies over half a lunar day, the same heating in
+    # shallower layers, and the depth the wind mixes against that heating (Monin-Obukhov, in the water) under a 2 m/s
+    # wind and 200 W/m2, for drag coefficients of 1.0e-3 and 1.3e-3 and an expansivity of 3.3e-4 per kelvin
+    half_day_s = 0.5 * MOON_SYNODIC_D * DAY_S
+    mixing = {}
+    for cd in (1.0e-3, 1.3e-3):
+        ustar = math.sqrt(1.40 * cd * 2.0 ** 2 / 1025.0)
+        mixing[f'Cd_{cd:g}'] = ustar ** 3 / (0.4 * gm * 3.3e-4 * 200.0 / SEA_WATER_J_M3_K)
+    out['slab_sea'] = dict(depth_m=SLAB_DEPTH_M, swing_k=SLAB_SWING_K,
+                           implied_heating_w_m2=SLAB_SWING_K * SEA_WATER_J_M3_K * SLAB_DEPTH_M / half_day_s,
+                           swing_k_by_depth={f'{h:g}m': SLAB_SWING_K * SLAB_DEPTH_M / h for h in (10.0, 15.0, 20.0)},
+                           wind_mixed_depth_m=mixing,
+                           formula='dT rho c h / (half a solar day); dT x 50 m / h; u*^3 / (kappa g alpha Q / rho c)')
+
+    # ExoPlaSim's held humidity (defect log A10): the share of an interval's vapour in a year file's first record,
+    # where the held field starts from zero and is refreshed three steps before the record is written
+    out['held_humidity_first_record'] = dict(share=3 / PLASIM_OUTPUT_STEPS, formula='3 steps of 143')
     return out
 
 

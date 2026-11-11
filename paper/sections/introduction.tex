@@ -56,7 +56,7 @@ and constructed worlds therefore requires identifying which changes follow from 
 
 Toward such an ensemble, the adaptations and couplings described here began with the Open Moon as their test
 world. Its air is close to Earth's in composition and surface pressure, while four ratios on which the models'
-Earth values depend are far from Earth's at once: the column over each square metre holds 7.25 times Earth's air,\claim{S02} the
+Earth values depend are far from Earth's at once: the column over each square metre, reckoned from the surface pressure, holds 7.25 times Earth's air,\claim{S02} the
 scale height of about 53~km is 23 times Earth's in proportion to the radius,\claim{S03} gravity is a sixth of
 Earth's, and the solar day lasts 29.53 Earth days. In a run of a natural planet that departs from Earth along one of these ratios, a slow rotator or a smaller world, only the Earth values that depend on that ratio err, whereas
 on the test world the values of all four err together, by amounts large enough to measure. PlaSim, for example,
@@ -91,13 +91,14 @@ Adapting these codes to the test world meant finding two things in them: Earth v
 a model that agrees with Earth because it was set or fitted there, and defects, code that contradicts its own
 inputs, units or intent. In the four codes the Earth values have four forms: dimensional constants written into
 the code, units of time, geometry, and empirical fits and simplifications used beyond the range they were made
-for. On the paths the lunar runs take, the released codes also contain five defects. Three of them produce
+for. On the paths the lunar runs take, the released codes also contain six defects. Three of them produce
 little or no error at Earth's values yet, by ExoPlaSim's own arithmetic, bias its runs that meet their
-conditions, runs of slowly rotating and tidally locked planets among them, while the other two err on Earth as well:
-CM1's simple boundary layer multiplies its mixing by the air's density in kilograms per cubic metre, and SWAN reads
-a parameter it has left unset.\claim{H34} Several of these values and defects leave a run plausible on its own; they
-were found by setting one model against another or against its own surface fluxes, or by reading the
-code.\claim{H34}\claim{H38} Of the repairs made to these values
+conditions, runs of slowly rotating and tidally locked planets among them, while the other three err on Earth as well:
+CM1's simple boundary layer multiplies its mixing by the air's density in kilograms per cubic metre, ExoPlaSim
+writes into its mean output a humidity recomputed once in each output interval, the model's state being untouched,
+and SWAN reads a parameter it has left unset.\claim{H34}\claim{H42} Several of these values and defects leave a run plausible on its own; they
+were found by setting one model against another, against its own surface fluxes or against its own output, or by
+reading the code.\claim{H34}\claim{H38} Of the repairs made to these values
 and defects, most belong to three classes, which differ in the worlds they hold for. A general repair, which
 corrects a unit, applies a scaling law or a parameterization fitted over a wider range, or removes a defect,
 contains no coefficient fitted to the test world and is built to hold on another world within the limits of its
@@ -115,7 +116,9 @@ about a tenth more than the GCM at a land site at 0\textdegree~E and twice its r
 At those two sites the two ways of forcing the boxes bracket the GCM's rain, their spread wider than the difference
 itself, whereas at a dry inland site both rain less; the boxes forced by the GCM's ascent also run 3.5--10~K colder
 at 40--60~km, where the land box making its own ascent holds within 0.15~K of the GCM's air, and no box passes the
-agreement test, the sea boxes reading as observations.\claim{G29} The ensemble's next
+agreement test, the sea boxes reading as observations.\claim{G29} Both models, moreover, still hold Earth values
+that bear on the sea's rain by time of day, among them the GCM's 50~m slab sea and CM1's formation of rain at
+Earth's rates, their effects unmeasured.\claim{H44}\claim{H45} The ensemble's next
 steps start there. With the boxes' ascent settled, the GCM's convection would be closed toward the free troposphere
 such boxes support, PlaSim's cloud calibrated against the resolved cloud of each world, and the broadband fits
 replaced by a radiation scheme reduced with existing tools from the reference model's spectroscopy
