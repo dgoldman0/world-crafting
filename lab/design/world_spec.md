@@ -311,7 +311,9 @@ on them (`notes/geography.md`):
   defaults name, and `resolve` gives the switches as the build, the calibrations and the world make them, which the
   run's record carries and the registry tests (rule 7): `from-spectrum` ice weights become `ZICEW`, the shares of the
   light at the top of the air, through patch 11, and patch 10's constants in a build whose series stops before it,
-  as registry entry `exoplasim-ice-weights` warns. A first run
+  as registry entry `exoplasim-ice-weights` warns. `surface_gust` becomes `NGUST` and `NSIMW` in fluxmod's namelist
+  through patches 12 and 13, each written where the run's series holds its patch, and a gust whose patches the
+  series lacks is refused. A first run
   (`Calibrations.identity()`) takes each calibration at its identity default: RAYSCALE and SWH2OSCALE 1, TH2OC
   PlaSim's 0.024, the curved air's terms and the gas bands off, and a sunlight scale of 1 where the scenario's
   follows its reference temperature; a first run that switches the longwave correction on is refused. A later run is

@@ -16,9 +16,15 @@ Terluna's runners to pristine upstream sources and recording each group's unifie
 | `models/cm1/patches/elec/` | `climate/crm/cm1_elec.py`: `quiet_msz`, `PATCHES` | 2619025f7b0a647e |
 | `models/swan/patches/` | `climate/waves/build.py` | 74afe80f1161372e |
 | `models/cm1/patches/lab/` (written 2026-11-08, from Terluna `bdda5a07`) | `climate/crm/cm1_run.py`: `PBL_DENSITY_PATCH`, `GUST_PATCH`, moved behind namelist switches | c0337fc8be2635ac |
+| `models/exoplasim/patches/12-surface-gust.patch`, `13-similarity-over-water.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/surface_gust.py`: `GUST_EDITS`; `climate/gcm/surface_similarity.py`: `SIMW_EDITS`; `climate/gcm/pbl_fortran.py`: the declarations of the five constants the depth rule reads | fb163850a4aa62d0, b676096169aa7f25, 66a8edb841195d7e |
 
-The row for `models/cm1/patches/lab/` differs: those patches were written by hand on 2026-11-08 from Terluna's
-edits at `bdda5a07`, with namelist switches added.
+The last two rows differ. The patches of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
+Terluna's edits at `bdda5a07`, with namelist switches added. ExoPlaSim's patches 12 and 13 were written on
+2026-11-11 from Terluna's edit lists at `39c5ee04`, applied to the pinned `fluxmod.f90` without Terluna's
+free-convection and nonlocal boundary-layer patches, which they follow there, and with the air's viscosity derived
+in each column. Their routines, from `gustnl` through `simwcol`, equal those of Terluna's deployed `fluxmod.f90`
+(research drive, `exoplasim-twilight/exoplasim/plasim/src/`, sha256 `0eadda0bb213cf83…`, read on 2026-11-11) but for
+comment lines and the two viscosity lines.
 
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).
@@ -52,11 +58,12 @@ drive. Upstream source code is never committed whole.
 ## Python tools
 
 The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna, at
-186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 122 files they hold with their
+186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 126 files they hold with their
 sha256 (98 brought first; the electricity package's conductivity column, muon ionization and charging laws, with
 their three tests and committed products, added on 2026-10-17; and on 2026-10-18 the geography package's
 heights above the geoid, storage levels, atlas, drainage and gazetteer reader, with their three tests and the
-package's `.gitignore`; and on 2026-11-08 CM1's output conventions and their test, from `bdda5a07`).
+package's `.gitignore`; on 2026-11-08 CM1's output conventions and their test, from `bdda5a07`; and on 2026-11-11
+the Python copies of PlaSim's gust and similarity over water with their two tests, from `39c5ee04`).
 `python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
 `models/exoplasim/patches/10-ice-optics.patch` in place of the runner's Python string (both hashes recorded).
 The geography package came over byte for byte (82b4b59), with its input restorer and manifest, the level table
@@ -65,3 +72,12 @@ tests hold both hashes and a note of each change, `tests/test_topography.py` is 
 data manifest and specifications took over from the four files the generalisation removed.
 On 2026-11-08 `climate/crm/cm1_output.py` came over byte for byte from Terluna at `bdda5a07`, with its test, whose
 last check reads the pinned CM1 archive in place of Terluna's lunar build; both entries record that commit.
+On 2026-11-11 `climate/gcm/surface_gust.py` and `climate/gcm/surface_similarity.py` came over from Terluna at
+`39c5ee04` (branch `domain/climate`) with their tests, each changed as its entry records, with both hashes. The
+Fortran edit lists are left out, since the patches are kept in `models/exoplasim/patches/`; `surface_gust.py`
+includes the parts of Terluna's `pbl_scheme.py` and `pbl_fortran.py` that the depth rule shares; the similarity
+takes the air's viscosity as an argument, derived for the world; and the tests compile the Fortran from the lab's
+series applied to the pinned archive, through a fixture of the lab's own in `climate/tests/conftest.py`. That day
+the gust's copy gave every number of Terluna's module bit for bit on that
+module's 24 test columns, and the similarity's column agreed with Terluna's to 3 × 10⁻¹⁶ at the viscosity that
+CM1's two lines share at 20 °C.

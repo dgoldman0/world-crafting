@@ -6,7 +6,7 @@ drive.
 
 | Note | Covers |
 |---|---|
-| `exoplasim.md` | The ten PlaSim patches, their switches and defaults, the design case and the open calibrations |
+| `exoplasim.md` | The thirteen PlaSim patches, their switches and defaults, the design case and the open calibrations |
 | `cm1.md` | The CM1 patch series and build variants, the forcing hooks and the build provenance |
 | `electrification.md` | The WRF-ELEC graft, the lunar lightning settings and the conductivity column |
 | `waves.md` | The SWAN patches, SWASH's lunar settings and the wave tools left in Terluna |

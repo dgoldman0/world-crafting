@@ -18,6 +18,7 @@ DEFAULTS = LIB.defaults('exoplasim/defaults')
 EARTH, CONTROL = LIB.world('earth'), LIB.scenario('earth/control')
 STORE, ENV = root('store'), root('env')
 DEPLOYED = LAB.parent / 'models' / 'exoplasim' / 'expected.sha256'
+SERIES_SOURCES = LAB.parent / 'models' / 'exoplasim' / 'expected-series.sha256'
 needs_build = pytest.mark.skipif(STORE is None or ENV is None or not ex.ARCHIVE.exists() or shutil.which('mpif90') is None,
                                  reason="a build needs the lab's store and environment, the pinned archive and MPI")
 
@@ -81,6 +82,19 @@ def deployed_point():
     return run, builds.build(run, store=STORE, env=ENV)
 
 
+@pytest.fixture(scope='module')
+def eleven_point():
+    """The build at the series' first eleven patches: Terluna's ten and the lab's patch 11, before the surface gust."""
+    run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:11]}
+    return run, builds.build(run, store=STORE, env=ENV)
+
+
+@pytest.fixture(scope='module')
+def whole_point():
+    """The build of the whole series, as the defaults name it."""
+    return DEFAULTS, builds.build(DEFAULTS, store=STORE, env=ENV)
+
+
 @needs_build
 def test_the_deployed_points_build_compiles_terlunas_deployed_sources(deployed_point):
     run, folder = deployed_point
@@ -96,20 +110,34 @@ def test_the_deployed_points_build_compiles_terlunas_deployed_sources(deployed_p
     assert builds.build(run, store=STORE, env=ENV) == folder  # a build in the store stands
 
 
-def _run_plasim(folder, executable, steps: int) -> subprocess.CompletedProcess:
-    """PlaSim run for `steps` steps in a folder the adapter wrote, with the build's executable; refused where PlaSim
-    aborts, which mpirun reports with its own exit code of 0 (mpimod.f90:385)."""
-    shutil.copy2(executable, folder / executable.name)
+def _run_plasim(folder, executable, steps: int, *, output: bool = True) -> subprocess.CompletedProcess:
+    """PlaSim run for `steps` steps in a folder the adapter wrote, with the build's executable, run from the build's
+    own folder; with `output` False PlaSim's output files stay unwritten (NOUTPUT 0) and its restart alone records the
+    run. Refused where PlaSim aborts, which mpirun reports with its own exit code of 0 (mpimod.f90:385)."""
     text = (folder / 'plasim_namelist').read_text()
-    for name, value in (('N_RUN_YEARS', 0), ('N_RUN_MONTHS', 0), ('N_RUN_DAYS', 0), ('N_RUN_STEPS', steps)):
+    entries = [('N_RUN_YEARS', 0), ('N_RUN_MONTHS', 0), ('N_RUN_DAYS', 0), ('N_RUN_STEPS', steps)]
+    for name, value in entries + ([] if output else [('NOUTPUT', 0)]):
         text, count = re.subn(rf'^ {name} = .*$', f' {name} = {value}', text, flags=re.M)
         assert count == 1, name
     (folder / 'plasim_namelist').write_text(text)
-    done = subprocess.run(['nice', '-n', '10', 'mpirun', '-np', str(DEFAULTS['ranks']), './' + executable.name],
+    done = subprocess.run(['nice', '-n', '10', 'mpirun', '-np', str(DEFAULTS['ranks']), str(executable)],
                           cwd=folder, capture_output=True, text=True, timeout=900)
     assert done.returncode == 0 and 'MPI_ABORT' not in done.stdout + done.stderr, done.stderr[-2000:]
     assert not (folder / 'Abort_Message').exists() and (folder / 'plasim_status').is_file()
     return done
+
+
+def _hashes(folder, executable, steps: int, *, output: bool = True) -> dict:
+    """PlaSim run in a folder the adapter wrote, and the sha256 of the output and the restart it writes there. Every
+    file the run wrote is then removed, the restart's 7 MB among them, so that the folder is as the adapter wrote
+    it, but for the run's length in plasim_namelist, and takes another run."""
+    written = {p.name for p in folder.iterdir()}
+    _run_plasim(folder, executable, steps, output=output)
+    made = [p for p in folder.iterdir() if p.name not in written]
+    out = {p.name: _sha256(p) for p in made if p.name in ('plasim_output', 'plasim_status')}
+    for p in made:
+        p.unlink()
+    return out
 
 
 def _diagnostic(folder, label: str) -> str | None:
@@ -130,33 +158,102 @@ def test_plasim_compiled_by_the_lab_runs_on_the_files_the_lab_writes(deployed_po
     assert float(_diagnostic(tmp_path / 'run', 'Solar    day')) == pytest.approx(calendar['model_day_s'], abs=0.0501)
     assert int(_diagnostic(tmp_path / 'run', 'Timesteps / day')) == calendar['steps_per_model_day']
     assert int(_diagnostic(tmp_path / 'run', 'Days / Year')) == calendar['n_days_per_year']
+    (tmp_path / 'run' / 'plasim_status').unlink()       # the restart, 7 MB, which the test reads nothing from
+
+
+def _executable(build, run):
+    return build / 'exoplasim' / 'plasim' / 'run' / builds.executable_name(run)
+
+
+def _differing(a, b) -> set:
+    """The names of the files that differ between two run folders the adapter wrote."""
+    return {p.name for p in a.iterdir() if p.read_bytes() != (b / p.name).read_bytes()}
 
 
 @needs_build
-def test_patch_11_at_its_default_runs_byte_for_byte_as_the_build_without_it(deployed_point, tmp_path):
+def test_patch_11_at_its_default_runs_byte_for_byte_as_the_build_without_it(deployed_point, eleven_point, tmp_path):
     """Earth's control with ice optics on, two days: the folder the adapter writes for the build of patches 01-10,
-    without ZICEW, gives the same output under the build of the whole series, where patch 11 holds patch 10's
-    constants; the weights the adapter writes for the whole series, from the Sun's spectrum, change it."""
-    ten, ten_build = deployed_point
-    ice = {**DEFAULTS, 'switches': {**DEFAULTS['switches'], 'ice_optics': True}}
-    whole_build = builds.build(ice, store=STORE, env=ENV)
-    executables = {name: build / 'exoplasim' / 'plasim' / 'run' / builds.executable_name(ice)
-                   for name, build in (('ten', ten_build), ('whole', whole_build))}
-    ex.write_run(tmp_path / 'ten', EARTH, CONTROL, {**ice, 'patches': ten['patches']},
-                 calibrations=ex.Calibrations.identity(), store=STORE)
-    shutil.copytree(tmp_path / 'ten', tmp_path / 'default')
-    ex.write_run(tmp_path / 'spectrum', EARTH, CONTROL, ice, calibrations=ex.Calibrations.identity(), store=STORE)
+    without ZICEW, gives the same output under the build of patches 01-11, where patch 11 holds patch 10's constants;
+    the weights the adapter writes for that build, from the Sun's spectrum, change it."""
+    (ten, ten_build), (eleven, eleven_build) = deployed_point, eleven_point
+    ice = lambda run: {**run, 'switches': {**run['switches'], 'ice_optics': True}}
+    executables = {'ten': _executable(ten_build, ten), 'eleven': _executable(eleven_build, eleven)}
+    ex.write_run(tmp_path / 'ten', EARTH, CONTROL, ice(ten), calibrations=ex.Calibrations.identity(), store=STORE)
+    ex.write_run(tmp_path / 'spectrum', EARTH, CONTROL, ice(eleven), calibrations=ex.Calibrations.identity(), store=STORE)
     assert 'ZICEW' not in (tmp_path / 'ten' / 'radmod_namelist').read_text()
     # The two folders differ in the four ZICEW lines alone, so that a change of output comes from the ice optics.
-    differ = {p.name for p in (tmp_path / 'ten').iterdir() if p.read_bytes() != (tmp_path / 'spectrum' / p.name).read_bytes()}
-    assert differ == {'radmod_namelist'}
+    assert _differing(tmp_path / 'ten', tmp_path / 'spectrum') == {'radmod_namelist'}
     lines = lambda name: (tmp_path / name / 'radmod_namelist').read_text().splitlines()
     assert [l for l in lines('spectrum') if 'ZICEW' not in l] == lines('ten')
     assert len([l for l in lines('spectrum') if 'ZICEW' in l]) == 4
-    out = {}
-    for name, executable in (('ten', executables['ten']), ('default', executables['whole']),
-                             ('spectrum', executables['whole'])):
-        _run_plasim(tmp_path / name, executable, 96)
-        out[name] = {f: _sha256(tmp_path / name / f) for f in ('plasim_output', 'plasim_status')}
-    assert out['default'] == out['ten']
+    # The folder without ZICEW under each build, then the folder with the Sun's weights under the build of 01-11.
+    runs = (('ten', 'ten', 'ten'), ('default', 'ten', 'eleven'), ('spectrum', 'spectrum', 'eleven'))
+    out = {name: _hashes(tmp_path / folder, executables[build], 96) for name, folder, build in runs}
+    assert set(out['ten']) == {'plasim_output', 'plasim_status'} and out['default'] == out['ten']
     assert out['spectrum']['plasim_output'] != out['default']['plasim_output']
+
+
+def _with_gust(run: dict, choice: str) -> dict:
+    return {**run, 'switches': {**run['switches'], 'surface_gust': choice}}
+
+
+@needs_build
+def test_patches_12_and_13_at_their_defaults_run_byte_for_byte_as_the_builds_without_them(eleven_point, whole_point,
+                                                                                         tmp_path):
+    """Earth's control over two days. The folder the adapter writes for the build of patches 01-11, whose fluxmod
+    namelist names neither switch, gives the same output and restart under the build of patches 01-12, where NGUST
+    takes its default, and so does the folder written for the whole series with the released model's transfer, NGUST
+    and NSIMW 0. With Beljaars's gust on, the folder written for patches 01-12 gives the same output and restart under
+    the whole series' build, where NSIMW takes its default. The gust changes the output, and the similarity over
+    water changes it again. Each run's files are removed once their hashes are taken."""
+    (eleven, eleven_build), (whole, whole_build) = eleven_point, whole_point
+    patches = list(ex.series(whole))
+    assert patches[11:] == [ex.PATCH_12, ex.PATCH_13] and eleven['patches'] == patches[:11]
+    # The whole series' build compiled the sources that models/check_patches.sh pins.
+    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
+    assert json.loads((whole_build / 'build.json').read_text())['sources'] == pinned
+    twelve = {**whole, 'patches': patches[:12]}
+    executables = {'eleven': _executable(eleven_build, eleven),
+                   'twelve': _executable(builds.build(twelve, store=STORE, env=ENV), twelve),
+                   'whole': _executable(whole_build, whole)}
+    written = {'eleven': eleven, 'none': whole, 'gust12': _with_gust(twelve, 'beljaars'),
+               'similarity': _with_gust(whole, 'beljaars_similarity')}
+    for name, run in written.items():
+        ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=ex.Calibrations.identity(), store=STORE)
+    # The folders differ in fluxmod's namelist alone, so that a change of output comes from the surface transfer.
+    flux = lambda name: (tmp_path / name / 'fluxmod_namelist').read_text().splitlines()[1:-1]
+    assert [flux(name) for name in written] == \
+        [[], [' NGUST = 0', ' NSIMW = 0'], [' NGUST = 1'], [' NGUST = 1', ' NSIMW = 1']]
+    for name in ('none', 'gust12', 'similarity'):
+        assert _differing(tmp_path / 'eleven', tmp_path / name) == {'fluxmod_namelist'}
+    out = {(name, build): _hashes(tmp_path / name, executables[build], 96)
+           for name, build in (('eleven', 'eleven'), ('eleven', 'twelve'), ('none', 'whole'), ('gust12', 'twelve'),
+                               ('gust12', 'whole'), ('similarity', 'whole'))}
+    assert set(out['eleven', 'eleven']) == {'plasim_output', 'plasim_status'}
+    assert out['eleven', 'twelve'] == out['eleven', 'eleven'] and out['none', 'whole'] == out['eleven', 'eleven']
+    assert out['gust12', 'whole'] == out['gust12', 'twelve']
+    changed = (('eleven', 'eleven'), ('gust12', 'twelve'), ('similarity', 'whole'))
+    assert len({out[key]['plasim_output'] for key in changed}) == 3
+
+
+@needs_build
+def test_under_the_moons_gravity_the_gust_and_the_similarity_run_over_open_sea(whole_point, tmp_path):
+    """Earth's control with the Moon's gravity in place of its own, a made-up world that puts ice-free sea under a
+    sixth of Earth's gravity: from a cold start the whole series runs one day with Beljaars's gust, alone and with
+    the similarity over water beside it, under the floating-point traps ExoPlaSim compiles with, and the similarity
+    changes the state the run ends in. The run tests the code's path at that gravity and no climate; it writes no
+    output, and its restart is removed once its hash is taken."""
+    whole, whole_build = whole_point
+    g_moon, body = derive.gravity(LIB.world('moon')), EARTH['body']
+    spin = (2.0 / 3.0) * derive.rotation_rate(EARTH) ** 2 * body['radius_m']
+    light = {**EARTH, 'id': 'earth-under-lunar-gravity',
+             'body': {'radius_m': body['radius_m'], 'gm_m3_s2': (g_moon + spin) * body['radius_m'] ** 2}}
+    assert derive.gravity(light) == pytest.approx(g_moon, rel=1e-12) and g_moon == pytest.approx(1.6242, abs=1e-4)
+    day, restarts = derive.calendar(light, whole)['steps_per_model_day'], {}
+    for choice in ('beljaars', 'beljaars_similarity'):
+        ex.write_run(tmp_path / choice, light, CONTROL, _with_gust(whole, choice),
+                     calibrations=ex.Calibrations.identity(), store=STORE)
+        assert f' GA = {derive.gravity(light)!r}\n' in (tmp_path / choice / 'planet_namelist').read_text()
+        restarts[choice] = _hashes(tmp_path / choice, _executable(whole_build, whole), day, output=False)
+    assert day == 48 and all(set(found) == {'plasim_status'} for found in restarts.values())
+    assert restarts['beljaars'] != restarts['beljaars_similarity']

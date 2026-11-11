@@ -1,8 +1,9 @@
 # In-house reference and calibration tools
 
 The tools the ExoPlaSim and CM1 adaptations rest on, copied byte for byte from Terluna at 186b294 under
-their Terluna package paths (`provenance.json` lists every file with its sha256; the geography package and one
-test are modified, below). Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
+their Terluna package paths (`provenance.json` lists every file with its sha256 and, where another commit is its
+source, that commit; the geography package, the surface transfer's two modules and four tests are modified, below).
+Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
 
 | Package | Holds | Notes |
 |---|---|---|
@@ -14,6 +15,7 @@ test are modified, below). Import from this folder (`pytest` sets the path; else
 | `illumination/sky/` | The spherical successive-orders sky solver and the solved-column sky | [../notes/sky_solver.md](../notes/sky_solver.md) |
 | `climate/gcm/plasim_shortwave.py`, `plasim_longwave.py` | PlaSim's clear-sky shortwave and longwave arithmetic for one column, and the fitters for its corrections | [../notes/exoplasim.md](../notes/exoplasim.md) |
 | `climate/gcm/plasim_ice_optics.py` | The ice optics of the `ice-optics` patch, in Python, with its PIFM two-stream | the same |
+| `climate/gcm/surface_gust.py`, `surface_similarity.py` | PlaSim's surface transfer on one column, in Python: as released, with Beljaars's gust in the bulk formulas' wind, and with CM1's surface-layer similarity over ice-free water at the world's viscosity; the copies that the Fortran of patches 12 and 13 is tested against | the same |
 | `climate/gcm/twilight.py` | The curved-air ledger: what the Moon's tall, curved air does to sunlight and infrared against flat columns, and the terms the GCM and CM1 patches read | [../notes/reference_radiation.md](../notes/reference_radiation.md) |
 | `climate/gcm/sun_check.py` | PlaSim's solar-position arithmetic, upstream and corrected, against a run's sunlight | [../notes/exoplasim.md](../notes/exoplasim.md) |
 | `geography/` (`topography.py`, `basins.py`, `atlas.py`, `drainage.py`, `nomenclature.py`) | A body's heights above its geoid, from a PDS3 height image and a SHADR gravity field read through their labels, with the body's spin and the permanent tide of a host fixed in its sky; the common water level that floods a given share of the surface, and the connected seas below it; the atlas of seas, islands and flooded maria at that level; the steady routing of a GCM run's runoff into rivers and fill-and-spill lakes; and the IAU gazetteer's names. The lab's general versions of Terluna's lunar tools; Terluna's other geography tools (tides, groundwater, shores and coasts, the water inventory, the calendar) stay there | [../notes/geography.md](../notes/geography.md) |
@@ -22,7 +24,7 @@ test are modified, below). Import from this folder (`pytest` sets the path; else
 ## Running
 
 ```sh
-python -m pytest python               # from the repository root: 228 tests
+python -m pytest python               # from the repository root: 250 tests, the sky solver's 34 among them
 ```
 
 On 2026-10-17, after the electricity tools were added, all 111 passed in the research drive's `optics`
@@ -41,6 +43,11 @@ added on 2026-10-19 and 2026-10-20, need no inputs but for these: sixteen read t
 paper's source, four HITEMP2010's zips in the lab's store, two of them with the spectroscopic inputs too, and one a
 PyRADS checkout beside the store. The ten on HITEMP's lines and the one on PyRADS's columns also import the lab's
 `worldlab` package, and one of the wind's tests takes the mpmath package. The system Python then collected 194.
+CM1's output conventions brought six tests on 2026-11-08, and the gust and the similarity over water sixteen on
+2026-11-11, of which eight apply the lab's patch series to the pinned ExoPlaSim archive in `upstream/` with `patch`
+and six of those compile its `surflx` with gfortran; without the archive or the tools they skip. The system Python,
+lacking numba, then collected 216 and passed them, and the lab's environment, which lacks mpmath as well, passed
+215 and skipped the one test that takes it.
 
 ## What still needs Terluna
 
@@ -64,7 +71,20 @@ A port to another world replaces those imports with a small configuration module
 `climate/tests/test_plasim_ice_optics.py::test_the_fortran_patch_matches_its_python_copy` compiles the ice
 routines taken from the committed patch `models/exoplasim/patches/10-ice-optics.patch` where Terluna's test
 took them from the runner's Python string; it checks the patch this repository distributes against the
-Python copy, to nine figures.
+Python copy, to nine figures. `climate/tests/test_cm1_output.py`, from Terluna at `bdda5a07`, reads CM1's
+conventions from the pinned CM1 archive in its last check, where Terluna's read its lunar build.
+
+`climate/gcm/surface_gust.py` and `surface_similarity.py`, with their tests, came from Terluna at `39c5ee04`. Their
+Fortran is in `models/exoplasim/patches/12-surface-gust.patch` and `13-similarity-over-water.patch`, where
+Terluna's modules keep it as edit lists for its runner, and the tests compile `surflx` from the series applied to
+the pinned archive, which a fixture of the lab's own supplies once in a session (`climate/tests/conftest.py`).
+`surface_gust.py` includes the parts of Terluna's `pbl_scheme.py` and `pbl_fortran.py` that the
+gust's depth rule shares with the nonlocal boundary layer, a scheme the series has no patch for.
+`similarity_column` takes the air's kinematic viscosity as an argument, which `surface_transfer` derives from the
+column's surface pressure, gas constant and lowest level's temperature with Sutherland's law, where Terluna's module
+held CM1's two values for Earth's sea-level air (`cm1_viscosity` keeps CM1's line). The tests of Terluna's runner
+and of its nonlocal scheme's depth stay in Terluna; in their place the tests here check the depth by hand
+arithmetic at Earth's gravity and the Moon's and pin numbers that Terluna's modules gave.
 
 The geography package is the lab's general version of Terluna's, and `provenance.json` notes each file's changes.
 Its tools take a body's grid, gravity field, rotation, tide and share as arguments, read PDS3 images and SHADR

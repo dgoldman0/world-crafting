@@ -163,7 +163,7 @@ def test_the_templates_come_from_the_pinned_archive_alone(tmp_path):
 # The switches as the build and the calibrations make them.
 
 def test_the_switches_resolve_to_what_the_build_does():
-    assert ex.series(DESIGN)[-1] == '11-ice-weights.patch' and len(ex.series(DESIGN)) == 11
+    assert ex.series(DESIGN)[10:] == ('11-ice-weights.patch', ex.PATCH_12, ex.PATCH_13) and len(ex.series(DESIGN)) == 13
     first, later = ex.resolve(DESIGN, ex.Calibrations.identity()), ex.resolve(LW_ICE, _given())
     assert (first['twilight'], first['gas_bands'], first['ice_weights']) == ('none', False, 'from-spectrum')
     assert (later['twilight'], later['gas_bands'], later['ice_weights'], later['ice_optics']) == \
@@ -173,6 +173,19 @@ def test_the_switches_resolve_to_what_the_build_does():
     assert ex.resolve(_with(DESIGN, switches={'ice_weights': 'patch-10'}), _given())['ice_weights'] == 'patch-10'
     with pytest.raises(SpecError, match='ice_weights'):
         ex.resolve(_with(DESIGN, switches={'ice_weights': 'measured'}), _given())
+    # The surface gust: the released model's transfer by default, on any point of the series; a gust whose patches
+    # the series lacks is refused.
+    assert first['surface_gust'] == later['surface_gust'] == ex.resolve(deployed, _given())['surface_gust'] == 'none'
+    gusty = _with(DESIGN, switches={'surface_gust': 'beljaars_similarity'})
+    assert ex.resolve(gusty, _given())['surface_gust'] == 'beljaars_similarity'
+    twelve = {**gusty, 'patches': list(ex.series(DESIGN))[:12]}         # the gust's patch without the similarity's
+    assert ex.resolve(_with(twelve, switches={'surface_gust': 'beljaars'}), _given())['surface_gust'] == 'beljaars'
+    for run, lacking in ((twelve, ex.PATCH_13),
+                         ({**gusty, 'patches': deployed['patches']}, f'{ex.PATCH_12} and {ex.PATCH_13}')):
+        with pytest.raises(SpecError, match=f"takes {re.escape(lacking)}, which the run's series lacks"):
+            ex.resolve(run, _given())
+    with pytest.raises(SpecError, match='surface_gust'):
+        ex.resolve(_with(DESIGN, switches={'surface_gust': 'coare'}), _given())
 
 
 # The rules each entry follows.
@@ -247,6 +260,30 @@ def test_the_switches_set_their_patches_entries():
     assert (radmod['IRTOPDAY'], radmod['IRTOPNIGHT']) == (10.1718, 0.5165)
 
 
+def test_the_surface_gust_sets_the_switches_of_the_patches_the_series_holds():
+    """Patches 12 and 13: NGUST and NSIMW in fluxmod's namelist, each written where the run's series holds its patch,
+    so that a build at an earlier point reads a namelist of the names it knows."""
+    fluxmod = lambda run: ex.namelists(MOON, OPEN_MOON, run, top=LATER, calibrations=_given()).get('fluxmod_namelist')
+    setting = lambda choice, patches=None: _with({**DESIGN, 'patches': patches or DESIGN['patches']},
+                                                 switches={'surface_gust': choice})
+    assert DEFAULTS['switches']['surface_gust'] == 'none' and fluxmod(DESIGN) == {'NGUST': 0, 'NSIMW': 0}
+    assert fluxmod(setting('beljaars')) == {'NGUST': 1, 'NSIMW': 0}
+    assert fluxmod(setting('beljaars_similarity')) == {'NGUST': 1, 'NSIMW': 1}
+    twelve, eleven = (list(ex.series(DESIGN))[:n] for n in (12, 11))
+    assert fluxmod(setting('none', twelve)) == {'NGUST': 0} and fluxmod(setting('beljaars', twelve)) == {'NGUST': 1}
+    assert fluxmod(setting('none', eleven)) is None
+    for choice, patches in (('beljaars_similarity', twelve), ('beljaars', eleven)):
+        with pytest.raises(SpecError, match="which the run's series lacks"):
+            fluxmod(setting(choice, patches))
+
+
+@needs_archive
+def test_the_surface_gusts_switches_are_written_into_fluxmods_namelist():
+    run = _with(DESIGN, switches={'surface_gust': 'beljaars_similarity'})
+    entries = ex.namelists(MOON, OPEN_MOON, run, top=LATER, calibrations=_given())
+    assert ex.namelist_texts(entries)['fluxmod_namelist'] == ' &fluxmod_nl\n NGUST = 1\n NSIMW = 1\n /END\n'
+
+
 def test_an_eccentric_orbit_states_its_longitude_of_perihelion():
     planet = ex.namelists(MOON, OPEN_MOON, DESIGN, top=LATER, calibrations=_given())['planet_namelist']
     assert planet['MVELP'] == 102.7 and MOON['orbit']['perihelion_longitude_deg'] == 102.7   # Earth's, through its host
@@ -265,6 +302,7 @@ def test_an_eccentric_orbit_states_its_longitude_of_perihelion():
     (MOON, _with(DESIGN, switches={'top_infrared': 'from-glow'}), OPEN_MOON, 'glow producer'),
     (MOON, _with(DESIGN, switches={'surface_cloud_rcrit': 1.0}), OPEN_MOON, 'surface_cloud_rcrit'),
     (MOON, _with(DESIGN, switches={'convective_day_s': -1.0}), OPEN_MOON, 'convective_day_s'),
+    (MOON, _with(DESIGN, switches={'surface_gust': 'similarity'}), OPEN_MOON, 'switches.surface_gust'),
     (MOON, {**DESIGN, 'clear_sky': 1}, OPEN_MOON, 'clear_sky'),
     (MOON, {**DESIGN, 'seed': 1.5}, OPEN_MOON, 'seed'),
     (MOON, DESIGN, _with(OPEN_MOON, air={'reference_level': 'mean-radius'}), 'level its heights start from'),

@@ -130,7 +130,10 @@ each with an identity default equal to the released model:
   (g/p_s)^⅓ against Earth's standard atmosphere, 0.00083 on the Open Moon; the vertical diffusion's mixing lengths
   scaled with gravity, and Terluna's nonlocal boundary layer (`nlpbl`), as sensitivities, the second bringing the
   land's afternoon mixed layer down toward CM1's in single columns; and the rain-evaporation constant as a setting with
-  PlaSim's 0.01 as its default. Each becomes a registry entry in stage 6.
+  PlaSim's 0.01 as its default. Each becomes a registry entry in stage 6. Since 11 November 2026 patches 12 and 13
+  of ExoPlaSim's series add Beljaars's gust with the similarity over ice-free water, which Terluna's design runs
+  take and which drop the free-convection term; the lab sets them through `surface_gust`, off by default until the
+  Earth control's test (`models/exoplasim/README.md`).
 
 The disagreement Terluna finds is largest over its open sea, which covers the whole of each stage 12 anchor, so the
 anchors take the settings that the Open Moon's comparison with CM1 supports.

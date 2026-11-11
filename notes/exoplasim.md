@@ -1,7 +1,8 @@
 # ExoPlaSim on a breathable Moon: correctness, limits and room for improvement
 
-Notes on the eleven patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten and the lab's patch 11, the settings that carry the
-Moon, the offline copies of PlaSim's radiation in `python/climate/gcm/`, and what in PlaSim stays
+Notes on the thirteen patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten, the lab's patch 11 and patches 12 and 13,
+which the lab wrote from Terluna's surface transfer, the settings that carry the
+Moon, the offline copies of PlaSim's radiation and surface transfer in `python/climate/gcm/`, and what in PlaSim stays
 Earth's. References to Terluna are at commit 186b294 unless another commit is named; to ExoPlaSim, at the 3.4.2
 source distribution.
 
@@ -16,7 +17,7 @@ physical validation of a lunar climate, which no observation can supply.
 
 - Applied with GNU patch to pristine ExoPlaSim 3.4.2, patches 01–10 reproduce the copy every Terluna run
   imported on 2026-10-17 byte for byte (`models/check_patches.sh`; `models/exoplasim/expected.sha256`), and the
-  series of eleven gives the sources of `models/exoplasim/expected-series.sha256`.
+  series of thirteen gives the sources of `models/exoplasim/expected-series.sha256`.
 - Prefixes of the series reproduce the source hashes 32 Terluna runs recorded, so each reported result
   can be rebuilt from the series (`models/exoplasim/runs.json`). The two exceptions are explained there.
 - The deployed copy compiled and ran in Terluna's runs. The lab compiles each point of the series in its store
@@ -161,7 +162,7 @@ the Sun's constant: 0.6164, 0.2283, 0.0811 and 0.0742. Patch 11, the world-craft
 the namelist with those constants as its default, and the lab writes the shares of the light at the top of
 the air, the filter included (`lab/worldlab/sunlight.py`): 0.6295, 0.2276, 0.0752 and 0.0677 through the
 Open Moon's shield, and 0.6202, 0.2297, 0.0816 and 0.0685 for the unfiltered Sun. Identity: at its default
-the build of the whole series runs Earth's control with ice optics on, over 96 steps, byte for byte as the
+the build of patches 01–11 runs Earth's control with ice optics on, over 96 steps, byte for byte as the
 build of patches 01–10, output and status alike, and the Sun's own weights change the output
 (`lab/tests/test_builds.py`), where the two run folders differ in the four weights alone, which shows the ice
 path ran. The broadcast of the weights
@@ -214,6 +215,54 @@ PlaSim comes within 0.97 W/m² rms of the line-by-line column, against 1.71 befo
 **Limits.** The fits hold for the design composition (CO2 mass fraction 6.1×10⁻⁴, O2 0.194) and the
 paths they span; overlap with water is multiplicative; water's visible bands and the collision-induced
 bands stay out of PlaSim and inside the water multiplier.
+
+### The gust and the similarity over water (patches 12 and 13, `NGUST`, `NSIMW`)
+
+**The Earth values.** Over unstable water `surflx` multiplies its transfer of heat and vapour by Miller, Beljaars
+and Palmer's (1992) factor, (1 + (0.0016 Δθ_v^⅓/(|U| C_N))^1.25)^0.8, whose constant is the still-air limit of a tank
+law at Earth's gravity and sea-level air, and it holds the wind of every bulk formula at 1 m/s or more. On the
+3-day means of Terluna's fifteen-level runs, which smooth the wind and so overstate the term, the factor raised the
+transfer at the Near-side Sea site 1.71–2.14 times, where the tank law carried to lunar gravity and the design air's
+pressure gives 1.33–1.53 (Terluna `climate/gcm/README.md` at `39c5ee04`; defect log B33).
+
+**Repair.** Patch 12 puts in their place the physics that Beljaars (1995), a co-author of the 1992 factor, proposed:
+under a convective boundary layer the layer's large eddies sweep the surface at about their convective velocity
+w* = (g/θ_v · h · (w′θ_v′)₀)^⅓, which joins the mean wind in the bulk formulas, so that gravity, the layer's depth
+and the buoyancy flux each enter explicitly. With `NGUST` 1 every surface takes Louis's factors under that wind, its
+least value CM1's 0.1 m/s, with the buoyancy flux from the step before's fluxes and the depth from the bulk
+Richardson rule of Terluna's nonlocal boundary layer. Patch 13 then takes, over ice-free water, the transfer of CM1's
+own surface layer at the lowest level's height (`NSIMW` 1): under the same gust Louis's factors evaporated 0.72–0.74
+of that similarity's water on the air of Terluna's sea box and 0.82 on its GCM's, most of the difference in light
+wind over warm water. The similarity's viscosity is each column's own, from the model's pressure, temperature and
+gas constant with Sutherland's law, where CM1's code sets the viscosity of Earth's sea-level air;
+[../models/exoplasim/README.md](../models/exoplasim/README.md) lists which of the two patches' values are the
+world's and which stay Earth's.
+
+**Correctness.** Identity: on Earth's control over 96 steps, each patch at its default gives the output and the
+restart of the build before it byte for byte, patch 13 with the gust off and with it on (`lab/tests/test_builds.py`).
+Reproduction: `surflx` from the patched source gives the transfer of the Python copies
+(`python/climate/gcm/surface_gust.py`, `surface_similarity.py`) to 10⁻¹⁰ at the Moon's gravity and Earth's; the
+gust's copy gave Terluna's module's numbers bit for bit on its 24 test columns, and the similarity's gives them to
+10⁻¹² at the one viscosity both of CM1's lines share (`python/climate/tests/`). On one column in σ the gust's depth
+goes as 1/g and its velocity keeps its value, since the heights go as 1/g and the buoyancy as g. Sensitivity, in
+Terluna's runs with its own patches: the gust lowered the sea site's transfer coefficient for vapour to 0.67 of the
+baseline's over four years, the sea warming 1.2 K and the globe 0.18–0.55 K with 6% less rain, and the similarity
+then raised the sea's evaporation 17% and the globe's rain 5% over one lunar day. In the lab's two-day test on
+Earth's control from a cold start, the gust changes the output and the similarity changes it again
+(`lab/tests/test_builds.py`).
+
+**Limits.** The similarity takes a constant flux up to the lowest level, 0.15 km on Earth's ten levels and 0.9 km
+on the Open Moon's, where Terluna's fifteen-level set stands at 0.3 km. The depth comes from the model's levels, is
+at least the lowest level's height, and is untested against CM1's depths. The step before's fluxes and the
+similarity's carried state stay outside the restart, so each restarted segment begins with one step that takes no
+gust and with the similarity at its start values. Charnock's constant, the 2.85 mm cap on the sea's roughness, Fairall's
+roughness for heat and vapour and Paulson's functions remain fits to Earth's seas and surface layer. The Earth
+control's test, which decides whether the two switches serve every world, is still to be run, and until then the
+lab's default keeps the released model's transfer.
+
+**Improvement.** The Earth control's test; the carried state and the fluxes in the restart; a warning where the
+lowest level stands above a tenth of the boundary layer's depth; and the sea's roughness from the ensemble's wave
+model at the world's gravity in place of Charnock's constant and its cap.
 
 ## Calibrations
 
@@ -319,8 +368,9 @@ radiation. The same hook carries any infrared source above the air: a host plane
 | Kuo-type deep convection (`nprc` 1), its parcel lifted undiluted from the surface | It rains a column's moisture supply, the surface's evaporation included, wherever the parcel is buoyant: over the Near-side Sea 2.9 mm/day after midnight under sinking air, where CM1's box rains 0.14–0.17 mm/day; it holds the upper air within 1.3 K of the undiluted adiabat, where CM1's mixing updrafts hold theirs 3.0–6.3 K below, and CM1's air at 42–56 km runs 7.7–10 K colder (Terluna `domain/climate` f07ad8d, 467a146) | A scheme fitted to CM1's mixing and timing: Terluna's simplified Betts–Miller (`nprc` 2) and mass-flux (`nprc` 3) schemes, behind PlaSim's own switch; so far each setting misses CM1's rain by time of day at one site or both, and in single columns the mass-flux scheme goes deep on every step of the sea's night (6d0c707; defect log B29) |
 | Rain evaporation by one constant (`gamma` 0.01 in `mkrain`) | Falling rain evaporates a share of each layer's saturation deficit per step, with no drop size or fall speed: 29% of PlaSim's rain on the Moon, an ordinary share on Earth, against 61% in CM1's corrected boxes; matching them takes 0.027 over the sea and about 0.046 over land (05b1384, 30e7f83) | Evaporation by drop size and fall time, or a constant by surface fitted to cloud-resolving runs |
 | Earth's σ levels near the ground | At the Moon's 51 km scale height the lowest layer spans 0–1.73 km and one layer 6.4–13.7 km: the bottom layer averages away the 1.4–2.3 kJ/kg of moist static energy that CM1's afternoon and evening updraughts draw from the surface layer, and CM1's 6 km night boundary layer and its clouds' 7–8 km tops fall inside one layer (697ac36, 03e7c41) | More levels near the ground: Terluna's 14- and 15-level sets, the lowest level near 0.3 km, at about 1.5 times the run's cost, each with a longwave refit on its own columns (defect log B31) |
-| Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and 1 m/s wind floor | Over the Near-side Sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour up through 5.2 km, mostly by resolved motion, where PlaSim's median diffusivity is 0.1–0.3 m²/s (21d98fc) | Lengths scaled with gravity, an untested scaling; a nonlocal scheme with explicit entrainment, tested in single columns, brings the land's afternoon mixed layer down toward CM1's and misses the sea's night, where Terluna reads CM1's 10–12 W/m² of heat carried down through 6–7 km as entrainment driven from the cloud's top (6d0c707; defect log B32) |
-| Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³ (Miller, Beljaars and Palmer 1992) | Its tank law goes as (g/p_s)^⅓, 0.00083 on the Moon; at that value the Near-side Sea's evaporation falls from 3.82 to 3.62 mm/day, against CM1's 2.98 (b182515) | The lunar value, a namelist variable in Terluna's build (defect log B33) |
+| Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and its least wind shear of 1 m/s (`zumin`) | Over the Near-side Sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour up through 5.2 km, mostly by resolved motion, where PlaSim's median diffusivity is 0.1–0.3 m²/s (21d98fc) | Lengths scaled with gravity, an untested scaling; a nonlocal scheme with explicit entrainment, tested in single columns, brings the land's afternoon mixed layer down toward CM1's and misses the sea's night, where Terluna reads CM1's 10–12 W/m² of heat carried down through 6–7 km as entrainment driven from the cloud's top (6d0c707; defect log B32). In the surface transfer, where the same `zumin` floors the wind, patch 12's gust takes its place with `NGUST` 1 |
+| Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³ (Miller, Beljaars and Palmer 1992), at the series' defaults | Its tank law goes as (g/p_s)^⅓, 0.00083 on the Moon; at that value the Near-side Sea's evaporation falls from 3.82 to 3.62 mm/day, against CM1's 2.98 (b182515) | Beljaars's gust with the similarity over ice-free water, patches 12 and 13 (`NGUST`, `NSIMW`), which drop the term; they stay off until the Earth control's test, and Terluna's lunar value of the constant has no patch here (defect log B33) |
+| With `NSIMW` 1: Charnock's 0.0185, the 2.85 mm cap on the sea's roughness, Fairall's roughness for heat and vapour, Paulson's functions, and Sutherland's two constants for the dynamic viscosity of Earth's dry air (`SIMW_MUB`, `SIMW_MUS`), which the lab's writer leaves at the patch's defaults in every run; with `NGUST` 1: β = 1 and the depth rule's constants | Unmeasured. Gravity enters w*, the Richardson numbers, z/L and Charnock's relation explicitly, and the kinematic viscosity takes each column's own density under Earth's dry air's dynamic viscosity, while the cap and Fairall's lengths are fits to Earth's seas | The sea's roughness from the ensemble's wave model at the world's gravity; large-eddy runs at that gravity for β and the depth; the dynamic viscosity of the scenario's own air, written by the adapter |
 | Shallow convection's tops capped at 700 hPa | An Earth height, near 28 km in the Moon's air; binds in 1–1.4% of cells (1d05c3d) | A cap tied to the deep-convection depth test (defect log B34) |
 | Horizontal diffusion's damping times at the truncation scale: 0.2, 1.1, 5.6 and 0.1 days for divergence, vorticity, temperature and humidity, counted in 24-hour days | Earth's T21 times on a wave 3.7 times shorter: a given wind crosses the Moon's smallest wave 3.7 times faster while the damping keeps its time. The design run's spectra fall smoothly to the truncation except in the vertical motion, flat to wavenumber 18 | The Earth control's spectra as the comparison; one run with the times multiplied by 0.27 (defect log B36) |
 | A slab sea 50 m deep (`MLDEPTH`) | Earth's seasonal mixed layer under a 29.5-day cycle of sunlight: the Near-side Sea site's surface swings 0.63 K through the lunar day, and by estimate two to four times that if the heat stays in the top 10–20 m; the sea's rain by time of day depends on the swing | One run at 15 m; the depth as a setting by world (defect log B37) |
@@ -329,7 +379,7 @@ radiation. The same hook carries any infrared source above the air: a host plane
 | Top layer from 112 km to the top of the air (575 km for 0.1 Pa) | One layer carries the whole upper atmosphere's radiation | A higher-resolution top; the middle-atmosphere model for the base of the thermosphere |
 | Sasamori longwave, Lacis–Hansen shortwave | Calibrated near the design column only | k-distributions from the same spectroscopy |
 
-## Offline copies of PlaSim's radiation
+## Offline copies of PlaSim's radiation and surface transfer
 
 `python/climate/gcm/plasim_shortwave.py` and `plasim_longwave.py` repeat PlaSim's clear-sky shortwave and
 longwave arithmetic for one column so their corrections can be fitted against the line-by-line and
@@ -337,6 +387,11 @@ correlated-k models without running the GCM. Reproduction: the shortwave copy ma
 clear-sky split within 0.4 points on all 11 columns of the corrected Sun's test; the longwave copy
 matches PlaSim's own heating within 0.01 K a day on the run's cloud-free 3-day means. Their fitting
 drivers read GCM output (netCDF) and Terluna's column choices; their column arithmetic runs alone.
+
+`python/climate/gcm/surface_gust.py` and `surface_similarity.py` repeat `surflx`'s transfer on one column, as
+released and with patches 12 and 13, so that the patches' Fortran can be tested against them without the GCM.
+Reproduction: `surflx` from the patched source, compiled alone, gives their transfer coefficients to 10⁻¹⁰ ("The gust
+and the similarity over water", above).
 
 ## Improvements in order of value
 
@@ -350,5 +405,7 @@ drivers read GCM output (netCDF) and Terluna's column choices; their column arit
 5. Replace the broadband schemes with reduced k-distributions built from the in-house spectroscopy.
 6. Correct the column mass and heights for gravity falling with height, or move to a deep-atmosphere core.
 7. An independent GCM (ROCKE-3D or the LMD Generic PCM) on the same scenario.
-8. Upstream: the Sun clock, the orbit default's documentation, the free-convection constant's gravity, and the
+8. Take the gust and the similarity over water through the Earth control's test, carry their state in the restart,
+   and warn where the lowest level stands above the surface layer.
+9. Upstream: the Sun clock, the orbit default's documentation, the free-convection constant's gravity, and the
    switches whose defaults are identity.

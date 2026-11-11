@@ -6,7 +6,8 @@
 schema = "worldlab.defaults.exoplasim/0"
 id = "exoplasim/defaults"
 upstream = "exoplasim-3.4.2"                   # models/pins.sha256
-patches = "models/exoplasim/patches/series"    # all eleven applied, Terluna's ten and the lab's patch 11; each
+patches = "models/exoplasim/patches/series"    # all thirteen applied: Terluna's ten, the lab's patch 11, and patches
+                                               # 12 and 13, written here from Terluna's gust and similarity; each
                                                # switch below, at its default when omitted
 
 resolution = "T21"
@@ -46,6 +47,13 @@ ice_optics = false                             # 10: NICEOPT, TICEOPT
 ice_weights = "from-spectrum"                  # 11: ZICEW, the near-infrared weights from the spectrum at the top of the
                                                # air; a build without patch 11 keeps patch 10's, from the unfiltered Sun
 top_infrared = "from-scenario"                 # 06: IRTOPDAY, IRTOPNIGHT
+surface_gust = "none"                          # 12, 13: NGUST, NSIMW. "none" keeps the released model's surface transfer,
+                                               # with its free-convection term over water and its least wind of 1 m/s;
+                                               # "beljaars" puts Beljaars's convective gust in their place, and
+                                               # "beljaars_similarity" takes CM1's surface-layer similarity over
+                                               # ice-free water with it. The released model's transfer stays the
+                                               # default until the Earth control's test (PLAN.md, "Porting:
+                                               # confidence, form and cost")
 
 [calibration]                                  # the stages whose products, fitted to the study's scenario, a run reads
                                                # where its switches use them

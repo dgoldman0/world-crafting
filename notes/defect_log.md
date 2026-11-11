@@ -90,8 +90,8 @@ corrected there. The companion note `verification_record.md` describes the check
 | B29 | PlaSim | Kuo-type deep convection rains a column's moisture supply wherever an undiluted surface parcel is buoyant | 10-21, Terluna `domain/climate` f07ad8d | In Terluna: simplified Betts–Miller (`nprc` 2) and mass-flux (`nprc` 3) schemes, Kuo kept at `nprc` 1 | Near-side Sea rains 2.9 mm/day after midnight against CM1's 0.14–0.17; upper air within 1.3 K of the undiluted adiabat, where CM1's mixing updrafts hold theirs 3.0–6.3 K below | Open; replacements under test in Terluna | R |
 | B30 | PlaSim | Falling rain evaporates by one constant (`gamma` 0.01 in `rainmod.f90`), with no drop size or fall speed | 10-21, 05b1384 | In Terluna: `--rain-evaporation` | PlaSim evaporates 29% of its rain against 61% in CM1's boxes; matching takes 0.027 over the sea and about 0.046 over land | Open | R |
 | B31 | PlaSim | Ten σ levels set for Earth: on the Moon the lowest layer spans 0–1.73 km and one layer 6.4–13.7 km | 10-26, 697ac36, a75fd47 | In Terluna: 14- and 15-level sets (`--levels`) with a conservative restart remap | The lowest layer averages away 1.4–2.3 kJ/kg of surface-layer moist static energy; CM1's 6 km night boundary layer and 7–8 km cloud tops fall inside one layer | Open; 14 and 15 levels under test in Terluna | R |
-| B32 | PlaSim | Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and 1 m/s wind floor | 10-26, b182515; compared 10-27, 21d98fc | None yet; a nonlocal scheme with the stretched length, tested in single columns, misses the sea night's stop rule (6d0c707) | Over the sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour through 5.2 km where PlaSim's median diffusivity is 0.1–0.3 m²/s | Open | R |
-| B33 | PlaSim | Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³, from a tank law that scales as (g/p_s)^⅓ | 10-26, b182515 | In Terluna: `cfree` in `fluxmod`'s namelist, `--free-convection lunar` (0.00083) | Near-side Sea's evaporation 3.82 → 3.62 mm/day (CM1 2.98); global evaporation and rain 3% lower | Open here; switch in Terluna | R |
+| B32 | PlaSim | Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and 1 m/s wind floor | 10-26, b182515; compared 10-27, 21d98fc | The lengths: none yet; a nonlocal scheme with the stretched length, tested in single columns, misses the sea night's stop rule (6d0c707). The floor in the surface transfer: `NGUST` (0), the lab's series, patch 12, Beljaars's gust with a least wind of 0.1 m/s | Over the sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour through 5.2 km where PlaSim's median diffusivity is 0.1–0.3 m²/s | The lengths open; the floor in the surface transfer replaced by the gust in the lab's series and in Terluna's design runs, and kept in the vertical diffusion's wind shear | R |
+| B33 | PlaSim | Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³, from a tank law that scales as (g/p_s)^⅓ | 10-26, b182515 | `NGUST`, `NSIMW` (0, 0): the lab's series, patches 12 and 13, Beljaars's gust with similarity over ice-free water, which drop the term (Terluna's `surface_gust.py`, `surface_similarity.py`). In Terluna also `cfree`, `--free-convection lunar` (0.00083), which has no patch here | Near-side Sea's evaporation 3.82 → 3.62 mm/day at the lunar constant (CM1 2.98), global evaporation and rain 3% lower; with the gust the site's transfer coefficient for vapour falls to 0.67 of the baseline's | Replaced in the lab's series, off by default until the Earth control's test; replaced in Terluna's design runs | R |
 | B34 | PlaSim | Shallow convection's tops capped at 700 hPa | 10-25, 1d05c3d | In Terluna: `--sbm-shallow-cap`, tied to the depth test (ea1b62f) | Near 28 km in the Moon's air; binds in 1–1.4% of cells | Open here; switch in Terluna | R |
 | B35 | CM1 r22.0 | The MM5 surface layer's gust over water, √Δθv m/s, has no gravity in it; over land the same scheme takes Beljaars's gust from the build's gravity | 10-28, Terluna `domain/climate` 238638f | `gust_over_water` (0): the lab's series, patch 02, from Terluna's `GUST_PATCH` | Raised the sea box's surface wind 1.6–1.8 times, where Beljaars's gust, computed from the box's own fluxes, raises it 1.1–1.2 times; every CM1 run over the seas behind the paper's first released draft | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | B36 | PlaSim | Horizontal diffusion's damping times at the truncation scale, 0.2–5.6 Earth days, Earth's for T21 | 11-09 | None | Unmeasured; the Moon's smallest wave is 3.7 times shorter than Earth's and damped as slowly | Open | P |
@@ -746,7 +746,7 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   lowest near 0.3 km), at about 1.5 times the ten-level run's cost, with a mass-conserving remap for restarts
   (697ac36, a75fd47). The longwave correction takes a refit on each set's own columns (B18).
 
-### B32. PlaSim: Earth's mixing lengths and wind floor in the vertical diffusion (R; open)
+### B32. PlaSim: Earth's mixing lengths and wind floor in the vertical diffusion (R; the lengths open)
 
 - **Defect.** PlaSim's vertical diffusion converts its coefficient from heights to σ with g³, as the physics
   requires, but its mixing lengths, 160 m for momentum and 438 m for heat and vapour, and its 1 m/s wind floor are
@@ -768,8 +768,13 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   night layer through the quarter, so the column loses that layer in the evening under deep convection, whichever
   boundary layer it has. CM1's cloud-topped night layer carries 10–12 W/m² of heat down through 6–7 km, mostly by its
   subgrid mixing, which Terluna reads as entrainment driven from the cloud's top, a term PlaSim's schemes lack.
+- **The wind floor.** `zumin`, 1 m/s, floors the wind of `surflx`'s bulk formulas as well as the wind shear in
+  `vdiff`. In the surface transfer, patch 12 of the lab's `models/exoplasim/patches/series` puts Beljaars's gust in
+  its place with CM1's least wind of 0.1 m/s when a run sets `NGUST = 1` (default 0, PlaSim's floor), as Terluna's
+  design runs have it; in the vertical diffusion the floor stays (B33; `notes/exoplasim.md`, "The gust and the
+  similarity over water").
 
-### B33. PlaSim: Earth's free-convection constant over water (R; open here)
+### B33. PlaSim: Earth's free-convection constant over water (R; replaced in the lab's series, off by default)
 
 - **Defect.** `surflx` computes the transfer of heat and vapour over water with Miller, Beljaars and Palmer's
   (1992) free-convection constant, 0.0016 m s⁻¹ K⁻¹ᐟ³, the still-air limit of a tank law, 0.17 (g κ²/(θ_v ν))^⅓, that goes
@@ -790,8 +795,19 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   law against the cube root's 0.55, the low end from the gust law under a boundary layer no deeper than Earth's, in
   which gravity and the layer's depth enter as a product, and the high end from the lowest exponent. The bracket
   bears on the gust of B35 as well.
-- **Status.** A namelist variable in Terluna's build (`fluxmod`'s `cfree`, `--free-convection lunar`); this
-  repository's series holds the Earth constant.
+- **Fix.** Beljaars's gust with the similarity over ice-free water, which drop the term: over water as over land
+  the transfer takes the wind √(|U|² + w*²), w* = (g/θ_v h B)^⅓ from the model's gravity, its boundary layer's depth
+  and its buoyancy flux, and ice-free water then takes CM1's surface-layer similarity at the lowest level's height.
+  Terluna's design runs take both (`climate/gcm/surface_gust.py`, `surface_similarity.py` at `39c5ee04`): in its
+  four-year test the gust lowered the Near-side Sea site's transfer coefficient for vapour to 0.67 of the baseline's,
+  against 0.78 at the lunar constant. Patches 12 and 13 of the lab's `models/exoplasim/patches/series` add both to
+  `fluxmod.f90`, switched by `NGUST` and `NSIMW` (each 0 by default, PlaSim's own term), and derive the air's
+  viscosity in each column, where Terluna's patch sets that of Earth's sea-level air.
+- **Status.** At the series' defaults PlaSim keeps the Earth constant, and the lab's default keeps it until the Earth
+  control's test decides whether the gust serves every world (`PLAN.md`). Each patch at its default gives the build
+  before it byte for byte over two days of Earth's control, and the switches change that output
+  (`lab/tests/test_builds.py`). Terluna's namelist variable for the constant (`fluxmod`'s `cfree`,
+  `--free-convection lunar`) has no patch here.
 
 ### B34. PlaSim: shallow convection's tops at 700 hPa (R; open here)
 

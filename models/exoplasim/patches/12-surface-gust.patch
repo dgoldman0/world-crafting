@@ -1,0 +1,184 @@
+--- a/plasim/src/fluxmod.f90
++++ b/plasim/src/fluxmod.f90
+@@ -27,6 +27,15 @@
+       real :: vdiff_b    = 5.    !        "
+       real :: vdiff_c    = 5.    !        "
+       real :: vdiff_d    = 5.    !        "
++      integer :: ngust = 0 ! Terluna: Beljaars's gust in the surface transfer: 1 adds it (gustnl)
++      real :: gust_beta = 1.0 ! the gust's factor on w* (CM1's vconvc; Beljaars 1995)
++      real :: gust_umin = 0.1 ! the least wind in the bulk formulas with the gust (m/s; CM1)
++!     the depth of the gust's boundary layer (gustcol): the constants its rule reads, of Terluna's nonlocal scheme
++      real :: pbl_b = 8.5 ! thermals' temperature excess constant b (Holtslag and Boville 1993)
++      real :: pbl_eps = 0.1 ! surface layer's share of the boundary layer
++      real :: pbl_betam = 15.0 ! unstable wind-gradient constant (Dyer 1974)
++      real :: pbl_ricru = 0.0 ! critical bulk Richardson number, unstable (Hong et al. 2006)
++      real :: pbl_bu = 100.0 ! u*^2 factor in the bulk number (Vogelezang and Holtslag 1996)
+ 
+ !
+ !     arrays
+@@ -57,7 +66,8 @@
+       use fluxmod
+ !
+       namelist/fluxmod_nl/nvdiff,nshfl,nevap,nstress,ntsa                  &
+-     &                ,zumin,vdiff_lamm,vdiff_b,vdiff_c,vdiff_d
++     &                ,zumin,vdiff_lamm,vdiff_b,vdiff_c,vdiff_d            &
++     &                ,ngust,gust_beta,gust_umin,pbl_b,pbl_eps,pbl_betam,pbl_ricru,pbl_bu
+ !
+       if(mypid==NROOT) then
+          open(11,file=fluxmod_namelist)
+@@ -81,6 +91,14 @@
+       call mpbcr(vdiff_b)
+       call mpbcr(vdiff_c)
+       call mpbcr(vdiff_d)
++      call mpbci(ngust)
++      call mpbcr(gust_beta)
++      call mpbcr(gust_umin)
++      call mpbcr(pbl_b)
++      call mpbcr(pbl_eps)
++      call mpbcr(pbl_betam)
++      call mpbcr(pbl_ricru)
++      call mpbcr(pbl_bu)
+ 
+       return
+       end subroutine fluxini
+@@ -149,6 +167,7 @@
+ !
+ 
+       real zabsu2(NHOR)    ! squared wind speed (m2/s2)
++      real zgust2(NHOR)    ! Terluna: the gust's square (m2/s2), with ngust = 1
+       real znl(NHOR)       ! z of lowermost level (m)
+       real zbz0(NHOR)      ! z/z0
+       real zri(NHOR)       ! bulk richardson number
+@@ -195,7 +214,12 @@
+ !     windspeed (squared):
+ !
+ 
+-      zabsu2(:)=AMAX1(zumin,du(:,NLEV)*du(:,NLEV)+dv(:,NLEV)*dv(:,NLEV))
++      if(ngust == 1) then   ! Terluna: Beljaars's gust in the surface transfer (gustnl), at least gust_umin
++       call gustnl(zgust2)
++       zabsu2(:)=AMAX1(gust_umin*gust_umin,du(:,NLEV)*du(:,NLEV)+dv(:,NLEV)*dv(:,NLEV)+zgust2(:))
++      else
++       zabsu2(:)=AMAX1(zumin,du(:,NLEV)*du(:,NLEV)+dv(:,NLEV)*dv(:,NLEV))
++      endif
+ 
+ !
+ !     z off lowermost layer
+@@ -242,7 +266,7 @@
+         zdenom=1.+3.*vdiff_c*vdiff_b                                    &
+      &        *sqrt(-1.*zri(jhor)*(zbz0(jhor)+1.))*zkblnz2
+         zrifm(jhor)=1.-2.*vdiff_b*zri(jhor)/zdenom
+-        if(dls(jhor) < 1.) then
++        if(dls(jhor) < 1. .and. ngust /= 1) then   ! Terluna: with the gust, Louis's factor as over land
+          zdth=-(dtsa(jhor)                                              &
+      &         -dt(jhor,NLEP)*(1.+(1./rdbrv-1.)*dq(jhor,NLEP)))
+          zrifh(jhor)=(1.+(0.0016*zdth**(1./3.)/SQRT(zabsu2(jhor))       &
+@@ -331,6 +355,109 @@
+       return
+       end subroutine surflx
+ 
++!     =================
++!     SUBROUTINE GUSTNL
++!     =================
++
++      subroutine gustnl(pgust2)
++      use fluxmod
++!
++!     Terluna: Beljaars's (1995) gust in the surface transfer, called by surflx with ngust = 1: each column's squared
++!     gust (gust_beta w*)**2 from its state, its kinematic surface fluxes of the step before (dshfl and devap over the
++!     surface air's density ps/(R Ts) and the moist heat capacity mkshfl uses) and its friction velocity
++!     (dust3 = u*^3), through gustcol; none in stable or neutral air.
++!
++      real pgust2(NHOR)
++      real zt(NLEV),zq(NLEV),zu(NLEV),zv(NLEV)
++      real zrho,zwth0,zwq0,zust,zh,zwst
++      integer jhor
++!
++      do jhor=1,NHOR
++       zrho=dp(jhor)/(gascon*dt(jhor,NLEP))
++       zwth0=-dshfl(jhor)/(zrho*acpd*AMAX1(1.,1.+ADV*dq(jhor,NLEV)))
++       zwq0=-1000.*devap(jhor)/zrho
++       zust=dust3(jhor)**(1./3.)
++       zt(:)=dt(jhor,1:NLEV)
++       zq(:)=dq(jhor,1:NLEV)
++       zu(:)=du(jhor,1:NLEV)
++       zv(:)=dv(jhor,1:NLEV)
++       call gustcol(NLEV,zt,zq,zu,zv,sigma,sigmah,ga,gascon,akap,rdbrv,zwth0,zwq0,zust,zh,zwst)
++       pgust2(jhor)=(gust_beta*zwst)**2
++      enddo
++      return
++      end subroutine gustnl
++
++!     ==================
++!     SUBROUTINE GUSTCOL
++!     ==================
++
++      subroutine gustcol(kn,pt,pq,pu,pv,psig,psigh,pg,pgas,pkap,prdbrv,pwth0,pwq0,pust,ph,pwst)
++      use fluxmod
++!
++!     Terluna: one column's boundary-layer depth ph (m) and convective velocity pwst = (g/thv_n (w'thv')0 h)**(1/3)
++!     (m/s) in unstable air, both 0 in stable or neutral air (python/climate/gcm/surface_gust.py, gust_column, step
++!     for step). The depth follows the rule of Terluna's nonlocal boundary layer (Holtslag and Boville 1993, as CAM3
++!     has it): the bulk Richardson number from the lowest level up, pbl_bu u*^2 in its shear, at pbl_ricru for a
++!     parcel carrying the thermals' excess pbl_b (w'thv')0/wm, wm from a first depth without it.
++!
++      integer kn
++      real pt(kn),pq(kn),pu(kn),pv(kn),psig(kn),psigh(kn)
++      real pg,pgas,pkap,prdbrv,pwth0,pwq0,pust,ph,pwst
++!
++      real zth(kn),zthv(kn),ztv(kn),zzf(kn),zzh(kn)
++      real zepsv,zthvn,zwthv0,zbuoy,zust3,zh0,zwm0,zexc
++      integer jk
++!
++      zepsv=1./prdbrv-1.
++      zth(:)=pt(:)/psig(:)**pkap
++      zthv(:)=zth(:)*(1.+zepsv*pq(:))
++      ztv(:)=pt(:)*(1.+zepsv*pq(:))
++      zzh(kn)=0.
++      do jk=kn,2,-1
++       zzh(jk-1)=zzh(jk)+pgas*ztv(jk)/pg*LOG(psigh(jk)/psigh(jk-1))
++      enddo
++      zzf(:)=zzh(:)+pgas*ztv(:)/pg*LOG(psigh(:)/psig(:))
++      zthvn=zthv(kn)
++      zwthv0=pwth0*(1.+zepsv*pq(kn))+zepsv*zth(kn)*pwq0
++      ph=0.
++      pwst=0.
++      if(zwthv0 > 0.) then
++       zbuoy=pg/zthvn*zwthv0
++       zust3=pust**3
++       zh0=gustdepth(zthvn)
++       zwm0=(zust3+pbl_betam*pbl_eps*vonkarman*zbuoy*zh0)**(1./3.)
++       zexc=pbl_b*zwthv0/zwm0
++       ph=gustdepth(zthvn+zexc)
++       pwst=(zbuoy*ph)**(1./3.)
++      endif
++      return
++!
++      contains
++!
++      real function gustdepth(pthref)
++!     the bulk Richardson number from the lowest level up; h linear in the number between levels (CAM's pblintd)
++      real pthref
++      real zrib,zri,zvvk
++      integer jl
++      zrib=0.
++      do jl=kn-1,1,-1
++       zvvk=MAX((pu(jl)-pu(kn))**2+(pv(jl)-pv(kn))**2+pbl_bu*pust*pust,1.e-36)
++       zri=pg*(zthv(jl)-pthref)*(zzf(jl)-zzf(kn))/(zthvn*zvvk)
++       if(zri >= pbl_ricru) then
++        if(zri-zrib <= 0.) then
++         gustdepth=zzf(jl+1)
++        else
++         gustdepth=zzf(jl+1)+(pbl_ricru-zrib)/(zri-zrib)*(zzf(jl)-zzf(jl+1))
++        endif
++        return
++       endif
++       zrib=zri
++      enddo
++      gustdepth=zzf(1)
++      end function gustdepth
++!
++      end subroutine gustcol
++
+ !     ===================
+ !     SUBROUTINE MKSTRESS
+ !     ===================

@@ -633,7 +633,39 @@
    "terluna_sha256": "1e656ffdcd3327eb8f92cd085cf9ff976b5501bc54969786b7d2b94028b4a6ed",
    "terluna_commit": "bdda5a07",
    "modified": "test_the_conventions_are_the_lunar_builds renamed test_the_conventions_are_cm1s_own, which reads radiation_driver.F and constants.F from the pinned cm1r22.0 archive in place of Terluna's lunar build (rrtmg_edge.BUILD); the rrtmg_edge import dropped"
+  },
+  {
+   "path": "climate/gcm/surface_gust.py",
+   "sha256": "bf640d66724e13f60d7695b667464ef87e0c6d15ae5a26f2e76c85db103c4cf5",
+   "bytes": 11992,
+   "terluna_sha256": "fb163850a4aa62d04ac110ec84f1df39342f9d076befc76a3d5c112f04a45bba",
+   "terluna_commit": "39c5ee04",
+   "modified": "the Fortran edit lists and their helpers (GUST_MARKER, declarations, NAMELIST_NAMES, GUST_CODE, CFREE_LINE, SURFLX_EDITS, module_edits, GUST_EDITS, GUST_PATCHES) left out, the patch being models/exoplasim/patches/12-surface-gust.patch; in place of the imports of Terluna's pbl_scheme.py (sha256 aff7bda14c48b1ed) and pbl_fortran.py (66a8edb841195d7e), the parts the depth rule shares with the nonlocal scheme stand in the module: KARMAN, STABILITY (the literal 5.0), the five of PARAMETERS the depth reads, TINY, plasim_constants, full_sigma, heights and surface_from_plasim; the docstring names the lab's patch and notes"
+  },
+  {
+   "path": "climate/gcm/surface_similarity.py",
+   "sha256": "b775e15b6c3282b5a077049fe557de9abddc13547511690e3e142ed703e7b7e2",
+   "bytes": 9472,
+   "terluna_sha256": "b676096169aa7f2524eb12925d7c0325e7c2d3de85600e9b644fe2eea0d057b9",
+   "terluna_commit": "39c5ee04",
+   "modified": "the Fortran edit lists and their helpers (SIMW_MARKER, declarations, NAMELIST_NAMES, SIMW_CODE, GUST_LAST_DECLARATION, GUST_NAMELIST_END, SIMW_EDITS, SIMW_PATCHES) left out, the patch being models/exoplasim/patches/13-similarity-over-water.patch; similarity_column takes the air's kinematic viscosity where Terluna's took the air's temperature and held CM1's two values for Earth's sea-level air, and SMOOTH becomes the factor 0.11 on that viscosity over u*; kinematic_viscosity with Sutherland's constants and cm1_viscosity added; surface_transfer derives the viscosity from the column's surface pressure, gas constant and lowest level's temperature and returns it; plasim_constants taken from surface_gust in place of pbl_scheme; the docstring names the lab's patch and notes"
+  },
+  {
+   "path": "climate/tests/test_surface_gust.py",
+   "sha256": "7cd622c8f34f2127657274b8ac9af61c04734399a815a42085322cea368a830a",
+   "bytes": 21666,
+   "terluna_sha256": "6b5595ada01bcd800e72abfc686979356e8981e657ca84fe1da808f25d089fbb",
+   "terluna_commit": "39c5ee04",
+   "modified": "the Fortran taken from the lab's patch series applied to the pinned ExoPlaSim archive (series_sources, a fixture of the lab's own in climate/tests/conftest.py, and module_additions) in place of Terluna's shared source and edit lists; PlaSim's ten levels and Terluna's fifteen written out in place of climate.gcm.levels; the harness without cfree, which the lab's series leaves as PlaSim's literal 0.0016; the test against the nonlocal scheme's own depth replaced by the depth by hand arithmetic at the Moon's gravity and Earth's, a test that the depth goes as 1/g on a column in sigma, and numbers pinned from Terluna's module; the test of the patch's application rewritten for a unified patch; the runner's test left in Terluna"
+  },
+  {
+   "path": "climate/tests/test_surface_similarity.py",
+   "sha256": "785cdab8f4e9dfb16af579afdf8402aa10ccb945228a5bd1d78555c49afe07bb",
+   "bytes": 15251,
+   "terluna_sha256": "33916165f82fc4c47a4141b2f5f0bc2b6adb81f625eabb84d9d945168e9045f1",
+   "terluna_commit": "39c5ee04",
+   "modified": "the Fortran taken from the lab's patch series as in test_surface_gust.py; similarity_column called with a viscosity, and the neutral limit checked at the Moon's gravity and Earth's; tests of the world's viscosity and of Terluna's numbers at the viscosity CM1's two lines share added; the test of the patch's application rewritten for a unified patch; the runner's test left in Terluna"
   }
  ],
- "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography package brought from 186b294 byte for byte (82b4b59), then generalised, its modified files holding both hashes; 2026-11-08: climate/crm/cm1_output.py brought from Terluna bdda5a07 byte for byte, and its test with one check adapted"
+ "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography package brought from 186b294 byte for byte (82b4b59), then generalised, its modified files holding both hashes; 2026-11-08: climate/crm/cm1_output.py brought from Terluna bdda5a07 byte for byte, and its test with one check adapted; 2026-11-11: climate/gcm/surface_gust.py and surface_similarity.py and their two tests brought from Terluna 39c5ee04 (domain/climate) and changed as their entries record"
 }

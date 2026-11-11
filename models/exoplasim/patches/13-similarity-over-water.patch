@@ -1,0 +1,138 @@
+--- a/plasim/src/fluxmod.f90
++++ b/plasim/src/fluxmod.f90
+@@ -36,6 +36,16 @@
+       real :: pbl_betam = 15.0 ! unstable wind-gradient constant (Dyer 1974)
+       real :: pbl_ricru = 0.0 ! critical bulk Richardson number, unstable (Hong et al. 2006)
+       real :: pbl_bu = 100.0 ! u*^2 factor in the bulk number (Vogelezang and Holtslag 1996)
++      integer :: nsimw = 0 ! Terluna: similarity over water: 1 takes CM1's surface layer over ice-free water (simwcol)
++!     world-crafting: the air's dynamic viscosity there, simw_mub T**1.5/(T+simw_mus) (Pa s; Sutherland's law with the
++!     1976 US Standard Atmosphere's constants for Earth's dry air), divided by the model's own density in simwcol
++      real :: simw_mub = 1.458e-6 ! its coefficient (kg m-1 s-1 K-1/2)
++      real :: simw_mus = 110.4 ! its Sutherland temperature (K)
++      real :: dsimust(NHOR) = 0.1 ! the similarity's u* (m/s), carried as CM1 carries UST
++      real :: dsimmol(NHOR) = 0.0 ! its temperature scale (K), CM1's MOL
++      real :: dsimz0(NHOR) = 0.0001 ! its roughness (m), CM1's ZNT
++      real :: simw_psim(0:1000), simw_psih(0:1000) ! Paulson's functions at z/L = -0.01 n (CM1's sfclayinit)
++      integer :: nsimwinit = 0
+ 
+ !
+ !     arrays
+@@ -67,7 +77,8 @@
+ !
+       namelist/fluxmod_nl/nvdiff,nshfl,nevap,nstress,ntsa                  &
+      &                ,zumin,vdiff_lamm,vdiff_b,vdiff_c,vdiff_d            &
+-     &                ,ngust,gust_beta,gust_umin,pbl_b,pbl_eps,pbl_betam,pbl_ricru,pbl_bu
++     &                ,ngust,gust_beta,gust_umin,pbl_b,pbl_eps,pbl_betam,pbl_ricru,pbl_bu          &
++     &                ,nsimw,simw_mub,simw_mus
+ !
+       if(mypid==NROOT) then
+          open(11,file=fluxmod_namelist)
+@@ -99,6 +110,9 @@
+       call mpbcr(pbl_betam)
+       call mpbcr(pbl_ricru)
+       call mpbcr(pbl_bu)
++      call mpbci(nsimw)
++      call mpbcr(simw_mub)
++      call mpbcr(simw_mus)
+ 
+       return
+       end subroutine fluxini
+@@ -285,6 +299,9 @@
+ !
+ 
+        ztrans=SQRT(zabsu2(jhor))*zkblnz2
++       if(nsimw == 1 .and. dls(jhor) < 1. .and. dicec(jhor) <= 0.) then   ! Terluna: similarity over water (simwcol)
++        call simwcol(jhor,znl(jhor),SQRT(zabsu2(jhor)),ztrans,zrifh(jhor),zrifm(jhor))
++       endif
+        dtransh(jhor)=ztrans*zrifh(jhor)
+        dtransm(jhor)=ztrans*zrifm(jhor)
+       enddo
+@@ -459,6 +476,88 @@
+       end subroutine gustcol
+ 
+ !     ===================
++!     SUBROUTINE SIMWCOL
++!     ===================
++
++      subroutine simwcol(kh,pza,pabsu,ptrans,prifh,prifm)
++      use fluxmod
++!
++!     Terluna: CM1's surface layer over water (sfclay.F, sfcmodel 2, isftcflx 0) on column kh at the lowest level's
++!     height pza, the wind in the bulk formulas pabsu (python/climate/gcm/surface_similarity.py, similarity_column,
++!     line for line): from the step before's u*, temperature scale and roughness (dsimust, dsimmol, dsimz0), the
++!     transfer velocities of heat and vapour (u* k/psi_q) and of momentum (u*^2/U), returned as the factors prifh,
++!     prifm against PlaSim's neutral transfer ptrans, and the state carried to the next step.
++!     world-crafting: the air's kinematic viscosity zvisc, in Fairall's roughness Reynolds number and the smooth-flow
++!     roughness 0.11 zvisc/u*, comes from the lowest level's temperature, the surface pressure and the gas constant
++!     with Sutherland's law, where CM1's code sets the viscosity of Earth's sea-level air. Charnock's 0.0185, the
++!     2.85 mm cap on the roughness, Fairall's roughness for heat and vapour and Paulson's functions stay Earth's.
++!
++      integer kh,jn
++      real pza,pabsu,ptrans,prifh,prifm
++      real zust,zmol,znt,zgz,zws,zbr,zpsim,zpsih,zzol,zr,zpsix,zvisc,zre,zz0q,zpsiq
++      real ztha,zthg,zthva,zthvg,zepsv
++!
++      if(nsimwinit == 0) then
++       do jn=0,1000
++        zr=-REAL(jn)*0.01
++        zzol=(1.-16.*zr)**0.25
++        simw_psim(jn)=2.*LOG(0.5*(1.+zzol))+LOG(0.5*(1.+zzol*zzol))-2.*ATAN(zzol)+2.*ATAN(1.)
++        simw_psih(jn)=2.*LOG(0.5*(1.+(1.-16.*zr)**0.5))
++       enddo
++       nsimwinit=1
++      endif
++      zepsv=1./rdbrv-1.
++      ztha=dt(kh,NLEV)*sigma(NLEV)**(-akap)
++      zthg=dt(kh,NLEP)
++      zthva=ztha*(1.+zepsv*dq(kh,NLEV))
++      zthvg=zthg*(1.+zepsv*dq(kh,NLEP))
++      zust=dsimust(kh)
++      zmol=dsimmol(kh)
++      znt=dsimz0(kh)
++      zgz=LOG(pza/znt)
++      zws=MAX(pabsu,0.1)
++      zbr=ga/ztha*pza*(zthva-zthvg)/(zws*zws)
++      if(zmol < 0.) zbr=MIN(zbr,0.)
++      if(zbr >= 0.2) then
++       zpsim=MAX(-10.*zgz,-10.)
++       zpsih=zpsim
++      elseif(zbr > 0.) then
++       zpsim=MAX(-5.*zbr*zgz/(1.1-5.*zbr),-10.)
++       zpsih=zpsim
++      elseif(zbr == 0.) then
++       zpsim=0.
++       zpsih=0.
++      else
++       if(zust < 0.01) then
++        zzol=zbr*zgz
++       else
++        zzol=0.4*ga/ztha*pza*zmol/(zust*zust)
++       endif
++       zzol=MAX(MIN(zzol,0.),-9.9999)
++       jn=INT(-zzol*100.)
++       zr=-zzol*100.-REAL(jn)
++       zpsim=simw_psim(jn)+zr*(simw_psim(jn+1)-simw_psim(jn))
++       zpsih=simw_psih(jn)+zr*(simw_psih(jn+1)-simw_psih(jn))
++       zpsih=MIN(zpsih,0.9*zgz)
++       zpsim=MIN(zpsim,0.9*zgz)
++      endif
++      zpsix=zgz-zpsim
++      zvisc=simw_mub*dt(kh,NLEV)**1.5/(dt(kh,NLEV)+simw_mus)*gascon*dt(kh,NLEV)/dp(kh)
++      zre=zust*znt/zvisc
++      zz0q=MIN(MAX(5.5e-05*zre**(-0.6),2e-09),0.0001)
++      zpsiq=MAX(LOG((pza+zz0q)/zz0q)-zpsih,2.0)
++      zust=0.5*zust+0.5*0.4*zws/zpsix
++      zmol=0.4*(ztha-zthg)/zpsiq
++      znt=MIN(0.0185*zust*zust/ga+0.11*zvisc/zust,0.00285)
++      dsimust(kh)=zust
++      dsimmol(kh)=zmol
++      dsimz0(kh)=znt
++      prifh=zust*0.4/zpsiq/ptrans
++      prifm=zust*zust/zws/ptrans
++      return
++      end subroutine simwcol
++
++!     ===================
+ !     SUBROUTINE MKSTRESS
+ !     ===================
+ 

@@ -34,7 +34,8 @@ apply_series() {   # apply_series <patch-dir-root> <series-file>...
 echo "== ExoPlaSim 3.4.2"
 if [ -e "$UP/exoplasim-3.4.2.tar.gz" ]; then
     mkdir -p "$TMP/exo" && tar -xzf "$UP/exoplasim-3.4.2.tar.gz" -C "$TMP/exo" \
-        exoplasim-3.4.2/exoplasim/plasim/src/radmod.f90 exoplasim-3.4.2/exoplasim/plasim/src/rainmod.f90
+        exoplasim-3.4.2/exoplasim/plasim/src/radmod.f90 exoplasim-3.4.2/exoplasim/plasim/src/rainmod.f90 \
+        exoplasim-3.4.2/exoplasim/plasim/src/fluxmod.f90
     # Patches 01-10 are Terluna's deployed copy (expected.sha256); the lab's patches follow them (expected-series.sha256).
     ( cd "$TMP/exo/exoplasim-3.4.2/exoplasim" && sed '/^[[:space:]]*$/d; s|^|patches/|' "$HERE/exoplasim/patches/series" > "$TMP/exo.series" \
       && head -n 10 "$TMP/exo.series" > "$TMP/exo.deployed" && tail -n +11 "$TMP/exo.series" > "$TMP/exo.lab" \

@@ -68,6 +68,11 @@ CLOUD_WATER = ('plasim', 'earth_path', 'full_column')                 # patch 02
 TWILIGHT = ('none', 'full')                                           # patch 07: off, or the ledger's full terms
 ICE_WEIGHTS = ('from-spectrum', 'patch-10')    # patch 11's weights from the spectrum, or patch 10's own
 PATCH_11 = '11-ice-weights.patch'
+# The surface transfer: PlaSim's own; Beljaars's gust in place of its free-convection term over water and its least
+# wind (patch 12, NGUST); and CM1's surface-layer similarity over ice-free water with the gust (patch 13, NSIMW).
+SURFACE_GUST = {'none': (), 'beljaars': ('12-surface-gust.patch',),
+                'beljaars_similarity': ('12-surface-gust.patch', '13-similarity-over-water.patch')}
+PATCH_12, PATCH_13 = SURFACE_GUST['beljaars_similarity']
 GAS_BANDS = ('CO2 near infrared', 'O2 near infrared', 'O2 visible')   # patch 08's ZGASQ columns, in order
 OZONE = {'none': 0, 'model-default': 1}                               # NO3: PlaSim's synthetic ozone is its own default
 SCALE_BASES = ('identity', 'calibration', 'scenario')
@@ -107,6 +112,7 @@ ADDITIONS = {
                         'NTWILW', 'ZMLUNAR', 'NGASBANDS', 'ZGASQ', 'ZGASW', 'ZMAIRLUNAR', 'NLWCORR', 'NICEOPT',
                         'TICEOPT', 'ZICEW'),
     'rainmod_namelist': ('CWGREF', 'CWSCALE', 'CONVDAY', 'RCRIT'),
+    'fluxmod_namelist': ('NGUST', 'NSIMW'),
 }
 
 
@@ -342,7 +348,7 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     holds the curved air's terms and the gas bands off; and a world locked to its star keeps PlaSim's own Sun clock,
     since patch 04's synodic clock replaces the fixed hour angle of ExoPlaSim's synchronous mode and, at a rotation
     equal to the year, holds the star over 0° E whatever FIXEDLON states (models/exoplasim/patches/04-sun-clock.patch;
-    radmod.f90:1397-1414)."""
+    radmod.f90:1397-1414). A surface gust whose patches the run's series lacks is refused."""
     switches = dict(run['switches'])
     if world is not None and locked(world):
         switches['sun_clock'] = 'plasim'
@@ -351,6 +357,13 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
                         f'{switches.get("ice_weights")!r}')
     if switches['ice_weights'] == 'from-spectrum' and PATCH_11 not in series(run):
         switches['ice_weights'] = 'patch-10'
+    if switches.get('surface_gust') not in SURFACE_GUST:
+        raise SpecError(f'switches.surface_gust is one of {tuple(SURFACE_GUST)}, where the run states '
+                        f'{switches.get("surface_gust")!r}')
+    missing = [name for name in SURFACE_GUST[switches['surface_gust']] if name not in series(run)]
+    if missing:
+        raise SpecError(f'switches.surface_gust {switches["surface_gust"]!r} takes {" and ".join(missing)}, which the '
+                        "run's series lacks")
     if calibrations.first_run:
         switches.update(twilight='none', gas_bands=False)
     return switches
@@ -449,6 +462,13 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
                         f'states {rcrit!r}')
     if rcrit > 0.0:                                   # the lowest layer is the last of RCRIT
         rainmod[f'RCRIT({_integer(run["levels"], "levels")})'] = float(rcrit)
+
+    # The surface transfer's switches, each written where the run's series holds its patch (patches 12 and 13).
+    fluxmod, patches = entries['fluxmod_namelist'], series(run)
+    if PATCH_12 in patches:
+        fluxmod['NGUST'] = int(switches['surface_gust'] != 'none')
+    if PATCH_13 in patches:
+        fluxmod['NSIMW'] = int(switches['surface_gust'] == 'beljaars_similarity')
 
     albedo = scenario['land']['albedo']
     if albedo != 'model-default':

@@ -286,10 +286,18 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
 - **Patch 10's solar weights.** Patch 10 writes the near-infrared weights of the TSIS-1 Sun into
   PlaSim as Fortran constants (regeneration.md, cross-dependency 13). Patch 11 reads them from the namelist
   as `ZICEW`, with patch 10's constants as its identity default, and the adapter writes them from the spectrum
-  at the top of the air, the filter included. At that default, the build of the whole series runs Earth's control
+  at the top of the air, the filter included. At that default, the build of patches 01–11 runs Earth's control
   with ice optics on, over two days, byte for byte as the build of patches 01–10, and the adapter's weights from
   the Sun's spectrum change its output (`lab/tests/test_builds.py`). A build whose series stops before patch 11
   keeps patch 10's weights, from the unfiltered Sun, and registry entry `exoplasim-ice-weights` warns of them.
+- **The surface gust.** Patches 12 and 13 put Beljaars's convective gust and CM1's surface-layer similarity over
+  ice-free water into PlaSim's surface transfer, in place of its free-convection term over water and its least wind
+  of 1 m/s, each behind a namelist switch whose default keeps the released transfer (`models/exoplasim/README.md`).
+  The adapter writes `NGUST` and `NSIMW` from one setting, `switches.surface_gust`, each where the run's series
+  holds its patch, and refuses a gust whose patches the series lacks. The defaults keep `none`, the released
+  transfer, until the Earth control's test (`PLAN.md`). At the switches' defaults the builds of patches 01–12 and of
+  the whole series run Earth's control, over two days, byte for byte as the build of patches 01–11, and each
+  setting changes the output (`lab/tests/test_builds.py`).
 
 **CM1.**
 
