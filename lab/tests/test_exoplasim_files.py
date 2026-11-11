@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from atmosphere.rain import fall_law
+from climate.gcm import levels
 from worldlab import derive, exoplasim as ex, sunlight
 from worldlab.data import DataError, Manifest
 from worldlab.geography import ModelSurface
@@ -390,6 +391,205 @@ def test_a_run_with_the_drops_sizes_holds_its_entries_and_the_rains_table(tmp_pa
     assert ' NEVAPPREC = 1' in (tmp_path / 'gamma' / 'rainmod_namelist').read_text().splitlines()
     assert {p.name for p in (tmp_path / 'sized').iterdir()} - {p.name for p in (tmp_path / 'gamma').iterdir()} == \
         {ex.RAIN_TABLE}
+
+
+# The level set.
+
+# Terluna's values for the Open Moon as a study's table states them, and the run that takes them.
+OPEN_MOON_LEVELS = {**levels.TERLUNA_OPEN_MOON_LEVELS,
+                    'interfaces_m': list(levels.TERLUNA_OPEN_MOON_LEVELS['interfaces_m'])}
+FIFTEEN = {**DESIGN, 'levels': OPEN_MOON_LEVELS}
+# The two entries as the plasim_namelist of Terluna's fifteen-level runs states them
+# (gcm-runs/A28R_301k_cold_sbm_rh07_deep200_l15cap/model on Terluna's drive, read on 2026-11-11).
+TERLUNA_TFRC = '1728000.0,8640000.0,' + ','.join(['0.0'] * 13)
+TERLUNA_SIGH = ('0.07660000000000002,0.16160000000000002,0.2601,0.3736000000000001,0.5,0.6335999999999999,0.7379,'
+                '0.7981,0.8382,0.8717,0.9066,0.941,0.9666000000000001,0.9883,1.0')
+
+
+def _laid(half, layers: int, **changes) -> ex.Calibrations:
+    """`_given`'s calibrations with the ledger and a longwave correction of `layers` layers, laid on `half`."""
+    ledger = ex.Ledger(elevation_deg=(0.0, 5.0), ground=(0.0, 0.1), layers=((0.0, 0.2),) * layers,
+                       escape_w_m2=(0.5,) * (layers + 1), escape_temperature_k=(250.0,) * (layers + 1),
+                       slant=(0.1, 0.2, 0.3), slant_air=(0.4, 0.5, 0.6), half_levels=half)
+    longwave = ex.Longwave((0.0,) * (layers + 1), (1.0,) * (layers + 1), (250.0,) * (layers + 1), half)
+    return _given(**{'ledger': ledger, 'longwave': longwave, **changes})
+
+
+def test_the_released_models_own_levels_add_nothing_to_the_namelists():
+    """The identity default: a run that keeps the released model's levels states configure's NEQSIG 0 and neither
+    half levels nor friction, so that PlaSim computes its levels and presets its friction as released."""
+    assert DEFAULTS['levels'] == 10 and derive.level_count(DEFAULTS) == 10
+    released = derive.levels(DEFAULTS)
+    assert released == dict(count=10, half_levels=tuple(float(x) for x in levels.plasim_half(10)), basis='released')
+    assert ex.level_entries(released, DEFAULTS, 'a run') == {}
+    for world, scenario, run, top, calibrations in ((EARTH, CONTROL, DEFAULTS, ex.TopOfAir(1361.0, 1.0, 'scenario'),
+                                                     ex.Calibrations.identity()),
+                                                    (MOON, OPEN_MOON, DESIGN, FIRST, ex.Calibrations.identity()),
+                                                    (MOON, OPEN_MOON, DESIGN, LATER, _laid(None, 10))):
+        plasim = ex.namelists(world, scenario, run, top=top, calibrations=calibrations)['plasim_namelist']
+        assert plasim['NEQSIG'] == 0 and 'SIGH' not in plasim and 'TFRC' not in plasim
+        assert ex.departures(scenario, run) == ex.departures(scenario)
+    assert derive.levels({**DEFAULTS, 'levels': 5})['half_levels'] == tuple(float(x) for x in levels.plasim_half(5))
+
+
+def test_a_generated_set_states_its_half_levels_and_the_top_friction_and_changes_nothing_else():
+    """The Open Moon's design run on Terluna's values for its fifteen levels: plasim_namelist gains NEQSIG -1, SIGH and
+    TFRC, and every other entry of every namelist stays as on the released ten."""
+    ten = ex.namelists(MOON, OPEN_MOON, DESIGN, top=LATER, calibrations=_given())
+    fifteen = ex.namelists(MOON, OPEN_MOON, FIFTEEN, top=LATER, calibrations=_given())
+    half = levels.generate(51000.0, OPEN_MOON_LEVELS['interfaces_m'], 6)
+    assert set(ten) == set(fifteen) and {name for name in ten if ten[name] != fifteen[name]} == {'plasim_namelist'}
+    plasim = fifteen['plasim_namelist']
+    assert {k: v for k, v in plasim.items() if ten['plasim_namelist'].get(k) != v} == dict(
+        NEQSIG=-1, SIGH=tuple(float(x) for x in half), TFRC=(1728000.0, 8640000.0) + (0.0,) * 13)
+    assert set(ten['plasim_namelist']) == set(plasim) - {'SIGH', 'TFRC'}
+    assert {'SIGH', 'TFRC'} <= set(ex.ADDITIONS['plasim_namelist'])
+    assert set(ex.departures(OPEN_MOON, FIFTEEN)) - set(ex.departures(OPEN_MOON)) == {('plasim_namelist', 'NEQSIG')}
+    # As written: Terluna's friction to the character, and its half levels but for the last bit of two, 0.3736 and
+    # 0.9666, where the lab keeps the compiled model's doubles (python/climate/gcm/levels.py, plasim_half).
+    assert ex.text(plasim['TFRC']) == TERLUNA_TFRC and ex.text(plasim['NEQSIG']) == '-1'
+    ours, theirs = ex.text(plasim['SIGH']).split(','), TERLUNA_SIGH.split(',')
+    assert [(a, b) for a, b in zip(ours, theirs, strict=True) if a != b] == [
+        ('0.37360000000000004', '0.3736000000000001'), ('0.9666', '0.9666000000000001')]
+    # The lowest layer's cloud threshold follows the set's count.
+    cloudy = _with(FIFTEEN, switches={'surface_cloud_rcrit': 0.9})
+    rainmod = ex.namelists(MOON, OPEN_MOON, cloudy, top=LATER, calibrations=_given())['rainmod_namelist']
+    assert rainmod['RCRIT(15)'] == 0.9 and 'RCRIT(10)' not in rainmod
+    # The record of the set: its count, its half levels and what generated them.
+    found = derive.levels(FIFTEEN, MOON, OPEN_MOON)
+    assert found == dict(count=15, half_levels=tuple(float(x) for x in half), basis='generated',
+                         scale_height_m=51000.0, scale_height_basis='stated', upper=6,
+                         interfaces_m=tuple(OPEN_MOON_LEVELS['interfaces_m']))
+    assert derive.level_count(FIFTEEN) == 15 and derive.levels(FIFTEEN) == found      # a stated height needs no world
+
+
+@needs_archive
+def test_a_generated_sets_entries_are_written_into_plasims_namelist():
+    entries = ex.namelists(MOON, OPEN_MOON, FIFTEEN, top=LATER, calibrations=_given())
+    lines = ex.namelist_texts(entries)['plasim_namelist'].splitlines()
+    assert ' NEQSIG = -1' in lines and lines[-3:] == [
+        ' SIGH = 0.07660000000000002,0.16160000000000002,0.2601,0.37360000000000004,0.5,0.6335999999999999,0.7379,'
+        '0.7981,0.8382,0.8717,0.9066,0.941,0.9666,0.9883,1.0', f' TFRC = {TERLUNA_TFRC}', ' /END']
+    assert len([line for line in lines if line.split()[0] in ('NEQSIG', 'SIGH', 'TFRC')]) == 3
+
+
+def test_a_set_counted_at_the_scenarios_scale_height_follows_its_reference_temperature():
+    """With "scenario" the heights are counted at the scenario's own scale height: 52.4 km for the Open Moon at 295 K,
+    where 600 m stands at exp(-600/52,377) = 0.98861, 0.9886 to four places, against 0.9883 at Terluna's 51 km."""
+    run = {**DESIGN, 'levels': {**OPEN_MOON_LEVELS, 'scale_height_m': 'scenario'}}
+    found = derive.levels(run, MOON, OPEN_MOON)
+    scale_height = derive.planet(MOON, OPEN_MOON)['scale_height_m']
+    assert found['scale_height_m'] == scale_height == pytest.approx(52377.0, abs=0.5)
+    assert (found['scale_height_basis'], found['count'], found['half_levels'][13]) == ('scenario', 15, 0.9886)
+    by_hand = levels.generate(scale_height, OPEN_MOON_LEVELS['interfaces_m'], 6)
+    assert found['half_levels'] == tuple(float(x) for x in by_hand)
+    assert math.exp(-600.0 / scale_height) == pytest.approx(0.98861, abs=5e-6)
+    plasim = ex.namelists(MOON, OPEN_MOON, run, top=LATER, calibrations=_given())['plasim_namelist']
+    assert plasim['SIGH'] == found['half_levels'] and plasim['NEQSIG'] == -1
+    # A scenario whose reference temperature the fixpoint is still to find gives no scale height, and neither does a
+    # run alone.
+    with pytest.raises(SpecError, match='settled global mean'):
+        derive.levels(run, LIB.world('mars'), LIB.scenario('mars/breathable-1bar'))
+    with pytest.raises(SpecError, match='takes the world and its scenario'):
+        derive.levels(run)
+
+
+@pytest.mark.parametrize('change, match', [
+    ({'levels': 0}, "released model's count"), ({'levels': True}, "released model's count"),
+    ({'levels': 10.0}, "released model's count"), ({'levels': '10'}, "released model's count"),
+    ({'levels': {}}, 'a generated level set states'),
+    ({'levels': {**OPEN_MOON_LEVELS, 'lowest_m': 300.0}}, 'a generated level set states'),
+    ({'levels': {k: v for k, v in OPEN_MOON_LEVELS.items() if k != 'scale_height_m'}}, 'a generated level set states'),
+    ({'levels': {**OPEN_MOON_LEVELS, 'upper': 6.0}}, 'a generated level set states'),
+    ({'levels': {**OPEN_MOON_LEVELS, 'interfaces_m': 600.0}}, 'a generated level set states'),
+    ({'levels': {**OPEN_MOON_LEVELS, 'interfaces_m': []}}, 'a generated level set states'),
+    ({'levels': {**OPEN_MOON_LEVELS, 'upper': 1}}, 'keeps from 2 to 9'),
+    ({'levels': {**OPEN_MOON_LEVELS, 'upper': 7}}, 'at or above'),          # 15.5 km stands above the seventh, 0.7651
+    ({'levels': {**OPEN_MOON_LEVELS, 'scale_height_m': 'world'}}, 'scale height is a positive number'),
+    ({'levels': {**OPEN_MOON_LEVELS, 'scale_height_m': 8430.0}}, 'at or above'),         # the Moon's heights on Earth
+    ({'levels': {**OPEN_MOON_LEVELS, 'interfaces_m': [600.0, 3100.0]}}, 'from the highest down'),
+    # PlaSim's presets by truncation and count: at T42 for ten levels, at T21 for five.
+    ({'levels': OPEN_MOON_LEVELS, 'resolution': 'T42'}, 'presets .* for 10 levels at T42'),
+    ({'levels': {'scale_height_m': 51000.0, 'upper': 3, 'interfaces_m': [20000.0]}}, 'presets .* for 5 levels at T21'),
+])
+def test_level_settings_the_adapter_cannot_write_are_refused(change, match):
+    with pytest.raises(SpecError, match=match):
+        ex.namelists(MOON, OPEN_MOON, {**DESIGN, **change}, top=LATER, calibrations=_given())
+
+
+def test_plasims_presets_decide_where_a_generated_set_runs():
+    """A generated set runs on the released ten's presets of rainmod: at T21 every count but five, on which PlaSim
+    switches its shallow convection off; at T42 a set of ten levels alone, the count whose gamma is 0.007; and at
+    T63, where rainmod presets nothing, every count."""
+    ten_levels = {'scale_height_m': 51000.0, 'upper': 6, 'interfaces_m': [15500.0, 9000.0, 600.0]}
+    entries = lambda run: ex.level_entries(derive.levels(run), run, 'a run')
+    for run in ({**DESIGN, 'levels': ten_levels}, {**DESIGN, 'levels': ten_levels, 'resolution': 'T42'},
+                {**DESIGN, 'levels': OPEN_MOON_LEVELS, 'resolution': 'T63'}):
+        assert entries(run)['NEQSIG'] == -1 and len(entries(run)['SIGH']) == derive.level_count(run)
+    assert ex.PRESET_LEVELS == {21: (5,), 42: (10,)} and ex.PRESETS_FOR == 10
+
+
+def test_a_calibration_by_layer_is_read_on_the_half_levels_it_is_laid_on():
+    fifteen, ten = derive.levels(FIFTEEN), derive.levels(DESIGN)
+    other = derive.levels({**DESIGN, 'levels': {**OPEN_MOON_LEVELS, 'scale_height_m': 52000.0}})
+    assert other['count'] == 15 and other['half_levels'] != fifteen['half_levels']
+    ex.laid_on(fifteen['half_levels'], fifteen, 'the rows')
+    ex.laid_on(list(fifteen['half_levels']), fifteen, 'the rows')
+    ex.laid_on(None, ten, 'the rows')                       # a calibration made before the lab generated sets
+    ex.laid_on(ten['half_levels'], ten, 'the rows')
+    # Terluna's doubles for the same set, whose last bit differs at two half levels, bound the same layers.
+    terlunas = tuple(float(x) for x in TERLUNA_SIGH.split(','))
+    assert terlunas != fifteen['half_levels'] and ex.SAME_LEVEL == 1e-9
+    ex.laid_on(terlunas, fifteen, 'the rows')
+    nudged = fifteen['half_levels'][:13] + (0.9883 + 2e-9, 1.0)
+    for stated, level_set, match in ((None, fifteen, 'state no half levels'),
+                                     (other['half_levels'], fifteen, 'laid on other half levels'),
+                                     (ten['half_levels'], fifteen, 'laid on other half levels'),
+                                     (fifteen['half_levels'], ten, 'laid on other half levels'),
+                                     (nudged, fifteen, 'laid on other half levels'),
+                                     (fifteen['half_levels'][:13] + (float('nan'), 1.0), fifteen, 'laid on other')):
+        with pytest.raises(SpecError, match=match):
+            ex.laid_on(stated, level_set, 'the rows')
+
+
+@needs_archive
+@needs_sunlight
+def test_a_run_on_a_generated_set_holds_its_tables_by_the_sets_layers(tmp_path):
+    """The design run with the longwave correction on Terluna's values for the Open Moon's fifteen levels: the folder
+    holds the files of the ten-level run, the namelist states the set, the two tables hold fifteen layers, and the
+    record states the half levels. Calibrations laid on other half levels, or on none stated, are refused."""
+    fifteen, run = derive.levels(FIFTEEN), {**LW_ICE, 'levels': OPEN_MOON_LEVELS}
+    surface = ModelSurface(None, None, np.ones((32, 64)), np.zeros((32, 64)), np.zeros((32, 64)), None,
+                           np.ones((32, 64)), {})                       # level ground, made up for the test
+    record = ex.write_run(tmp_path / 'fifteen', MOON, OPEN_MOON, run, calibrations=_laid(fifteen['half_levels'], 15),
+                          surface=surface, store=STORE)
+    plain = ex.write_run(tmp_path / 'ten', MOON, OPEN_MOON, LW_ICE, calibrations=_laid(None, 10), surface=surface,
+                         store=STORE)
+    assert record['levels'] == fifteen and plain['levels'] == derive.levels(LW_ICE)
+    assert set(record['files']) == set(plain['files'])
+    differing = {name for name in plain['files'] if record['files'][name] != plain['files'][name]}
+    assert differing == {'plasim_namelist', 'twilight.dat', 'lwcorr.dat'}
+    rows = (tmp_path / 'fifteen' / 'twilight.dat').read_text().splitlines()
+    assert rows[0] == '2' and [len(row.split()) for row in rows[1:]] == [17, 17, 16, 16]
+    assert [len(row.split()) for row in (tmp_path / 'fifteen' / 'lwcorr.dat').read_text().splitlines()] == [16] * 3
+    rows = (tmp_path / 'ten' / 'twilight.dat').read_text().splitlines()
+    assert [len(row.split()) for row in rows[1:]] == [12, 12, 11, 11]
+    ours, theirs = ((tmp_path / name / 'plasim_namelist').read_text().splitlines() for name in ('fifteen', 'ten'))
+    assert [line for line in ours if line not in theirs] == [' NEQSIG = -1'] + ours[-3:-1]
+    assert [line for line in theirs if line not in ours] == [' NEQSIG = 0']
+    ten = derive.levels(LW_ICE)
+    for name, calibrations, levels_run, match in (
+            ('unstated', _laid(None, 15), run, "the ledger's terms state no half levels"),
+            ('other', _laid(fifteen['half_levels'], 15, ledger=_laid(ten['half_levels'], 15).ledger), run,
+             "the ledger's terms are laid on other half levels"),
+            ('longwave', _laid(fifteen['half_levels'], 15, longwave=_laid(None, 15).longwave), run,
+             "the longwave correction's rows state no half levels"),
+            ('count', _laid(fifteen['half_levels'], 10), run, 'holds the ground and 15 layers'),
+            ('released', _laid(fifteen['half_levels'], 10), LW_ICE, 'laid on other half levels')):
+        with pytest.raises(SpecError, match=match):
+            ex.write_run(tmp_path / name, MOON, OPEN_MOON, levels_run, calibrations=calibrations, surface=surface,
+                         store=STORE)
+        assert not (tmp_path / name).exists()
 
 
 def test_an_eccentric_orbit_states_its_longitude_of_perihelion():

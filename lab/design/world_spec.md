@@ -158,11 +158,14 @@ scenario, and the waterworlds' anchors are illustrative worlds under illustrativ
 | Ice-optics weights | The shares of Ebert and Curry's four near-infrared bands within PlaSim's band 2, from the spectrum at the top of the air, the filter included | 0.6295, 0.2276, 0.0752 and 0.0677 through the shield, the fourth 0.0581 were the shield opaque past 5 µm. From the unfiltered TSIS-1, 0.6202, 0.2297, 0.0816 and 0.0685; patch 10's 0.6164, 0.2283, 0.0811 and 0.0742 came from a tail 11% brighter than the rest of the constant, with the whole spectrum scaled to it | ExoPlaSim's `ZICEW`, through patch 11; a build without it keeps patch 10's constants, of which registry entry `exoplasim-ice-weights` warns |
 | ExoPlaSim's output steps | `mean_interval_days`: below a model day, the divisor of the steps per model day whose mean lies nearest it; from a model day up, the divisor of the year's model days nearest it, the shorter at a tie, so that whole means fill each year | 10 means of 143 steps, 2.98 d; on Earth, 3 days give daily means | `NSTPW` |
 | ExoPlaSim's time-step limit | The advective limit set by the radius a, the truncation N and the run's largest wind u: u·Δt·N/a below 1 | Checked in stage 1 against the largest winds of Terluna's runs, which ran stable at 30 minutes | The guard on `timestep_min` |
+| ExoPlaSim's levels | The released model's own for a count, from PlaSim's formula in the compiled model's doubles; for a generated set, the released model's `upper` highest half levels, one at each stated height at σ = exp(−z/H) to four places, and the ground's 1 (`python/climate/gcm/levels.py`) | Ten by default. From Terluna's values, heights of 15.5, 11.5, 9.0, 7.0, 5.0, 3.1, 1.73 and 0.60 km at 51 km under six released half levels, its fifteen: σ 0.7379, 0.7981, 0.8382, 0.8717, 0.9066, 0.9410, 0.9666 and 0.9883 below the six | `NEQSIG`, `SIGH` and `TFRC`; the build's count of levels; the layers of `twilight.dat` and `lwcorr.dat` |
+| The lowest level's height | −H ln σ of the run's lowest full level, at the scenario's scale height | 882 m on the released ten, 307 m on Terluna's fifteen; 142 m for the Earth control | Registry entry B31, against a proposed 350 m (`exoplasim_lowest_level_m`) |
 
 The registry's tests (`q`) name these quantities in snake case with their units: `gravity_m_s2`,
 `exoplasim_rotationperiod_days`, `model_day_days`, `scale_height_over_radius`, `chapman_horizon`,
-`lowest_level_pressure_hpa`, the air's pressure at the lowest point of the surface, and `soil_layer_ratio`,
-a case's top soil layer against 1 cm × (solar day/1 d)^½.
+`lowest_level_pressure_hpa`, the air's pressure at the lowest point of the surface, `exoplasim_lowest_level_m`,
+the height of a GCM run's lowest full level, and `soil_layer_ratio`, a case's top soil layer against
+1 cm × (solar day/1 d)^½.
 
 ## Settled in code
 
@@ -317,7 +320,18 @@ on them (`notes/geography.md`):
   series lacks is refused. `rain_evaporation` becomes PlaSim's `NEVAPPREC` in rainmod's namelist through patch 14,
   1 for the constant `gamma` and 2 for the rain's drops, whose six entries and table, `lab_rain_law.txt`, come from
   the run's calibrations (`RainDrops`); the drops' sizes are refused on a series without the patch, in a first run
-  and without that record. A first run
+  and without that record.
+- **The levels.** A run's `levels` is the released model's count, 10 by default, or the table of a set generated
+  for the world: `scale_height_m`, a number of metres or "scenario" for the scenario's own at its reference
+  temperature, `upper`, the count of the released model's highest half levels kept, and `interfaces_m`, the heights
+  of the half levels below them (`derive.levels`; `python/climate/gcm/levels.py`). With a count the lab writes
+  configure's `NEQSIG` 0 and PlaSim computes its own levels. With a table it writes `NEQSIG` −1, the half levels in
+  `SIGH` and PlaSim's friction on its top two levels in `TFRC`, and the build compiles for the set's count
+  (`derive.level_count`). The ledger and the longwave correction state the half levels their rows are laid on,
+  which the writer takes on those half levels alone, and a run on a generated set refuses one that states none. A
+  generated set is refused where rainmod's presets by truncation and count would differ from the released ten's:
+  at T42 with another count than ten, and at T21 with five levels. The run's record holds the set.
+- **A first run.** A first run
   (`Calibrations.identity()`) takes each calibration at its identity default: RAYSCALE and SWH2OSCALE 1, TH2OC
   PlaSim's 0.024, the curved air's terms and the gas bands off, and a sunlight scale of 1 where the scenario's
   follows its reference temperature; a first run that switches the longwave correction on is refused. A later run is
@@ -411,6 +425,7 @@ Later:
   one star.
 - Surface geometry beyond a height image over a gravity field and a global ocean: heights measured from an
   equipotential already, as MOLA's MEGDR topography is, idealized continents and designed height fields.
-- Vertical grids chosen for the world, where today PlaSim's σ levels are Earth's and the ledger's GCM terms
-  are computed on them.
+- A rule that places a world's level heights from its boundary layer's depth, where today a study states them
+  ("The levels", above), and the ledger's GCM terms computed on a generated set, where the ledger's producer
+  computes them on PlaSim's ten.
 - Scenarios that change in time, such as a shield dimming over years.

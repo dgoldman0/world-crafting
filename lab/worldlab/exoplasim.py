@@ -13,6 +13,11 @@ default, the released model's own value, with the curved air's terms and the gas
 does (plan.md); otherwise every calibration the run's switches use must be given. `resolve` gives the switches as
 the build, the calibrations and the world make them (world_spec.md, rule 7), which the run's record carries and the
 registry tests.
+
+A run's levels are the released model's own, an integer count, or a set generated from the heights the run states
+(`derive.levels`; python/climate/gcm/levels.py). A generated set is written into plasim_namelist as NEQSIG -1, its
+half levels in SIGH and PlaSim's friction on its top two levels in TFRC, and a calibration whose rows hold one value
+for each layer states the half levels it is laid on, which a run on a generated set requires to be its own.
 """
 from __future__ import annotations
 
@@ -79,6 +84,16 @@ RAIN_EVAPORATION = {'gamma': 1, 'drop_sizes': 2}
 PATCH_14 = '14-rain-from-drop-sizes.patch'
 RAIN_RULES = {'one_size': 0, 'join': 1, 'share': 2}                   # patch 14's NRDROP_JOIN, by the birth rule's name
 RAIN_TABLE = 'lab_rain_law.txt'      # the table's name in the run's folder, python/atmosphere/rain/fall_law.TABLE_FILE
+# PlaSim presets parts of rainmod for pairs of truncation and level count (rainmod.f90, rainini): at T42 its ten levels
+# evaporate falling rain with a gamma of 0.007, where every other count keeps 0.01, and at T21 five levels switch its
+# shallow convection off. A generated set that would run on another such preset than the released ten at its
+# truncation is refused. radmod's presets by level count are idle while its daily cycle is on, the module's default,
+# which radini tests before it reads the namelist, so that no count takes them. By truncation, the counts PlaSim
+# presets.
+PRESET_LEVELS = {21: (5,), 42: (10,)}
+PRESETS_FOR = 10                     # the released count whose presets a generated set keeps
+SAME_LEVEL = 1e-9                    # two half levels this close in sigma bound the same layer: the last digits of a
+                                     # double differ between the compiled model's arithmetic and numpy's powers
 GAS_BANDS = ('CO2 near infrared', 'O2 near infrared', 'O2 visible')   # patch 08's ZGASQ columns, in order
 OZONE = {'none': 0, 'model-default': 1}                               # NO3: PlaSim's synthetic ozone is its own default
 SCALE_BASES = ('identity', 'calibration', 'scenario')
@@ -110,10 +125,14 @@ DEPARTURES = {
 }
 CO2_FREE = (('radmod_namelist', 'CO2'), 'for air without CO2 the lab writes 0, where configure leaves a zero pCO2 out '
                                         'and writes its default of 300 ppm (exoplasim/__init__.py:2539, 2593)')
+GENERATED_LEVELS = (('plasim_namelist', 'NEQSIG'), 'for a generated level set the lab writes -1, with which PlaSim '
+                                                   'reads its half levels from SIGH, where configure writes its '
+                                                   'vtype, 0 (exoplasim/__init__.py:2602)')
 # The entries the lab adds to configure's, by name before any index: the random seed, the clear-sky and heating
-# diagnostics, PlaSim's water continuum, and the patch series' switches and calibrations.
+# diagnostics, a generated set's half levels and top friction, PlaSim's water continuum, and the patch series' switches
+# and calibrations.
 ADDITIONS = {
-    'plasim_namelist': ('SEED', 'NDIAGCF', 'NDIAGGP'),
+    'plasim_namelist': ('SEED', 'NDIAGCF', 'NDIAGGP', 'SIGH', 'TFRC'),
     'radmod_namelist': ('TH2OC', 'RAYSCALE', 'NSUNCLOCK', 'SWH2OSCALE', 'IRTOPDAY', 'IRTOPNIGHT', 'NTWILIGHT',
                         'NTWILW', 'ZMLUNAR', 'NGASBANDS', 'ZGASQ', 'ZGASW', 'ZMAIRLUNAR', 'NLWCORR', 'NICEOPT',
                         'TICEOPT', 'ZICEW'),
@@ -131,7 +150,8 @@ class Ledger:
     curved air adds to the ground and to each layer, top first, per unit sunlight at the beam. The extra infrared
     each layer, top first, and the ground lose to space, W/m², and the temperatures it is given at. The coefficients
     (a, b, c) of the slant factor (μ + a)/(μ² + bμ + c) along the air's path (ZMLUNAR) and for well-mixed gases
-    (ZMAIRLUNAR)."""
+    (ZMAIRLUNAR). `half_levels` states the level set its layers are: a run on a generated set takes a ledger laid on
+    its own half levels, and a ledger that states none is read on the released model's levels alone."""
     elevation_deg: tuple
     ground: tuple
     layers: tuple
@@ -139,15 +159,18 @@ class Ledger:
     escape_temperature_k: tuple
     slant: tuple
     slant_air: tuple
+    half_levels: tuple | None = None
 
 
 @dataclass(frozen=True)
 class Longwave:
     """The longwave correction by height (patch 09): the extra escape to space over land and over sea, W/m², for
-    each layer, top first, and the ground, and the temperatures it is given at."""
+    each layer, top first, and the ground, and the temperatures it is given at. `half_levels` states the level set
+    its layers are, as the ledger's does."""
     land: tuple
     sea: tuple
     temperature_k: tuple
+    half_levels: tuple | None = None
 
 
 @dataclass(frozen=True)
@@ -472,6 +495,8 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
                   N_DAYS_PER_YEAR=cal['n_days_per_year'], N_RUN_STEPS=cal['run_steps_per_year'],
                   SEED=_integer(run['seed'], 'seed'), NDIAGCF=_switch(run['clear_sky'], 'clear_sky'),
                   NDIAGGP=_switch(run['heating_diagnostics'], 'heating_diagnostics'))
+    level_set = derive.levels(run, world, scenario)
+    plasim.update(level_entries(level_set, run, where))     # nothing for the released model's own levels
 
     planet = entries['planet_namelist']
     planet.update(GSOL0=_check_top(top, scenario, calibrations), GASCON=gas_constant(scenario), GA=g,
@@ -511,7 +536,7 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
         raise SpecError(f"{where}: switches.surface_cloud_rcrit is 0 (PlaSim's own) or lies below 1, where the run "
                         f'states {rcrit!r}')
     if rcrit > 0.0:                                   # the lowest layer is the last of RCRIT
-        rainmod[f'RCRIT({_integer(run["levels"], "levels")})'] = float(rcrit)
+        rainmod[f'RCRIT({level_set["count"]})'] = float(rcrit)
 
     # The rain's evaporation, written where the run's series holds patch 14: PlaSim's own switch, and with the drops'
     # sizes the six entries the patch reads, from the scenario's air and the calibration of the births.
@@ -532,6 +557,28 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
         entries['landmod_namelist'].update(ALBLAND=albedo, DGROUNDALB=(albedo, albedo))
     entries['oceanmod_namelist']['MLDEPTH'] = _positive(ocean['mixed_layer_m'], f'{where}: water.ocean.mixed_layer_m')
     return {name: values for name, values in entries.items() if values}
+
+
+def level_entries(level_set: dict, run: dict, where: str) -> dict:
+    """plasim_namelist's entries for a run's level set (`derive.levels`). The released model's own levels take none,
+    so that PlaSim computes them from its formula under configure's NEQSIG 0. A generated set takes NEQSIG -1, its
+    half levels in SIGH and, in TFRC, the friction PlaSim presets on the top two levels of its ten
+    (python/climate/gcm/levels.py, `namelist_entries`). A generated set is refused at a truncation and count for
+    which rainmod's presets differ from those of the released ten at that truncation (`PRESET_LEVELS`)."""
+    if level_set['basis'] == 'released':
+        return {}
+    from climate.gcm import levels                    # the level tools load with the first generated set written
+    truncation, count = derive.truncation(run['resolution']), level_set['count']
+    preset = PRESET_LEVELS.get(truncation, ())
+    if (count in preset) != (PRESETS_FOR in preset):
+        raise SpecError(f'{where}: PlaSim presets its rain for {" and ".join(str(n) for n in preset)} levels at '
+                        f'T{truncation} (rainmod.f90, rainini: gamma 0.007 on ten levels at T42, shallow convection '
+                        f'off on five at T21), so a generated set of {count} levels would run there on another '
+                        f"preset than the released model's {PRESETS_FOR}")
+    try:
+        return levels.namelist_entries(level_set['half_levels'])
+    except ValueError as error:
+        raise SpecError(f'{where}: {error}') from None
 
 
 def _rain_entries(switches: dict, cal: Calibrations, where: str) -> dict:
@@ -642,12 +689,14 @@ def cloud_water(choice: str, gravity_m_s2: float) -> tuple[float, float]:
     raise SpecError(f'switches.cloud_water is one of {CLOUD_WATER}, where the run states {choice!r}')
 
 
-def departures(scenario: dict) -> dict:
-    """The entries the lab writes otherwise than configure for this scenario, with their reasons: `DEPARTURES`, and
-    the CO2 of air without it."""
+def departures(scenario: dict, run: dict | None = None) -> dict:
+    """The entries the lab writes otherwise than configure for this scenario, with their reasons: `DEPARTURES`, the
+    CO2 of air without it, and for a run on a generated level set its NEQSIG."""
     out = dict(DEPARTURES)
     if scenario['air']['co2_ppm'] == 0:
         out[CO2_FREE[0]] = CO2_FREE[1]
+    if run is not None and derive.level_count(run) and isinstance(run['levels'], dict):
+        out[GENERATED_LEVELS[0]] = GENERATED_LEVELS[1]
     return out
 
 
@@ -759,6 +808,21 @@ def surface_files(surface: ModelSurface, gravity_m_s2: float) -> tuple[dict[str,
                        surface_land_share=float((land * area).sum() / area.sum()))
 
 
+def laid_on(half_levels, level_set: dict, what: str) -> None:
+    """A calibration by layer is read on the level set its rows are laid on. One that states its half levels takes a
+    run on those half levels, each within `SAME_LEVEL` of the run's, far inside the four places a generated set is
+    rounded to; one that states none is read on the released model's own levels alone, as the calibrations made
+    before the lab generated sets are, so a run on a generated set refuses it."""
+    if half_levels is None:
+        if level_set['basis'] == 'generated':
+            raise SpecError(f'{what} state no half levels, where the run generates its level set: a calibration by '
+                            "layer is laid on the run's own half levels and states them")
+        return
+    stated, own = tuple(float(x) for x in half_levels), tuple(level_set['half_levels'])
+    if len(stated) != len(own) or any(not abs(a - b) <= SAME_LEVEL for a, b in zip(stated, own)):
+        raise SpecError(f"{what} are laid on other half levels than the run's: {stated}, where the run's are {own}")
+
+
 def twilight_table(ledger: Ledger, levels: int) -> str:
     """twilight.dat as patch 07 reads it: the number of solar elevations; for each, the elevation in degrees and the
     sunlight the curved air adds to the ground and to each layer, top first; then the extra infrared each layer and
@@ -840,7 +904,7 @@ def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrati
     start; a world of the model's own surface keeps ExoPlaSim's files. Every file is made before any is written, and
     they reach `folder` together.
     Returns the run's record: each file's sha256, the switches as resolved, the sunlight at the top with its scale
-    and basis, and the surface's kind and land shares."""
+    and basis, the level set with its half levels (`derive.levels`), and the surface's kind and land shares."""
     folder = Path(folder)
     if folder.exists() and (not folder.is_dir() or any(folder.iterdir())):
         raise SpecError(f'{folder}: a run is written into a new or empty folder')
@@ -867,15 +931,18 @@ def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrati
     entries = namelists(world, scenario, run, top=top, calibrations=calibrations)
     texts = namelist_texts(entries, archive=archive)
     texts.update(star_files(world, scenario, archive=archive, manifest=manifest, store=store))
-    radmod, levels = entries['radmod_namelist'], _integer(run['levels'], 'levels')
+    level_set = derive.levels(run, world, scenario)
+    radmod, levels = entries['radmod_namelist'], level_set['count']
     if radmod['NTWILIGHT']:
+        laid_on(calibrations.ledger.half_levels, level_set, "the ledger's terms")
         texts['twilight.dat'] = twilight_table(calibrations.ledger, levels)
     if radmod['NLWCORR']:
+        laid_on(calibrations.longwave.half_levels, level_set, "the longwave correction's rows")
         texts['lwcorr.dat'] = longwave_table(calibrations.longwave, levels)
     if entries['rainmod_namelist'].get('NEVAPPREC') == RAIN_EVAPORATION['drop_sizes']:
         texts[RAIN_TABLE] = rain_table(calibrations.rain_drops, derive.gravity(world))
     record = dict(files={}, switches=resolve(run, calibrations, world), first_run=calibrations.first_run,
-                  sunlight=dict(top_w_m2=top.w_m2, scale=top.scale, basis=top.basis))
+                  sunlight=dict(top_w_m2=top.w_m2, scale=top.scale, basis=top.basis), levels=level_set)
     data = {}
     if geometry == 'model-default':
         data = model_surfaces(run['resolution'], albedo_map=scenario['land']['albedo'] == 'model-default',

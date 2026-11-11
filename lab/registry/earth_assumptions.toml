@@ -1,4 +1,4 @@
-# The registry of Earth assumptions: a seed of eighteen entries in draft schema 0 (lab/design/architecture.md,
+# The registry of Earth assumptions: a seed of twenty entries in draft schema 0 (lab/design/architecture.md,
 # "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
 # it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
 # specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
@@ -146,6 +146,35 @@ repair = { patch = "14-rain-from-drop-sizes", switch = "NRDROP_JOIN, RDROP_WARM,
 action = "require-refit"
 note = "the lab has one calibration, Terluna's for the Open Moon on its fifteen levels: the share rule, 0.439 mm from its CM1 sea box and 2.95 mm from its McSnow run at 1 mm/h (python/climate/gcm/rain_drops.py, TERLUNA_OPEN_MOON_BIRTHS); the boxes behind it ran Earth's warm-rain rates (B38) and ice sized by Earth's limits; the design proposes gamma for a run outside the envelope, and the adapter refuses the drops' sizes in a run that states no births"
 evidence = ["lab/design/terluna_fixes.md, row 8", "models/exoplasim/README.md, Rain from drop sizes (patch 14)"]
+
+[[entry]]
+id = "B31"
+model = "exoplasim"
+where = "plasim/src/plasim.f90, initpm (the ten half levels of its formula, NEQSIG 0)"
+form = "geometry"
+assumes = "Earth's scale height: the levels are fractions of the surface pressure chosen for Earth's air, the lowest full level at 0.0168 scale heights and the lowest layer 0.034 deep"
+when = [{ q = "exoplasim_lowest_level_m", gt = 350.0 }]      # proposed: the design's "about 0.3 km" (lab/design/terluna_fixes.md, row 9), set between the 307 m of the Open Moon's fifteen levels and the 0.39 km it gives Mars's ten
+effect = "the levels stand higher where the scale height is larger: the lowest full level at 0.14 km in Earth's air and at 0.88 km in the Open Moon's, where the lowest layer averages away the 1.4-2.3 kJ/kg of moist static energy that CM1's updraughts draw from the surface layer, and CM1's 6 km night boundary layer with its clouds' 7-8 km tops falls inside one layer"
+state = "repaired"
+repair = { setting = "exoplasim.levels", namelist = ["NEQSIG", "SIGH", "TFRC"], default = 10, tool = "python/climate/gcm/levels.py, generate" }
+action = "warn"
+note = "the repair is a level set generated for the world: the released model's upper half levels kept, and half levels at the heights the study states near the ground, counted at a scale height (python/climate/gcm/levels.py); the quantity is the height of the run's lowest full level at the scenario's scale height, 142 m for the Earth control and 882 m for the Open Moon on the released ten, and 307 m for the Open Moon on Terluna's fifteen, 299 m at the 51 km Terluna counts with; the action is a warning, since each fix enters the lab opt-in (PLAN.md), the heights are the study's to state, and the Earth control's test of a generated set is still to be run; no lab run has measured a set's effect on a climate; a run on a generated set takes calibrations by layer laid on its own half levels (the adapter refuses others) and a longwave correction fitted on its own columns (exoplasim-longwave-fit)"
+evidence = ["notes/defect_log.md B31", "notes/exoplasim.md, Levels for a world", "models/exoplasim/README.md, Level sets", "lab/tests/test_builds.py, the level set's tests"]
+
+[[entry]]
+id = "exoplasim-longwave-fit"
+model = "exoplasim"
+where = "patch 09, lwcorr.dat: the extra escape to space of each layer and of the ground, over land and over sea"
+form = "fit beyond its range"
+assumes = "the level set, the state and the convection scheme of the columns on which the correction was fitted"
+when = [{ config = "exoplasim.switches.longwave_correction", eq = true },
+        { calibration = "calibration:plasim-longwave", outside_envelope = true }]
+effect = "PlaSim's cooling of a layer depends on the layers around it: Terluna's correction fitted on ten levels, carried onto its fourteen and fifteen by the restart's remap, left 6.4-8.8 W/m2 by layer, where its provisional refit on the fifteen levels' own columns, over one month, left 1.9-2.1 W/m2 (Terluna's climate/gcm/README.md at 39c5ee04)"
+state = "calibrated"
+repair = { patch = "09-longwave-by-height", switch = "NLWCORR" }
+action = "require-refit"
+note = "the envelope of a calibration holds the GCM's level set among its dimensions (lab/design/architecture.md, Calibrations, envelopes and loops), so a calibration fitted on one set and read on another lies outside it; the adapter also refuses a table by layer whose stated half levels differ from the run's, the correction's and the curved-air ledger's alike, and the rain's births hold their level set in their own entry (exoplasim-rain-births); Terluna's fits are its own, and stage 5 fits the lab's"
+evidence = ["notes/defect_log.md B18", "notes/defect_log.md B31", "lab/design/terluna_fixes.md, row 9"]
 
 [[entry]]
 id = "B21"

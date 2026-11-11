@@ -155,7 +155,7 @@ flowchart TB
 | Component | Working module | Does | Built from |
 |---|---|---|---|
 | Specifications | `lab/worlds/`, `lab/configs/`, `lab/studies/` | Worlds, scenarios, model defaults and studies in TOML; `extends`, `set` and `variants` express a derived item and its delta | `EXPERIMENTS`, `MODEL`, `CASES` |
-| Derive | `worldlab.derive`, `worldlab.sunlight` | Pure functions from a specification to the quantities the models need: g; Ω; the solar day; the scale height, H/R, the column mass and the Chapman horizon factor; ExoPlaSim's calendar (rotations per year, model day, steps per day, whole-day run steps); the gas mass fractions and gas constant; CM1's domain lengths and Coriolis parameters. `worldlab.sunlight` gives the sunlight at the top and the ice-optics weights from the star's spectrum and the filter | `paper/tools/regime_calc.py`, `boundary.planet()`, arithmetic spread through the runners |
+| Derive | `worldlab.derive`, `worldlab.sunlight` | Pure functions from a specification to the quantities the models need: g; Ω; the solar day; the scale height, H/R, the column mass and the Chapman horizon factor; ExoPlaSim's calendar (rotations per year, model day, steps per day, whole-day run steps) and a run's level set, the released model's or one generated for the world; the gas mass fractions and gas constant; CM1's domain lengths and Coriolis parameters. `worldlab.sunlight` gives the sunlight at the top and the ice-optics weights from the star's spectrum and the filter | `paper/tools/regime_calc.py`, `boundary.planet()`, arithmetic spread through the runners |
 | Registry and reach | `worldlab.registry`, `lab/registry/` | Earth-assumption entries and calibration envelopes, evaluated for a world, a scenario and a run's settings into a reach report | `notes/defect_log.md`, classes (a) and (b); the paper's table of reach |
 | Stage graph and store | `worldlab.stages`, `worldlab.store` | Stage definitions, product keys and headers, read-set tracking, staleness, priced plans | Terluna's run key, `case.json`'s input hashes, `shared/provenance.py` |
 | Model adapters | `worldlab.exoplasim`; `worldlab.cm1`, planned | Builds, input files, namelists, runs and guards for each model | `exoplasim_run.py`, `cm1_run.py`, `cm1_elec.py` |
@@ -309,6 +309,18 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   would stop. The defaults keep `gamma` until the Earth control's test (`PLAN.md`). At that default the whole
   series' build runs Earth's control, over two days, byte for byte as the build of patches 01–13, and the drops'
   sizes change the output (`lab/tests/test_builds.py`).
+- **The levels.** A run's `levels` is the released model's count, 10 by default, or the table of a set generated
+  for the world from the scale height and the heights its study states (`python/climate/gcm/levels.py`;
+  `models/exoplasim/README.md`, "Level sets"). The set takes no patch: PlaSim reads its half levels from the
+  namelist. `derive.levels` resolves the setting to the set's count and half levels, the build compiles for the
+  count, and the adapter writes `NEQSIG` −1, `SIGH` and `TFRC` for a generated set and nothing for the released
+  one, so that the default's files stay as they were. A calibration whose rows hold one value for each layer, the
+  ledger's terms and the longwave correction, states the half levels it is laid on, and the adapter reads it on
+  those alone. `levels.carry_restart` writes a restart from one set onto another by a conservative remap in σ,
+  which the runner will call where a run starts from a run on another set. With the released ten stated as a
+  generated set, the whole series' build runs Earth's control, over two days, byte for byte as with PlaSim's own
+  formula, and the build for fifteen levels runs the Open Moon's set from a cold start and from a carried
+  ten-level restart (`lab/tests/test_builds.py`).
 
 **CM1.**
 
@@ -400,6 +412,13 @@ check catches: its longwave correction was fitted at 295 K, and Terluna's plan r
 layers stray by 5–7 W/m² already at 302 K. The lab's own run of that pair, on such a correction, is marked
 "used beyond its fit" wherever it settles outside the fit's range, and kept as a sensitivity until the
 correction is refitted with ice optics on, as the author chose on 2026-10-17 (plan.md, stage 8).
+
+The GCM's levels are a dimension the first check tests. A calibration fitted on one level set and read on another
+lies outside its envelope: Terluna's longwave correction fitted on ten levels left 6.4–8.8 W/m² by layer on its
+fourteen and fifteen (registry `exoplasim-longwave-fit`; the rain's births hold their set in
+`exoplasim-rain-births`). A table by layer is also laid on particular half levels, which it states and which the
+adapter requires to be the run's. A correction that the remap lays on a new set is therefore a product on that set,
+and its envelope still names the set it was fitted on.
 
 Three calibrations are fitted on the GCM's own columns, as Terluna fitted its own:
 

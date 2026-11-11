@@ -4,13 +4,15 @@ import hashlib
 import json
 import re
 import shutil
+import struct
 import subprocess
 
+import numpy as np
 import pytest
 
 from atmosphere.radiative_convective.thermodynamics import DryAir, earthlike_air
 from atmosphere.rain import drops
-from climate.gcm import rain_drops
+from climate.gcm import levels, rain_drops
 from worldlab import builds, derive, exoplasim as ex
 from worldlab.data import DataError
 from worldlab.roots import root
@@ -363,3 +365,122 @@ def test_under_the_moons_gravity_the_rain_evaporates_from_its_drops(whole_point,
         restarts[choice] = _hashes(tmp_path / choice, _executable(whole_build, whole), steps, output=False)
     assert steps == 96 and all(set(found) == {'plasim_status'} for found in restarts.values())
     assert restarts['gamma'] != restarts['drop_sizes']
+
+
+# The level set.
+
+# Terluna's values for the Open Moon's fifteen levels, as a study's table states them.
+MOON_LEVELS = {**levels.TERLUNA_OPEN_MOON_LEVELS,
+               'interfaces_m': list(levels.TERLUNA_OPEN_MOON_LEVELS['interfaces_m'])}
+
+
+def _output_levels(folder) -> tuple[int, np.ndarray]:
+    """The count of levels and the half levels PlaSim ran on, from the first two records of its output: the header's
+    seventh integer, and the vertical coordinate table it hands its postprocessor, in single precision
+    (outmod.f90, outini)."""
+    data = (folder / 'plasim_output').read_bytes()
+    size = struct.unpack('<i', data[:4])[0]
+    count = struct.unpack('<8i', data[4:4 + size])[6]
+    return count, np.frombuffer(data, '<f4', count=count, offset=4 + size + 4 + 4)
+
+
+def _step(restart) -> int:
+    return struct.unpack('<i', dict((name.strip(), data) for name, data in levels.read_records(restart))['nstep'])[0]
+
+
+def test_a_generated_sets_build_compiles_for_its_count():
+    run = {**DEFAULTS, 'levels': MOON_LEVELS}
+    assert builds.executable_name(run) == 'most_plasim_t21_l15_p4.x' and derive.level_count(run) == 15
+    for bad in ({'levels': {'upper': 6}}, {'levels': 10.0}, {'levels': True}):
+        with pytest.raises(SpecError, match='level'):
+            builds.executable_name({**DEFAULTS, **bad})
+
+
+@needs_build
+def test_the_released_ten_stated_as_a_generated_set_run_byte_for_byte_as_the_released_grid(whole_point, tmp_path):
+    """Earth's control over two days. Stated at the heights of the released model's own seventh to ninth half levels,
+    a generated set is the released ten, in the compiled model's doubles, and the run reads them from SIGH under
+    NEQSIG -1 with its top friction from TFRC. Its build is the released grid's, its folder differs in those three
+    entries alone, and it gives the output and the restart of the run that leaves the levels to PlaSim's formula.
+    Each run's files are removed once their hashes are taken."""
+    whole, whole_build = whole_point
+    ten = levels.plasim_half()
+    heights = [float(z) for z in levels.heights_m(ten[6:9], derive.planet(EARTH, CONTROL)['scale_height_m'])]
+    stated = {**whole, 'levels': dict(scale_height_m='scenario', upper=6, interfaces_m=heights)}
+    found = derive.levels(stated, EARTH, CONTROL)
+    assert found['basis'] == 'generated' and found['half_levels'] == derive.levels(whole)['half_levels'] == tuple(ten)
+    assert builds.gather(stated, env=ENV)[0] == builds.gather(whole, env=ENV)[0]          # one key, one build
+    for name, run in (('formula', whole), ('stated', stated)):
+        ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=ex.Calibrations.identity(), store=STORE)
+    assert _differing(tmp_path / 'formula', tmp_path / 'stated') == {'plasim_namelist'}
+    lines = lambda name: (tmp_path / name / 'plasim_namelist').read_text().splitlines()
+    assert [line for line in lines('formula') if line not in lines('stated')] == [' NEQSIG = 0']
+    assert [line.split(' = ')[0] for line in lines('stated') if line not in lines('formula')] == \
+        [' NEQSIG', ' SIGH', ' TFRC']
+    out = {name: _hashes(tmp_path / name, _executable(whole_build, whole), 96) for name in ('formula', 'stated')}
+    assert set(out['formula']) == {'plasim_output', 'plasim_status'} and out['stated'] == out['formula']
+
+
+@needs_build
+def test_plasim_runs_on_a_generated_set_and_starts_there_from_a_restart_carried_onto_it(whole_point, tmp_path):
+    """Earth's control with the Moon's gravity in place of its own, as the gust's test makes it, on Terluna's values
+    for the Open Moon's fifteen levels. From a cold start the build compiled for fifteen levels runs two days under
+    the floating-point traps ExoPlaSim compiles with, and its output states the fifteen levels and the set's half
+    levels. A ten-level run's restart, carried onto the set by the conservative remap, starts a fifteen-level run,
+    which counts its steps on from the restart's and ends in another state than the cold start. The carry keeps each
+    spectral field's column integrals, and the same restart carried onto its own ten levels comes back byte for byte.
+    The runs test the code's path and no climate; each run's files are removed once read."""
+    whole, whole_build = whole_point
+    g_moon, body = derive.gravity(LIB.world('moon')), EARTH['body']
+    spin = (2.0 / 3.0) * derive.rotation_rate(EARTH) ** 2 * body['radius_m']
+    light = {**EARTH, 'id': 'earth-under-lunar-gravity',
+             'body': {'radius_m': body['radius_m'], 'gm_m3_s2': (g_moon + spin) * body['radius_m'] ** 2}}
+    fifteen = {**whole, 'levels': MOON_LEVELS}
+    half = np.array(derive.levels(fifteen)['half_levels'])
+    build = builds.build(fifteen, store=STORE, env=ENV)
+    record = json.loads((build / 'build.json').read_text())
+    assert record['inputs']['grid'] == dict(resolution='T21', levels=15, ranks=4, precision=8)
+    assert record['inputs']['patches'] == json.loads((whole_build / 'build.json').read_text())['inputs']['patches']
+    executable = _executable(build, fifteen)
+    assert executable.name == 'most_plasim_t21_l15_p4.x' and executable != _executable(whole_build, whole)
+
+    def run(name, settings, exe, restart=None):
+        """Two days in a folder the adapter writes; returns the folder, which keeps the run's files."""
+        folder = tmp_path / name
+        ex.write_run(folder, light, CONTROL, settings, calibrations=ex.Calibrations.identity(), store=STORE)
+        if restart is not None:
+            shutil.copyfile(restart, folder / 'plasim_restart')
+        _run_plasim(folder, exe, 96)
+        return folder
+
+    cold = run('cold', fifteen, executable)
+    count, table = _output_levels(cold)
+    assert count == 15 and np.array_equal(table, half.astype('<f4'))
+    printed = re.findall(r'^ \* +\d+ \* +([0-9.]+) +[0-9.]+ +[0-9.]+ \*$', (cold / 'plasim_diag').read_text(),
+                         flags=re.M)                    # the table of levels: sigma, the reference temperature, km
+    assert [float(x) for x in printed] == [round(float(x), 8) for x in levels.full_levels(half)]
+    cold_step, cold_end = _step(cold / 'plasim_status'), _sha256(cold / 'plasim_status')
+    shutil.rmtree(cold)
+
+    ten = run('ten', whole, _executable(whole_build, whole))
+    assert _output_levels(ten)[0] == 10 and _step(ten / 'plasim_status') == cold_step
+    carried = tmp_path / 'carried'
+    report = levels.carry_restart(ten / 'plasim_status', carried, levels.plasim_half(), half)
+    assert report['levels'] == [10, 15] and set(report['fields']) == set(
+        levels.SPECTRAL_BY_LEVEL + levels.GRID_BY_LEVEL + levels.GRID_BY_LEVEL_AND_GROUND)
+    for name in levels.SPECTRAL_BY_LEVEL:                   # vorticity, divergence, temperature and humidity
+        field = report['fields'][name]
+        assert field['column_integral_scale'] > 0.0
+        assert field['column_integral_change'] <= 1e-10 * field['column_integral_scale'], name
+    same = tmp_path / 'same'
+    levels.carry_restart(ten / 'plasim_status', same, levels.plasim_half(), levels.plasim_half())
+    assert same.read_bytes() == (ten / 'plasim_status').read_bytes()
+    shutil.rmtree(ten)
+    same.unlink()
+
+    warm = run('warm', fifteen, executable, restart=carried)
+    assert 'variables in file <plasim_restart>' in (warm / 'plasim_diag').read_text()
+    assert _output_levels(warm)[0] == 15 and _step(warm / 'plasim_status') == cold_step + 96
+    assert _sha256(warm / 'plasim_status') != cold_end
+    shutil.rmtree(warm)
+    carried.unlink()

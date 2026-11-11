@@ -84,9 +84,9 @@ def gather(run: dict, *, env: Path, archive: Path = ex.ARCHIVE) -> tuple[dict, d
     configure wrote for this machine, the patches of the run's series in order, the grid, ExoPlaSim's compile flags
     and the toolchain."""
     derive.truncation(run['resolution'])                 # refuses a grid ExoPlaSim lacks
-    for name in ('levels', 'ranks'):
-        if isinstance(run[name], bool) or not isinstance(run[name], int) or run[name] < 1:
-            raise DataError(f'a build takes a whole number of {name}, where the run states {run[name]!r}')
+    levels = derive.level_count(run)                     # the count alone: a generated set's heights reach the namelist
+    if isinstance(run['ranks'], bool) or not isinstance(run['ranks'], int) or run['ranks'] < 1:
+        raise DataError(f'a build takes a whole number of ranks, where the run states {run["ranks"]!r}')
     if isinstance(run['precision'], bool) or run['precision'] not in PRECISIONS:
         raise DataError(f'a build compiles at precision {PRECISIONS[0]} or {PRECISIONS[1]}, where the run states '
                         f'{run["precision"]!r}')
@@ -105,7 +105,7 @@ def gather(run: dict, *, env: Path, archive: Path = ex.ARCHIVE) -> tuple[dict, d
     made = dict(model='exoplasim', archive=dict(name=Path(archive).name, sha256=_sha256(archive_bytes)),
                 configured={name: _sha256(data) for name, data in configured.items()},
                 patches=[dict(name=name, sha256=_sha256(data)) for name, data in patches],
-                grid={k: run[k] for k in ('resolution', 'levels', 'ranks', 'precision')},
+                grid=dict(resolution=run['resolution'], levels=levels, ranks=run['ranks'], precision=run['precision']),
                 flags=dict(debug=False, optimization=None, mars=False), toolchain=toolchain())
     return made, dict(archive=archive_bytes, configured=configured, patches=patches)
 
@@ -117,7 +117,7 @@ def key(inputs: dict) -> str:
 
 def executable_name(run: dict) -> str:
     """The executable compile.sh writes for the run's grid (compile.sh:208-209)."""
-    return f'most_plasim_t{derive.truncation(run["resolution"])}_l{run["levels"]}_p{run["ranks"]}.x'
+    return f'most_plasim_t{derive.truncation(run["resolution"])}_l{derive.level_count(run)}_p{run["ranks"]}.x'
 
 
 def folder(store: Path, key_: str) -> Path:

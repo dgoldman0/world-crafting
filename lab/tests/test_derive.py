@@ -1,6 +1,7 @@
 """The derived quantities: world_spec.md's table, the paper's data, and comparisons with Terluna's records where its
 research drive is at hand."""
 import json
+import math
 import re
 import warnings
 
@@ -52,6 +53,29 @@ def test_exoplasims_calendar_on_the_moon():
         rotationperiod=27.321661, n_days_per_year=12, step_s=1800.0, steps_per_model_day=1430, steps_per_mean=143,
         run_steps_per_year=17160, means_per_year=120, whole_means=True)
     assert cal['stepped_model_day_s'] == 1430 * 1800.0
+
+
+def test_the_lowest_levels_height_follows_the_scale_height_and_the_runs_level_set():
+    """The released ten put their lowest full level, sigma 0.9833, at 0.0168 scale heights: 142 m in Earth's air at
+    288 K and 882 m in the Open Moon's at 295 K (registry B31). On Terluna's values for the Open Moon's fifteen
+    levels it stands at sigma 0.99415, 307 m at the scenario's 52.4 km and 299 m at Terluna's 51 km."""
+    earth = derive.planet(EARTH, CONTROL, exoplasim=EXOPLASIM)
+    moon = derive.planet(MOON, OPEN_MOON, exoplasim=EXOPLASIM)
+    assert earth['scale_height_m'] == pytest.approx(8430.0, abs=0.5)
+    assert moon['scale_height_m'] == pytest.approx(52377.0, abs=0.5)
+    assert earth['exoplasim_lowest_level_m'] == pytest.approx(142.0, abs=0.5)
+    assert moon['exoplasim_lowest_level_m'] == pytest.approx(882.1, abs=0.5)
+    assert earth['exoplasim_lowest_level_m'] / earth['scale_height_m'] == pytest.approx(-math.log(0.9833), rel=1e-12)
+    fifteen = {**EXOPLASIM, 'levels': dict(scale_height_m=51000.0, upper=6, interfaces_m=[
+        15500.0, 11500.0, 9000.0, 7000.0, 5000.0, 3100.0, 1730.0, 600.0])}
+    on_fifteen = derive.planet(MOON, OPEN_MOON, exoplasim=fifteen)
+    assert on_fifteen['exoplasim_lowest_level_m'] == pytest.approx(307.3, abs=0.5)
+    assert derive.lowest_level_m(derive.levels(fifteen)['half_levels'], 51000.0) == pytest.approx(299.2, abs=0.5)
+    # A scenario whose temperature the fixpoint is to find states no scale height, and its record holds no height;
+    # neither does a record made without a run's settings.
+    settled = derive.planet(MARS, LIB.scenario('mars/breathable-1bar'), exoplasim=EXOPLASIM)
+    assert 'exoplasim_lowest_level_m' not in settled
+    assert 'exoplasim_lowest_level_m' not in derive.planet(MOON, OPEN_MOON)
 
 
 @pytest.mark.parametrize('timestep_min, steps', [(30.0, 1430), (50.0, 834), (25.0, 1728)])

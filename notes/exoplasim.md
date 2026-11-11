@@ -2,9 +2,9 @@
 
 Notes on the fourteen patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten, the lab's patch 11 and
 patches 12 to 14, which the lab wrote from Terluna's surface transfer and its rain from drop sizes, the settings that
-carry the Moon, the offline copies of PlaSim's radiation, surface transfer and falling rain in `python/climate/gcm/`,
-and what in PlaSim stays Earth's. References to Terluna are at commit 186b294 unless another commit is named; to
-ExoPlaSim, at the 3.4.2 source distribution.
+carry the Moon, the level set generated for a world, the offline copies of PlaSim's radiation, surface transfer and
+falling rain in `python/climate/gcm/`, and what in PlaSim stays Earth's. References to Terluna are at commit 186b294
+unless another commit is named; to ExoPlaSim, at the 3.4.2 source distribution.
 
 Evidence states used below: **reproduction** (the same code or arithmetic gives the same numbers),
 **identity** (a switch at its default gives the output of the build without the patch byte for byte, the unpatched
@@ -305,6 +305,51 @@ and the vapour's diffusivity and the air's viscosity are fits for Earth's air. T
 the grid cell's mean air and rain content, and the snow still sublimates by `gamma`. The Earth control's test, which
 decides whether the scheme serves every world, is still to be run, and until then the lab's default keeps `gamma`.
 
+### Levels for a world (the `levels` setting; no patch)
+
+**The Earth value.** PlaSim's ten σ levels are fractions of the surface pressure chosen for Earth's air, and a level
+stands near −H ln σ: the lowest full level, σ 0.9833, at 142 m in Earth's air at 288 K and at 882 m in the Open
+Moon's at 295 K, under a lowest layer 286 m and 1,779 m deep. On the Moon that layer averages away the 1.4–2.3 kJ/kg
+of moist static energy that CM1's updraughts draw from the surface layer, and CM1's 6 km night boundary layer, with
+its clouds' 7–8 km tops, falls inside the one layer from 6.4 to 13.7 km (Terluna `domain/climate` 697ac36, 03e7c41;
+defect log B31).
+
+**Repair.** A level set generated for the world, which PlaSim reads from its namelist under `NEQSIG` −1, so the
+repair takes no patch. A study puts a table in place of the run's count of levels: the scale height its heights are
+counted at, the count of the released model's highest half levels kept, and the heights of the half levels below
+them. `python/climate/gcm/levels.py` keeps the released half levels in the compiled model's doubles and puts one
+half level at each height, at σ = exp(−z/H) to four places; the lab's writer states the set in `SIGH` with PlaSim's
+friction on its top two levels in `TFRC`, and the build compiles for the set's count. From Terluna's values for the
+Open Moon, heights at 51 km under the released model's six upper half levels, the rule returns Terluna's fifteen
+levels, the lowest full level at 0.30 km; in Earth's air it has nothing to add, and the Earth control keeps the
+released ten. A restart goes from one set onto another by a conservative remap in σ, and a calibration by layer is
+read on the half levels it states ([../models/exoplasim/README.md](../models/exoplasim/README.md), "Level sets").
+
+**Correctness.** By evidence state:
+
+| Evidence | What it shows | Where |
+|---|---|---|
+| Identity | With the released count the writer's files are unchanged: `NEQSIG` 0 and neither `SIGH` nor `TFRC`. On Earth's control over 96 steps the whole series' build gives the same output and restart, byte for byte, with the levels left to PlaSim's formula and with the released ten stated as a generated set | `lab/tests/test_exoplasim_files.py`; `lab/tests/test_builds.py` |
+| Identity, a single scratch run of 11 November 2026 | The working tree and the tree at `10bf621` wrote the same 114 files for five runs on the released ten | `models/exoplasim/README.md` |
+| Reproduction | The rule agrees with hand arithmetic, returns the released ten from their own heights, and gives Terluna's fifteen and fourteen at the four places Terluna states. The remap keeps each column's integrals over σ to 10⁻¹¹ on random fields, reproduces linear profiles, copies shared layers bit for bit, and returns a restart carried onto its own set byte for byte | `python/climate/tests/test_levels.py` |
+| Reproduction, single scratch runs of that day | With Terluna's doubles the lab's carrier turns Terluna's year-19 restart into its carried fifteen-level restart byte for byte, each spectral field's column integrals within 3 × 10⁻¹⁴ of their size; the lab's remap equals Terluna's module's on five pairs of its grids | `models/exoplasim/README.md` |
+| The model on a set, in the lab's tests | On Earth's surface under the Moon's gravity the fifteen-level build runs two days from a cold start, its output stating the set's half levels, and a ten-level restart carried onto the set starts a run there that counts its steps on | `lab/tests/test_builds.py` |
+| Sensitivity, in Terluna's runs | A fifteen-level month cost 1.6 times a ten-level one; over two years each set moved the rain by time of day and the air near the ground; the longwave correction fitted on ten levels left 6.4–8.8 W/m² by layer on the new sets | Terluna `climate/gcm/README.md` at `39c5ee04` |
+
+**Limits.** The heights are a study's to state: Terluna placed its own by hand from its CM1 boxes, the lab has none
+for another world, and no rule here chooses them from a scale height alone. One scale height converts every height,
+so a run's levels stand off them by its own temperatures. Two of the fifteen doubles differ in the last bit from
+those of Terluna's runs, whose module computes the released formula with numpy's powers. The remap's slopes are
+unlimited, the cloud cover and cloud water are clipped after it, and it keeps the vapour, the temperature and the
+vorticity and divergence of each column, while kinetic and potential energy lie outside it. Each set takes its own
+longwave correction, ledger terms and rain births, and the lab has fitted none on a generated set. PlaSim's presets
+of `gamma` at T42 and of the shallow convection at five levels follow the count, so the writer refuses a generated
+set there. The lab has run no climate on a generated set; the Earth control's test of one is ahead.
+
+**Improvement.** A study's heights for each world from its own boxes, or a rule that places them from the boundary
+layer's depth; the Earth control's test; the calibrations fitted on each set in stage 5; and more levels about the
+tropopause, where the top three layers stay Earth's (below).
+
 ## Calibrations
 
 ### Rayleigh, water continuum and near-infrared water (patches 01 and 05, `TH2OC`)
@@ -412,7 +457,7 @@ radiation. The same hook carries any infrared source above the air: a host plane
 | Kuo-type deep convection (`nprc` 1), its parcel lifted undiluted from the surface | It rains a column's moisture supply, the surface's evaporation included, wherever the parcel is buoyant: over the Near-side Sea 2.9 mm/day after midnight under sinking air, where CM1's box rains 0.14–0.17 mm/day; it holds the upper air within 1.3 K of the undiluted adiabat, where CM1's mixing updrafts hold theirs 3.0–6.3 K below, and CM1's air at 42–56 km runs 7.7–10 K colder (Terluna `domain/climate` f07ad8d, 467a146) | A scheme fitted to CM1's mixing and timing: Terluna's simplified Betts–Miller (`nprc` 2) and mass-flux (`nprc` 3) schemes, behind PlaSim's own switch; so far each setting misses CM1's rain by time of day at one site or both, and in single columns the mass-flux scheme goes deep on every step of the sea's night (6d0c707; defect log B29) |
 | Rain evaporation by one constant (`gamma` 0.01 in `mkrain`), at the series' defaults | Falling rain evaporates a share of each layer's saturation deficit per step, with no drop size or fall speed: 29% of PlaSim's rain on the Moon, an ordinary share on Earth, against 61% in CM1's corrected boxes; matching them takes 0.027 over the sea and about 0.046 over land (05b1384, 30e7f83) | Rain evaporated from its drops' sizes and fall speeds, patch 14 (`NEVAPPREC` 2), with the fall law computed for the world; it stays off until the Earth control's test, and the snow's sublimation keeps `gamma` (defect log B30) |
 | With `NEVAPPREC` 2: the rule and the two sizes of the rain's births, a calibration; Morrison's ventilation coefficients, his fits for the vapour's diffusivity and the air's viscosity, the breakup law's form and the density factor's exponent 0.54 | The lab has one calibration of the births, Terluna's for the Open Moon on fifteen levels, from CM1 boxes that ran Earth's warm-rain rates and Earth-sized ice. Gravity enters the layers' depths, the fall law's table, the bounds, the cap and the breakup's lengths explicitly, and the fits are for air of Earth-like composition | A calibration of the births for each world and level set, from boxes with the warm rain and the ice at the world's gravity; the snow's sublimation by its flakes, once assessed |
-| Earth's σ levels near the ground | At the Moon's 51 km scale height the lowest layer spans 0–1.73 km and one layer 6.4–13.7 km: the bottom layer averages away the 1.4–2.3 kJ/kg of moist static energy that CM1's afternoon and evening updraughts draw from the surface layer, and CM1's 6 km night boundary layer and its clouds' 7–8 km tops fall inside one layer (697ac36, 03e7c41) | More levels near the ground: Terluna's 14- and 15-level sets, the lowest level near 0.3 km, at about 1.5 times the run's cost, each with a longwave refit on its own columns (defect log B31) |
+| Earth's σ levels near the ground | At the Moon's 51 km scale height the lowest layer spans 0–1.73 km and one layer 6.4–13.7 km: the bottom layer averages away the 1.4–2.3 kJ/kg of moist static energy that CM1's afternoon and evening updraughts draw from the surface layer, and CM1's 6 km night boundary layer and its clouds' 7–8 km tops fall inside one layer (697ac36, 03e7c41) | A level set generated for the world from its scale height and the heights its study states, through the run's `levels` ("Levels for a world", above); Terluna's values for the Moon give its fifteen levels, the lowest near 0.3 km, at about 1.6 times a ten-level run's cost, each set with a longwave refit on its own columns. The released ten stay the default (defect log B31) |
 | Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and its least wind shear of 1 m/s (`zumin`) | Over the Near-side Sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour up through 5.2 km, mostly by resolved motion, where PlaSim's median diffusivity is 0.1–0.3 m²/s (21d98fc) | Lengths scaled with gravity, an untested scaling; a nonlocal scheme with explicit entrainment, tested in single columns, brings the land's afternoon mixed layer down toward CM1's and misses the sea's night, where Terluna reads CM1's 10–12 W/m² of heat carried down through 6–7 km as entrainment driven from the cloud's top (6d0c707; defect log B32). In the surface transfer, where the same `zumin` floors the wind, patch 12's gust takes its place with `NGUST` 1 |
 | Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³ (Miller, Beljaars and Palmer 1992), at the series' defaults | Its tank law goes as (g/p_s)^⅓, 0.00083 on the Moon; at that value the Near-side Sea's evaporation falls from 3.82 to 3.62 mm/day, against CM1's 2.98 (b182515) | Beljaars's gust with the similarity over ice-free water, patches 12 and 13 (`NGUST`, `NSIMW`), which drop the term; they stay off until the Earth control's test, and Terluna's lunar value of the constant has no patch here (defect log B33) |
 | With `NSIMW` 1: Charnock's 0.0185, the 2.85 mm cap on the sea's roughness, Fairall's roughness for heat and vapour, Paulson's functions, and Sutherland's two constants for the dynamic viscosity of Earth's dry air (`SIMW_MUB`, `SIMW_MUS`), which the lab's writer leaves at the patch's defaults in every run; with `NGUST` 1: β = 1 and the depth rule's constants | Unmeasured. Gravity enters w*, the Richardson numbers, z/L and Charnock's relation explicitly, and the kinematic viscosity takes each column's own density under Earth's dry air's dynamic viscosity, while the cap and Fairall's lengths are fits to Earth's seas | The sea's roughness from the ensemble's wave model at the world's gravity; large-eddy runs at that gravity for β and the depth; the dynamic viscosity of the scenario's own air, written by the adapter |
@@ -459,5 +504,7 @@ gives the copy's tendencies and precipitation to 10⁻¹⁰ ("Rain from its drop
    and warn where the lowest level stands above the surface layer.
 9. Take the rain from its drops' sizes through the Earth control's test, and fit its births for each world and
    level set on boxes whose warm rain and ice follow the world's gravity.
-10. Upstream: the Sun clock, the orbit default's documentation, the free-convection constant's gravity, and the
+10. Take a generated level set through the Earth control's test, fit each set's calibrations, and state each
+   world's heights from its own boxes or from a rule on its boundary layer's depth.
+11. Upstream: the Sun clock, the orbit default's documentation, the free-convection constant's gravity, and the
    switches whose defaults are identity.

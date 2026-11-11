@@ -82,7 +82,7 @@ drive. Upstream source code is never committed whole.
 ## Python tools
 
 The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna, at
-186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 137 files they hold with their
+186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 139 files they hold with their
 sha256 (98 brought first; the electricity package's conductivity column, muon ionization and charging laws, with
 their three tests and committed products, added on 2026-10-17; and on 2026-10-18 the geography package's
 heights above the geoid, storage levels, atlas, drainage and gazetteer reader, with their three tests and the
@@ -90,7 +90,7 @@ package's `.gitignore`; on 2026-11-08 CM1's output conventions and their test, f
 the Python copies of PlaSim's gust and similarity over water with their two tests, from `39c5ee04`; and that day
 the rain package's solver, breakup scale and fall law with their three tests, its record of sources and two files of
 its vendored rainprops, from the same commit; and that day the Python copy of PlaSim's rain from its drops with its
-test, from the same commit).
+test, from the same commit; and that day PlaSim's levels with their test, from the same commit).
 `python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
 `models/exoplasim/patches/10-ice-optics.patch` in place of the runner's Python string (both hashes recorded).
 The geography package came over byte for byte (82b4b59), with its input restorer and manifest, the level table
@@ -131,3 +131,18 @@ lab's `atmosphere/rain/morrison.py`; and the calls of Terluna's `snow_sublimatio
 the entries that the lab's modules computed from the Open Moon's air, the copy gave every field of Terluna's module,
 run in place from its worktree, bit for bit on 72 columns: Terluna's eight test columns at three seeds under each
 of its three birth rules.
+The same day `climate/gcm/levels.py` came over from Terluna at `39c5ee04` (commits `697ac363` and `a75fd470`) with
+its test, each changed as its entry records, with both hashes. Terluna's work on its level sets is Python and
+namelist entries alone, PlaSim reading its half levels under `NEQSIG` −1, so the port adds no patch and
+`models/exoplasim/expected-series.sha256` stands. Terluna's three named sets are left out: `generate` returns a
+world's set from a scale height, a count of the released model's highest half levels and the heights a study states
+below them, and `TERLUNA_OPEN_MOON_LEVELS` records the values, heights of 15.5, 11.5, 9.0, 7.0, 5.0, 3.1, 1.73 and
+0.60 km counted at 51 km under six released half levels, from which it returns Terluna's fifteen at the four places
+Terluna states them. `plasim_half` multiplies the released formula's powers out as the compiled model does, so two
+of the fifteen doubles, 0.3736 and 0.9666, differ in the last bit from those of Terluna's module and of its runs'
+`SIGH`. The remap's arithmetic and the restart's record lists are Terluna's; the carrier reads the horizontal sizes
+from the restart's own records and writes to a new path alone, and Terluna's command line is left out. In single
+scratch runs that day, with Terluna's doubles, the lab's remap matrices equalled those of Terluna's module, run from
+a copy, on five pairs of its grids, and the lab's carrier wrote Terluna's carried fifteen-level restart of
+`A28R_301k_cold` (research drive, `gcm-runs/A28R_301k_cold_l15_restart/MOST_REST.00019`, sha256
+`29343e47f9b681b9…`) from its year-19 restart (`5a0f31f96382169a…`) byte for byte.

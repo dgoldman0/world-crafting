@@ -3,7 +3,7 @@
 The tools the ExoPlaSim and CM1 adaptations rest on, copied byte for byte from Terluna at 186b294 under
 their Terluna package paths (`provenance.json` lists every file with its sha256 and, where another commit is its
 source, that commit; the geography package, the surface transfer's two modules, the rain package's two, PlaSim's rain
-from its drops and eleven tests are modified, below).
+from its drops, PlaSim's levels and twelve tests are modified, below).
 Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
 
 | Package | Holds | Notes |
@@ -19,6 +19,7 @@ Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
 | `climate/gcm/plasim_ice_optics.py` | The ice optics of the `ice-optics` patch, in Python, with its PIFM two-stream | the same |
 | `climate/gcm/surface_gust.py`, `surface_similarity.py` | PlaSim's surface transfer on one column, in Python: as released, with Beljaars's gust in the bulk formulas' wind, and with CM1's surface-layer similarity over ice-free water at the world's viscosity; the copies that the Fortran of patches 12 and 13 is tested against | the same |
 | `climate/gcm/rain_drops.py` | PlaSim's falling rain evaporated from its drops' sizes and fall speeds, on columns of any world, in Python: the copy that the Fortran of patch 14 is tested against. For a world's air at 2 m and a calibration of the rain's births it gives the entries of rainmod's namelist and, through `atmosphere/rain/fall_law.py`, the table of the fall law that the run's folder holds. It records Terluna's calibration of the births for the Open Moon | the same; [../models/exoplasim/README.md](../models/exoplasim/README.md), "Rain from drop sizes" |
+| `climate/gcm/levels.py` | PlaSim's vertical levels for a world: the released model's half levels in the compiled model's doubles; the set generated from a scale height and the heights a study states for the half levels near the ground, under a stated count of the released model's highest half levels; the entries of a run on a generated set, `NEQSIG` −1, `SIGH` and `TFRC`; and the conservative remap in σ that carries a restart from one set onto another. It records Terluna's values for the Open Moon's fifteen levels | the same; [../models/exoplasim/README.md](../models/exoplasim/README.md), "Level sets" |
 | `climate/gcm/twilight.py` | The curved-air ledger: what the Moon's tall, curved air does to sunlight and infrared against flat columns, and the terms the GCM and CM1 patches read | [../notes/reference_radiation.md](../notes/reference_radiation.md) |
 | `climate/gcm/sun_check.py` | PlaSim's solar-position arithmetic, upstream and corrected, against a run's sunlight | [../notes/exoplasim.md](../notes/exoplasim.md) |
 | `geography/` (`topography.py`, `basins.py`, `atlas.py`, `drainage.py`, `nomenclature.py`) | A body's heights above its geoid, from a PDS3 height image and a SHADR gravity field read through their labels, with the body's spin and the permanent tide of a host fixed in its sky; the common water level that floods a given share of the surface, and the connected seas below it; the atlas of seas, islands and flooded maria at that level; the steady routing of a GCM run's runoff into rivers and fill-and-spill lakes; and the IAU gazetteer's names. The lab's general versions of Terluna's lunar tools; Terluna's other geography tools (tides, groundwater, shores and coasts, the water inventory, the calendar) stay there | [../notes/geography.md](../notes/geography.md) |
@@ -27,7 +28,7 @@ Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
 ## Running
 
 ```sh
-python -m pytest python               # from the repository root: 320 tests, the sky solver's 34 among them
+python -m pytest python               # from the repository root: 360 tests, the sky solver's 34 among them
 ```
 
 On 2026-10-17, after the electricity tools were added, all 111 passed in the research drive's `optics`
@@ -59,7 +60,8 @@ and four of the lab's patch 05, three of which compile the column. PlaSim's rain
 day: seven in Python alone, one that reads Morrison's closures from the pinned CM1 archive and the patch's from the
 ExoPlaSim series, and seven of the lab's patch 14, which apply that series to the pinned ExoPlaSim archive; six of
 those compile `mkrain` with gfortran, and without the archives or the tools they skip. The lab's environment then
-collected 286 and passed 285.
+collected 286 and passed 285. PlaSim's levels brought forty that day, in Python alone and with no inputs, with which
+the lab's environment collected 326.
 
 ## What still needs Terluna
 
@@ -125,6 +127,22 @@ lab's series, adds Earth-like columns on ten levels beside Terluna's lunar ones 
 hand arithmetic on a power law's closed forms, the stops and the identity under two sets of flags, and pins the
 numbers that Terluna's module gave on its own test columns; the tests of Terluna's runner and of its edit lists
 stay in Terluna.
+
+`climate/gcm/levels.py` and its test came from Terluna at `39c5ee04` on 2026-11-11. Terluna's module holds three
+named sets, PlaSim's ten and the fourteen and fifteen levels it placed by hand for the Open Moon at a 51 km scale
+height, with the entries of a run on a set and the remap of a restart. Here `generate` returns a world's set from a
+scale height, a count of the released model's highest half levels and the heights a study states below them, and
+`TERLUNA_OPEN_MOON_LEVELS` records the values from which it returns Terluna's fifteen, and without the last height
+its fourteen, at the four places Terluna states them. `plasim_half` multiplies the released formula's powers out, as
+the compiled model does, where Terluna's takes numpy's powers, so that two of the fifteen doubles differ from
+Terluna's in the last bit. The remap's arithmetic is Terluna's, with the two grids checked first, and on Terluna's
+grids its matrices equalled that module's in a single scratch run; `carry_restart` reads the horizontal sizes from
+the restart's own records, where Terluna's holds T21's, and writes to a new path alone;
+`namelist_entries` returns values for the lab's writer; and Terluna's command line stays there. The test keeps
+Terluna's checks of the sets' placement, of a run's entries, of the remap and of a carried restart, on sets the rule
+generates, and adds the rule against hand arithmetic, the released half levels' doubles, Earth's values, a restart
+carried onto its own set and the refusals; the tests of Terluna's runner and of its products on the two sets stay in
+Terluna, and the compiled model's tests are in `lab/tests/test_builds.py`.
 
 The geography package is the lab's general version of Terluna's, and `provenance.json` notes each file's changes.
 Its tools take a body's grid, gravity field, rotation, tide and share as arguments, read PDS3 images and SHADR

@@ -11,7 +11,20 @@ patches = "models/exoplasim/patches/series"    # all fourteen applied: Terluna's
                                                # its drops; each switch below, at its default when omitted
 
 resolution = "T21"
-levels = 10
+levels = 10                                    # the released model's own ten sigma levels, which PlaSim computes from
+                                               # its formula (NEQSIG 0). A study generates a set for its world by
+                                               # setting a table in its place (python/climate/gcm/levels.py):
+                                               #   "levels" = { scale_height_m = "scenario", upper = 6,
+                                               #                interfaces_m = [15500.0, ..., 600.0] }
+                                               # keeps the released model's `upper` highest half levels and puts one
+                                               # at each stated height above the ground, the highest first, counted at
+                                               # the scenario's scale height or at a stated number of metres; the run
+                                               # then states NEQSIG -1, SIGH and TFRC, and its build compiles for the
+                                               # set's count. Open Moon, Terluna's fifteen levels: 51,000 m, upper 6
+                                               # and heights of 15,500, 11,500, 9,000, 7,000, 5,000, 3,100, 1,730 and
+                                               # 600 m (TERLUNA_OPEN_MOON_LEVELS). The released levels are the
+                                               # default, and the Earth control's test of a generated set is ahead
+                                               # (PLAN.md)
 timestep_min = 30.0                            # checked against the advective limit at the world's radius and the
                                                # truncation (architecture.md, ExoPlaSim's guards)
 ranks = 4                                      # Terluna's design case ran on 4 MPI ranks

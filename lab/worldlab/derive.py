@@ -26,9 +26,10 @@ TOLERANCE = {'gravity_m_s2': 2e-3, 'solar_day_days': 1e-5, 'sidereal_year_days':
 
 def planet(world: dict, scenario: dict, *, exoplasim: dict | None = None) -> dict:
     """The planet record: the quantities of world_spec.md's table that the world and scenario fix, under the
-    registry's names, and ExoPlaSim's calendar where its defaults are given. `stated` holds each stated value
-    beside its derivation. The sunlight at the top and the ice-optics weights come from `worldlab.sunlight`, and
-    the pressure at the surface's lowest point from stage 2's geography producer."""
+    registry's names, and ExoPlaSim's calendar where its defaults are given, with the height of the run's lowest
+    full level where the scenario states a reference temperature. `stated` holds each stated value beside its
+    derivation. The sunlight at the top and the ice-optics weights come from `worldlab.sunlight`, and the pressure
+    at the surface's lowest point from stage 2's geography producer."""
     g = gravity(world)
     stated = {}
     if world['body'].get('gravity_m_s2') is not None:
@@ -52,6 +53,9 @@ def planet(world: dict, scenario: dict, *, exoplasim: dict | None = None) -> dic
     if exoplasim is not None:
         cal = calendar(world, exoplasim)
         record.update(calendar=cal, model_day_days=cal['model_day_s'] / DAY_S)
+        if 'scale_height_m' in record:
+            half = levels(exoplasim, world, scenario)['half_levels']
+            record['exoplasim_lowest_level_m'] = lowest_level_m(half, record['scale_height_m'])
     return record
 
 
@@ -319,6 +323,62 @@ def calendar(world: dict, defaults: dict) -> dict:
                 steps_per_model_day=steps, stepped_model_day_s=steps * step_s, steps_per_mean=per_mean,
                 run_steps_per_year=run_steps, means_per_year=run_steps / per_mean,
                 whole_means=run_steps % per_mean == 0)
+
+
+# ExoPlaSim's levels (python/climate/gcm/levels.py; plasim.f90, initpm).
+
+LEVEL_FIELDS = ('scale_height_m', 'upper', 'interfaces_m')     # a generated set's table, a run's `levels`
+SCENARIO_SCALE_HEIGHT = 'scenario'       # a generated set whose heights are counted at the scenario's own scale height
+
+
+def level_count(run: dict) -> int:
+    """The count of sigma levels a run's build compiles for. A run's `levels` is that count where the run keeps the
+    released model's own levels, or a table of `scale_height_m`, `upper` and `interfaces_m` where its set is
+    generated: the released half levels it keeps, one for each stated height, and the ground's."""
+    stated = run['levels']
+    if isinstance(stated, dict):
+        upper, heights = stated.get('upper'), stated.get('interfaces_m')
+        if set(stated) != set(LEVEL_FIELDS) or isinstance(upper, bool) or not isinstance(upper, int) or upper < 1 \
+                or not isinstance(heights, (list, tuple)) or not heights:
+            raise SpecError(f'a generated level set states {", ".join(LEVEL_FIELDS[:2])} and {LEVEL_FIELDS[2]}: a '
+                            f'scale height, a whole number from 1 up and a list of heights, where the run states '
+                            f'{stated!r}')
+        return upper + len(heights) + 1
+    if isinstance(stated, bool) or not isinstance(stated, int) or stated < 1:
+        raise SpecError("levels is the released model's count of levels, a whole number from 1 up, or the table of a "
+                        f'generated set, where the run states {stated!r}')
+    return stated
+
+
+def levels(run: dict, world: dict | None = None, scenario: dict | None = None) -> dict:
+    """A run's level set: its count, its half levels, the top first and the ground's 1 last, and its basis. An
+    integer keeps the released model's own levels of that count, which PlaSim computes from its formula. A table
+    generates the set from the heights it states (python/climate/gcm/levels.py, `generate`), counted at the scale
+    height it states in metres, or with "scenario" at the scenario's own, at its reference temperature."""
+    from climate.gcm import levels as sets                 # the level tools load with the first set resolved
+    count, stated = level_count(run), run['levels']
+    if not isinstance(stated, dict):
+        return dict(count=count, half_levels=tuple(float(x) for x in sets.plasim_half(count)), basis='released')
+    height, basis = stated['scale_height_m'], 'stated'
+    if height == SCENARIO_SCALE_HEIGHT:
+        if world is None or scenario is None:
+            raise SpecError("a level set counted at the scenario's scale height takes the world and its scenario")
+        height, basis = scale_height_m(reference_temperature_k(scenario), molar_mass_g_mol(mole_fractions(scenario)),
+                                       gravity(world)), SCENARIO_SCALE_HEIGHT
+    try:
+        half = sets.generate(height, stated['interfaces_m'], stated['upper'])
+    except ValueError as error:
+        raise SpecError(f'levels: {error}') from None
+    return dict(count=count, half_levels=tuple(float(x) for x in half), basis='generated',
+                scale_height_m=float(height), scale_height_basis=basis, upper=stated['upper'],
+                interfaces_m=tuple(float(z) for z in stated['interfaces_m']))
+
+
+def lowest_level_m(half_levels, scale_height: float) -> float:
+    """The height of a set's lowest full level at a scale height, m: the height at which PlaSim takes its surface
+    fluxes, which registry entry B31 tests."""
+    from climate.gcm import levels as sets
+    return sets.summary(half_levels, scale_height)['lowest_level_m']
 
 
 def sun_clock_sweep_deg(stepped_model_day_days: float, rotationperiod: float) -> float:
