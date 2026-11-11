@@ -158,7 +158,7 @@ tests, and its compute is the tests' short runs.
 |---|---|---|---|
 | 1 | Beljaars's gust with similarity theory over ice-free water | — | Done (`lab` fc20979) |
 | 2 | Rain evaporated from drop sizes, its fall-law tables computed for each world (`python/climate/gcm/rain_drops.py`) | — | Done (`lab` 42a6bad) |
-| 3 | Level sets generated from a world's scale height, with the restart's remap (the input writer; `python/climate/gcm/levels.py`) | — | To start |
+| 3 | Level sets generated from a world's scale height, with the restart's remap (the input writer; `python/climate/gcm/levels.py`) | — | Done (`lab` 173fca2), with no patch: a study states the heights of the half levels near the ground, counted at a scale height. A rule that places them from the scale height alone is open, as are the scale height the Open Moon's study states (Terluna's 51 km or the scenario's own) and the registry's threshold for the lowest level, proposed at 350 m |
 | 4 | The clear share of the twilight, and the night's twilight counted once in patch 07 (defect log C21) | — | To start |
 | 5 | The 10 m wind | — | To start |
 | 6 | Simplified Betts–Miller convection as an option beside Kuo's scheme, its depth test a fraction of the surface pressure and its relaxation time a setting scaled with the world (B39) | — | To start |
