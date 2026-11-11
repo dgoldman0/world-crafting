@@ -93,6 +93,16 @@ ExoPlaSim's output and five open entries to the defect log on the lab's branch (
   designed.
 - The Open Moon's study counts its level heights at Terluna's 51 km, which returns Terluna's fifteen levels, so
   that the lab's runs compare with Terluna's on the same levels (11 November 2026).
+- The registry warns of a GCM run whose lowest level stands above the tested range: 10% over the highest
+  lowest-level height that the lab or Terluna has run, today the Open Moon's fifteen levels, which puts the warning
+  at about 345 m. **Provisional, and held with low confidence** (11 November 2026): it is taken for now and is to be
+  revisited when the automatic rule is designed. A test against the boundary layer's depth was weighed and set
+  aside. That depth grows with the scale height as gravity falls, so the released ten levels stand at about 15% of
+  it on Earth (142 m of about 1 km) and on the Open Moon (882 m of about 6 km) alike, at the same surface humidity,
+  and a share that passes Earth's released levels passes the Moon's as well; Earth's levels serve Earth through
+  the tuning of the model's physics on them. The lifting condensation level of the scenario's surface air, which
+  gives about 6 km for the Open Moon as Terluna's CM1 boxes do, is noted as an estimate of the depth for the rule's
+  design, in which Terluna's fifteen levels put the lowest level at about 5% of it.
 
 ## Each fix: general or the Moon's
 
@@ -163,7 +173,7 @@ tests, and its compute is the tests' short runs.
 |---|---|---|---|
 | 1 | Beljaars's gust with similarity theory over ice-free water | — | Done (`lab` fc20979) |
 | 2 | Rain evaporated from drop sizes, its fall-law tables computed for each world (`python/climate/gcm/rain_drops.py`) | — | Done (`lab` 42a6bad) |
-| 3 | Level sets generated from a world's scale height, with the restart's remap (the input writer; `python/climate/gcm/levels.py`) | — | Done (`lab` 173fca2), with no patch: a study states the heights of the half levels near the ground, counted at a scale height. Still to do: the automatic rule that places them for a world, an option beside the stated heights ("Decisions"), and the registry's threshold for the lowest level, proposed at 350 m and open. The Open Moon's study states Terluna's 51 km |
+| 3 | Level sets generated from a world's scale height, with the restart's remap (the input writer; `python/climate/gcm/levels.py`) | — | Done (`lab` 173fca2), with no patch: a study states the heights of the half levels near the ground, counted at a scale height. Still to do: the automatic rule that places them for a world, an option beside the stated heights, and the registry's threshold for the lowest level moved from the port's 350 m to the tested range, a provisional choice ("Decisions"). The Open Moon's study states Terluna's 51 km |
 | 4 | The clear share of the twilight, and the night's twilight counted once in patch 07 (defect log C21) | — | To start |
 | 5 | The 10 m wind | — | To start |
 | 6 | Simplified Betts–Miller convection as an option beside Kuo's scheme, its depth test a fraction of the surface pressure and its relaxation time a setting scaled with the world (B39) | — | To start |
