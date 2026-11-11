@@ -59,7 +59,8 @@ ExoPlaSim's output and five open entries to the defect log on the lab's branch (
   codes' defects number six: the first version's four, the simple boundary layer's density fault (A9) and the
   humidity held in ExoPlaSim's mean output (A10, counted on 11 November 2026).
 - The paper's version 2 states the current understanding throughout and adds one section, just before the
-  Conclusion, on how the models were refined. It is developed on the paper's branch and
+  Conclusion, that summarises for its readers what changed in the paper from the first version (corrected on
+  11 November 2026 from a section on how the models were refined). It is developed on the paper's branch and
   released once the CM1 results are realigned (below); the tag `paper-v1` keeps the first version.
 - Components run when a study calls for them. Each fix enters with its released model's behaviour as its default;
   before anything runs, `lab plan` reports a task's estimated cost and the results of its checks, and compute runs
@@ -312,21 +313,16 @@ each stage and a full editorial review to close, each recorded in `paper/review/
 | `next.tex` 3–32 | The open items in order: convection's closure, the upper air's temperature, cloud from CM1's resolved cloud, the reduced radiation scheme | Ready |
 | `next.tex` 71–85 (N03) | The tables' edge computed at 0.002–0.003 K/day, with the shield's spectrum for RRTMG a next step; the raindrop limits applied | Ready |
 | `reach.tex` | Surface water that turns a body, and the lab's orientation check | The orientation check (block 2) |
-| A new section before `conclusions.tex` | How the models were refined (below) | The ports and the orientation check |
+| The section before `conclusions.tex`, "Changes from the first version" (`changes.tex`) | What the first version stated and what version 2 states, side by side (below) | Drafted (paper branch c7f0465); for the author's reading |
 | `availability.tex` | Terluna's commit for version 2 beside 186b294; the AI-use statement checked against version 2's work | Last |
 
-**The new section.** Its working title, "Refinement of the models", names its subject. Its paragraphs take in turn:
-
-- the GCM: what replacing Kuo's scheme, the ten levels, the Earth free-convection term and the constant γ changed,
-  and why convection remains the open item;
-- CM1: the constant-volume reading of its radiative tendencies, the density fault, the gust over water and the
-  raindrop limits;
-- forcing a cloud-resolving model from a GCM: through the whole column, its air held only above the GCM's
-  convection, judged by an agreement test set before the runs, and where the two models agree and differ;
-- the orientation: angular momentum fixes the spin axis, and the body turns beneath it until its principal axes
-  align with the spin and the host; the Moon's turn within years and its long-term range; the turned climate's
-  0.8 K; and the practice that follows, a world's orientation derived from its loads whenever water is added, as
-  the lab's check derives it.
+**The new section.** "Changes from the first version" tells a reader how the paper changed, whether the reader
+comes from the first version or reads the second first. A table sets the two versions' statements side by side:
+CM1's longwave against the reference model, its forcing from the GCM, the count of defects in the released codes,
+the two models as run, the design case, the rain in CM1 against the GCM, the air near the ground, RRTMG beyond its
+tables and the order of the next steps. Two paragraphs follow, on what version 2 adds and on what stands under a
+condition or is withdrawn. The section is the paper's summary of its own changes; an account of how the models were
+refined, which the section held until 11 November, belongs to the notes.
 
 **Realignment before release.** Version 2 waits on CM1 runs with the density fix, the gust at lunar gravity, the
 raindrop limits and the whole-column forcing on the turned design years: the 45° N ring for Figure `fig_gap`, and a
