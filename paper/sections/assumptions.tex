@@ -113,10 +113,7 @@ convection stops at 700~hPa, near 28~km in the lunar air, and its vertical diffu
 horizontal diffusion keeps Earth's times as well: at T21 it damps the smallest resolved wave over 0.2 days in
 divergence, 1.1 in vorticity, 5.6 in temperature and 0.1 in humidity, days of 24 hours on any world, while that
 wave spans 520~km on the Moon against 1,906~km on Earth, so a given wind crosses it 3.7 times faster under the same
-damping. Zonal spectra of the design case's last five years between 25\textdegree~S and 25\textdegree~N decline to
-the truncation in wind, temperature and surface pressure, whereas the vertical motion at $\sigma = 0.77$ stays
-level from wavenumber 3 to 18, a tail that an Earth control's spectra, yet to be computed, would assign to the
-model's truncation or to the Moon's shorter wave.\claim{H43} Over
+damping.\claim{H43} Over
 water, both codes size the convective gust that drives evaporation in light wind for Earth's gravity. PlaSim adds a
 free-convection transfer whose constant, 0.0016~m\,s$^{-1}$\,K$^{-1/3}$, comes from a tank law that scales as
 $(g/p_s)^{1/3}$, and CM1's surface layer, MM5's as CM1 carries it \autocite{bryan2026cm1}, adds a gust of
@@ -125,12 +122,8 @@ land from the build's gravity in Beljaars's form \autocite{beljaars1995parametri
 PlaSim's transfer over the sea 1.7--2.1 times above its value without the term, and the second made the surface wind of CM1's sea box 1.6--1.8 times stronger,
 where Beljaars's form, computed from the box's own fluxes, makes it 1.1--1.2 times stronger.\claim{H38} The sea
 beneath that exchange is, in the GCM, a slab 50~m deep, ExoPlaSim's default and a depth of Earth's seasonal mixed
-layer, heated here through a day of 29.53 Earth days: at a site on the Near-side Sea, in the turned state at the
-target of Table~\ref{tab:states}, the slab's surface swings 0.63~K through the lunar day, from 304.19~K near dawn
-to 304.82~K in the afternoon. By estimate, a wind of 2~m\,s$^{-1}$ mixes one to two metres of water against
-200~W\,m$^{-2}$ of heating at lunar gravity, so the heat of a fortnight's sunlight would stay in the 10--20~m that
-visible light reaches, where the slab's heating would swing a layer of 15~m by 2.1~K; the estimate leaves out the
-sea's own convection at night.\claim{H44}
+layer, heated here through a day of 29.53 Earth days: at a site on the Near-side Sea the slab's surface swings 0.63~K through
+the lunar day.\claim{H44}
 
 Six defects in the released codes contradict their own inputs, units or intent. Three of them, all in
 ExoPlaSim, produce little or no error at Earth's values and an error that grows as a world departs from them,

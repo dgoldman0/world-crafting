@@ -187,6 +187,28 @@ GCM's air stays within 1.3 K of its own adiabat, and the GCM's lowest level carr
 energy, worth 3.1–4.0 K aloft. On the GCM's air the two models' longwave codes agree at 35–48 km and part by
 2.7–3.8 W/m² at 48–63 km (Terluna 467a146).
 
+**The wind inside the GCM's means.** The boxes' wind target is the GCM's mean wind vector by local time, and a mean
+vector's speed understates the mean speed. In a year of Terluna's corrected design climate written every 6.5 hours,
+the mean of the 6.5-hour speeds at 313 m stands 1.13 times the mean speed of the 3-day vectors over the water cells
+and 1.16 times over the land, and a window holds 0.95–1.57 m/s beyond its vector, more as the vector's speed rises
+(Terluna `domain/climate` 43b14b38, 39c5ee04; `research/decisions.md` line 870 at `59dcda1c`). A box nudged to the
+mean vector therefore meets a weaker wind in its surface exchange than the GCM's own exchange met, most of all in
+calm hours such as the sea's night, while a box that carries the GCM's weather from means of a few hours holds most
+of that speed. After midnight the turned sea box's wind at 0.3 and 1 km averaged 0.72–0.81 of its target, under the
+0.85 that its check of method asks, the check on the night wind that it missed (the paper's claim G30).
+
+**The sea box by the GCM that forced it.** Forced through the whole column from the ten-level state with Kuo-type
+convection, CM1's sea box rained 0.14 mm a day after midnight; forced in the same way from the fifteen-level state
+with simplified Betts–Miller convection it rained 1.62–1.88 mm a day in those hours, against that GCM's 2.28 (the
+paper's claim G25).
+
+**A target for the upper air, and the plumes' dilution.** The design years' free troposphere stands 4.6–7.0 K warmer
+than the centre of a target proposed from CM1's raining air and from Earth's convection translated to the Moon's
+scales, about 3.5 K below a finely integrated undiluted parcel at σ 0.44–0.69 and about 4 K at 40–60 km; the
+dilution study's rules gave no verdict. CM1's plumes dilute at 2.0×10⁻⁴ per metre in the lowest cloud layer,
+1.0–1.6×10⁻⁴ in the band and 0.5–0.6×10⁻⁴ at 60 km, and one nudged pair on a finer grid sampled a higher rate (the
+paper's claim N06).
+
 **Limits.** The forcing is one-way and prescribed, so the slice's own state leaves its forcing unchanged. Over
 terrain the imposed vertical wind is advected on the first column's metrics, understating vertical gradients by
 the factor 1 − z/ztop (under 6% up to 8.3 km of a 150 km model). Cases set up before 2026-10-17 started with the

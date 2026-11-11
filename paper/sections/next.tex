@@ -16,30 +16,22 @@ test specific approximations in the dynamics, CM1's radiation, the microphysics 
 models of the lakes and seas beneath the waves.
 
 \textbf{Convection's closure.} With simplified Betts--Miller convection on fifteen levels, the boxes miss the
-agreement test in their rain's amount and timing (Results), and so does every closure tried with the scheme. The
-nearest closure forms 0.87--0.95 of the rain at the boxes' sites by convection, yet across the tropics it leaves
-58--74\% of the rain to the large-scale condensation, and it dries the land to about 40\% of its soil water. Since
-PlaSim run as a single column convects unlike the full GCM, a closure is chosen in GCM runs read against boxes that
-make their own large-scale ascent, and one passes when it brings the rain within the test's tolerances in amount and
-timing at every site, with the land's water held and the processes agreeing.\claim{N05} A run of the design case's
-scheme relaxing over 12~h, in place of Earth's two, would size what the relaxation time contributes, which the
-closures' 12 and 18~h leave mixed with their own reference profiles.\claim{H46}
+agreement test in their rain's amount and timing (Results), as does every variant of the scheme tried so far. A
+closure is chosen in GCM runs read against boxes that make their own large-scale ascent, and it passes when it
+brings the rain within the test's tolerances in amount and timing at every site while the land keeps its
+water.\claim{N05} A run of the design case's scheme relaxing over 12~h, in place of Earth's two, would size what
+the relaxation time contributes.\claim{H46}
 
-\textbf{The upper air's temperature.} The GCM's free troposphere stands 4.6--7.0~K warmer than a target proposed
-from CM1's raining air and from Earth's convection translated to the Moon's scales, while the band of boxes forced
-with the GCM's ascent, cooled by that ascent on land and by radiation at sea, was still cooling when they stopped
-(Results). Which free troposphere the GCM's convection should be closed toward therefore waits on two tests: boxes
-that make their own ascent, run longer, and CM1 on finer grids, since resolved deep convection changes with grid spacing at
-kilometre scales \autocite{bryan2003resolution} and CM1's plumes dilute at $2.0\times10^{-4}$ per metre in the lowest
-cloud layer, 1.0--1.6$\times10^{-4}$ in the band and 0.5--0.6$\times10^{-4}$ at 60~km, and one
-pair on a finer grid sampled a higher rate. Columns of 3 or 2~km, at 8 or 27 times the cost, would show whether the
-rates converge.\claim{N06}
+\textbf{The upper air's temperature.} The boxes forced with the GCM's ascent were still cooling aloft when they
+stopped (Results), so which free troposphere the GCM's convection should be closed toward waits on two tests: boxes
+that make their own ascent, run longer, and CM1 on finer grids, since resolved deep convection changes with grid
+spacing at kilometre scales \autocite{bryan2003resolution}, and one lunar pair on a finer grid diluted faster.
+Columns of 3 or 2~km, at 8 or 27 times the cost, would show whether the plumes' dilution converges.\claim{N06}
 
 \textbf{Cloud from the cloud-resolving model.} Varied in the tests, PlaSim's cloud amount and cloud water changed
 the test world's temperature by several kelvin. The cold cloud's water and crystal size take factors computed for
 lunar gravity, while the convective cloud keeps Slingo's Earth fit: in raining windows its anvils cover 0.16--0.29
-of the sky where CM1's cover 0.57--0.75, a gap that a lunar intercept for the convective cover closed on land, while
-at sea it follows the rain's timing, and over the lunar day the two models' net cloud effects agree within
+of the sky where CM1's cover 0.57--0.75, and over the lunar day the two models' net cloud effects agree within
 4--14~W\,m$^{-2}$.\claim{N07} The cloud cover and water by pressure of CM1 runs
 forced from the design case, once its convection is closed, become the target to which PlaSim's humidity thresholds
 and its cloud-water profile are fitted. Refitted cloud could change the test world's temperature as much as the cloud settings do, up to about 6~K.
@@ -95,7 +87,7 @@ effects, and before they are adopted, the GCM's column mass and heights would fi
 the circulation's sensitivity would show whether the full equations are needed. A change in the GCM's poleward heat transport larger than the
 design case's spread from year to year would make a deep core a requirement for air as tall against its world's
 radius. The GCM's horizontal diffusion would be tested beside them: a run with its four damping times multiplied by
-the ratio of the radii, 0.27, read against the spectra of an Earth control, would size what Earth's times do on the
+the ratio of the radii, 0.27, would size what Earth's times do on the
 smaller world.\claim{H43}
 
 \textbf{Radiation in CM1.} Read at constant volume, RRTMG's longwave agrees with the reference's correlated-$k$
@@ -133,9 +125,6 @@ surface heat fluxes, with SWAN's sea states over the seas, could force one-dimen
 which would compute their mixing and their exchange of gases with the air; since at lower gravity a given contrast
 of temperature resists the wind's mixing more weakly, the gas-transfer and mixing laws such models apply, fitted on
 Earth's lakes and seas, would be among the Earth values to test, and so would the one-dimensional form itself. Such
-models would also replace the GCM's 50~m slab with a depth of mixing computed for the sea: a lake model's column of
-calm water 20~m deep, run offline at a sea cell at 8\textdegree\ latitude under the design case's climate, already
-stands at 37.1\,\textdegree C at its surface in its hottest hundredth of hours, where the slab's surface is at
-30.9\,\textdegree C, though it returns nothing to the air and so marks the calm end.\claim{N09} A GCM run with a 15~m slab, and a sea box
+models would also replace the GCM's 50~m slab with a depth of mixing computed for the sea. A GCM run with a shallower slab, and a sea box
 whose surface follows the GCM's by local time as its wind does, would size the swing's part in the sea's rain by
 time of day.\claim{H44}

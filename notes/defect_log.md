@@ -118,7 +118,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | C19 | CM1 set-up | Nudging toward the GCM from 8 km (full at 16 km), with the day–night table stopping at 16 km | 10-21, Terluna `domain/climate` 13e7123 | Site forcing through the column, each layer's total kept, air held only above the GCM's convection top (`gcm_site.py`; 2cc5179, 5a44e5e) | Sea box: the nudging supplied 89 of the 107 W/m² its radiation removed, rain 0.06 against the GCM's 2.72 mm/day; the interpolation dried the column 0.55 mm/day | Fixed in Terluna's site boxes; every earlier ring and box ran it | R |
 | C20 | CM1 analyses | Stored radiative tendencies (`lwten`, `swten`, at constant volume under `eqtset = 2`) read as rates at constant pressure | 10-20, Terluna `domain/atmosphere` fe49ad9 | Conventions in `climate/crm/cm1_output.py`: × cvm/cp against another code, × cv/cp in a θ budget | Radiation overstated by 38–40%: the extra RRTMG cooling of 4.5–10.2 W/m² and the 45° N ring's heat budget | Fixed | R |
 | C21 | PlaSim, curved-air patch (07) with `NDIAGCF` 1 | The twilight added below the horizon counted twice: the cloud-forcing diagnostic zeroes the shortwave once and calls `swr` twice, and `twilight_term` accumulates in each pass | 11-08, Terluna `domain/climate` 2762669e; checked here in the pinned `radmod.f90` and patch 07 | `NTWLZERO` (0): each sunlight pass from zero where the Sun is down, in Terluna's runner (2762669e); to be ported into patch 07 | +2.70 W/m² absorbed in the global mean of the turned design case (1.5%), 10.9 at 80° and 17.7 at 86°, all on the night side; absorbed by the dimming (0.924 against about 0.938); every run with the twilight and the diagnostic, the paper's curved-air runs among them | Open here; fixed in Terluna's runner | V; R |
-| C22 | GCM and CM1 set-up | Sunlight taken at the Earth–Moon barycentre's distance: the Moon's monthly swing toward and away from the Sun left out | 11-09 | None | ±0.51% of the sunlight through each lunar day; the far side's noon 1.0% brighter than the near side's | Open | P |
+| C22 | GCM and CM1 set-up | Sunlight taken at the Earth–Moon barycentre's distance: the Moon's monthly swing toward and away from the Sun left out | 11-09 | None | ±0.51% of the sunlight through each lunar day; the far side's noon 1.0% brighter than the near side's | An idealisation of the scenario, stated with it; an option in the lab | P |
 
 ## (a) Upstream defects exposed by the adaptation
 
@@ -323,6 +323,15 @@ options, which would place A6 in or out of the released code.
   the drive wrote it, and none of the paper's states. At `bdda5a07` the shortwave calibration's readers
   (`plasim_shortwave.py`, `radiation_check.py`) and the rings' (`cm1_run.py`) still take `hus` as recorded. The paper
   counts A10 as the sixth defect in the released codes, with the author's confirmation of that date.
+- **The paper's numbers on records taken as written.** Products made before the rule, or by readers that take `hus`
+  directly, rest on the records as they stand: the corrected-curved-air state's longwave fit and its residuals (the
+  paper's claims H17 and R11, and the inventory's 10–12 W/m²), its check at 301 K (the 6.8 W/m² of R25), the
+  longwave test that ran that fit (G05, G13), the forcing of the rings and of the boxes on the ten-level states
+  (G09–G11, G15, the sea box of H39 and the Kuo-forced sea box of G25), and the shortwave calibration's fit and
+  checks (H14, R09, V07). Terluna's README gives such readers long means 0.8% low in vapour and profiles by time
+  of day half an interval late, and gives no size for the radiation's fits. The paper states these numbers at their
+  values, with no condition for the reading in its text (the author's direction of 2026-11-11);
+  `paper/notes/v2_realignment.md` holds them for the release.
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
@@ -908,6 +917,9 @@ integration.
   scheme's own closure, and the effect of the time alone is unmeasured. In Frierson's (2007) aquaplanet Earth,
   relaxation times of 1–8 h left the equatorial precipitation within 5%, and 16 h put over 67% of it into large-scale
   condensation (his Sect. 4a).
+- **Frierson's range, stretched.** In Frierson's (2007) aquaplanet Earth the equatorial rain stays within 5% across
+  relaxation times of 1, 2, 4 and 8 h (Sect. 4a). By the dry dynamics' stretch that range becomes 6–48 h on the
+  Moon, above the two hours of the design case.
 
 ## (c) Defects in Terluna's own work
 
@@ -1196,8 +1208,11 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
 - **Status.** Open. A cosine of the subsolar longitude on the solar constant adds the swing to each model.
   Earthshine and Earth's infrared at full Earth, about 0.07 W/m² each, stay out.
 - **Checked on the paper's branch (2026-11-11).** `paper/tools/regime_calc.py` (`sunlight_monthly_swing`) gives 379,729 km,
-  ±0.508%, ±5.88 W/m² and 1.02%. The paper counts the omission among the adaptation's defects that remain in reported
-  runs.
+  ±0.508%, ±5.88 W/m² and 1.02%. The paper first counted the omission among the adaptation's defects that remain in
+  reported runs.
+- **Classed as an idealisation (2026-11-11).** Terluna's set-up states the choice, so the omission is a known
+  simplification of the scenario: by the author's decision the paper states it with the scenario, outside its count
+  of defects, and the lab offers the swing as an option that a study switches on or off (`PLAN.md`, "Decisions").
 
 ## (d) Record inconsistencies found in this pass, not yet corrected in Terluna (V)
 

@@ -59,11 +59,7 @@ the boxes on the refined-physics state, whose simple boundary layer divides its 
 before the solver applies them, a repair that holds in every run with $\code{ipbl} = 2$.\claim{R17} ExoPlaSim's
 fourth defect, the humidity held in its mean output, stays in the model, and the analyses correct for it as they
 read the output: each interval's mean humidity is taken as the average of a record and the next, and the first and
-last records of each year's file are left out. The output was read by that rule for the forcing of the boxes on the
-refined-physics state and on the turned state at the target, and for the longwave fits of the refined-physics state
-and the design case; for the forcing of the rings and of the boxes on the ten-level states, and for the
-calibrations and checks of PlaSim's radiation made on those states, the records were taken as they stand, a reading
-that leaves long means 0.8\% low in vapour and profiles by time of day half an interval late.\claim{R27} Two faults of uncertain cause stay open as well, the
+last records of each year's file are left out.\claim{R27} Two faults of uncertain cause stay open as well, the
 parting of CM1's threaded runs and PlaSim's cold lowest level, so CM1 runs that must repeat use one thread, and analyses of the
 lowest level screen the cold windows.
 
@@ -78,7 +74,7 @@ fall-speed laws and caps into collection and ventilation, although in NSSL the v
 scheme follow from a balance of surface tension against weight: the largest drop that survives its fall scales with
 the capillary length \autocite{loftus2021physics}, so the patched scheme stretches the breakup lengths and the cap on rain's mean diameter by
 $(9.81/g)^{1/2}$ and shifts the cap on its fall speed by $(g/9.81)^{1/4}$, with a refinement for the air's density
-computed for gravities from the Moon's to Earth's; in a box forced from the Earth-orbit state the scaled limits
+computed for gravities from the Moon's to Earth's; in a lunar box the scaled limits
 nearly doubled the rain at the ground and cut the share of falling rain that evaporated from 86 to
 48\%.\claim{R18}\claim{N03} Beyond the microphysics, CM1's Rayleigh damping rate and its boundary-layer length
 are scaled with the sixfold stretch of the dry dynamics, by $g/g_\mathrm{E}$ and $g_\mathrm{E}/g$, and
@@ -181,8 +177,8 @@ misplacing its cooling by 10~W\,m$^{-2}$ in a layer. To place that cooling by la
 for each layer and for the ground, fitted over land and over sea on about 2,100 cloud-free three-day means of
 the corrected-curved-air state and scaled with temperature to the fourth power, removes each layer's mean error on that state
 and leaves 1--5~W\,m$^{-2}$ from column to column.\claim{R11} A correction fitted on one state errs on another,
-by up to 6.8~W\,m$^{-2}$ in a layer when the 295~K fit is run at 301~K, so the refined-physics state runs one refitted
-near 301~K on its own levels and convection, and the design case one fitted on the turned climate.\claim{R25}
+by up to 6.8~W\,m$^{-2}$ in a layer when the 295~K fit is run at 301~K, so the correction is refitted for each state, level
+set and convection scheme.\claim{R25}
 
 \textbf{Levels, convection and rain in the GCM.} The design case runs PlaSim on fifteen $\sigma$ levels laid out for
 the test world's scale height, which put the lowest level near 0.3~km and the next near 1.2~km, where the released
@@ -191,10 +187,8 @@ ten levels give the lowest layer the first 1.73~km.\claim{R20} On these levels a
 saturation, over two hours, and treats convection spanning more than 200~hPa as deep, a depth test set in pressure
 that spans 16\% of the lunar surface pressure and would need scaling for a world at another pressure; the same
 200~hPa above a shallow cloud's base caps its top in place of the released 700~hPa. The two hours are the control
-value of Frierson's Earth aquaplanet, whose equatorial rain changed by less than 5\% across relaxation times of
-1--8~h; stretched sixfold with the dry dynamics, as CM1's damping time and mixing length are, the control value
-becomes 12~h and that range 6--48~h. The closures tried with the scheme relaxed over 12 or 18~h, each with
-reference profiles of its own, so the effect of the time alone is unmeasured.\claim{H46} The scheme and
+value of Frierson's Earth aquaplanet; stretched sixfold with the dry dynamics, as CM1's damping time and mixing
+length are, they become 12~h, and the effect of the relaxation time alone is unmeasured.\claim{H46} The scheme and
 the closures tried with it remain under test, since at every box the GCM's rain departs from CM1's beyond the
 tolerances of the test set out under Results.\claim{R21} Falling rain evaporates from drop sizes at the world's fall speeds in place of
 PlaSim's constant: its drops start at mean diameters fitted to the lunar CM1 boxes and to lunar snow, 0.44~mm for
@@ -251,8 +245,7 @@ above which it forms less than 1\% of its convective rain: that top stands near 
 hold begins near 94~km and is full near 131~km, so that CM1's temperature, moisture and convection develop freely
 through the column in which the GCM convects. Their wind is pulled toward the GCM's mean vector by local time over two hours from
 the GCM's lowest level, near 0.3~km, up, the GCM's air is drawn in where the mean wind converges, and a sea box's
-surface is held at the site's mean temperature. The rings and the boxes forced from the ten-level
-states of Table~\ref{tab:states} were held toward the GCM from 8~km, fully from 16~km.\claim{R14} Beyond the storms, the GCM forces the seas as well: SWAN is driven by the GCM's surface stress, converted through Wu's drag law inverted to an
+surface is held at the site's mean temperature.\claim{R14} Beyond the storms, the GCM forces the seas as well: SWAN is driven by the GCM's surface stress, converted through Wu's drag law inverted to an
 equivalent wind, so that its friction velocity is within $-2.5$ to $+1.2$\% of the GCM's, on spherical
 coordinates at the lunar radius and with its frequency band scaled by $g/g_\mathrm{E}$, and SWASH, run
 unmodified, takes lunar gravity as an input and SWAN's spectra at its boundary.\claim{R15} Over Titan's polar

@@ -324,6 +324,15 @@ clear-sky split within 0.4 points on all 11 columns of the corrected Sun's test;
 matches PlaSim's own heating within 0.01 K a day on the run's cloud-free 3-day means. Their fitting
 drivers read GCM output (netCDF) and Terluna's column choices; their column arithmetic runs alone.
 
+## The closures tried with simplified Betts–Miller convection, and the convective cover
+
+None of the closures tried with the scheme passes the agreement test. The second refinement, the nearest, forms
+0.87–0.95 of the rain at the boxes' sites by convection, yet within 30° of the equator it leaves 58–74% of the rain
+to the large-scale condensation, and it dries the land to about 40% of its soil water. PlaSim run as a single
+column convects unlike the full GCM, so a closure is chosen in GCM runs (the paper's claim N05). In raining windows
+PlaSim's anvils cover 0.16–0.29 of the sky against CM1's 0.57–0.75; a lunar intercept for the convective cover
+closed that gap on land, while at sea it follows the rain's timing (claim N07).
+
 ## Improvements in order of value
 
 1. Constrain PlaSim's cloud amount and water with cloud-resolving runs forced from the same GCM state; by a

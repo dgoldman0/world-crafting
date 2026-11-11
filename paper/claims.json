@@ -1556,7 +1556,7 @@
   },
   {
    "id": "H47",
-   "text": "The set-up gives the GCM the orbit of the Earth-Moon barycentre about the Sun, 1 AU with Earth's orbital eccentricity (Terluna's climate/gcm/boundary.py line 197 on domain/climate at 39c5ee04), and CM1's cases take the GCM's sunlight; the Moon's own orbit, 379,700 km sunward of the barycentre at new Moon and as far beyond it at full Moon, is left out: a swing of +/-0.51% of the sunlight, +/-5.9 W/m2 of the design case's 1,159 W/m2, in step with the lunar day, the far side's noon (new Moon) receiving 1.0% more sunlight than the near side's (full Moon). The effect is unmeasured; a cosine of the subsolar longitude on each model's solar constant would add the swing. Counted in the paper among the adaptation's defects that remain in reported runs.",
+   "text": "The set-up gives the GCM the orbit of the Earth-Moon barycentre about the Sun, 1 AU with Earth's orbital eccentricity (Terluna's climate/gcm/boundary.py line 197 on domain/climate at 39c5ee04), and CM1's cases take the GCM's sunlight; the Moon's own orbit, 379,700 km sunward of the barycentre at new Moon and as far beyond it at full Moon, is left out: a swing of +/-0.51% of the sunlight, +/-5.9 W/m2 of the design case's 1,159 W/m2, in step with the lunar day, the far side's noon (new Moon) receiving 1.0% more sunlight than the near side's (full Moon). The effect is unmeasured; a cosine of the subsolar longitude on each model's solar constant would add the swing. Stated in the paper with the scenario, as an idealisation of the set-up; the lab offers the swing as an option.",
    "source": [
     "repo:notes/defect_log.md#C22",
     "terluna@39c5ee04:climate/gcm/boundary.py#L197",
@@ -1591,17 +1591,6 @@
     "terluna@bdda5a07:climate/crm/cm1_run.py",
     "repo:notes/cm1.md",
     "drive:/media/projectspace/terluna-research/gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession_eddies"
-   ],
-   "state": "conditional model"
-  },
-  {
-   "id": "N09",
-   "text": "Terluna's one-dimensional lake model, run offline at five sites of the design case's climate (years 10-19), puts the surface of a calm water 20 m deep at 37.1 C in its hottest hundredth of hours at the sea cell at 8 deg (36.95 C as first mapped, 37.13 C on the paired exchange with the wind raised, 37.14 C with the humidity records corrected), where the GCM's slab shows 30.91 C; the column meets the GCM's light winds and returns nothing to the air, so it marks the calm end (the lab's reading, defect log B37)",
-   "source": [
-    "terluna@59dcda1c:research/decisions.md#L860",
-    "terluna@59dcda1c:research/decisions.md#L863",
-    "terluna@59dcda1c:research/decisions.md#L871",
-    "repo:notes/defect_log.md#B37"
    ],
    "state": "conditional model"
   }
