@@ -160,7 +160,7 @@ tests, and its compute is the tests' short runs.
 | 6 | Simplified Betts–Miller convection as an option beside Kuo's scheme, its depth test a fraction of the surface pressure and its relaxation time a setting scaled with the world (B39) | — | To start |
 | 7 | The equinox's regression, its count carried through restarts and branches | — | To start |
 | 8 | The cold cloud's factors as namelist values with identity defaults | — | To start |
-| 9 | The humidity held in the output (A10): the reader's rule in `python/climate/gcm/year_files.py` first, then a fix in the model | The fix's assessment | To start |
+| 9 | The humidity held in the output (A10): the reader's rule in `python/climate/gcm/year_files.py` first, then the true mean as a further output, Terluna's switch `nhusmean` (`domain/climate` b93a046e) | — | To start |
 | 10 | The Sun's distance through a moon's month (C22) | — | To start |
 | 11 | Snow sublimed from capped flakes | Its assessment | Waiting |
 
@@ -256,8 +256,8 @@ model enters only on evidence apart from the comparison, as the agreement test r
 | Order | Step | Rough cost | Decides |
 |---|---|---|---|
 | 1 | The slab sea at 15 m | One GCM run of 10–20 years, 1.5–3 hours | The size of the sea's swing through the lunar day, and its share of the rain's timing |
-| 2 | The warm-rain factors at 0.165 and 0.34 | One sea box of two lunar days, about two hours | What Earth's rates cost the boxes' cloud and rain |
-| 3 | The relaxation time at 12 h | One GCM run | Its share of the rain's timing and of the upper air's temperature |
+| 2 | The warm-rain factors at 0.166 and 0.34 | One sea box of two lunar days, about two hours | What Earth's rates cost the boxes' cloud and rain |
+| 3 | The design scheme's relaxation time at 12 h, which Terluna's closures ran only with reference profiles of their own | One GCM run | Its share of the rain's timing and of the upper air's temperature |
 | 4 | The diffusion's times multiplied by 0.27, read beside the Earth control's spectra | One GCM run | Whether Earth's times leave noise at the Moon's truncation |
 | 5 | CM1's RCEMIP output read through the zero-buoyancy inversion | No runs; a rights review first | Whether the Earth twin of the lunar grid dilutes as ERA5 does |
 | 6 | The Earth control with the Moon's refinements beside Kuo's scheme; CM1 under observed forcing; Earth boxes, forced and making their own ascent | About 16 four-thread hours | Whether the two models pass the agreement test on Earth |
@@ -298,7 +298,7 @@ each stage and a full editorial review to close, each recorded in `paper/review/
 
 | Passage | What version 2 states | Ready, or waiting on |
 |---|---|---|
-| `abstract.tex` 15, `introduction.tex` 85, `assumptions.tex` 92 and its inventory | Six defects in the released codes, the fifth the simple boundary layer's density fault (A9) and the sixth the humidity held in ExoPlaSim's mean output (A10); CM1's gust over water among the Earth values | The fifth ready; the sixth under way on the paper's branch |
+| `abstract.tex` 15, `introduction.tex` 85, `assumptions.tex` 92 and its inventory | Six defects in the released codes, the fifth the simple boundary layer's density fault (A9) and the sixth the humidity held in ExoPlaSim's mean output (A10); CM1's gust over water among the Earth values | Ready (paper branch ff378e2) |
 | `introduction.tex` 67 | The GCM's convection, levels, gust and rain evaporation as run, convection the open item | The ports |
 | `worlds.tex` 97 (H24), `appendix.tex` 62 | The turned Moon: its tilt of 1.61° and its orientation | Ready; the settled orientation if the orientation check moves it |
 | `repairs.tex` and the appendix's repairs table | The repairs above, each with its kind and limits | The ports |
