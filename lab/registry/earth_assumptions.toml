@@ -1,4 +1,4 @@
-# The registry of Earth assumptions: a seed of fifteen entries in draft schema 0 (lab/design/architecture.md,
+# The registry of Earth assumptions: a seed of sixteen entries in draft schema 0 (lab/design/architecture.md,
 # "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
 # it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
 # specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
@@ -170,6 +170,21 @@ state = "open"
 action = "warn"
 note = "the threshold is PLAN.md's, which sets a warning on the lower side; above Earth's 9.81 m/s2, where Terluna computed no scale either, the entry is silent. Outside the range the lab's own calculation gives an exponent of 0.692 at 1.21 m/s2 and 1.2 times Earth's density, a scale 0.4% above the capillary ratio at 1.3 m/s2 and Earth's density, and a scale 0.3% above it at 15 m/s2 (python/atmosphere/tests/test_rain_breakup.py), each a runnable calculation, as the values within the range are; the single-drop solver stops below about 0.48 m/s2, where the largest stable drop exceeds its 30 mm"
 evidence = ["PLAN.md, Porting: confidence, form and cost", "models/cm1/README.md, the lab's patches 03 and 04", "notes/cm1.md, Fall speeds"]
+
+[[entry]]
+id = "B38"
+model = "cm1"
+where = "morrison.F (Khairoutdinov and Kogan's autoconversion 1350 qc^2.47 N^-1.79 and accretion 67 (qc qr)^1.15, above freezing and below)"
+form = "fit beyond its range"
+assumes = "Earth's gravity in the collisions that turn cloud into rain: droplets overtaking one another at Stokes speeds, and rain sweeping up cloud at its fall speed"
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 0.005 }, { config = "cm1.physics.microphysics", eq = "morrison" },
+        { config = "cm1.physics.warm_rain_rates", ne = "gravity" }]
+effect = "unmeasured; by scaling, Earth's rates are 9.81/g times the autoconversion's and (9.81/g)^0.6 times the accretion's at the world's gravity: 6.0 and 2.9 times at lunar gravity"
+state = "open"
+repair = { patch = "lab/05-factors-on-autoconversion-and-accretion", namelist = ["rain_autoconv_fac", "rain_accr_fac"], default = 1.0, scaling = "g/9.81 on the autoconversion; (g/9.81)^0.6 on the accretion", setting = "cm1.physics.warm_rain_rates" }
+action = "warn"
+note = "the factors are a scaling law from the scheme's two fall-speed exponents, which python/atmosphere/rain/warm_rain.py computes for a world; the law omits the collision efficiency's own dependence on the closing speed and collisions driven by turbulence, and the fits were made on Earth's drop spectra, so the state stays open until a sea box sizes the effect (PLAN.md, block 4, step 2); the action is a warning, since each fix enters the lab opt-in (PLAN.md) and no run has taken the factors; in the suite one column of the patched scheme keeps its bits at the defaults and scales each rate by its factor; the factors multiply the formulas that IRAIN = 0 selects, the only ones CM1's copy of the scheme takes; NSSL's rain, which the electrified build runs, keeps its own rates"
+evidence = ["notes/defect_log.md B38", "notes/cm1.md, Fall speeds", "models/cm1/README.md, the lab's patch 05"]
 
 [[entry]]
 id = "cm1-soil-day"

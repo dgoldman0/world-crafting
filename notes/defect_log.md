@@ -96,7 +96,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B35 | CM1 r22.0 | The MM5 surface layer's gust over water, √Δθv m/s, has no gravity in it; over land the same scheme takes Beljaars's gust from the build's gravity | 10-28, Terluna `domain/climate` 238638f | `gust_over_water` (0): the lab's series, patch 02, from Terluna's `GUST_PATCH` | Raised the sea box's surface wind 1.6–1.8 times, where Beljaars's gust, computed from the box's own fluxes, raises it 1.1–1.2 times; every CM1 run over the seas behind the paper's first released draft | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | B36 | PlaSim | Horizontal diffusion's damping times at the truncation scale, 0.2–5.6 Earth days, Earth's for T21 | 11-09 | None | Unmeasured; the Moon's smallest wave is 3.7 times shorter than Earth's and damped as slowly | Open | P |
 | B37 | PlaSim; CM1 set-up | A slab sea 50 m deep, Earth's seasonal mixed layer; CM1's sea boxes hold its mean temperature | 11-09 | `MLDEPTH` (50 m) | The sea site's surface swings 0.63 K through the lunar day; 2.5 to 5 times that in a layer of 10–20 m, by estimate; Terluna's calm column reaches 37.1 °C where the slab shows 30.9 °C | Open | P, R |
-| B38 | CM1 Morrison | Cloud turns into rain at Earth's rates: Khairoutdinov and Kogan's autoconversion and accretion carry no gravity | Limit noted 10-17; sized 11-09 | None | Unmeasured; by scaling, rain forms about 6 and 3 times too readily in each passage through a lunar cloud | Open | V, P |
+| B38 | CM1 Morrison | Cloud turns into rain at Earth's rates: Khairoutdinov and Kogan's autoconversion and accretion carry no gravity | Limit noted 10-17; sized 11-09 | `rain_autoconv_fac`, `rain_accr_fac` (1 each): the lab's series, patch 05, the lab's own | Unmeasured; by scaling, rain forms about 6 and 3 times too readily in each passage through a lunar cloud | A switch in the lab's series, off by default; its effect unmeasured | V, P |
 | B39 | PlaSim, Terluna's `nprc` 2 | The simplified Betts–Miller scheme relaxes over 2 h, Frierson's value for Earth | 11-09, `lab/design/gap_series.md` | `tau_bm` (7,200 s) | Unmeasured; 12 h by similarity | Open | P |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
 | C2 | CM1–GCM check | GCM's missing sunlight booked as reflection | 09-29, be50d8b retracts 36e29c4 | Each model's own arriving sunlight | A false "reflects too much" finding | Fixed | R |
@@ -891,7 +891,7 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   swing. One GCM run at 15 m would size it, and a box that follows the GCM's sea temperature by local time, as it
   follows the wind, would carry the swing into CM1.
 
-### B38. CM1 Morrison: cloud turned into rain at Earth's rates (V; sized P; open)
+### B38. CM1 Morrison: cloud turned into rain at Earth's rates (V; sized P; a switch in the lab's series, unmeasured)
 
 - **Earth value.** Morrison's scheme forms rain from cloud by Khairoutdinov and Kogan's (2000) fits, the
   autoconversion `1350 q_c^2.47 (N_c ρ)^−1.79` and the accretion `67 (q_c q_r)^1.15` (`morrison.F` 2106–2107 and
@@ -906,8 +906,17 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   drawn from CM1's boxes, the new rain's size of 0.439 mm and the evaporated share among them, inherit both rates.
   The boxes take 100 droplets per cm³ (`ndcnst`), a number without a lunar basis, and the autoconversion goes as
   its −1.79 power.
-- **Status.** Open. Two factors read from the namelist with identity defaults, set to 0.166 and 0.34 in a sea box of
-  two lunar days, would size it.
+- **Fix.** Patch 05 of the lab's `models/cm1/series-lab`, the lab's own, reads two factors from `&param3`,
+  `rain_autoconv_fac` and `rain_accr_fac`, each 1 by default. Each multiplies CM1's rate once CM1 has computed it,
+  above freezing and below, and the number tendencies follow by CM1's own statements;
+  `python/atmosphere/rain/warm_rain.py` gives g/9.81 and (g/9.81)^0.6 for a world, 0.166 and 0.340 on the Moon. In
+  the suite one column of the patched scheme keeps its bits at the defaults and scales each rate by its factor,
+  against hand arithmetic (`python/climate/tests/test_cm1_rain.py`). In a single scratch run on 11 November 2026,
+  under CM1's flags, CM1's released supercell case kept its output byte for byte at the defaults and read the two
+  entries from its namelist (`models/cm1/README.md`, "Factors on autoconversion and accretion").
+- **Status.** A switch in the lab's series, off by default; its effect is unmeasured. A sea box of two lunar days
+  with the factors at 0.166 and 0.340 would size it (`PLAN.md`, block 4, step 2). The scaling omits the collision
+  efficiency's own dependence on the closing speed and the collisions that turbulence drives.
 
 ### B39. PlaSim, Terluna's simplified Betts–Miller scheme: a relaxation time of 2 h (P; open)
 

@@ -1,9 +1,10 @@
-"""Patches 03 and 04 of the lab's CM1 series: rain's limits at the build's gravity, and its fall law and self-collection
-for the world. The patches' texts keep CM1's statements for the defaults, and one column of the patched Morrison
-scheme, compiled from the series on the pinned archive and stepped without dynamics, keeps its bits at the defaults
-under both of the builds' flag sets, takes the limits the Python computes, settles at their breakup equilibrium, falls
-and evaporates by the table, each of whose three moments it reads where it needs it, and collects itself at the
-namelist's rate.
+"""Patches 03, 04 and 05 of the lab's CM1 series: rain's limits at the build's gravity, its fall law and self-collection
+for the world, and two factors on the rates at which cloud turns into rain. The patches' texts keep CM1's statements
+for the defaults, and one column of the patched Morrison scheme, compiled from the series on the pinned archive and
+stepped without dynamics, keeps its bits at the defaults under both of the builds' flag sets, takes the limits the
+Python computes, settles at their breakup equilibrium, falls and evaporates by the table, each of whose three moments
+it reads where it needs it, collects itself at the namelist's rate, and forms rain from cloud by autoconversion and
+by accretion at the namelist's factors.
 
 The lab's own file. Terluna's tests of its edit lists and of its runner's namelist writers stay in Terluna
 (climate/tests/test_cm1_rain_limits.py and test_cm1_rain_law.py at 39c5ee04). The column is CM1's mp_graupel, called as
@@ -22,12 +23,13 @@ import pytest
 
 from shared.constants import MOON_SURFACE_GRAVITY
 from atmosphere.radiative_convective.thermodynamics import earthlike_air
-from atmosphere.rain import breakup, drops, fall_law, morrison
+from atmosphere.rain import breakup, drops, fall_law, morrison, warm_rain
 
 PATCH_02 = 'patches/lab/02-beljaars-gust-over-water.patch'
 PATCH_03 = 'patches/lab/03-raindrop-limits-at-the-builds-gravity.patch'
 PATCH_04 = 'patches/lab/04-rains-fall-law-and-self-collection-for-the-world.patch'
-POINTS = (PATCH_02, PATCH_03, PATCH_04)
+PATCH_05 = 'patches/lab/05-factors-on-autoconversion-and-accretion.patch'
+POINTS = (PATCH_02, PATCH_03, PATCH_04, PATCH_05)
 CPP = ('cpp', '-C', '-P', '-traditional', '-Wno-invalid-pp-token', '-ffreestanding', '-DOPENMP')
 # gfortran's flags in the two makefiles of the builds: CM1's own for OpenMP (makefile-gnu-omp.patch), and Terluna's
 # optimisation of them (makefile-omp-O3-march-native.patch), the lab's default, under which gfortran fuses products
@@ -36,7 +38,9 @@ COMMON = ('-ffree-form', '-ffree-line-length-none', '-finline-functions', '--par
 FLAGS = dict(cm1=('-O2', *COMMON), native=('-O3', '-march=native', *COMMON))
 MOON_G, EARTH_G = MOON_SURFACE_GRAVITY, morrison.GRAVITY
 RD, WATER = 287.04, 997.0                    # morrison.F's R and RHOW
-# The settings of &param3: the limits' three and the law's two.
+DROPLETS_PER_CM3 = 100.0                     # the driver's ndcnst, which the scheme holds constant (INUM = 1)
+# The settings of &param3: the limits' three and the law's two, with the warm rain's two factors at 1 unless a third
+# group gives them.
 OFF = ((0, 1.0, 0.0), (0, 0.0))
 LUNAR_LIMITS = ((1, 1.2, 0.687), (0, 0.0))
 LUNAR = ((1, 1.2, 0.687), (1, 2.919))
@@ -49,7 +53,7 @@ program rain_column
   use module_mp_graupel, only : graupel_init, mp_graupel
   implicit none
   integer :: n, k, steps, inum_flag, levels, limits_switch, law_switch
-  real :: gravity, step_s, density_ratio, exponent, collection_rate
+  real :: gravity, step_s, density_ratio, exponent, collection_rate, auto_factor, accr_factor
   real, allocatable, dimension(:,:,:) :: t3d, pii, qv, qc, qr, qi, qs, qg, nni, ns, nr, ng, nc, p, rho, ddz, w, rmh, rr
   real, allocatable, dimension(:,:,:) :: vtc, vtr, vti, vts, vtg, effc, effi, effs, effr, effg, effis
   real, allocatable, dimension(:,:,:) :: rainnc
@@ -61,6 +65,7 @@ program rain_column
   read(*,*) levels, steps, step_s, gravity
   read(*,*) limits_switch, density_ratio, exponent
   read(*,*) law_switch, collection_rate
+  read(*,*) auto_factor, accr_factor
   timestats = 0
   testcase = 0
   call set_constants(testcase)
@@ -128,9 +133,10 @@ subroutine stopcm1
   stop 'stopcm1'
 end subroutine stopcm1
 """
-# What the driver hands the scheme of each point of the series: nothing before the two patches, then each patch's own.
+# What the driver hands the scheme of each point of the series: nothing before the three patches, then each patch's own.
 TAKES = {PATCH_02: '', PATCH_03: '  brkup_gscale = limits_switch; brkup_rhor = density_ratio; brkup_rhoexp = exponent'}
 TAKES[PATCH_04] = TAKES[PATCH_03] + '\n  rain_fall_law = law_switch; rain_selfcoll = collection_rate'
+TAKES[PATCH_05] = TAKES[PATCH_04] + '\n  rain_autoconv_fac = auto_factor; rain_accr_fac = accr_factor'
 
 
 @pytest.fixture(scope='module')
@@ -143,9 +149,9 @@ def moon():
 
 @pytest.fixture(scope='module')
 def columns(cm1_series, moon, tmp_path_factory):
-    """The column's executable from the series through the lab's patch 02, 03 and 04, under each flag set: six builds
-    of input.F, constants.F and morrison.F with the driver, about 0.7 MB each, with the Open Moon's table beside the
-    builds that read one."""
+    """The column's executable from the series through the lab's patch 02, 03, 04 and 05, under each flag set: eight
+    builds of input.F, constants.F and morrison.F with the driver, about 0.7 MB each, with the Open Moon's table beside
+    the builds that read one."""
     if shutil.which('gfortran') is None or shutil.which('cpp') is None:
         pytest.skip('gfortran or cpp is missing')
     built = {}
@@ -160,7 +166,7 @@ def columns(cm1_series, moon, tmp_path_factory):
             (folder / 'driver.f90').write_text(DRIVER.replace('!SETTINGS', TAKES[through]))
             subprocess.run(['gfortran', *flags, 'input.f90', 'constants.f90', 'morrison.f90', 'driver.f90', '-o',
                             'column'], cwd=folder, check=True, capture_output=True)
-            if through == PATCH_04:
+            if through in (PATCH_04, PATCH_05):
                 (folder / fall_law.TABLE_FILE).write_text(fall_law.table_text(moon['table']))
             built[through, name] = folder / 'column'
     return built
@@ -168,7 +174,9 @@ def columns(cm1_series, moon, tmp_path_factory):
 
 def run(exe, rows, steps, step_s, gravity, settings=OFF, cwd=None):
     """The column after its steps: what the scheme printed as it began, and each field's bits by level. settings are
-    the limits' three entries of &param3 and the law's two, which a scheme from before a patch leaves unread."""
+    the limits' three entries of &param3, the law's two and, where a third group gives them, the warm rain's two
+    factors, 1 otherwise; a scheme from before a patch leaves that patch's entries unread."""
+    settings = settings if len(settings) == 3 else (*settings, (1.0, 1.0))
     text = (f'{len(rows)} {steps} {step_s!r} {gravity!r}\n' + ''.join(' '.join(map(str, s)) + '\n' for s in settings)
             + ''.join(' '.join(repr(float(x)) for x in row) + '\n' for row in rows))
     done = subprocess.run([str(exe)], input=text, capture_output=True, text=True, cwd=cwd or exe.parent,
@@ -246,10 +254,10 @@ def mean_diameter(fields):
 
 # The patches' texts.
 
-def test_the_two_patches_follow_the_labs_series(cm1_series):
-    assert cm1_series.names[-4:] == ['patches/lab/01-the-simple-boundary-layers-tendencies-per-unit-mass.patch', PATCH_02,
-                                     PATCH_03, PATCH_04]
-    for patch in (PATCH_03, PATCH_04):
+def test_the_rain_patches_follow_the_labs_series(cm1_series):
+    assert cm1_series.names[-5:] == ['patches/lab/01-the-simple-boundary-layers-tendencies-per-unit-mass.patch', PATCH_02,
+                                     PATCH_03, PATCH_04, PATCH_05]
+    for patch in (PATCH_03, PATCH_04, PATCH_05):
         text = (cm1_series.folder / patch).read_text()
         assert re.findall(r'^\+\+\+ b/src/(\S+)', text, flags=re.M) == ['cm1.F', 'input.F', 'morrison.F', 'param.F']
         for line in cm1_series.added(patch):                       # every added line marked, or inside a marked block
@@ -330,6 +338,48 @@ def test_the_law_patch_keeps_cm1s_statements(cm1_series):
         assert before.count(line) == after.count(line) == 2, line
 
 
+def test_the_factors_patch_keeps_cm1s_statements(cm1_series):
+    before, after = (cm1_series.source('morrison.F', patch) for patch in (PATCH_04, PATCH_05))
+    # Khairoutdinov and Kogan's two rates stay as CM1 writes them, above freezing and below; the next statement
+    # multiplies each by its factor, ahead of the number tendencies that CM1 derives from the rate.
+    auto = ('                PRC(K)=1350.*QC3D(K)**2.47*  &\n           (NC3D(K)/1.e6*RHO(K))**(-1.79)\n'
+            '                PRC(K) = LAB_FAUT*PRC(K)   ! Lab: the factor, 1 unless rain_autoconv_fac is set\n')
+    accr = ('           PRA(K) = 67.*(DUM)**1.15\n'
+            '           PRA(K) = LAB_FACC*PRA(K)   ! Lab: the factor, 1 unless rain_accr_fac is set\n'
+            '           NPRA(K) = PRA(K)/(QC3D(K)/NC3D(K))\n')
+    assert after.count(auto) == 2 and after.count(accr) == 2
+    for block in after.split(auto)[1:]:
+        derived = block[:block.index('ELSE IF (IRAIN.EQ.1) THEN')]
+        assert derived.index('NPRC1(K) = PRC(K)/CONS29') < derived.index('NPRC(K) = MIN(NPRC(K),NC3D(K)/DT)')
+        assert re.search(r'NPRC\(K\) = PRC\(K\)/\(QC3D\([kK]\)/NC3D\(K\)\)', derived) and 'LAB_' not in derived
+    # The scheme takes Khairoutdinov and Kogan's formulas alone, since CM1 sets IRAIN to 0 and reads it from no
+    # namelist; Seifert and Beheng's, which IRAIN = 1 would select, stay as they were.
+    assert re.findall(r'^ +IRAIN *= *(\d)', after, flags=re.M) == ['0']
+    assert 'irain' not in cm1_series.source('input.F', PATCH_05).lower()
+    for line in ('        prc(k) = 9.44e9/(20.*2.6e-7)* &\n',
+                 '           pra(k) = 5.78e3*rho(k)/1000.*qc3d(k)*qr3d(k)*dum1\n'):
+        assert before.count(line) == after.count(line) == 2, line
+    # The factors are the namelist's entries, taken once at the scheme's start after the two stops.
+    start = after.index('         ! Lab: two factors on the warm rain')
+    block = after[start:after.index('\n\n', start)]
+    for name, held in (('rain_autoconv_fac', 'LAB_FAUT'), ('rain_accr_fac', 'LAB_FACC')):
+        stop = f"IF ({name}.LE.0.) STOP 'Lab warm rain: {name} must be positive'"
+        assert block.index(stop) < block.index(f'{held} = {name}\n')
+    # The patch adds 19 lines to the scheme and changes none: every line before it stands after it, in order.
+    lines = iter(after.splitlines())
+    assert all(line in lines for line in before.splitlines())
+    assert len(after.splitlines()) == len(before.splitlines()) + 19
+    # The entries default to 1 and enter the scheme through the namelist param3.
+    cm1, inputs, param = (cm1_series.source(name, PATCH_05) for name in ('cm1.F', 'input.F', 'param.F'))
+    assert cm1.count('      rain_autoconv_fac = 1.0 ') == 1 and cm1.count('      rain_accr_fac = 1.0 ') == 1
+    assert inputs.count('      real :: rain_autoconv_fac,rain_accr_fac ') == 1
+    assert ('                        brkup_gscale,brkup_rhor,brkup_rhoexp,rain_fall_law,rain_selfcoll, &\n'
+            '                        rain_autoconv_fac,rain_accr_fac, &\n') in inputs
+    assert param.count('MPI_BCAST(rain_') == 4
+    for name in ('rain_autoconv_fac', 'rain_accr_fac'):
+        assert param.count(f"      if(dowr) write(outfile,*) '{name} =',{name}  ! Lab\n") == 1, name
+
+
 # One column of the patched scheme.
 
 def test_a_column_keeps_its_bits_at_the_defaults(columns):
@@ -343,7 +393,7 @@ def test_a_column_keeps_its_bits_at_the_defaults(columns):
             for rows, steps, step_s in cases:
                 before = run(columns[PATCH_02, flags], rows, steps, step_s, gravity)[1]
                 assert len(before) == 18 and all(len(words) in (1, len(rows)) for words in before.values())
-                for patch in (PATCH_03, PATCH_04):
+                for patch in (PATCH_03, PATCH_04, PATCH_05):
                     assert run(columns[patch, flags], rows, steps, step_s, gravity)[1] == before, (flags, gravity, patch)
     # The storm rains, and the switches move it: the identity above is of a column in which the patched lines act.
     off, on = (run(columns[PATCH_04, 'cm1'], storm(), 100, 6.0, MOON_G, settings)[1] for settings in (OFF, LUNAR))
@@ -534,3 +584,79 @@ def test_settings_cm1_cannot_take_stop_the_run(columns, moon, tmp_path):
     assert printed(head, 'at lambda 1000/m: UMR') == pytest.approx(
         fall_law.interpolate(moon['table'], np.array([1000.0]))[:, 0], rel=1e-6)
     assert printed(head, 'at lambda 1000/m: UMR') == pytest.approx([3.7632478, 1.1841879, 6.6606509e-08], rel=1e-6)
+
+
+# The warm rain's two factors (patch 05).
+
+def warm(auto, accr):
+    """The settings of a run that takes the warm rain's two factors, the limits and the law at their defaults."""
+    return (*OFF, (auto, accr))
+
+
+def cloud(t, qc, levels=12, rain=0.0):
+    """Uniform levels of saturated air at 1.2 atm with cloud water and, where given, rain of a 0.5 mm mean diameter."""
+    return [level(t, 121590.0, 1.0, qc=qc, qr=rain, rain_mean_m=0.5e-3) for _ in range(levels)]
+
+
+def test_cloud_turns_into_rain_at_the_autoconversions_factor(columns):
+    """Twelve uniform levels of cloud water in saturated air without rain, one step, above freezing and at 270 K, where
+    the scheme's other branch runs and no ice forms. The rain a level gains is Khairoutdinov and Kogan's rate times
+    the step, 1350 qc^2.47 N^-1.79 by hand with N the driver's 100 droplets per cm3, and its drops are that water over
+    the mass of a drop of 25 um radius, 4/3 pi rho_w (25 um)^3. With the Moon's factor on the autoconversion the rain's
+    water and its drops are the factor's share of those, and the cloud keeps the rest. The accretion's factor leaves a
+    column without rain as it was, bit for bit."""
+    exe = columns[PATCH_05, 'cm1']
+    factor = warm_rain.factors(MOON_G)['rain_autoconv_fac']
+    drop, low = 4.0 / 3.0 * math.pi * WATER * 25.0e-6**3, slice(0, 8)
+    for t in (290.0, 270.0):
+        for qc, step_s in ((1.0e-3, 10.0), (2.0e-3, 100.0)):
+            own, scaled, other = (run(exe, cloud(t, qc), 1, step_s, MOON_G, warm(*factors))[1]
+                                  for factors in ((1.0, 1.0), (factor, 1.0), (1.0, 0.34)))
+            gain = 1350.0 * qc**2.47 * DROPLETS_PER_CM3**-1.79 * step_s
+            assert values(own['qr'])[low] == pytest.approx(gain, rel=2e-6), (t, qc)
+            assert values(own['nr'])[low] == pytest.approx(gain / drop, rel=2e-6), (t, qc)
+            assert values(scaled['qr'])[low] == pytest.approx(factor * values(own['qr'])[low], rel=5e-7), (t, qc)
+            assert values(scaled['nr'])[low] == pytest.approx(factor * values(own['nr'])[low], rel=5e-7), (t, qc)
+            assert other == own and all(values(own[name]).max() == 0.0 for name in ('qi', 'qs', 'qg')), (t, qc)
+        # Over the longer step single precision resolves the cloud's water to 4 parts in 10^5 of what the rain took.
+        assert (values(scaled['qc']) - values(own['qc']))[low] == pytest.approx((1.0 - factor) * gain, rel=1e-4), t
+    assert factor == pytest.approx(0.16557, abs=5e-6)
+
+
+def test_rain_sweeps_up_cloud_at_the_accretions_factor(columns):
+    """Twelve uniform levels of cloud water and rain in saturated air, one step of 10 s, above freezing and at 270 K.
+    The rain gains the accretion's 67 (qc qr)^1.15 with the autoconversion's rate, by hand. With the Moon's factor on
+    the accretion, the rain gains less and the cloud keeps more by the same water, the accretion less its factor's
+    share, while the rain's drops, the temperature and the vapour stay as they were."""
+    exe = columns[PATCH_05, 'cm1']
+    factor = warm_rain.factors(MOON_G)['rain_accr_fac']
+    low = slice(0, 8)
+    for t in (290.0, 270.0):
+        for qc, qr in ((1.0e-3, 1.0e-3), (0.5e-3, 2.0e-3)):
+            own, scaled = (run(exe, cloud(t, qc, rain=qr), 1, 10.0, MOON_G, warm(1.0, f))[1] for f in (1.0, factor))
+            accretion = 67.0 * (qc * qr)**1.15 * 10.0
+            autoconversion = 1350.0 * qc**2.47 * DROPLETS_PER_CM3**-1.79 * 10.0
+            gained = (values(own['qr']) - np.float32(qr))[low]
+            assert gained == pytest.approx(accretion + autoconversion, rel=5e-6), (t, qc)
+            kept = (1.0 - factor) * accretion
+            assert (values(own['qr']) - values(scaled['qr']))[low] == pytest.approx(kept, rel=1e-5), (t, qc)
+            assert (values(scaled['qc']) - values(own['qc']))[low] == pytest.approx(kept, rel=1e-5), (t, qc)
+            assert scaled['nr'][:8] == own['nr'][:8] and scaled['t'] == own['t'] and scaled['qv'] == own['qv'], (t, qc)
+            assert accretion > 100 * autoconversion
+    assert factor == pytest.approx(0.33993, abs=5e-6)
+
+
+def test_a_factor_of_zero_or_less_stops_the_run_and_the_scheme_prints_its_factors(columns):
+    exe = columns[PATCH_05, 'cm1']
+    rows = cloud(290.0, 1.0e-3, levels=2)
+    for factors, name in (((0.0, 1.0), 'rain_autoconv_fac'), ((1.0, -0.5), 'rain_accr_fac')):
+        with pytest.raises(RuntimeError, match=f'{name} must be positive'):
+            run(exe, rows, 1, 1.0, MOON_G, warm(*factors))
+    found = warm_rain.factors(MOON_G)
+    lunar = warm(found['rain_autoconv_fac'], found['rain_accr_fac'])
+    assert printed(run(exe, rows, 1, 1.0, MOON_G, lunar)[0], 'Lab warm rain: rain_autoconv_fac') == pytest.approx(
+        [0.16557, 0.33993], abs=5e-6)
+    assert printed(run(exe, rows, 1, 1.0, MOON_G)[0], 'Lab warm rain: rain_autoconv_fac') == [1.0, 1.0]
+    # In the storm column the Moon's two factors leave more of the water in the cloud over 100 steps.
+    off, on = (run(exe, storm(), 100, 6.0, MOON_G, settings)[1] for settings in (OFF, lunar))
+    assert values(on['qc']).sum() > 1.05 * values(off['qc']).sum() and on['qr'] != off['qr']

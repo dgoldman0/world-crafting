@@ -1,0 +1,119 @@
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -409,6 +409,8 @@
+       brkup_rhoexp = 0.0   ! Lab: read with brkup_gscale = 1
+       rain_fall_law = 0    ! Lab: Morrison's own fall law for rain unless the namelist sets 1
+       rain_selfcoll = 0.0  ! Lab: CM1's 5.78 m3/kg/s unless the namelist gives a positive rate
++      rain_autoconv_fac = 1.0   ! Lab: a factor on Morrison's autoconversion of cloud to rain; 1 keeps CM1's rate
++      rain_accr_fac = 1.0       ! Lab: a factor on rain's accretion of cloud; 1 keeps CM1's rate
+       solconrce = 0.0
+       zenanglrce = 0.0
+       trn_swirl = 0.0
+--- a/src/input.F
++++ b/src/input.F
+@@ -295,6 +295,7 @@
+       real :: brkup_rhor,brkup_rhoexp   ! Lab: the surface air's density over Earth's, and its exponent
+       integer :: rain_fall_law   ! Lab: 1 reads rain's fall law from lab_rain_law.txt; 0 keeps Morrison's power law
+       real :: rain_selfcoll   ! Lab: rain's self-collection rate (m3/kg/s); 0 keeps CM1's 5.78
++      real :: rain_autoconv_fac,rain_accr_fac   ! Lab: factors on Morrison's autoconversion and accretion; 1 keeps CM1's
+ !  Begin namelists:
+ 
+       namelist /param0/ nx,ny,nz,ppnode,                                &
+@@ -317,6 +318,7 @@
+       namelist /param3/ kdiff2,kdiff6,fcor,kdiv,alph,rdalpha,zd,xhd,alphobc, &
+                         umove,vmove,v_t,l_h,lhref1,lhref2,l_inf,brkup_db,ipbl2_per_mass,gust_over_water,ndcnst,nt_c, &
+                         brkup_gscale,brkup_rhor,brkup_rhoexp,rain_fall_law,rain_selfcoll, &
++                        rain_autoconv_fac,rain_accr_fac, &
+                         csound,cstar,solconrce,zenanglrce
+       namelist /param4/ stretch_x,dx_inner,dx_outer,nos_x_len,tot_x_len
+       namelist /param5/ stretch_y,dy_inner,dy_outer,nos_y_len,tot_y_len
+--- a/src/morrison.F
++++ b/src/morrison.F
+@@ -258,6 +258,7 @@
+      REAL, PRIVATE ::      D_b     ! cutoff diameter for breakup
+      REAL, PRIVATE ::      KB_r    ! Lab: the breakup law's rate (1/m), CM1's 2300 unless brkup_gscale = 1
+      REAL, PRIVATE ::      KSC_r   ! Lab: rain's self-collection rate (m3/kg/s), CM1's 5.78 unless rain_selfcoll > 0
++     REAL, PRIVATE ::      LAB_FAUT,LAB_FACC   ! Lab: the factors on the autoconversion and on the accretion
+      LOGICAL, PRIVATE ::   LAB_RLAW = .FALSE.   ! Lab: rain's moments from lab_rain_law.txt (rain_fall_law = 1)
+      INTEGER, PRIVATE ::   LAB_RN = 0           ! Lab: the table's rows, its first ln(lambda) and its step
+      REAL, PRIVATE ::      LAB_RX0,LAB_RDX
+@@ -325,6 +326,7 @@
+ 
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ SUBROUTINE GRAUPEL_INIT(cm1hail,cm1inum,cm1ndcnst,cm1db)
++      use input, only : rain_autoconv_fac,rain_accr_fac   ! Lab: the warm rain's factors
+       use input, only : rain_fall_law,rain_selfcoll   ! Lab: rain's fall law
+       use input, only : brkup_gscale,brkup_rhor,brkup_rhoexp,dowr,outfile   ! Lab: rain limits
+       use constants, only : terluna_g_host => g
+@@ -588,6 +590,19 @@
+                                    ' self-collection',KSC_r
+          IF (LAB_RLAW .and. dowr) write(outfile,*) '  Lab rain law at lambda 1000/m: UMR',LAB_RAIN(1000.,1), &
+                                    ' UNR',LAB_RAIN(1000.,2),' ventilation',LAB_RAIN(1000.,3)
++         ! Lab: two factors on the warm rain, 1 unless the namelist (param3) sets them, so that the defaults keep CM1's
++         ! rates. rain_autoconv_fac multiplies the autoconversion of cloud water to rain (PRC) and rain_accr_fac the
++         ! accretion of cloud water by rain (PRA), each in Khairoutdinov and Kogan's (2000) formula, which IRAIN = 0
++         ! selects above, in the branch above freezing and in the one below. Each factor multiplies CM1's rate once
++         ! it is computed, and the number tendencies NPRC, NPRC1 and NPRA follow from the scaled rate by CM1's own
++         ! statements. Seifert and Beheng's formulas (IRAIN = 1) stay as they are: CM1's copy of the scheme never
++         ! selects them, IRAIN being set to 0 above. Gravity appears in neither fit, and for a world
++         ! python/atmosphere/rain/warm_rain.py gives g/9.81 and (g/9.81)**0.6 (notes/defect_log.md, B38).
++         IF (rain_autoconv_fac.LE.0.) STOP 'Lab warm rain: rain_autoconv_fac must be positive'
++         IF (rain_accr_fac.LE.0.) STOP 'Lab warm rain: rain_accr_fac must be positive'
++         LAB_FAUT = rain_autoconv_fac
++         LAB_FACC = rain_accr_fac
++         if(dowr) write(outfile,*) '  Lab warm rain: rain_autoconv_fac',LAB_FAUT,' rain_accr_fac',LAB_FACC
+ 
+          LAMMAXS = 1./10.E-6
+          LAMMINS = 1./2000.E-6
+@@ -2210,6 +2225,7 @@
+ 
+                 PRC(K)=1350.*QC3D(K)**2.47*  &
+            (NC3D(K)/1.e6*RHO(K))**(-1.79)
++                PRC(K) = LAB_FAUT*PRC(K)   ! Lab: the factor, 1 unless rain_autoconv_fac is set
+ 
+ ! note: nprc1 is change in Nr,
+ ! nprc is change in Nc
+@@ -2344,6 +2360,7 @@
+ 
+            DUM=(QC3D(K)*QR3D(K))
+            PRA(K) = 67.*(DUM)**1.15
++           PRA(K) = LAB_FACC*PRA(K)   ! Lab: the factor, 1 unless rain_accr_fac is set
+            NPRA(K) = PRA(K)/(QC3D(K)/NC3D(K))
+ 
+            ELSE IF (IRAIN.EQ.1) THEN
+@@ -3280,6 +3297,7 @@
+ 
+                 PRC(K)=1350.*QC3D(K)**2.47*  &
+            (NC3D(K)/1.e6*RHO(K))**(-1.79)
++                PRC(K) = LAB_FAUT*PRC(K)   ! Lab: the factor, 1 unless rain_autoconv_fac is set
+ 
+ ! note: nprc1 is change in Nr,
+ ! nprc is change in Nc
+@@ -3692,6 +3710,7 @@
+ 
+            DUM=(QC3D(K)*QR3D(K))
+            PRA(K) = 67.*(DUM)**1.15
++           PRA(K) = LAB_FACC*PRA(K)   ! Lab: the factor, 1 unless rain_accr_fac is set
+            NPRA(K) = PRA(K)/(QC3D(K)/NC3D(K))
+ 
+            ELSE IF (IRAIN.EQ.1) THEN
+--- a/src/param.F
++++ b/src/param.F
+@@ -421,6 +421,8 @@
+       call MPI_BCAST(brkup_rhoexp,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)        ! Lab
+       call MPI_BCAST(rain_fall_law,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)    ! Lab
+       call MPI_BCAST(rain_selfcoll,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)       ! Lab
++      call MPI_BCAST(rain_autoconv_fac,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)   ! Lab
++      call MPI_BCAST(rain_accr_fac,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)       ! Lab
+       call MPI_BCAST(ndcnst ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(nt_c   ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(csound ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+@@ -3178,6 +3180,8 @@
+       if(dowr) write(outfile,*) 'brkup_rhoexp =',brkup_rhoexp  ! Lab
+       if(dowr) write(outfile,*) 'rain_fall_law =',rain_fall_law  ! Lab
+       if(dowr) write(outfile,*) 'rain_selfcoll =',rain_selfcoll  ! Lab
++      if(dowr) write(outfile,*) 'rain_autoconv_fac =',rain_autoconv_fac  ! Lab
++      if(dowr) write(outfile,*) 'rain_accr_fac =',rain_accr_fac  ! Lab
+       if(dowr) write(outfile,*) 'ndcnst    =',ndcnst
+       if(dowr) write(outfile,*) 'nt_c      =',nt_c
+       if(dowr) write(outfile,*) 'csound    =',csound

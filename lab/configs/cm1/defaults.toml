@@ -88,6 +88,10 @@ pbl = "cm1-simple"                             # ipbl 2
 twilight = "none"                              # the curved air's twilight in RRTMG, var20; the twilight variant sets it
 rain_size_limits = "capillary"                 # the [capillary] values; "earth" keeps Morrison's own, the identity
                                                # default of the lab's patch 03 (registry B28)
+warm_rain_rates = "earth"                      # Khairoutdinov and Kogan's rates as Morrison has them, the identity
+                                               # default of the lab's patch 05; with "gravity" the case writer hands
+                                               # CM1 rain_autoconv_fac = g/9.81 and rain_accr_fac = (g/9.81)^0.6
+                                               # (registry B38; plan stage 3)
 sun_declination = "from-season"                # from the world's obliquity and the case's solar longitude, through a
                                                # planned patch after core 17; patch 05's Sun stands at the equinox
 

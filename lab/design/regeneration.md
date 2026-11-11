@@ -287,7 +287,7 @@ The product groups that head the columns:
 **(c) A new body: Mars held at 1 bar** (`mars/breathable-1bar`).
 
 - **Produced again:** everything.
-- **The registry entries the reach report must raise,** two of them beyond the fifteen-entry seed (A3 and
+- **The registry entries the reach report must raise,** two of them beyond the sixteen-entry seed (A3 and
   the column-mass envelope), which stage 6 adds:
   - a gravity of 3.72 m/s² against CM1's 9.81: the core patches are required, the schemes that hard-code
     Earth's gravity are refused, and rain's limits scale 1.62 times by the capillary length;

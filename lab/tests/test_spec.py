@@ -133,6 +133,21 @@ def test_the_raindrop_limits_warn_off_earths_gravity_and_below_the_moons():
     assert 1.62 < derive.planet(LIB.world('moon'), LIB.scenario('moon/open-moon'))['gravity_m_s2'] < 1.63
 
 
+def test_the_warm_rains_earth_rates_warn_off_earths_gravity():
+    """B38 warns where Morrison's cloud turns into rain at Earth's rates off Earth's gravity, and names the two factors
+    of the lab's patch 05, each 1 by default. The entry stays open, the factors' effect being unmeasured, and the
+    defaults keep Earth's rates, so the Open Moon's cases draw the warning."""
+    b38 = {e['id']: e for e in LIB.registry()}['B38']
+    assert (b38['state'], b38['action']) == ('open', 'warn') and 'planned' not in b38
+    assert b38['repair']['patch'] == 'lab/05-factors-on-autoconversion-and-accretion'
+    assert (b38['repair']['namelist'], b38['repair']['default']) == (['rain_autoconv_fac', 'rain_accr_fac'], 1.0)
+    assert (LAB.parent / 'models' / 'cm1' / 'patches' / (b38['repair']['patch'] + '.patch')).exists()
+    assert b38['when'] == [{'q': 'gravity_m_s2', 'ne': 9.81, 'rel_tolerance': 0.005},
+                           {'config': 'cm1.physics.microphysics', 'eq': 'morrison'},
+                           {'config': 'cm1.physics.warm_rain_rates', 'ne': 'gravity'}]
+    assert LIB.defaults('cm1/defaults')['physics']['warm_rain_rates'] == 'earth'
+
+
 def test_the_registrys_config_paths_name_fields_of_the_defaults():
     for entry in LIB.registry():
         for test in entry['when']:

@@ -2,3 +2,4 @@ patches/lab/01-the-simple-boundary-layers-tendencies-per-unit-mass.patch
 patches/lab/02-beljaars-gust-over-water.patch
 patches/lab/03-raindrop-limits-at-the-builds-gravity.patch
 patches/lab/04-rains-fall-law-and-self-collection-for-the-world.patch
+patches/lab/05-factors-on-autoconversion-and-accretion.patch

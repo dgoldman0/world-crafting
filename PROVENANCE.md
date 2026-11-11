@@ -34,7 +34,9 @@ statements, and the scheme stops on a `brkup_gscale` other than 0 and 1 and on a
 with a step of zero or less, which the lists leave unchecked (`models/cm1/README.md`). In a single scratch run on
 2026-11-11, one column of the patched scheme returned the fields of the `morrison.F` of Terluna's build
 `moon_omp_rain_law_pbl_wind_gust_aloft_inflow` (research drive, `cm1/build/`, sha256 `79170284b1487597…`) to the bit
-on 21 test columns under CM1's flags, at the defaults and with the Open Moon's settings.
+on 21 test columns under CM1's flags, at the defaults and with the Open Moon's settings. Patch 05 of the same
+folder, the two factors on Morrison's autoconversion and accretion, is the lab's own, written on 2026-11-11 with
+no Terluna source (defect log B38).
 
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).

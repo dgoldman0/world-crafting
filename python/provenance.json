@@ -700,8 +700,8 @@
   },
   {
    "path": "atmosphere/rain/fall_law.py",
-   "sha256": "984aadfc723fd194e0d8b7af99367bbd4d124f0d14078ea8225d498e3e016be3",
-   "bytes": 12930,
+   "sha256": "314420dd09dc01b021258724ee8cf859b42e23e0f516207cff5129b8a9e64893",
+   "bytes": 13008,
    "terluna_sha256": "903e45fa545c61107579a9ae88bba5bd0e308498e6575646d71be19d649f6639",
    "terluna_commit": "39c5ee04",
    "modified": "the product builder and its bindings to Terluna's resort climate and breakup product left out (SCHEMA, OUT, BREAKUP, CODE, TARGET, COMPARISON_MM, KERNEL_MEAN_MM, VENTILATION, EVIDENCE, READING_RULE, ASSUMPTIONS, sha256, best_power_law, ratios, build, main, and the imports of scipy, shared.constants, shared.provenance, product.py and targets.py); Morrison's constants and density factor taken from the lab's atmosphere/rain/morrison.py; solved_speeds, speed_law, power_law, moments, closed_forms, table_lambda, interpolate and kernel_sum unchanged; table, self_collection and settings added, for any world's air, the kernels summed to the smaller of the two stability screens; table_text added, the table's text as Terluna's runner writes it (climate/crm/cm1_run.py, rain_law_settings); TABLE_FILE added; the docstring rewritten for a world, with the evidence and the assumptions of Terluna's product"

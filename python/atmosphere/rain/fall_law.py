@@ -26,7 +26,8 @@ Rain's self-collection, 5.78 m3/kg/s in the scheme (Seifert and Beheng 2001), sc
 kernel pi/4 (D1 + D2)^2 |V1 - V2|. A world's rate is Earth's over the ratio of the kernels in Earth's air and the
 world's, summed over pairs of the spectrum at the world's breakup equilibrium (breakup.limits) from the scheme's
 smallest rain, 80 um, to the smaller of the two stability screens, the sizes at which both worlds keep drops.
-Autoconversion and accretion stay Earth's fits.
+Autoconversion and accretion stay Earth's fits here; warm_rain.py gives the factors that patch 05 of the series puts
+on them.
 
 Evidence. A runnable calculation: the solver's terminal speeds, which reproduce Earth's measured fall speeds to
 0.20 m/s, in the world's air at 2 m, integrated over Morrison's exponential spectra. The quadrature reproduces the

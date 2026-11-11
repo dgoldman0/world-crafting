@@ -93,7 +93,8 @@ with the leader's crossing at 1 kV/m, the cap lifted, leakage on.
 **The lab's** (`series-lab`, after `series-core`). The lab's own patches put four of Terluna's changes behind
 entries of `&param3`, so that one build serves every case: two that Terluna compiled as build variants
 (`climate/crm/cm1_run.py` at `bdda5a07`) and its two patches of Morrison's rain (the same file at `39c5ee04`). At
-each switch's default, 0, the build keeps CM1's own path.
+each switch's default, 0, the build keeps CM1's own path. A fifth patch, the lab's own, puts two factors on the
+rates at which Morrison's cloud turns into rain; at their default, 1, the scheme keeps CM1's rates.
 
 | # | Files | Switch | Change | Kind |
 |---|---|---|---|---|
@@ -101,15 +102,16 @@ each switch's default, 0, the build keeps CM1's own path.
 | 02 | sfclay.F, init_physics.F; input.F, cm1.F, param.F | `gust_over_water` = 1 | The MM5 surface layer (`sfcmodel = 2`) takes Beljaars's convective gust over water as over land, at the build's gravity, in place of the old MM5 formula √Δθv m/s, which has no gravity in it (Terluna's `GUST_PATCH`) | General repair of an Earth value (B35), for convective surface layers; a stable surface layer takes no gust |
 | 03 | morrison.F; input.F, cm1.F, param.F | `brkup_gscale` = 1, with `brkup_rhor` and `brkup_rhoexp` | Morrison's limits on rain at the build's gravity. With s = (9.81/g)^½, the ratio of the capillary lengths, the breakup law's two lengths, its cutoff (300 µm, `brkup_db`) and its e-folding length 1/2300 m, are multiplied by s · `brkup_rhor`^`brkup_rhoexp`; the 2.8 mm cap on rain's mean diameter is multiplied by s; and the cap on its mean fall speeds becomes 9.1 (g/9.81)^¼ m/s, where core patch 04 sets 9.1 (g/9.81)^0.6. `brkup_rhor` is the surface air's density over that of Earth's sea-level air at the same temperature, in CM1 the surface pressure over 1013.25 hPa, and `brkup_rhoexp` its exponent (defaults 1.0 and 0.0) (Terluna's `RAIN_LIMITS_PATCHES`) | General repair of Earth values (B28), by a scaling law |
 | 04 | morrison.F; input.F, cm1.F, param.F | `rain_fall_law` = 1; `rain_selfcoll` > 0 | Rain's fall law from a table, and its self-collection at a given rate. Morrison reads the fall law through three moments of rain's exponential spectrum: the mass-weighted and number-weighted mean fall speeds, in the sedimentation and in rain's collection of snow and graupel, and the ventilation integral of its evaporation. With `rain_fall_law` = 1 the three come from `lab_rain_law.txt` in the run's folder. A positive `rain_selfcoll` replaces the 5.78 m³/kg/s of rain's self-collection (Terluna's `RAIN_LAW_PATCHES`) | General repair of an Earth fit and an Earth rate; the table and the rate are inputs computed for the world |
+| 05 | morrison.F; input.F, cm1.F, param.F | `rain_autoconv_fac`, `rain_accr_fac` (each 1 by default) | Two factors on Morrison's warm rain: `rain_autoconv_fac` multiplies the autoconversion of cloud water to rain and `rain_accr_fac` the accretion of cloud water by rain, each in Khairoutdinov and Kogan's (2000) fit, above freezing and below, and the number tendencies follow from the scaled rates by CM1's own statements. Gravity appears in neither fit; for a world the factors are g/9.81 and (g/9.81)^0.6 (the lab's own patch, with no Terluna source) | General repair of two Earth fits (B38), by a scaling law; its effect in a run is unmeasured |
 
-Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the four patches give the sources
+Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the five patches give the sources
 `expected-series.sha256` records (`models/check_patches.sh`). The sources of the first two compiled with gfortran and
-OpenMP on 8 November 2026, and those of all four on 11 November, under CM1's flags and under `-O3 -march=native`
-(gfortran 13.3.0, at CM1's own gravity and air). Stage 3's CM1 builds will test the identity at the defaults of a
-compiled case on the lab's own builds and measure each fix's effect in the lab's own runs. Terluna ran the code of the
-first two as build variants: with the density divided out, its boxes' boundary layer passed on 0.995–1.000 of the
-evaporation in its trials, and Beljaars's gust, computed from the sea box's own fluxes, raises its wind 1.1–1.2
-times, where the MM5 formula raised it 1.6–1.8 times.
+OpenMP on 8 November 2026, those of the first four on 11 November under CM1's flags and under `-O3 -march=native`,
+and those of all five the same day under CM1's flags (gfortran 13.3.0, at CM1's own gravity and air). Stage 3's CM1
+builds will test the identity at the defaults of a compiled case on the lab's own builds and measure each fix's
+effect in the lab's own runs. Terluna ran the code of the first two as build variants: with the density divided out,
+its boxes' boundary layer passed on 0.995–1.000 of the evaporation in its trials, and Beljaars's gust, computed from
+the sea box's own fluxes, raises its wind 1.1–1.2 times, where the MM5 formula raised it 1.6–1.8 times.
 
 ### Rain's limits, fall law and self-collection (patches 03 and 04)
 
@@ -262,8 +264,8 @@ second lunar day, from 33 to 63 mm a lunar day (`notes/cm1.md`, "Fall speeds").
   `brkup_gscale` = 1 with them; Terluna's runner refuses its lunar law without its lunar limits, and the lab's case
   writer applies that rule from stage 3.
 - Rain's collection of cloud ice keeps the power law at the build's gravity, as in Terluna's patch. Autoconversion
-  and accretion keep Earth's rates (defect log B38), and NSSL's rain, which the electrified build runs, keeps its own
-  limits and law.
+  and accretion keep Earth's rates unless a case sets the factors of patch 05 (below; defect log B38), and NSSL's
+  rain, which the electrified build runs, keeps its own limits and law.
 - Gravity is the build's (core patch 01). Each rank of an MPI build reads the table itself; the series was compiled
   with OpenMP alone.
 - A setting CM1 cannot take stops the run at the scheme's start: with `brkup_gscale` = 1 a density ratio of zero or
@@ -273,6 +275,79 @@ second lunar day, from 33 to 63 mm a lunar day (`notes/cm1.md`, "Fall speeds").
 - The identity at the defaults was run with gfortran 13.3.0 on one processor that has fused multiply-adds. The
   suite's column test repeats it under CM1's flags and under `-O3 -march=native` wherever the suite runs, and for
   each later patch to the scheme.
+
+### Factors on autoconversion and accretion (patch 05)
+
+**The entries.** `rain_autoconv_fac` and `rain_accr_fac`, each 1 by default, multiply the two rates at which
+Morrison's scheme turns cloud water into rain: the autoconversion, 1350 q_c^2.47 N_c^−1.79, and the accretion of
+cloud water by rain, 67 (q_c q_r)^1.15, both in kg/kg/s with N_c the cloud droplets per cm³, the fits of
+Khairoutdinov and Kogan (2000). Each factor multiplies CM1's rate in the statement after the one that computes it,
+so CM1's expression and its order of operations stay as they were, and the number tendencies follow from the scaled
+rate by CM1's own statements: the new rain's drops (`NPRC1`, the rate over the mass of a drop of 25 µm radius) and
+the cloud droplets that the two processes remove (`NPRC`, `NPRA`). The scheme prints the two factors at its start
+(`Lab warm rain:`) and stops there on a factor of zero or less.
+
+**The formulas the factors multiply.**
+
+| Formula in `morrison.F` | When r22.0 takes it | Multiplied by patch 05 |
+|---|---|---|
+| Khairoutdinov and Kogan's autoconversion and accretion, above freezing and below (`IRAIN = 0`) | In every run of the scheme: `GRAUPEL_INIT` sets `IRAIN = 0`, and no namelist entry sets it | Yes: both rates in both branches, at four statements |
+| Seifert and Beheng's autoconversion and accretion (`IRAIN = 1`) | In no run | No |
+| Rain's self-collection and its breakup | In every run of the scheme | No; their entries are those of patches 03 and 04 |
+| The collection of cloud water by snow and graupel, and the freezing of cloud water and of rain | Below freezing | No |
+
+CM1's copy of the scheme holds the cloud's droplet number constant (`INUM = 1`, set in the same routine, at the
+namelist's `ndcnst`), so the scheme resets the number that `NPRC` and `NPRA` reduce, and of the three number
+tendencies the new rain's drops alone change a run.
+
+**For a world.** `python/atmosphere/rain/warm_rain.py` (`factors`) gives the two entries from the world's gravity.
+By the fall-speed scaling of core patch 04, a particle of the regime V = A D^B falls as g^((B+1)/3) at a fixed size.
+Cloud droplets fall in the Stokes regime (B = 2), so one droplet overtakes another at a speed that goes as g, and
+the autoconversion's factor is g/9.81; rain sweeps up cloud at its own fall speed (B = 0.8), and the accretion's
+factor is (g/9.81)^0.6. Both are 1 at CM1's 9.81 m/s², and 0.166 and 0.340 at the Moon's 1.6242 m/s². The lab's
+default keeps Earth's rates (`physics.warm_rain_rates = "earth"` in `lab/configs/cm1/defaults.toml`), and the
+registry's B38 warns of them at another gravity.
+
+**Checks in the suite** (`make check`), on the column of patches 03 and 04 (`python/climate/tests/test_cm1_rain.py`).
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The series on the pinned archive | The sources of `expected-series.sha256` (`models/check_patches.sh`) | The patch applies |
+| The patch's text | CM1's two rates stay as CM1 writes them, each followed by its factor and then by CM1's statements for the number tendencies; Seifert and Beheng's formulas are unchanged, and `IRAIN` is set to 0 and read from no namelist; the patch adds 19 lines to `morrison.F` and changes none | The default path's statements are CM1's, by their text |
+| One column at the defaults | The storm column over 100 steps and twelve random columns over 20 steps, at the Moon's gravity and at 9.81 m/s², under CM1's OpenMP flags and under `-O3 -march=native`, return every field bit for bit as before the patch | Identity at the default, of the scheme's routine |
+| Autoconversion | Twelve uniform levels of cloud water in saturated air without rain, one step, at 290 K and at 270 K, where the branch below freezing runs and no ice forms. The rain a level gains is the fit's rate times the step, by hand to 2 parts in 10⁶, and its drops are that water over the mass of a drop of 25 µm radius. With the Moon's factor, 0.16557, the rain's water and its drops are the factor's share to 5 parts in 10⁷, and the cloud keeps the rest to 1 part in 10⁴. The accretion's factor leaves this column bit for bit as it was | Effect, in one column, against hand arithmetic |
+| Accretion | Twelve uniform levels of cloud water and rain in saturated air, one step of 10 s, at 290 K and at 270 K. The rain's gain is the two fits' by hand to 5 parts in 10⁶. With the Moon's factor, 0.33993, the rain gains less and the cloud keeps more by the same water, the accretion less its factor's share, to 1 part in 10⁵, while the temperature, the vapour and, in the lowest eight levels, rain's number stay bit for bit | Effect, in one column, against hand arithmetic |
+| Stops and the printed factors | A factor of 0 on the autoconversion and one of −0.5 on the accretion each end the run at the scheme's start; the scheme prints the Moon's two factors and, at the defaults, 1 and 1. In the storm column the Moon's factors leave the cloud 5% or more of extra water, summed over its levels, after 100 steps | The scheme stops on a factor it cannot take, and reads the two entries |
+| The Python | The factors by hand at the Moon's gravity, at 9.81 m/s², at Mars's 3.72 m/s² and at twice CM1's gravity; the two fits, the 25 µm drops, the two fall-speed exponents and `IRAIN` on their lines of the pinned source (`python/atmosphere/tests/test_rain_warm.py`) | Hand arithmetic; the constants are the pinned source's |
+| The registry | B38 names the patch and its two entries, stays open and warns where a Morrison case keeps Earth's rates off Earth's gravity (`lab/tests/test_spec.py`) | The registry's entry is as recorded |
+
+**Checks run once**, on 11 November 2026, with gfortran 13.3.0 under CM1's OpenMP flags (`-O2`), one thread to a
+run. Each is a single run from scratch scripts on the project drive, outside the repository and the suite
+(`world-crafting-research/tmp/port-warm/tools/`: `case.sh` and `case_runs.py`, with their logs beside them), on the
+sources of `expected-series.sha256`.
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The whole model | Two builds at CM1's own gravity and air compiled and linked: the series before patch 05 and after it | The sources compile, under CM1's flags |
+| A compiled case at the defaults | CM1's released supercell with the four settings changed as for patches 03 and 04 (125 steps of 12 s): the nine output files agree byte for byte between the two builds | Identity at the default, of a compiled case of CM1's own, under CM1's flags |
+| The entries in a compiled case | The model reads the two entries from `&param3` and prints them. With 0.166 and 0.340 the output changes: after 1,500 s the storm's largest rain mixing ratio is 0.009 g/kg against 3.7 g/kg at the defaults, and its largest cloud water 6.8 g/kg against 5.3 g/kg. A `rain_accr_fac` of 0 stops the model at the scheme's start with the patch's message. The case is Earth's, where the lunar factors have no place; the run reads the entries and sizes nothing | The namelist's entries act in a compiled case |
+
+**Limits.**
+
+- The factors are a scaling law, and their effect in a run is unmeasured until a sea box runs with them (`PLAN.md`,
+  block 4, step 2). The scaling omits the collision efficiency's own dependence on the closing speed and the
+  collisions that turbulence drives, which are independent of gravity. Both fits were made on drop spectra of
+  Earth's clouds, and a factor multiplies each fit whole, with its exponents on the cloud's water and on the droplet
+  number as they are; the lunar cases' 100 droplets per cm³, to whose −1.79 power the autoconversion goes, have no
+  lunar basis either (defect log B38).
+- The identity of a compiled case ran under CM1's flags alone. Under `-O3 -march=native`, the lab's default, the
+  identity at the defaults is the column's, and a lunar case on the lab's own builds waits for stage 3.
+- A build that predicted the droplet number would take `NPRC` and `NPRA` scaled, a path CM1's copy never runs and
+  the suite leaves untested, as it does Seifert and Beheng's formulas.
+- NSSL's rain, which the electrified build runs, keeps its own rates, and the lab's case writer, which is to set
+  the entries from `physics.warm_rain_rates`, belongs to stage 3.
+- gfortran's `STOP` with a message returns status 0, so a runner finds the patch's stops by their text. Each rank
+  of an MPI build takes the entries by broadcast, lines the OpenMP builds leave uncompiled.
 
 ## Settings of the lunar cases
 

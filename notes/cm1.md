@@ -88,7 +88,8 @@ and slower drops collide more gently, so Earth's caps and breakup keep lunar dro
 faster. Autoconversion and accretion rates carry no gravity and stay Earth's fits. By the scaling above, cloud
 droplets overtake one another 6 times slower at lunar gravity and rain sweeps up cloud 2.9 times slower, while air
 spends six times as long in a lunar cloud, so at Earth's rates the scheme forms rain several times too readily in
-each passage; the effect is unmeasured (defect log B38).
+each passage; the effect is unmeasured (defect log B38). The lab's patch 05 puts a factor on each rate ("The warm
+rain's factors", below).
 
 **The limits at the world's gravity.** Terluna's later patch reads the limits' scaling from `&param3`
 (`brkup_gscale`, `brkup_rhor`, `brkup_rhoexp`): the breakup lengths and the cap on the mean diameter grow as
@@ -139,6 +140,29 @@ measures a world against is at the standard 9.80665 m/s². The table there is th
 fit gives 0.87 to 1.12 in the mass-weighted speed under its cap, 0.93 to 1.23 in the number-weighted speed and 0.95
 to 1.31 in the ventilation integral over mean diameters of 0.2 to 3 mm. An Earth control that reads the table
 therefore changes its rain, and at the defaults it keeps Morrison's law and CM1's rate.
+
+**The warm rain's factors.** Since 11 November 2026 the lab's series also reads two factors from `&param3` (patch 05,
+the lab's own, with no Terluna source): `rain_autoconv_fac` on Khairoutdinov and Kogan's autoconversion and
+`rain_accr_fac` on their accretion of cloud by rain, each 1 by default. Each multiplies CM1's rate once CM1 has
+computed it, above freezing and below, so that the number tendencies follow by CM1's own statements
+([../models/cm1/README.md](../models/cm1/README.md), "Factors on autoconversion and accretion"). By the fall-speed
+scaling above, droplets overtake one another at a speed that goes as g and rain sweeps up cloud at one that goes as
+g^0.6, and `python/atmosphere/rain/warm_rain.py` gives 0.166 and 0.340 for the Moon and 1 at CM1's 9.81 m/s². The
+evidence so far, by its state:
+
+| Evidence state | What was found | How it is held |
+|---|---|---|
+| Identity at the defaults, of the scheme's routine | One column of the scheme keeps its bits after the patch, under CM1's flags and under `-O3 -march=native` | In the suite |
+| Effect, in one column | In columns built to isolate each process, the new rain and its drops scale by the autoconversion's factor, and the rain's gain and the cloud's loss by the accretion's, against hand arithmetic, at 290 K and at 270 K | In the suite |
+| Identity at the defaults, of a compiled case | CM1's released supercell case kept its nine output files byte for byte over 125 steps between whole-model builds before the patch and after it, under CM1's flags | A single scratch run, 11 November 2026 |
+| The entries in a compiled case | The model read the two factors from its namelist, and with 0.166 and 0.340 the storm's largest rain mixing ratio after 1,500 s was 0.009 g/kg against 3.7 g/kg, in an Earth case where those factors have no place | A single scratch run, 11 November 2026 |
+| Effect in a run at the world's gravity | None yet | Waits for a sea box of two lunar days (`PLAN.md`, block 4, step 2) |
+
+The scaling is a first-order law. It omits the collision efficiency's own dependence on the closing speed and the
+collisions that turbulence drives, which are independent of gravity, and the two fits were made on drop spectra of
+Earth's clouds; the boxes' 100 droplets per cm³, to whose −1.79 power the autoconversion goes, have no lunar basis
+either. The factors multiply the formulas that the scheme's `IRAIN = 0` selects, the only ones CM1's copy takes, and
+NSSL's rain keeps its own rates.
 
 ## The Sun, the rings and the boxes (core patches 05, 15, 16)
 
@@ -306,8 +330,9 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
    results carry.
 3. Give NSSL's rain the limits, the fall law and the self-collection that Morrison's rain takes since patches 03
    and 04 of the lab's series, and run a box with them on the lab's own builds.
-4. Read two factors from the namelist for Morrison's autoconversion and accretion, 0.165 and 0.34 at lunar gravity
-   with identity defaults, and size them in a sea box of two lunar days (defect log B38).
+4. Size the two factors on Morrison's autoconversion and accretion, which patch 05 of the lab's series reads from
+   the namelist with identity defaults, at 0.166 and 0.340 in a sea box of two lunar days (defect log B38; `PLAN.md`,
+   block 4, step 2).
 5. Give RRTMG the shield's spectrum.
 6. Let a sea box follow the GCM's sea temperature by local time, as it follows the wind (defect log B37).
 7. Two-way coupling, or nesting in the GCM, so that the slice's own state feeds back on its forcing.
