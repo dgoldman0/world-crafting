@@ -283,9 +283,10 @@ survey and the anchors call for it.
 
 - **The records.** A defect that stays unfixed acts through the registry, which warns or refuses a run outside its
   tested range. The upstream reports go out as their fixes land: ExoPlaSim's Sun clock (reported as issue 69), its
-  held humidity (A10; reported as issue 71 on 11 November 2026, its text in the lab's
-  `models/exoplasim/upstream-held-humidity.md`), its convective cover counted per model day, and CM1's density
-  fault, whose report is drafted in `models/cm1/upstream-ipbl2-density.md`.
+  convective cover counted per model day, and CM1's density fault, whose report is drafted in
+  `models/cm1/upstream-ipbl2-density.md`. ExoPlaSim's held humidity (A10) needs no report: upstream's pending pull
+  requests 53 and 54 already state and fix it, and the lab's issue 71 of 11 November 2026 was closed by the
+  maintainer as redundant the same day. Before any further report, the open pull requests are read with the issues.
 - **Integration.** A joint integration brings the lab's and the paper's work to main at the author's word. The next
   one follows this version's draft of the paper and the first ports (11 November 2026), and it joins the defect
   log's entries that the two branches added: A10, B35–B39, C21 and C22.
