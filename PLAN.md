@@ -156,7 +156,7 @@ tests, and its compute is the tests' short runs.
 
 | Order | ExoPlaSim (`models/exoplasim`, patch 12 on) | Waits on | State |
 |---|---|---|---|
-| 1 | Beljaars's gust with similarity theory over ice-free water | — | Under way |
+| 1 | Beljaars's gust with similarity theory over ice-free water | — | Done (`lab` fc20979) |
 | 2 | Rain evaporated from drop sizes, its fall-law tables computed for each world (`python/climate/gcm/rain_drops.py`) | — | To start |
 | 3 | Level sets generated from a world's scale height, with the restart's remap (the input writer; `python/climate/gcm/levels.py`) | — | To start |
 | 4 | The clear share of the twilight, and the night's twilight counted once in patch 07 (defect log C21) | — | To start |
@@ -170,8 +170,8 @@ tests, and its compute is the tests' short runs.
 
 | Order | CM1 (`models/cm1`, series-lab 03 on) | Waits on | State |
 |---|---|---|---|
-| 1 | The raindrop limits, with the fall law and self-collection at the world's gravity | — | Next |
-| 2 | Factors on autoconversion and accretion (B38) | — | To start |
+| 1 | The raindrop limits, with the fall law and self-collection at the world's gravity | — | Done (`lab` 3e05ec2) |
+| 2 | Factors on autoconversion and accretion (B38) | — | Done (`lab` ade4116) |
 | 3 | Gravity, CO2 and O2 read from the namelist, with the soil's layers and the Sun's declination, so that one build serves every world (planned in the lab's stage 3) | — | To start |
 | 4 | The whole-column forcing with the wind by local time and the inflow, and the extraction that writes it (`python/climate/crm/gcm_site.py`), which reads the GCM's humidity by the rule of A10 | — | To start |
 | 5 | The damped gravity wave, by which a box makes its own ascent | — | To start, for block 4 |
