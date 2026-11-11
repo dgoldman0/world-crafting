@@ -18,8 +18,9 @@ Terluna's runners to pristine upstream sources and recording each group's unifie
 | `models/cm1/patches/lab/` (written 2026-11-08, from Terluna `bdda5a07`) | `climate/crm/cm1_run.py`: `PBL_DENSITY_PATCH`, `GUST_PATCH`, moved behind namelist switches | c0337fc8be2635ac |
 | `models/exoplasim/patches/12-surface-gust.patch`, `13-similarity-over-water.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/surface_gust.py`: `GUST_EDITS`; `climate/gcm/surface_similarity.py`: `SIMW_EDITS`; `climate/gcm/pbl_fortran.py`: the declarations of the five constants the depth rule reads | fb163850a4aa62d0, b676096169aa7f25, 66a8edb841195d7e |
 | `models/cm1/patches/lab/03-raindrop-limits-at-the-builds-gravity.patch`, `04-rains-fall-law-and-self-collection-for-the-world.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/crm/cm1_run.py`: `RAIN_LIMITS_PATCHES`, `RAIN_LAW_PATCHES` | ba507fc66d1ea4fd |
+| `models/exoplasim/patches/14-rain-from-drop-sizes.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/rain_drops.py`: `RAIN_DROP_EDITS`, without the snow's edits of `climate/gcm/snow_sublimation.py` that the list joins to them | a5d32149f2a2c1e1 |
 
-The last three rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
+The last four rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
 Terluna's edits at `bdda5a07`, with namelist switches added. ExoPlaSim's patches 12 and 13 were written on
 2026-11-11 from Terluna's edit lists at `39c5ee04`, applied to the pinned `fluxmod.f90` without Terluna's
 free-convection and nonlocal boundary-layer patches, which they follow there, and with the air's viscosity derived
@@ -36,7 +37,18 @@ with a step of zero or less, which the lists leave unchecked (`models/cm1/README
 `moon_omp_rain_law_pbl_wind_gust_aloft_inflow` (research drive, `cm1/build/`, sha256 `79170284b1487597…`) to the bit
 on 21 test columns under CM1's flags, at the defaults and with the Open Moon's settings. Patch 05 of the same
 folder, the two factors on Morrison's autoconversion and accretion, is the lab's own, written on 2026-11-11 with
-no Terluna source (defect log B38).
+no Terluna source (defect log B38). ExoPlaSim's patch 14 was written on 2026-11-11 from Terluna's edit list at
+`39c5ee04` (commits `8e805f60` and `f5f767fa`), applied to the pinned `rainmod.f90` after patches 02 and 03. The
+comments are the lab's and the namelist's six names Terluna's. Its five routines from `rdroptab` through
+`rdropevap` equal those of Terluna's deployed `rainmod.f90` (research drive,
+`exoplasim-twilight/exoplasim/plasim/src/`, sha256 `4b154f40d48ab708…`, read on 2026-11-11) in every statement but
+two: the slope is read from `LOG(pn/pf)`, without a guard that the routine's first test makes idle, and the set-up
+is called from `rainini`. The rest differs in form (`models/exoplasim/README.md`): the fall law is read from
+`lab_rain_law.txt` in the run's folder, where Terluna's list writes the Moon's table into the module as parameters;
+the defaults are Earth's rate, no density exponent and unset birth sizes, where Terluna's are the Moon's; `rdropini`
+checks the settings and the table and stops on those the scheme cannot take; `mkrain` takes one widened condition
+and one branch, where Terluna's list adds a block that repeats the saturation and the snow's sublimation; and the
+snow's sublimation by its flakes, with its diagnostics, is left out.
 
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).
@@ -70,14 +82,15 @@ drive. Upstream source code is never committed whole.
 ## Python tools
 
 The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna, at
-186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 135 files they hold with their
+186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 137 files they hold with their
 sha256 (98 brought first; the electricity package's conductivity column, muon ionization and charging laws, with
 their three tests and committed products, added on 2026-10-17; and on 2026-10-18 the geography package's
 heights above the geoid, storage levels, atlas, drainage and gazetteer reader, with their three tests and the
 package's `.gitignore`; on 2026-11-08 CM1's output conventions and their test, from `bdda5a07`; and on 2026-11-11
 the Python copies of PlaSim's gust and similarity over water with their two tests, from `39c5ee04`; and that day
 the rain package's solver, breakup scale and fall law with their three tests, its record of sources and two files of
-its vendored rainprops, from the same commit).
+its vendored rainprops, from the same commit; and that day the Python copy of PlaSim's rain from its drops with its
+test, from the same commit).
 `python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
 `models/exoplasim/patches/10-ice-optics.patch` in place of the runner's Python string (both hashes recorded).
 The geography package came over byte for byte (82b4b59), with its input restorer and manifest, the level table
@@ -107,3 +120,14 @@ air where Terluna's product builders took its target climates; `morrison.py`, th
 own, with a test that reads each from the pinned CM1 archive. From the Open Moon's air the lab's modules returned
 the numbers of Terluna's `rain_breakup.json` and `rain_fall_law.json` that were compared, the breakup scale with its
 exponent, the five limits, the kernel ratio and the table's 903 entries, with no difference in any digit.
+The same day `climate/gcm/rain_drops.py` came over from Terluna at `39c5ee04` with its test, each changed as its
+entry records, with both hashes. The Fortran edit lists are left out, since the patch is kept in
+`models/exoplasim/patches/`; `mkrain` and the functions under it take the fall law and the namelist's six settings
+as arguments, where Terluna's module read the Moon's fall law, rate and exponent from its products when imported;
+`settings` computes them for any world through `atmosphere/rain/fall_law.py`; Morrison's constants come from the
+lab's `atmosphere/rain/morrison.py`; and the calls of Terluna's `snow_sublimation.py` are left out with that module.
+`TERLUNA_OPEN_MOON_BIRTHS` records Terluna's calibration of the rain's births, the share rule with 0.439 mm and
+2.95 mm, as a value that a study of the Open Moon supplies. In a single scratch run that day, with the table and
+the entries that the lab's modules computed from the Open Moon's air, the copy gave every field of Terluna's module,
+run in place from its worktree, bit for bit on 72 columns: Terluna's eight test columns at three seeds under each
+of its three birth rules.

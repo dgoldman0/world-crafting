@@ -8,6 +8,9 @@ import subprocess
 
 import pytest
 
+from atmosphere.radiative_convective.thermodynamics import DryAir, earthlike_air
+from atmosphere.rain import drops
+from climate.gcm import rain_drops
 from worldlab import builds, derive, exoplasim as ex
 from worldlab.data import DataError
 from worldlab.roots import root
@@ -86,6 +89,14 @@ def deployed_point():
 def eleven_point():
     """The build at the series' first eleven patches: Terluna's ten and the lab's patch 11, before the surface gust."""
     run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:11]}
+    return run, builds.build(run, store=STORE, env=ENV)
+
+
+@pytest.fixture(scope='module')
+def thirteen_point():
+    """The build at the series' first thirteen patches, through the surface gust and the similarity over water, before
+    the rain from its drops."""
+    run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:13]}
     return run, builds.build(run, store=STORE, env=ENV)
 
 
@@ -198,26 +209,23 @@ def _with_gust(run: dict, choice: str) -> dict:
 
 
 @needs_build
-def test_patches_12_and_13_at_their_defaults_run_byte_for_byte_as_the_builds_without_them(eleven_point, whole_point,
-                                                                                         tmp_path):
+def test_patches_12_and_13_at_their_defaults_run_byte_for_byte_as_the_builds_without_them(eleven_point,
+                                                                                         thirteen_point, tmp_path):
     """Earth's control over two days. The folder the adapter writes for the build of patches 01-11, whose fluxmod
     namelist names neither switch, gives the same output and restart under the build of patches 01-12, where NGUST
-    takes its default, and so does the folder written for the whole series with the released model's transfer, NGUST
+    takes its default, and so does the folder written for patches 01-13 with the released model's transfer, NGUST
     and NSIMW 0. With Beljaars's gust on, the folder written for patches 01-12 gives the same output and restart under
-    the whole series' build, where NSIMW takes its default. The gust changes the output, and the similarity over
+    the build of patches 01-13, where NSIMW takes its default. The gust changes the output, and the similarity over
     water changes it again. Each run's files are removed once their hashes are taken."""
-    (eleven, eleven_build), (whole, whole_build) = eleven_point, whole_point
-    patches = list(ex.series(whole))
+    (eleven, eleven_build), (thirteen, thirteen_build) = eleven_point, thirteen_point
+    patches = list(thirteen['patches'])
     assert patches[11:] == [ex.PATCH_12, ex.PATCH_13] and eleven['patches'] == patches[:11]
-    # The whole series' build compiled the sources that models/check_patches.sh pins.
-    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
-    assert json.loads((whole_build / 'build.json').read_text())['sources'] == pinned
-    twelve = {**whole, 'patches': patches[:12]}
+    twelve = {**thirteen, 'patches': patches[:12]}
     executables = {'eleven': _executable(eleven_build, eleven),
                    'twelve': _executable(builds.build(twelve, store=STORE, env=ENV), twelve),
-                   'whole': _executable(whole_build, whole)}
-    written = {'eleven': eleven, 'none': whole, 'gust12': _with_gust(twelve, 'beljaars'),
-               'similarity': _with_gust(whole, 'beljaars_similarity')}
+                   'thirteen': _executable(thirteen_build, thirteen)}
+    written = {'eleven': eleven, 'none': thirteen, 'gust12': _with_gust(twelve, 'beljaars'),
+               'similarity': _with_gust(thirteen, 'beljaars_similarity')}
     for name, run in written.items():
         ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=ex.Calibrations.identity(), store=STORE)
     # The folders differ in fluxmod's namelist alone, so that a change of output comes from the surface transfer.
@@ -227,12 +235,12 @@ def test_patches_12_and_13_at_their_defaults_run_byte_for_byte_as_the_builds_wit
     for name in ('none', 'gust12', 'similarity'):
         assert _differing(tmp_path / 'eleven', tmp_path / name) == {'fluxmod_namelist'}
     out = {(name, build): _hashes(tmp_path / name, executables[build], 96)
-           for name, build in (('eleven', 'eleven'), ('eleven', 'twelve'), ('none', 'whole'), ('gust12', 'twelve'),
-                               ('gust12', 'whole'), ('similarity', 'whole'))}
+           for name, build in (('eleven', 'eleven'), ('eleven', 'twelve'), ('none', 'thirteen'),
+                               ('gust12', 'twelve'), ('gust12', 'thirteen'), ('similarity', 'thirteen'))}
     assert set(out['eleven', 'eleven']) == {'plasim_output', 'plasim_status'}
-    assert out['eleven', 'twelve'] == out['eleven', 'eleven'] and out['none', 'whole'] == out['eleven', 'eleven']
-    assert out['gust12', 'whole'] == out['gust12', 'twelve']
-    changed = (('eleven', 'eleven'), ('gust12', 'twelve'), ('similarity', 'whole'))
+    assert out['eleven', 'twelve'] == out['eleven', 'eleven'] and out['none', 'thirteen'] == out['eleven', 'eleven']
+    assert out['gust12', 'thirteen'] == out['gust12', 'twelve']
+    changed = (('eleven', 'eleven'), ('gust12', 'twelve'), ('similarity', 'thirteen'))
     assert len({out[key]['plasim_output'] for key in changed}) == 3
 
 
@@ -257,3 +265,101 @@ def test_under_the_moons_gravity_the_gust_and_the_similarity_run_over_open_sea(w
         restarts[choice] = _hashes(tmp_path / choice, _executable(whole_build, whole), day, output=False)
     assert day == 48 and all(set(found) == {'plasim_status'} for found in restarts.values())
     assert restarts['beljaars'] != restarts['beljaars_similarity']
+
+
+# Earth's control's air at 2 m for the rain's fall law, and births made up for it, since no calibration of Earth's
+# exists: the runs below read the code's path from them and no climate.
+EARTH_RAIN = dict(surface_temperature_k=288.15, surface_relative_humidity=0.7)
+MADE_UP_BIRTHS = dict(rule='share', new_rain_m=0.4e-3, melted_rain_m=0.8e-3)
+# The released model's values for the calibrations a later run states, with the curved air's terms and the gas bands
+# switched off: the namelists a first run writes, in a run that may also state the rain's drops.
+RELEASED = dict(rayleigh_scale=1.0, water_absorption_scale=1.0, water_continuum=ex.PLASIM_TH2OC)
+
+
+def _plain(run: dict, rain: str) -> dict:
+    return {**run, 'switches': {**run['switches'], 'twilight': 'none', 'gas_bands': False, 'rain_evaporation': rain}}
+
+
+@needs_build
+def test_patch_14_at_its_default_runs_byte_for_byte_as_the_build_without_it(thirteen_point, whole_point, tmp_path):
+    """Earth's control over two days. The folder the adapter writes for the build of patches 01-13, whose rainmod
+    namelist names none of patch 14's entries, gives the same output and restart under the whole series' build, where
+    NEVAPPREC keeps PlaSim's own 1, and so do the folders written for the whole series with PlaSim's constant, as a
+    first run and with the released model's values stated as calibrations. With the rain evaporated from its drops'
+    sizes, by the fall law of Earth's own air and births made up for the test, the folder differs in rainmod's
+    namelist and the table alone, and the output changes. Without its table that run stops with PlaSim's abort
+    message. Each run's files are removed once their hashes are taken."""
+    (thirteen, thirteen_build), (whole, whole_build) = thirteen_point, whole_point
+    patches = list(ex.series(whole))
+    assert patches[13:] == [ex.PATCH_14] and thirteen['patches'] == patches[:13]
+    # The whole series' build compiled the sources that models/check_patches.sh pins.
+    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
+    assert json.loads((whole_build / 'build.json').read_text())['sources'] == pinned
+    air = drops.Column(gravity_m_s2=derive.gravity(EARTH), surface_pressure_pa=CONTROL['air']['surface_pressure_pa'],
+                       air=DryAir(CONTROL['air']['surface_pressure_pa']), **EARTH_RAIN)
+    rain = ex.RainDrops.from_settings(rain_drops.settings(air, MADE_UP_BIRTHS))
+    assert (rain.self_collection_m3_kg_s, rain.density_exponent) == (5.78, 0.0)        # Morrison's own, in Earth's air
+    executables = {'thirteen': _executable(thirteen_build, thirteen), 'whole': _executable(whole_build, whole)}
+    first, later = ex.Calibrations.identity(), ex.Calibrations(**RELEASED)
+    written = {'thirteen': (thirteen, first), 'default': (whole, first), 'gamma': (_plain(whole, 'gamma'), later),
+               'sized': (_plain(whole, 'drop_sizes'), ex.Calibrations(**RELEASED, rain_drops=rain))}
+    for name, (run, calibrations) in written.items():
+        ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=calibrations, store=STORE)
+    # The folders differ in rainmod's namelist alone, and the drops' folder holds the table besides, so that a change
+    # of output comes from the rain's evaporation.
+    entries = lambda name: [line for line in (tmp_path / name / 'rainmod_namelist').read_text().splitlines()
+                            if line.split()[0] == 'NEVAPPREC' or 'RDROP' in line]
+    assert entries('thirteen') == [] and entries('default') == entries('gamma') == [' NEVAPPREC = 1']
+    assert entries('sized') == [' NEVAPPREC = 2', ' NRDROP_JOIN = 2', ' RDROP_WARM = 0.0004', ' RDROP_MELT = 0.0008',
+                                ' RDROP_KSC = 5.78', ' RDROP_RHOEXP = 0.0', ' RDROP_STEP = 1000.0']
+    for name in ('default', 'gamma', 'sized'):
+        assert _differing(tmp_path / 'thirteen', tmp_path / name) == {'rainmod_namelist'}
+    names = lambda name: {p.name for p in (tmp_path / name).iterdir()}
+    assert names('sized') - names('thirteen') == {ex.RAIN_TABLE} and names('gamma') == names('thirteen')
+    out = {(name, build): _hashes(tmp_path / name, executables[build], 96)
+           for name, build in (('thirteen', 'thirteen'), ('thirteen', 'whole'), ('default', 'whole'),
+                               ('gamma', 'whole'), ('sized', 'whole'))}
+    assert set(out['thirteen', 'thirteen']) == {'plasim_output', 'plasim_status'}
+    for key in (('thirteen', 'whole'), ('default', 'whole'), ('gamma', 'whole')):
+        assert out[key] == out['thirteen', 'thirteen'], key
+    assert out['sized', 'whole']['plasim_output'] != out['gamma', 'whole']['plasim_output']
+    assert out['sized', 'whole']['plasim_status'] != out['gamma', 'whole']['plasim_status']
+    # Without the table the run stops at its start, on every rank, and leaves PlaSim's abort message.
+    (tmp_path / 'sized' / ex.RAIN_TABLE).unlink()
+    before = names('sized')
+    done = subprocess.run(['nice', '-n', '10', 'mpirun', '-np', str(DEFAULTS['ranks']), str(executables['whole'])],
+                          cwd=tmp_path / 'sized', capture_output=True, text=True, timeout=300)
+    assert 'nevapprec 2 reads lab_rain_law.txt, which is missing' in (tmp_path / 'sized' / 'Abort_Message').read_text()
+    assert not (tmp_path / 'sized' / 'plasim_status').exists() and 'MPI_ABORT' in done.stdout + done.stderr
+    for name in names('sized') - before:
+        (tmp_path / 'sized' / name).unlink()
+
+
+@needs_build
+def test_under_the_moons_gravity_the_rain_evaporates_from_its_drops(whole_point, tmp_path):
+    """Earth's control with the Moon's gravity in place of its own, as the gust's test makes it, with the fall law of
+    the Open Moon's air, its self-collection rate and density exponent, and Terluna's births for the Open Moon: from
+    a cold start the whole series runs two days with the rain evaporated from its drops' sizes, under the
+    floating-point traps ExoPlaSim compiles with, and ends in another state than the run with PlaSim's constant. The
+    run tests the code's path at that gravity and no climate; it writes no output, and its restart is removed once
+    its hash is taken."""
+    whole, whole_build = whole_point
+    g_moon, body = derive.gravity(LIB.world('moon')), EARTH['body']
+    spin = (2.0 / 3.0) * derive.rotation_rate(EARTH) ** 2 * body['radius_m']
+    light = {**EARTH, 'id': 'earth-under-lunar-gravity',
+             'body': {'radius_m': body['radius_m'], 'gm_m3_s2': (g_moon + spin) * body['radius_m'] ** 2}}
+    moon_air = LIB.scenario('moon/open-moon')['air']['surface_pressure_pa']
+    air = drops.Column(gravity_m_s2=g_moon, surface_pressure_pa=moon_air, surface_temperature_k=300.4,
+                       surface_relative_humidity=0.61, air=earthlike_air(moon_air, 400.0))
+    rain = ex.RainDrops.from_settings(rain_drops.settings(air, rain_drops.TERLUNA_OPEN_MOON_BIRTHS))
+    # Terluna's 2.919 m3/kg/s and 0.687, to the rounding of the air's temperature and humidity here.
+    assert rain.self_collection_m3_kg_s == pytest.approx(2.919, abs=5e-4) and rain.birth_rule == 'share'
+    assert rain.density_exponent == pytest.approx(0.687, abs=1e-3)
+    steps, restarts = 2 * derive.calendar(light, whole)['steps_per_model_day'], {}
+    for choice, calibrations in (('gamma', ex.Calibrations(**RELEASED)),
+                                 ('drop_sizes', ex.Calibrations(**RELEASED, rain_drops=rain))):
+        ex.write_run(tmp_path / choice, light, CONTROL, _plain(whole, choice), calibrations=calibrations, store=STORE)
+        assert f' GA = {derive.gravity(light)!r}\n' in (tmp_path / choice / 'planet_namelist').read_text()
+        restarts[choice] = _hashes(tmp_path / choice, _executable(whole_build, whole), steps, output=False)
+    assert steps == 96 and all(set(found) == {'plasim_status'} for found in restarts.values())
+    assert restarts['gamma'] != restarts['drop_sizes']

@@ -1,0 +1,425 @@
+--- a/plasim/src/rainmod.f90
++++ b/plasim/src/rainmod.f90
+@@ -18,6 +18,16 @@
+       integer :: nshallow = 1 ! switch for shallow convection (1/0=yes/no)
+       integer :: nstorain = 0 ! switch for stochastic rain (1/0=yes/no)
+       integer :: nevapprec= 1 ! switch for evaporation of precip.(1/0=yes/no)
++!     Lab: nevapprec = 2 evaporates the rain from its drops' sizes and fall speeds (rdropevap), by the six settings
++!     below and the fall law of the world's rain, a table in the run's folder (rdropini); the snow sublimates by
++!     gamma, as released
++      integer :: nrdrop_join = 2 ! the rule for rain formed as rain: 0 makes it new drops, 1 joins it to the rain
++!                                  falling, 2 makes the share W/(W+F) of it new drops and joins the rest
++      real :: rdrop_warm = 0.    ! mean diameter (m) of the drops of rain formed as rain, which nevapprec = 2 requires
++      real :: rdrop_melt = 0.    ! mean diameter (m) of the drops of rain melted from snow, which nevapprec = 2 requires
++      real :: rdrop_ksc = 5.78   ! rain's self-collection (m3/kg/s): Morrison's own, Earth's (Seifert and Beheng 2001)
++      real :: rdrop_rhoexp = 0.  ! the exponent that the surface pressure over rdpref takes in the breakup's lengths
++      real :: rdrop_step = 1000. ! the longest midpoint step through a layer (m)
+       integer :: nbeta    = 3 ! exp. to compute beta
+ !
+       real :: rhbeta   =  0.  ! critical humidity (comp. of beta)
+@@ -62,6 +72,37 @@
+       real :: dprscl(NHOR,NLEV)     ! convective snow for each level
+       real :: dprsll(NHOR,NLEV)     ! large scale snow for each level
+ !
++!     Lab: rain from its drops (nevapprec = 2). The fall law of the world's rain, read from lab_rain_law.txt: on
++!     nrdtab slopes lambda (per m) of rain's exponential spectrum, uniform in ln(lambda) from rdx0 in steps of rddx,
++!     the natural logs of its mass-weighted and number-weighted mean fall speeds (m/s) and of its ventilation
++!     integral (m3 s**-0.5), in Morrison's reference air
++!
++      integer :: nrdtab = 0
++      real :: rdx0 = 0., rddx = 0.
++      real, allocatable :: rdtab(:,:)
++!
++!     Morrison's rain as CM1 r22.0 states it (morrison.F): the ventilation's two coefficients; water's density
++!     (kg/m3); the reference air's density, 85000 Pa over 287.04 J/kg/K and 273.15 K, with the exponent its ratio to
++!     the air's density takes in the fall speeds; the vapour's diffusivity rddv0 T**rddvx/p (m2/s) and the air's
++!     viscosity rdmu0 T**1.5/(T+rdmus) (kg/m/s), fits for Earth's air; the breakup's cutoff (m) and rate (1/m), the
++!     bounds on the mean diameter (m) and the cap on the mean fall speeds (m/s), Earth's values at CM1's gravity
++!     rdgref (m/s2), the breakup's at the surface pressure rdpref (Pa); and the least rain that collects itself (kg/kg)
++!
++      real, parameter :: rdf1 = 0.78, rdf2 = 0.308
++      real, parameter :: rdrhow = 997.0, rdrhosu = 85000.0/(287.04*273.15), rdexpd = 0.54
++      real, parameter :: rddv0 = 8.794e-5, rddvx = 1.81, rdmu0 = 1.496e-6, rdmus = 120.0
++      real, parameter :: rdbreak = 300.0e-6, rdkbreak = 2300.0
++      real, parameter :: rdcap0 = 2800.0e-6, rdfloor0 = 20.0e-6, rdvcap0 = 9.1
++      real, parameter :: rdgref = 9.81, rdpref = 101325.0, rdcfloor = 1.0e-8
++!
++!     the slope's inverse table (rdropini): ln(F_N/F) on nrdinv slopes uniform in ln(lambda) over the scheme's range;
++!     the largest exponent by which one step changes the rain's water or drops; and the flux (kg/m2/s) below which
++!     rain is gone
++!
++      integer, parameter :: nrdinv = 2001
++      real, parameter :: rdxlim = 50.0, rdtiny = 1.0e-30
++      real :: rdinvl(nrdinv), rdinvr(nrdinv), rdlmin, rdlmax, rdlstep, rdvcap
++!
+       end module rainmod
+ 
+ !     ==================
+@@ -74,6 +115,7 @@
+       namelist/rainmod_nl/kbeta,nprl,nprc,ndca,ncsurf,nmoment,nshallow  &
+      &       ,nstorain,rcrit,clwcrit1,clwcrit2,pdeep,rkshallow,gamma    &
+      &       ,nclouds,pdeepth,nevapprec,nbeta,rhbeta,rbeta,rcritmod,rcritslope,cwgref,cwscale,convday      
++      namelist/rainmod_nl/nrdrop_join,rdrop_warm,rdrop_melt,rdrop_ksc,rdrop_rhoexp,rdrop_step   ! Lab: rain from its drops
+ !
+ !     reset defaults (according to general setup... tuning)
+ !
+@@ -114,6 +156,13 @@
+       call mpbci(nshallow)
+       call mpbci(nstorain)
+       call mpbci(nevapprec)
++      call mpbci(nrdrop_join)   ! Lab: rain from its drops
++      call mpbcr(rdrop_warm)
++      call mpbcr(rdrop_melt)
++      call mpbcr(rdrop_ksc)
++      call mpbcr(rdrop_rhoexp)
++      call mpbcr(rdrop_step)
++      if(nevapprec == 2) call rdropini   ! Lab: its checks, the fall law's table and the slope's inverse table
+       call mpbci(nbeta)
+       call mpbcr(rbeta)
+       call mpbcr(rhbeta)
+@@ -2127,6 +2176,9 @@
+       real :: zdqdts(NHOR,NLEV)         ! sublimation rate
+       real :: zdqdtl(NHOR,NLEV)         ! evaporation rate
+       real :: zlcp(NHOR)
++!     Lab: rain from its drops (nevapprec = 2): the rain arriving from above, the snow before the layer's
++!     melting, the snow melted in the layer, and the drops' number flux (per m2 per s)
++      real :: zpra(NHOR),zpsa(NHOR),zmelt(NHOR),zprn(NHOR)
+ !
+ !*    initialize
+ !
+@@ -2137,14 +2189,17 @@
+       zdtdt(:,:)=0.
+       zdqdts(:,:)=0.
+       zdqdtl(:,:)=0.
++      zprn(:)=0.   ! Lab: no rain, and so no drops, above the top
+ !
+ !*    convert rain <-> snow according to temperature
+ !
+       do jlev=1,NLEV
++       if(nevapprec == 2) zpra(:)=zprc(:)+zprl(:)   ! Lab: the rain arriving from above
+        zprc(:)=zprc(:)+dprcl(:,jlev)-dprscl(:,jlev)
+        zprl(:)=zprl(:)+dprll(:,jlev)-dprsll(:,jlev)
+        zprsc(:)=zprsc(:)+dprscl(:,jlev)
+        zprsl(:)=zprsl(:)+dprsll(:,jlev)
++       if(nevapprec == 2) zpsa(:)=zprsc(:)+zprsl(:)   ! Lab: the snow before the layer's melting
+        where(zprsc(:)+zprsl(:) > 0. .and. dt(:,jlev) > TMELT)
+         zlcp(:)=(ALS-ALV)/(acpd*(1.+ADV*dq(:,jlev)))
+         zdtdt(:,jlev)=-(zprsc(:)+zprsl(:))/dsigma(jlev)*zlcp(:)
+@@ -2187,7 +2242,7 @@
+ !
+ !*     evaporation/sublimation of rain/snow
+ !
+-       if(nevapprec.eq.1) then
++       if(nevapprec.eq.1 .or. nevapprec.eq.2) then   ! Lab: 2 takes the rain from its drops
+          zq(:)=dq(:,jlev)+dqdt(:,jlev)*deltsec2
+          zt(:)=dt(:,jlev)+dtdt(:,jlev)*deltsec2
+ !
+@@ -2207,6 +2262,10 @@
+            zqsat(:) = 0.0
+          endwhere
+ !
++         if(nevapprec == 2) then   ! Lab: the rain's evaporation from its drops' sizes and fall speeds
++          zmelt(:)=MAX(zpsa(:)-zprsc(:)-zprsl(:),0.)
++          call rdropevap(jlev,zq,zt,zqsat,zcor,zpra,zmelt,zprc,zprl,zprn,zdqdtl(:,jlev),zdtdt(:,jlev))
++         else
+          where((zq(:).lt.zqsat(:)).AND.zprl(:) > zeps)
+            zlcpe(:)=ALV/(acpd*(1.+ADV*dq(:,jlev)))
+            zdqdt(:)=AMIN1(gamma*(zqsat(:)-zq(:))*dsigma(jlev)/deltsec2  &
+@@ -2229,6 +2288,7 @@
+            zdtdt(:,jlev)=zdtdt(:,jlev)-zdqdt(:)*zlcpe(:)
+            zdqdtl(:,jlev)=zdqdtl(:,jlev)+zdqdt(:)
+          endwhere
++         endif   ! Lab: the snow sublimates by gamma under either setting
+          where((zq(:).lt.zqsat(:)).AND.zprsl(:) > zeps)
+            zlcpe(:)=ALS/(acpd*(1.+ADV*dq(:,jlev)))
+            zdqdt(:)=AMIN1(gamma*(zqsat(:)-zq(:))*dsigma(jlev)/deltsec2  &
+@@ -2299,3 +2359,289 @@
+ 
+       return
+       end subroutine mkrain
++
++!     ===================
++!     SUBROUTINE RDROPINI
++!     ===================
++
++      subroutine rdropini
++      use rainmod
++!
++!     Lab: rain from its drops, set up once where the namelist sets nevapprec = 2 (rainini). The root process checks
++!     the settings and reads the fall law of the world's rain from lab_rain_law.txt in the run's folder, the table
++!     that CM1's rain law reads (python/atmosphere/rain/fall_law.py writes it for a world's air): a first line of the
++!     table's rows, its first ln(lambda) and its step, then a row of three logs for each lambda. Every process then
++!     makes the slope's inverse table, ln(F_N/F) on nrdinv slopes uniform in ln(lambda) between the cap on the mean
++!     diameter, rdcap0 sqrt(rdgref/ga), and its floor rdfloor0, with the mean speeds capped at
++!     rdvcap0 (ga/rdgref)**(1/4); Morrison's density factor cancels in the ratio. The run stops on a setting or a
++!     table that the scheme cannot take.
++!
++      integer :: ji,ios
++      real :: zvm,zvn,zv3
++      if(mypid == NROOT) then
++       if(nrdrop_join < 0 .or. nrdrop_join > 2) call mpabort('nevapprec 2: nrdrop_join is 0, 1 or 2')
++       if(rdrop_warm <= 0. .or. rdrop_melt <= 0.) call mpabort('nevapprec 2: rdrop_warm and rdrop_melt are positive')
++       if(rdrop_ksc < 0.) call mpabort('nevapprec 2: rdrop_ksc is zero or more')
++       if(rdrop_step <= 0.) call mpabort('nevapprec 2: rdrop_step is positive')
++       open(49,file='lab_rain_law.txt',form='formatted',status='old',action='read',iostat=ios)
++       if(ios /= 0) call mpabort('nevapprec 2 reads lab_rain_law.txt, which is missing')
++       read(49,*,iostat=ios) nrdtab,rdx0,rddx
++       if(ios /= 0) call mpabort('lab_rain_law.txt: its first line is unreadable')
++       if(nrdtab < 2 .or. rddx <= 0.) call mpabort('lab_rain_law.txt: two rows or more and a positive step')
++       if(allocated(rdtab)) deallocate(rdtab)
++       allocate(rdtab(3,nrdtab))
++       do ji=1,nrdtab
++        read(49,*,iostat=ios) rdtab(1,ji),rdtab(2,ji),rdtab(3,ji)
++        if(ios /= 0) call mpabort('lab_rain_law.txt: a row is missing or unreadable')
++       enddo
++       read(49,*,iostat=ios) zvm
++       if(ios == 0) call mpabort('lab_rain_law.txt: more rows than its first line states')
++       close(49)
++      endif
++      call mpbci(nrdtab)
++      call mpbcr(rdx0)
++      call mpbcr(rddx)
++      if(mypid /= NROOT) then
++       if(allocated(rdtab)) deallocate(rdtab)
++       allocate(rdtab(3,nrdtab))
++      endif
++      call mpbcrn(rdtab,3*nrdtab)
++      rdlmin=LOG(1./(rdcap0*SQRT(rdgref/ga)))
++      rdlmax=LOG(1./rdfloor0)
++      rdlstep=(rdlmax-rdlmin)/REAL(nrdinv-1)
++      rdvcap=rdvcap0*(ga/rdgref)**0.25
++      do ji=1,nrdinv
++       rdinvl(ji)=rdlmin+(rdlmax-rdlmin)*REAL(ji-1)/REAL(nrdinv-1)
++       call rdroptab(rdinvl(ji),zvm,zvn,zv3)
++       rdinvr(ji)=3.*rdinvl(ji)+LOG(MIN(zvn,rdvcap))-LOG(MIN(zvm,rdvcap))-LOG(4.*ATAN(1.)*rdrhow)
++      enddo
++      if(mypid == NROOT) then   ! the slope is read back from F_N/F, which therefore rises with lambda
++       do ji=2,nrdinv
++        if(.not.(rdinvr(ji) > rdinvr(ji-1))) call mpabort('lab_rain_law.txt: F_N/F fails to rise with lambda')
++       enddo
++      endif
++      return
++      end subroutine rdropini
++
++!     ===================
++!     SUBROUTINE RDROPTAB
++!     ===================
++
++      subroutine rdroptab(plnl,pvm,pvn,pv3)
++      use rainmod
++!
++!     Lab: the fall law's three moments at ln(lambda) plnl: rain's mass-weighted and number-weighted mean fall speeds
++!     pvm and pvn (m/s) in the reference air and its ventilation integral pv3 (m3 s**-0.5), linear in ln(lambda)
++!     between the table's rows and constant beyond its two ends, as CM1's rain law reads the same table
++!
++      real :: plnl,pvm,pvn,pv3
++      real :: zx,zw
++      integer :: ji
++      zx=(plnl-rdx0)/rddx
++      ji=MIN(MAX(INT(zx),0),nrdtab-2)
++      zw=MIN(MAX(zx-REAL(ji),0.),1.)
++      pvm=EXP((1.-zw)*rdtab(1,ji+1)+zw*rdtab(1,ji+2))
++      pvn=EXP((1.-zw)*rdtab(2,ji+1)+zw*rdtab(2,ji+2))
++      pv3=EXP((1.-zw)*rdtab(3,ji+1)+zw*rdtab(3,ji+2))
++      return
++      end subroutine rdroptab
++
++!     ===================
++!     FUNCTION RDROPSLOPE
++!     ===================
++
++      real function rdropslope(pr)
++      use rainmod
++!
++!     Lab: ln(lambda) of rain whose ln(F_N/F) is pr, by bisection of the inverse table, linear between its points
++!     and constant beyond its two ends
++!
++      real :: pr
++      integer :: jlo,jhi,jmid
++      if(pr <= rdinvr(1)) then
++       rdropslope=rdinvl(1)
++      elseif(pr >= rdinvr(nrdinv)) then
++       rdropslope=rdinvl(nrdinv)
++      else
++       jlo=1
++       jhi=nrdinv
++       do while(jhi-jlo > 1)
++        jmid=(jlo+jhi)/2
++        if(rdinvr(jmid) <= pr) then
++         jlo=jmid
++        else
++         jhi=jmid
++        endif
++       enddo
++       rdropslope=rdinvl(jlo)+(pr-rdinvr(jlo))/(rdinvr(jhi)-rdinvr(jlo))*(rdinvl(jhi)-rdinvl(jlo))
++      endif
++      return
++      end function rdropslope
++
++!     ==================
++!     FUNCTION RDROPNPER
++!     ==================
++
++      real function rdropnper(pd)
++      use rainmod
++!
++!     Lab: the drops per unit of water, F_N/F (per kg), of rain whose mean diameter is pd (m), its slope held within
++!     the scheme's range
++!
++      real :: pd,zx,zw
++      integer :: ji
++      zx=MIN(MAX(-LOG(pd),rdlmin),rdlmax)
++      ji=MIN(INT((zx-rdinvl(1))/rdlstep),nrdinv-2)+1
++      zw=(zx-rdinvl(ji))/rdlstep
++      rdropnper=EXP((1.-zw)*rdinvr(ji)+zw*rdinvr(ji+1))
++      return
++      end function rdropnper
++
++!     =====================
++!     SUBROUTINE RDROPRATES
++!     =====================
++
++      subroutine rdroprates(pf,pn,pq,pqs,prho,pab,pmu,pdv,psc,pdb,pkb,pa,pb)
++      use rainmod
++!
++!     Lab: the share of its water, pa, and of its drops, pb, that rain loses in each metre of its fall, at mass flux
++!     pf (kg/m2/s) and number flux pn (per m2 per s) in air of vapour pq and saturation pqs (kg/kg), density prho,
++!     latent-heat factor pab, viscosity pmu, vapour diffusivity pdv and Schmidt number psc. The water goes by
++!     Morrison's ventilated evaporation, 2 rho D_v lambda**4 W (q_s - q)/(rho_w V_m AB), with
++!     W = F1R/lambda**2 + F2R (dens rho/mu)**(1/2) Sc**(1/3) T3, and the drops go with it in proportion to the
++!     water, as Morrison's NSUBR takes them. The drops also collect one another, at the rate rdrop_ksc times the
++!     rain's content, and break up above a mean diameter of pdb (m) at the rate pkb (1/m), so that past the diameter
++!     at which the two balance the collisions add drops. The mean speeds V_m and V_n and the ventilation integral T3
++!     come from the table at the slope that the two fluxes give (python/climate/gcm/rain_drops.py, rates).
++!
++      real :: pf,pn,pq,pqs,prho,pab,pmu,pdv,psc,pdb,pkb,pa,pb
++      real :: zlnl,zlam,zvm0,zvn0,zv3,zdens,zvm,zvn,zw,zd,zdum,zc
++      real :: rdropslope
++      pa=0.
++      pb=0.
++      if(pf <= rdtiny .or. pn <= 0.) return
++      zlnl=rdropslope(LOG(pn/pf))
++      zlam=EXP(zlnl)
++      call rdroptab(zlnl,zvm0,zvn0,zv3)
++      zdens=(rdrhosu/prho)**rdexpd
++      zvm=MIN(zdens*zvm0,rdvcap*zdens)
++      zvn=MIN(zdens*zvn0,rdvcap*zdens)
++      zw=rdf1/zlam**2+rdf2*SQRT(zdens*prho/pmu)*psc**(1./3.)*zv3
++      if(pq < pqs) pa=2.*prho*pdv*zlam**4*zw*(pqs-pq)/(rdrhow*zvm*pab)
++      zd=1./zlam
++      if(zd < pdb) then
++       zdum=1.
++      else
++       zdum=2.-EXP(pkb*(zd-pdb))
++      endif
++      zc=0.
++      if(pf/zvm/prho >= rdcfloor) zc=rdrop_ksc*zdum*(pf/zvm)/zvn
++      pb=pa*zvm/zvn+zc
++      return
++      end subroutine rdroprates
++
++!     ====================
++!     SUBROUTINE RDROPEVAP
++!     ====================
++
++      subroutine rdropevap(jlev,pq,pt,pqsat,pcor,ppra,pmelt,pprc,pprl,pprn,pdqdt,pdtdt)
++      use rainmod
++!
++!     Lab: rain from its drops (nevapprec = 2), written from Terluna's scheme (climate/gcm/rain_drops.py on
++!     domain/climate at 39c5ee04) and mirrored step for step by rdropevap in python/climate/gcm/rain_drops.py. In
++!     layer jlev of every column the rain arriving from above (ppra, with its drops pprn) falls the upper half of the
++!     layer. The layer's new rain joins it at the middle: the part melted from snow, pmelt, as drops of rdrop_melt,
++!     and the rest, formed as rain, as drops of rdrop_warm (nrdrop_join = 0), added to the drops falling (1), or with
++!     the share zbw/(zbw+zf) of it as new drops and the rest added to the drops falling (2). The whole then falls
++!     the lower half. Each half is taken in midpoint steps of at most rdrop_step, in which the rain loses water and
++!     drops at the rates of rdroprates. The layer evaporates at most what would saturate it over the time step, and
++!     the convective and the large-scale rain give up the evaporated water in proportion to their fluxes. Gravity,
++!     the gas constant, the pressure and the latent-heat factor are the model's own; the breakup's two lengths scale
++!     by sqrt(rdgref/ga) times the surface pressure over rdpref to the power rdrop_rhoexp.
++!
++      integer :: jlev
++      real :: pq(NHOR),pt(NHOR),pqsat(NHOR),pcor(NHOR),ppra(NHOR),pmelt(NHOR)
++      real :: pprc(NHOR),pprl(NHOR),pprn(NHOR),pdqdt(NHOR),pdtdt(NHOR)
++      integer :: jhor,jhalf,jsub,nsub
++      real :: zmass,zftot,zfarr,zbm,zbw,ztv,zp,zrho,zdz,zlcpe,zab,zmu,zdv,zsc,zscol,zdb,zkb
++      real :: zf,zn,zds,za1,zb1,za2,zb2,zfm,znm,zevap,zcap,zfc,zdq,zrat
++      real :: rdropnper
++      do jhor=1,NHOR
++       zmass=dp(jhor)/ga
++       zftot=(pprc(jhor)+pprl(jhor))*zmass
++       if(zftot <= 0.) then
++        pprn(jhor)=0.
++        cycle
++       endif
++       zfarr=MIN(MAX(ppra(jhor),0.),pprc(jhor)+pprl(jhor))*zmass
++       zbm=MIN(MAX(pmelt(jhor),0.)*zmass,zftot-zfarr)
++       zbw=MAX(zftot-zfarr-zbm,0.)
++       if(zfarr <= 0.) pprn(jhor)=0.
++       ztv=pt(jhor)*(1.+(1./rdbrv-1.)*pq(jhor))
++       zp=dp(jhor)*sigma(jlev)
++       zrho=zp/(gascon*ztv)
++       zdz=gascon*ztv/ga*dsigma(jlev)/sigma(jlev)
++       zlcpe=ALV/(acpd*(1.+ADV*dq(jhor,jlev)))
++       zab=1.+zlcpe*ra2*(TMELT-ra4)*pqsat(jhor)*pcor(jhor)/(pt(jhor)-ra4)**2
++       zmu=rdmu0*pt(jhor)**1.5/(pt(jhor)+rdmus)
++       zdv=rddv0*pt(jhor)**rddvx/zp
++       zsc=zmu/(zrho*zdv)
++       zscol=SQRT(rdgref/ga)*(dp(jhor)/rdpref)**rdrop_rhoexp
++       zdb=rdbreak*zscol
++       zkb=rdkbreak/zscol
++       zf=zfarr
++       zn=pprn(jhor)
++       if(zf > 0. .and. zn <= 0.) zn=zf*rdropnper(rdrop_warm)
++       zrat=0.
++       if(zf > 0.) zrat=zn/zf
++       nsub=MAX(1,CEILING(0.5*zdz/rdrop_step))
++       zds=0.5*zdz/REAL(nsub)
++       do jhalf=1,2
++        if(jhalf == 2) then   ! the layer's new rain, at its middle
++         if(zbm > 0.) zn=zn+zbm*rdropnper(rdrop_melt)
++         if(zbw > 0.) then
++          if(nrdrop_join == 2) then
++           zn=zn+zbw*zbw/(zbw+zf)*rdropnper(rdrop_warm)
++          elseif(.not.(nrdrop_join == 1 .and. zf > 0.)) then
++           zn=zn+zbw*rdropnper(rdrop_warm)
++          endif
++         endif
++         zf=zf+zbm+zbw
++         if(zf > 0.) zrat=zn/zf
++        endif
++        do jsub=1,nsub
++         if(zf <= rdtiny) then
++          zf=0.
++          zn=0.
++          exit
++         endif
++         call rdroprates(zf,zn,pq(jhor),pqsat(jhor),zrho,zab,zmu,zdv,zsc,zdb,zkb,za1,zb1)
++         zfm=zf*EXP(-MIN(0.5*za1*zds,rdxlim))
++         if(zfm <= rdtiny) then   ! the rain is gone within the half step
++          zf=0.
++          zn=0.
++          exit
++         endif
++         znm=zn*EXP(-MAX(MIN(0.5*zb1*zds,rdxlim),-rdxlim))
++         call rdroprates(zfm,znm,pq(jhor),pqsat(jhor),zrho,zab,zmu,zdv,zsc,zdb,zkb,za2,zb2)
++         zf=zf*EXP(-MIN(za2*zds,rdxlim))
++         zn=zn*EXP(-MAX(MIN(zb2*zds,rdxlim),-rdxlim))
++         if(zf > rdtiny) zrat=zn/zf
++        enddo
++       enddo
++       zevap=MAX(zftot-zf,0.)/zmass
++       zcap=MAX(pqsat(jhor)-pq(jhor),0.)*dsigma(jlev)/deltsec2/zab
++       if(zevap > zcap) then   ! the layer saturates, and the rain left keeps its last drops per unit of water
++        zn=(zftot-zcap*zmass)*zrat
++        zevap=zcap
++       endif
++       zfc=pprc(jhor)/(pprc(jhor)+pprl(jhor))
++       pprc(jhor)=MAX(pprc(jhor)-zevap*zfc,0.)
++       pprl(jhor)=MAX(pprl(jhor)-zevap*(1.-zfc),0.)
++       pprn(jhor)=zn
++       zdq=zevap/dsigma(jlev)
++       pdtdt(jhor)=pdtdt(jhor)-zdq*zlcpe
++       pdqdt(jhor)=pdqdt(jhor)+zdq
++      enddo
++      return
++      end subroutine rdropevap

@@ -9,12 +9,14 @@ credits Seifert and Beheng 2001), turns to breakup above a mean diameter D_b of 
 2 - exp(2300 m^-1 (1/lambda - D_b)) (credited to Verlinde and Cotton 1993). All are Earth's values, set at CM1's
 gravity of 9.81 m/s2. Core patch 04 of models/cm1 multiplies AR and the cap by (g / 9.81)^((BR + 1) / 3) at a build's
 gravity. Cloud water turns into rain by Khairoutdinov and Kogan's (2000) autoconversion and accretion, the formulas
-the scheme's IRAIN = 0 selects, and cloud droplets fall by Stokes's law, V = AC D^2.
+the scheme's IRAIN = 0 selects, and cloud droplets fall by Stokes's law, V = AC D^2. Rain evaporates by each drop's
+ventilated diffusion, integrated over the spectrum with water's density, the vapour's diffusivity and the air's
+viscosity below, the last two fits for Earth's air; rain thinner than 1e-8 kg/kg takes no self-collection.
 
-The values are those of Terluna's shared/constants.json at 39c5ee04 (model_closures, cm1_r22_morrison_rain and
-cm1_r22_morrison_rain_limits), which the lab's pinned copy of that file predates; the warm rain's are the lab's
-reading of the source. A test reads each from the pinned archive's morrison.F (atmosphere/tests/test_rain_breakup.py
-and test_rain_warm.py).
+The values are those of Terluna's shared/constants.json at 39c5ee04 (model_closures, cm1_r22_morrison_rain,
+cm1_r22_morrison_rain_limits and cm1_r22_morrison_rain_evaporation), which the lab's pinned copy of that file
+predates; the warm rain's are the lab's reading of the source. A test reads each from the pinned archive's morrison.F
+(atmosphere/tests/test_rain_breakup.py and test_rain_warm.py; climate/tests/test_rain_drops.py for the evaporation's).
 """
 from __future__ import annotations
 
@@ -37,12 +39,19 @@ CLOUD_FALL_EXPONENT = 2.0                   # BC: cloud droplets fall in the Sto
 AUTOCONVERSION = (1350.0, 2.47, -1.79)      # PRC = 1350 qc^2.47 N^-1.79 kg/kg/s, N the cloud droplets per cm3
 ACCRETION = (67.0, 1.15)                    # PRA = 67 (qc qr)^1.15 kg/kg/s
 NEW_RAIN_RADIUS = 25.0e-6                   # m: the drops autoconversion forms (CONS29)
+WATER_DENSITY = 997.0                       # kg/m3, RHOW
+VAPOUR_DIFFUSIVITY = (8.794e-5, 1.81)       # DV = 8.794e-5 T^1.81 / p, m2/s with p in Pa
+VISCOSITY = (1.496e-6, 120.0)               # MU = 1.496e-6 T^1.5 / (T + 120), kg/m/s
+SELF_COLLECTION_FLOOR = 1.0e-8              # kg/kg: the least rain that collects itself
+
+
+# RHOSU, the density of the scheme's reference air, at 850 hPa and 0 C: 1.0841 kg/m3
+REFERENCE_DENSITY = DENSITY_REFERENCE_PRESSURE / (CM1_DRY_AIR_GAS_CONSTANT * DENSITY_REFERENCE_TEMPERATURE)
 
 
 def density_factor(density_kg_m3):
     """Morrison's (RHOSU / rho)^0.54 on the fall speeds, with RHOSU the air at 850 hPa and 0 C."""
-    reference = DENSITY_REFERENCE_PRESSURE / (CM1_DRY_AIR_GAS_CONSTANT * DENSITY_REFERENCE_TEMPERATURE)
-    return (reference / density_kg_m3)**DENSITY_EXPONENT
+    return (REFERENCE_DENSITY / density_kg_m3)**DENSITY_EXPONENT
 
 
 def gravity_factor(gravity_m_s2):

@@ -73,6 +73,12 @@ PATCH_11 = '11-ice-weights.patch'
 SURFACE_GUST = {'none': (), 'beljaars': ('12-surface-gust.patch',),
                 'beljaars_similarity': ('12-surface-gust.patch', '13-similarity-over-water.patch')}
 PATCH_12, PATCH_13 = SURFACE_GUST['beljaars_similarity']
+# The evaporation of falling rain: PlaSim's own, a share gamma of each layer's saturation deficit; or from the drops'
+# sizes and fall speeds, with the fall law of the scenario's air in a table in the run's folder (patch 14, NEVAPPREC).
+RAIN_EVAPORATION = {'gamma': 1, 'drop_sizes': 2}
+PATCH_14 = '14-rain-from-drop-sizes.patch'
+RAIN_RULES = {'one_size': 0, 'join': 1, 'share': 2}                   # patch 14's NRDROP_JOIN, by the birth rule's name
+RAIN_TABLE = 'lab_rain_law.txt'      # the table's name in the run's folder, python/atmosphere/rain/fall_law.TABLE_FILE
 GAS_BANDS = ('CO2 near infrared', 'O2 near infrared', 'O2 visible')   # patch 08's ZGASQ columns, in order
 OZONE = {'none': 0, 'model-default': 1}                               # NO3: PlaSim's synthetic ozone is its own default
 SCALE_BASES = ('identity', 'calibration', 'scenario')
@@ -111,7 +117,8 @@ ADDITIONS = {
     'radmod_namelist': ('TH2OC', 'RAYSCALE', 'NSUNCLOCK', 'SWH2OSCALE', 'IRTOPDAY', 'IRTOPNIGHT', 'NTWILIGHT',
                         'NTWILW', 'ZMLUNAR', 'NGASBANDS', 'ZGASQ', 'ZGASW', 'ZMAIRLUNAR', 'NLWCORR', 'NICEOPT',
                         'TICEOPT', 'ZICEW'),
-    'rainmod_namelist': ('CWGREF', 'CWSCALE', 'CONVDAY', 'RCRIT'),
+    'rainmod_namelist': ('CWGREF', 'CWSCALE', 'CONVDAY', 'RCRIT', 'NEVAPPREC', 'NRDROP_JOIN', 'RDROP_WARM',
+                         'RDROP_MELT', 'RDROP_KSC', 'RDROP_RHOEXP', 'RDROP_STEP'),
     'fluxmod_namelist': ('NGUST', 'NSIMW'),
 }
 
@@ -144,10 +151,46 @@ class Longwave:
 
 
 @dataclass(frozen=True)
+class RainDrops:
+    """The rain's drops for PlaSim (patch 14). From the scenario's air at 2 m (python/climate/gcm/rain_drops.py,
+    `settings`): the fall law's table as python/atmosphere/rain/fall_law.py gives it, the rate of rain's
+    self-collection, m³/kg/s, and the exponent that each column's surface pressure over 1013.25 hPa takes in the
+    breakup's two lengths. From a calibration on cloud-resolving boxes of the scenario: the rule by which rain formed
+    as rain makes its drops, one of `RAIN_RULES`, and the mean diameters, m, of new rain and of rain melted from snow.
+    `step_m` is the longest midpoint step the scheme takes through a layer."""
+    table: dict
+    self_collection_m3_kg_s: float
+    density_exponent: float
+    birth_rule: str
+    new_rain_m: float
+    melted_rain_m: float
+    step_m: float = 1000.0
+
+    @classmethod
+    def from_settings(cls, found: dict) -> 'RainDrops':
+        """From what `rain_drops.settings` gives for a world's air and a calibration of the births."""
+        entries, births = found['namelist'], found['births']
+        return cls(table=found['table'], self_collection_m3_kg_s=entries['rdrop_ksc'],
+                   density_exponent=entries['rdrop_rhoexp'], birth_rule=births['rule'],
+                   new_rain_m=births['new_rain_m'], melted_rain_m=births['melted_rain_m'], step_m=entries['rdrop_step'])
+
+    def __post_init__(self):
+        if self.birth_rule not in RAIN_RULES:
+            raise SpecError(f"the rain's birth rule is one of {tuple(RAIN_RULES)}, where the calibration gives "
+                            f'{self.birth_rule!r}')
+        for name in ('new_rain_m', 'melted_rain_m', 'step_m'):
+            _positive(getattr(self, name), f"the rain's {name}")
+        _nonnegative(self.self_collection_m3_kg_s, "the rain's self_collection_m3_kg_s")
+        if isinstance(self.density_exponent, bool) or not isinstance(self.density_exponent, (int, float)) \
+                or not math.isfinite(self.density_exponent):
+            raise SpecError(f"the rain's density_exponent is a number, where it is {self.density_exponent!r}")
+
+
+@dataclass(frozen=True)
 class Calibrations:
     """The fitted values a run reads (architecture.md, "Calibrations, envelopes and loops"). `sunlight_scale` is the
     target stage's, for a scenario whose scale follows its reference temperature; `gas_bands` holds patch 08's five
-    coefficients for each of `GAS_BANDS`."""
+    coefficients for each of `GAS_BANDS`; `rain_drops` holds what patch 14 reads."""
     sunlight_scale: float | None = None
     rayleigh_scale: float | None = None        # RAYSCALE, patch 01
     water_absorption_scale: float | None = None   # SWH2OSCALE, patch 05
@@ -155,6 +198,7 @@ class Calibrations:
     ledger: Ledger | None = None
     gas_bands: tuple | None = None
     longwave: Longwave | None = None
+    rain_drops: RainDrops | None = None
     first_run: bool = False
 
     @classmethod
@@ -348,7 +392,8 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     holds the curved air's terms and the gas bands off; and a world locked to its star keeps PlaSim's own Sun clock,
     since patch 04's synodic clock replaces the fixed hour angle of ExoPlaSim's synchronous mode and, at a rotation
     equal to the year, holds the star over 0° E whatever FIXEDLON states (models/exoplasim/patches/04-sun-clock.patch;
-    radmod.f90:1397-1414). A surface gust whose patches the run's series lacks is refused."""
+    radmod.f90:1397-1414). A surface gust whose patches the run's series lacks is refused, and so is rain evaporated
+    from its drops' sizes on a series without patch 14."""
     switches = dict(run['switches'])
     if world is not None and locked(world):
         switches['sun_clock'] = 'plasim'
@@ -364,6 +409,11 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     if missing:
         raise SpecError(f'switches.surface_gust {switches["surface_gust"]!r} takes {" and ".join(missing)}, which the '
                         "run's series lacks")
+    if switches.get('rain_evaporation') not in RAIN_EVAPORATION:
+        raise SpecError(f'switches.rain_evaporation is one of {tuple(RAIN_EVAPORATION)}, where the run states '
+                        f'{switches.get("rain_evaporation")!r}')
+    if switches['rain_evaporation'] == 'drop_sizes' and PATCH_14 not in series(run):
+        raise SpecError(f"switches.rain_evaporation 'drop_sizes' takes {PATCH_14}, which the run's series lacks")
     if calibrations.first_run:
         switches.update(twilight='none', gas_bands=False)
     return switches
@@ -463,8 +513,14 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
     if rcrit > 0.0:                                   # the lowest layer is the last of RCRIT
         rainmod[f'RCRIT({_integer(run["levels"], "levels")})'] = float(rcrit)
 
+    # The rain's evaporation, written where the run's series holds patch 14: PlaSim's own switch, and with the drops'
+    # sizes the six entries the patch reads, from the scenario's air and the calibration of the births.
+    patches = series(run)
+    if PATCH_14 in patches:
+        rainmod.update(_rain_entries(switches, calibrations, where))
+
     # The surface transfer's switches, each written where the run's series holds its patch (patches 12 and 13).
-    fluxmod, patches = entries['fluxmod_namelist'], series(run)
+    fluxmod = entries['fluxmod_namelist']
     if PATCH_12 in patches:
         fluxmod['NGUST'] = int(switches['surface_gust'] != 'none')
     if PATCH_13 in patches:
@@ -476,6 +532,23 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
         entries['landmod_namelist'].update(ALBLAND=albedo, DGROUNDALB=(albedo, albedo))
     entries['oceanmod_namelist']['MLDEPTH'] = _positive(ocean['mixed_layer_m'], f'{where}: water.ocean.mixed_layer_m')
     return {name: values for name, values in entries.items() if values}
+
+
+def _rain_entries(switches: dict, cal: Calibrations, where: str) -> dict:
+    """Patch 14's entries in rainmod's namelist: NEVAPPREC 1 for PlaSim's constant gamma, or 2 with the rule and the
+    sizes of the rain's births, its self-collection rate, the breakup's density exponent and the scheme's step."""
+    if switches['rain_evaporation'] == 'gamma':
+        return {'NEVAPPREC': RAIN_EVAPORATION['gamma']}
+    if cal.first_run:
+        raise SpecError(f"{where}: a first run evaporates its rain by PlaSim's constant, where the run switches the "
+                        "drops' sizes on")
+    rain = cal.rain_drops
+    if rain is None:
+        raise SpecError(f"{where}: the run reads calibrations ['rain_drops'], which are missing")
+    return {'NEVAPPREC': RAIN_EVAPORATION['drop_sizes'], 'NRDROP_JOIN': RAIN_RULES[rain.birth_rule],
+            'RDROP_WARM': float(rain.new_rain_m), 'RDROP_MELT': float(rain.melted_rain_m),
+            'RDROP_KSC': float(rain.self_collection_m3_kg_s), 'RDROP_RHOEXP': float(rain.density_exponent),
+            'RDROP_STEP': float(rain.step_m)}
 
 
 def _radiation_switches(scenario: dict, switches: dict, cal: Calibrations, where: str, top: TopOfAir) -> dict:
@@ -719,6 +792,33 @@ def longwave_table(longwave: Longwave, levels: int) -> str:
     return ''.join(' '.join(f'{x:.6e}' for x in row) + '\n' for row in rows)
 
 
+def rain_table(rain: RainDrops, gravity_m_s2: float) -> str:
+    """lab_rain_law.txt as patch 14 reads it, the table that CM1's rain law reads: the count of its rows with the
+    first ln(lambda) and the step, then for each lambda the natural logs of rain's mass-weighted and number-weighted
+    mean fall speeds and of its ventilation integral (python/atmosphere/rain/fall_law.py, `table_text`). The text is
+    read back as the model reads it, and a table on which the model would stop at the world's gravity is refused."""
+    from atmosphere.rain import fall_law               # the rain's tools load with the first table written
+    from climate.gcm import rain_drops
+    table, keys = rain.table, ('ln_mass_weighted', 'ln_number_weighted', 'ln_ventilation')
+    try:
+        points, rows = table['points'], [table[key] for key in keys]
+        first, step = float(table['ln_lambda_first']), float(table['ln_lambda_step'])
+    except (KeyError, TypeError, ValueError):
+        raise SpecError("the rain's fall law holds its count of rows, its first ln(lambda), its step and three rows of "
+                        f'logs, {keys}') from None
+    if isinstance(points, bool) or not isinstance(points, int) or any(len(row) != points for row in rows):
+        raise SpecError(f"the rain's fall law states {points!r} rows, where its three moments hold "
+                        f'{[len(row) for row in rows]}')
+    if not all(np.all(np.isfinite(np.asarray(row, dtype=float))) for row in rows) or not math.isfinite(first):
+        raise SpecError("the rain's fall law holds finite numbers")
+    text = fall_law.table_text(table)
+    try:
+        rain_drops.inverse(gravity_m_s2, rain_drops.law_from_text(text))
+    except ValueError as error:
+        raise SpecError(f"the rain's fall law: {error}") from None
+    return text
+
+
 def model_surfaces(resolution: str, *, albedo_map: bool, archive: Path = ARCHIVE) -> dict[str, bytes]:
     """ExoPlaSim's own surface files at a resolution, Earth's land, seas, heights and soils, for a world whose
     surface is the model's default; less the albedo map where the scenario states a land albedo, as configure
@@ -734,10 +834,11 @@ def model_surfaces(resolution: str, *, albedo_map: bool, archive: Path = ARCHIVE
 def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrations: Calibrations,
               surface: ModelSurface | None = None, archive: Path = ARCHIVE, manifest=None, store=None) -> dict:
     """Write a GCM run's input files into `folder`, a new or empty folder: its namelists, the star's two files, its
-    surface files, and the curved air's and the longwave correction's tables where its switches read them. A world
-    of pinned heights takes `surface`, its scenario's surface on the run's grid (worldlab.geography.model_surface),
-    and its scenario states its pressure at the water level, where those heights start; a world of the model's own
-    surface keeps ExoPlaSim's files. Every file is made before any is written, and they reach `folder` together.
+    surface files, and the curved air's, the longwave correction's and the rain's tables where its switches read
+    them. A world of pinned heights takes `surface`, its scenario's surface on the run's grid
+    (worldlab.geography.model_surface), and its scenario states its pressure at the water level, where those heights
+    start; a world of the model's own surface keeps ExoPlaSim's files. Every file is made before any is written, and
+    they reach `folder` together.
     Returns the run's record: each file's sha256, the switches as resolved, the sunlight at the top with its scale
     and basis, and the surface's kind and land shares."""
     folder = Path(folder)
@@ -771,6 +872,8 @@ def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrati
         texts['twilight.dat'] = twilight_table(calibrations.ledger, levels)
     if radmod['NLWCORR']:
         texts['lwcorr.dat'] = longwave_table(calibrations.longwave, levels)
+    if entries['rainmod_namelist'].get('NEVAPPREC') == RAIN_EVAPORATION['drop_sizes']:
+        texts[RAIN_TABLE] = rain_table(calibrations.rain_drops, derive.gravity(world))
     record = dict(files={}, switches=resolve(run, calibrations, world), first_run=calibrations.first_run,
                   sunlight=dict(top_w_m2=top.w_m2, scale=top.scale, basis=top.basis))
     data = {}

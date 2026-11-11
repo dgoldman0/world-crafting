@@ -6,9 +6,9 @@
 schema = "worldlab.defaults.exoplasim/0"
 id = "exoplasim/defaults"
 upstream = "exoplasim-3.4.2"                   # models/pins.sha256
-patches = "models/exoplasim/patches/series"    # all thirteen applied: Terluna's ten, the lab's patch 11, and patches
-                                               # 12 and 13, written here from Terluna's gust and similarity; each
-                                               # switch below, at its default when omitted
+patches = "models/exoplasim/patches/series"    # all fourteen applied: Terluna's ten, the lab's patch 11, and patches
+                                               # 12 to 14, written here from Terluna's gust, similarity and rain from
+                                               # its drops; each switch below, at its default when omitted
 
 resolution = "T21"
 levels = 10
@@ -54,6 +54,13 @@ surface_gust = "none"                          # 12, 13: NGUST, NSIMW. "none" ke
                                                # ice-free water with it. The released model's transfer stays the
                                                # default until the Earth control's test (PLAN.md, "Porting:
                                                # confidence, form and cost")
+rain_evaporation = "gamma"                     # 14: NEVAPPREC. "gamma" keeps the released model's evaporation of falling
+                                               # rain, a share gamma of each layer's saturation deficit (NEVAPPREC 1);
+                                               # "drop_sizes" evaporates the rain from its drops' sizes and fall speeds
+                                               # (NEVAPPREC 2, with NRDROP_JOIN, RDROP_WARM, RDROP_MELT, RDROP_KSC,
+                                               # RDROP_RHOEXP and RDROP_STEP), reading the fall law of the scenario's
+                                               # air from lab_rain_law.txt in the run's folder. The released model's
+                                               # evaporation stays the default until the Earth control's test (PLAN.md)
 
 [calibration]                                  # the stages whose products, fitted to the study's scenario, a run reads
                                                # where its switches use them
@@ -64,3 +71,13 @@ ledger = "ledger:curved-air"                   # Open Moon: climate/results/gcm/
 gas_bands = "calibration:plasim-gas-bands"     # Open Moon: climate/results/gcm/shortwave_gases.json
 longwave = "calibration:plasim-longwave"       # read with longwave_correction on. Open Moon:
                                                # climate/results/gcm/longwave_A28_corrected_970_heating.json
+rain_law = "rain-law:scenario-air"             # read with rain_evaporation = "drop_sizes": the fall law's table, the
+                                               # rate of rain's self-collection and the breakup's density exponent,
+                                               # computed from the scenario's air at 2 m (python/climate/gcm/
+                                               # rain_drops.py). Open Moon: 2.919 m3/kg/s and 0.687
+rain_births = "calibration:plasim-rain-births" # read with it: the rule by which rain formed as rain makes its drops and
+                                               # the mean diameters of new rain and of rain melted from snow, fitted on
+                                               # cloud-resolving boxes of the scenario, on the run's level set. Open
+                                               # Moon, Terluna's on its fifteen levels: the share rule, 0.439 mm from
+                                               # its CM1 sea box and 2.95 mm from its McSnow run at 1 mm/h
+                                               # (climate/gcm/rain_drops.py at 39c5ee04)

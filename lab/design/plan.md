@@ -133,7 +133,10 @@ each with an identity default equal to the released model:
   PlaSim's 0.01 as its default. Each becomes a registry entry in stage 6. Since 11 November 2026 patches 12 and 13
   of ExoPlaSim's series add Beljaars's gust with the similarity over ice-free water, which Terluna's design runs
   take and which drop the free-convection term; the lab sets them through `surface_gust`, off by default until the
-  Earth control's test (`models/exoplasim/README.md`).
+  Earth control's test (`models/exoplasim/README.md`). Patch 14, of the same day, evaporates the rain from its drops'
+  sizes and fall speeds, which Terluna's design runs take in place of the constant; the lab sets it through
+  `rain_evaporation`, off by default until that test, with the fall law computed from the scenario's air and the
+  rain's births a calibration that stage 5 fits (registry B30, `exoplasim-rain-births`).
 
 The disagreement Terluna finds is largest over its open sea, which covers the whole of each stage 12 anchor, so the
 anchors take the settings that the Open Moon's comparison with CM1 supports.

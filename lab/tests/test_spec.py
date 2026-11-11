@@ -43,8 +43,8 @@ def test_every_seed_loads():
     study = LIB.study('open-moon')
     assert set(study.gcm) == {'design', 'design_lw_ice'}
     assert set(study.crm) == {'ring_45n', 'ring_45n_twilight', 'box_jura'}
-    assert {'A1', 'B1', 'B28', 'cm1-rain-limits-range', 'cm1-soil-day', 'cm1-equinox-sun', 'exoplasim-ice-weights'} <= {
-        e['id'] for e in LIB.registry()}
+    assert {'A1', 'B1', 'B28', 'B30', 'cm1-rain-limits-range', 'cm1-soil-day', 'cm1-equinox-sun',
+            'exoplasim-ice-weights', 'exoplasim-rain-births'} <= {e['id'] for e in LIB.registry()}
 
 
 def test_a_moon_takes_its_hosts_orbit():
@@ -146,6 +146,31 @@ def test_the_warm_rains_earth_rates_warn_off_earths_gravity():
                            {'config': 'cm1.physics.microphysics', 'eq': 'morrison'},
                            {'config': 'cm1.physics.warm_rain_rates', 'ne': 'gravity'}]
     assert LIB.defaults('cm1/defaults')['physics']['warm_rain_rates'] == 'earth'
+
+
+def test_plasims_rain_constant_warns_off_earths_gravity_and_the_births_keep_their_envelope():
+    """B30 warns where PlaSim evaporates its rain by the constant gamma off Earth's gravity, and names the third value
+    of NEVAPPREC, patch 14's, as its repair. With the drops' sizes a second entry asks for a refit where the births'
+    calibration leaves its envelope. The defaults keep the constant, so the Open Moon's runs draw the first warning
+    and Earth's control draws none."""
+    entries = {e['id']: e for e in LIB.registry()}
+    b30, births = entries['B30'], entries['exoplasim-rain-births']
+    assert (b30['state'], b30['action']) == ('repaired', 'warn') and 'planned' not in b30
+    assert (b30['repair']['switch'], b30['repair']['value'], b30['repair']['default']) == ('NEVAPPREC', 2, 1)
+    assert b30['repair']['namelist'] == ['NRDROP_JOIN', 'RDROP_WARM', 'RDROP_MELT', 'RDROP_KSC', 'RDROP_RHOEXP',
+                                         'RDROP_STEP']
+    assert (LAB.parent / 'models' / 'exoplasim' / 'patches' / (b30['repair']['patch'] + '.patch')).exists()
+    assert b30['when'] == [{'q': 'gravity_m_s2', 'ne': 9.80665, 'rel_tolerance': 1e-3},
+                           {'config': 'exoplasim.switches.rain_evaporation', 'ne': 'drop_sizes'}]
+    assert (births['state'], births['action']) == ('calibrated', 'require-refit')
+    assert births['when'] == [{'config': 'exoplasim.switches.rain_evaporation', 'eq': 'drop_sizes'},
+                              {'calibration': 'calibration:plasim-rain-births', 'outside_envelope': True}]
+    defaults = LIB.defaults('exoplasim/defaults')
+    assert defaults['switches']['rain_evaporation'] == 'gamma'
+    assert defaults['calibration']['rain_births'] == 'calibration:plasim-rain-births'
+    gravity = lambda world, scenario: derive.planet(LIB.world(world), LIB.scenario(scenario))['gravity_m_s2']
+    assert abs(gravity('moon', 'moon/open-moon') / 9.80665 - 1.0) > 1e-3
+    assert abs(gravity('earth', 'earth/control') / 9.80665 - 1.0) <= 1e-3
 
 
 def test_the_registrys_config_paths_name_fields_of_the_defaults():

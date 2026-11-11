@@ -11,6 +11,7 @@ import subprocess
 import numpy as np
 import pytest
 
+from atmosphere.rain import fall_law
 from worldlab import derive, exoplasim as ex, sunlight
 from worldlab.data import DataError, Manifest
 from worldlab.geography import ModelSurface
@@ -118,6 +119,19 @@ def _with(item: dict, **tables) -> dict:
     return {**item, **{name: {**item[name], **fields} for name, fields in tables.items()}}
 
 
+def _rain(**changes) -> ex.RainDrops:
+    """The rain's drops with every value patch 14 reads: the Open Moon's entries as Terluna's patch set them, and for
+    the fall law the closed forms of Morrison's own power law at Earth's gravity, a table made without the solver."""
+    first, last, points = fall_law.TABLE_LAMBDA
+    moments = np.log(fall_law.closed_forms(841.99667, 0.8, fall_law.table_lambda()))
+    table = dict(points=points, ln_lambda_first=math.log(first), ln_lambda_step=math.log(last / first) / (points - 1),
+                 ln_mass_weighted=[float(x) for x in moments[0]], ln_number_weighted=[float(x) for x in moments[1]],
+                 ln_ventilation=[float(x) for x in moments[2]])
+    values = dict(table=table, self_collection_m3_kg_s=2.919, density_exponent=0.687, birth_rule='share',
+                  new_rain_m=0.439e-3, melted_rain_m=2.95e-3)
+    return ex.RainDrops(**{**values, **changes})
+
+
 # The format.
 
 def test_values_are_written_as_configure_writes_them():
@@ -163,7 +177,8 @@ def test_the_templates_come_from_the_pinned_archive_alone(tmp_path):
 # The switches as the build and the calibrations make them.
 
 def test_the_switches_resolve_to_what_the_build_does():
-    assert ex.series(DESIGN)[10:] == ('11-ice-weights.patch', ex.PATCH_12, ex.PATCH_13) and len(ex.series(DESIGN)) == 13
+    assert ex.series(DESIGN)[10:] == ('11-ice-weights.patch', ex.PATCH_12, ex.PATCH_13, ex.PATCH_14)
+    assert len(ex.series(DESIGN)) == 14
     first, later = ex.resolve(DESIGN, ex.Calibrations.identity()), ex.resolve(LW_ICE, _given())
     assert (first['twilight'], first['gas_bands'], first['ice_weights']) == ('none', False, 'from-spectrum')
     assert (later['twilight'], later['gas_bands'], later['ice_weights'], later['ice_optics']) == \
@@ -186,6 +201,16 @@ def test_the_switches_resolve_to_what_the_build_does():
             ex.resolve(run, _given())
     with pytest.raises(SpecError, match='surface_gust'):
         ex.resolve(_with(DESIGN, switches={'surface_gust': 'coare'}), _given())
+    # The rain's evaporation: PlaSim's constant by default, on any point of the series; the drops' sizes on a series
+    # that lacks patch 14 are refused.
+    assert first['rain_evaporation'] == later['rain_evaporation'] == 'gamma'
+    assert ex.resolve(deployed, _given())['rain_evaporation'] == 'gamma'
+    sized = _with(DESIGN, switches={'rain_evaporation': 'drop_sizes'})
+    assert ex.resolve(sized, _given())['rain_evaporation'] == 'drop_sizes'
+    with pytest.raises(SpecError, match=f"takes {re.escape(ex.PATCH_14)}, which the run's series lacks"):
+        ex.resolve({**sized, 'patches': list(ex.series(DESIGN))[:13]}, _given())
+    with pytest.raises(SpecError, match='rain_evaporation'):
+        ex.resolve(_with(DESIGN, switches={'rain_evaporation': 'kessler'}), _given())
 
 
 # The rules each entry follows.
@@ -246,7 +271,7 @@ def test_the_switches_set_their_patches_entries():
     lit = ex.TopOfAir(1199.0, 0.97, 'calibration', {'ice_weights': (0.6, 0.2, 0.15, 0.05)})
     entries = ex.namelists(MOON, OPEN_MOON, switched, top=lit, calibrations=calibrations)
     rain, radmod, plasim = entries['rainmod_namelist'], entries['radmod_namelist'], entries['plasim_namelist']
-    assert rain == {'CWGREF': 9.80665, 'CWSCALE': 1.0, 'CONVDAY': 0.0, 'RCRIT(10)': 0.9}
+    assert rain == {'CWGREF': 9.80665, 'CWSCALE': 1.0, 'CONVDAY': 0.0, 'RCRIT(10)': 0.9, 'NEVAPPREC': 1}
     assert (radmod['NSUNCLOCK'], radmod['NLWCORR'], radmod['NICEOPT'], radmod['TICEOPT']) == (0, 1, 1, 235.15)
     assert [radmod[f'ZICEW({i})'] for i in (1, 2, 3, 4)] == [0.6, 0.2, 0.15, 0.05]     # patch 11's weights
     with pytest.raises(SpecError, match='ice weights of the sunlight'):
@@ -284,6 +309,89 @@ def test_the_surface_gusts_switches_are_written_into_fluxmods_namelist():
     assert ex.namelist_texts(entries)['fluxmod_namelist'] == ' &fluxmod_nl\n NGUST = 1\n NSIMW = 1\n /END\n'
 
 
+def test_the_rains_evaporation_sets_its_entries_where_the_series_holds_patch_14():
+    """Patch 14: NEVAPPREC in rainmod's namelist where the run's series holds the patch, PlaSim's own 1 by default, so
+    that a build at an earlier point reads a namelist of the names it knows. With the drops' sizes it is 2, beside the
+    six entries the patch reads: the birth rule and the two birth sizes from their calibration, and the
+    self-collection rate, the density exponent and the step."""
+    rainmod = lambda run, cal=None: ex.namelists(MOON, OPEN_MOON, run, top=LATER,
+                                                 calibrations=cal or _given())['rainmod_namelist']
+    assert DEFAULTS['switches']['rain_evaporation'] == 'gamma' and rainmod(DESIGN)['NEVAPPREC'] == 1
+    thirteen = {**DESIGN, 'patches': list(ex.series(DESIGN))[:13]}
+    assert 'NEVAPPREC' not in rainmod(thirteen)
+    sized = _with(DESIGN, switches={'rain_evaporation': 'drop_sizes'})
+    names = ('NEVAPPREC', 'NRDROP_JOIN', 'RDROP_WARM', 'RDROP_MELT', 'RDROP_KSC', 'RDROP_RHOEXP', 'RDROP_STEP')
+    entries = rainmod(sized, _given(rain_drops=_rain()))
+    assert {name: entries[name] for name in names} == dict(
+        NEVAPPREC=2, NRDROP_JOIN=2, RDROP_WARM=0.439e-3, RDROP_MELT=2.95e-3, RDROP_KSC=2.919, RDROP_RHOEXP=0.687,
+        RDROP_STEP=1000.0)
+    assert set(names) <= set(ex.ADDITIONS['rainmod_namelist'])
+    for rule, value in (('one_size', 0), ('join', 1), ('share', 2)):
+        assert rainmod(sized, _given(rain_drops=_rain(birth_rule=rule, step_m=250.0)))['NRDROP_JOIN'] == value
+    assert rainmod(sized, _given(rain_drops=_rain(step_m=250.0)))['RDROP_STEP'] == 250.0
+    # The drops' sizes take their calibration, which a first run lacks, and patch 14.
+    with pytest.raises(SpecError, match='rain_drops'):
+        rainmod(sized)
+    with pytest.raises(SpecError, match="first run evaporates its rain by PlaSim's constant"):
+        ex.namelists(MOON, OPEN_MOON, sized, top=FIRST, calibrations=ex.Calibrations.identity())
+    with pytest.raises(SpecError, match="which the run's series lacks"):
+        rainmod({**sized, 'patches': thirteen['patches']}, _given(rain_drops=_rain()))
+    for change, match in ((dict(birth_rule='largest'), 'birth rule'), (dict(new_rain_m=0.0), 'new_rain_m'),
+                          (dict(melted_rain_m=-1.0e-3), 'melted_rain_m'), (dict(step_m=0.0), 'step_m'),
+                          (dict(self_collection_m3_kg_s=-1.0), 'self_collection_m3_kg_s'),
+                          (dict(density_exponent=float('nan')), 'density_exponent')):
+        with pytest.raises(SpecError, match=match):
+            _rain(**change)
+    # What python/climate/gcm/rain_drops.settings gives for a world becomes the record the adapter reads.
+    found = dict(namelist=dict(rdrop_ksc=5.78, rdrop_rhoexp=0.0, rdrop_step=500.0), table=_rain().table,
+                 births=dict(rule='join', new_rain_m=0.4e-3, melted_rain_m=0.8e-3))
+    assert ex.RainDrops.from_settings(found) == _rain(self_collection_m3_kg_s=5.78, density_exponent=0.0,
+                                                      birth_rule='join', new_rain_m=0.4e-3, melted_rain_m=0.8e-3,
+                                                      step_m=500.0)
+
+
+def test_the_rains_table_is_the_text_cm1_reads_and_a_table_the_model_would_stop_on_is_refused():
+    rain, g = _rain(), derive.gravity(MOON)
+    text = ex.rain_table(rain, g)
+    assert text == fall_law.table_text(rain.table) and ex.RAIN_TABLE == fall_law.TABLE_FILE
+    lines = text.splitlines()
+    assert lines[0].split()[0] == '301' and len(lines) == 302 and all(len(line.split()) == 3 for line in lines)
+    table = rain.table
+    falling = [-6.0 * (table['ln_lambda_first'] + i * table['ln_lambda_step']) for i in range(table['points'])]
+    for change, match in (({'ln_ventilation': table['ln_ventilation'][:-1]}, 'states 301 rows'),
+                          ({'points': 300}, 'states 300 rows'),
+                          ({'ln_mass_weighted': [float('nan')] + table['ln_mass_weighted'][1:]}, 'finite numbers'),
+                          ({'ln_lambda_step': 0.0}, 'positive step'),
+                          ({'ln_number_weighted': falling}, 'fails to rise with lambda')):
+        with pytest.raises(SpecError, match=match):
+            ex.rain_table(_rain(table={**table, **change}), g)
+    with pytest.raises(SpecError, match='three rows of logs'):
+        ex.rain_table(_rain(table={k: v for k, v in table.items() if k != 'ln_ventilation'}), g)
+
+
+@needs_archive
+@needs_sunlight
+def test_a_run_with_the_drops_sizes_holds_its_entries_and_the_rains_table(tmp_path):
+    """Earth's control with its calibrations at the released model's values and the rain's drops given: the run's
+    folder gains the table and rainmod's namelist the seven entries, and with PlaSim's constant the folder holds
+    no table."""
+    plain = _with(DEFAULTS, switches={'twilight': 'none', 'gas_bands': False})
+    released = dict(rayleigh_scale=1.0, water_absorption_scale=1.0, water_continuum=ex.PLASIM_TH2OC)
+    record = ex.write_run(tmp_path / 'sized', EARTH, CONTROL, _with(plain, switches={'rain_evaporation': 'drop_sizes'}),
+                          calibrations=ex.Calibrations(**released, rain_drops=_rain()), store=STORE)
+    assert record['switches']['rain_evaporation'] == 'drop_sizes' and ex.RAIN_TABLE in record['files']
+    assert (tmp_path / 'sized' / ex.RAIN_TABLE).read_text() == fall_law.table_text(_rain().table)
+    lines = (tmp_path / 'sized' / 'rainmod_namelist').read_text().splitlines()
+    assert lines[-8:] == [' NEVAPPREC = 2', ' NRDROP_JOIN = 2', ' RDROP_WARM = 0.000439', ' RDROP_MELT = 0.00295',
+                          ' RDROP_KSC = 2.919', ' RDROP_RHOEXP = 0.687', ' RDROP_STEP = 1000.0', ' /END']
+    record = ex.write_run(tmp_path / 'gamma', EARTH, CONTROL, plain, calibrations=ex.Calibrations(**released),
+                          store=STORE)
+    assert record['switches']['rain_evaporation'] == 'gamma' and not (tmp_path / 'gamma' / ex.RAIN_TABLE).exists()
+    assert ' NEVAPPREC = 1' in (tmp_path / 'gamma' / 'rainmod_namelist').read_text().splitlines()
+    assert {p.name for p in (tmp_path / 'sized').iterdir()} - {p.name for p in (tmp_path / 'gamma').iterdir()} == \
+        {ex.RAIN_TABLE}
+
+
 def test_an_eccentric_orbit_states_its_longitude_of_perihelion():
     planet = ex.namelists(MOON, OPEN_MOON, DESIGN, top=LATER, calibrations=_given())['planet_namelist']
     assert planet['MVELP'] == 102.7 and MOON['orbit']['perihelion_longitude_deg'] == 102.7   # Earth's, through its host
@@ -303,6 +411,7 @@ def test_an_eccentric_orbit_states_its_longitude_of_perihelion():
     (MOON, _with(DESIGN, switches={'surface_cloud_rcrit': 1.0}), OPEN_MOON, 'surface_cloud_rcrit'),
     (MOON, _with(DESIGN, switches={'convective_day_s': -1.0}), OPEN_MOON, 'convective_day_s'),
     (MOON, _with(DESIGN, switches={'surface_gust': 'similarity'}), OPEN_MOON, 'switches.surface_gust'),
+    (MOON, _with(DESIGN, switches={'rain_evaporation': 'none'}), OPEN_MOON, 'switches.rain_evaporation'),
     (MOON, {**DESIGN, 'clear_sky': 1}, OPEN_MOON, 'clear_sky'),
     (MOON, {**DESIGN, 'seed': 1.5}, OPEN_MOON, 'seed'),
     (MOON, DESIGN, _with(OPEN_MOON, air={'reference_level': 'mean-radius'}), 'level its heights start from'),
@@ -368,7 +477,7 @@ def test_the_design_runs_namelists_are_terlunas_but_for_five_entries_each_with_i
     # The entries the lab adds hold the values PlaSim and the patches take without them.
     assert lab_only == {('plasim_namelist', 'NDIAGGP'): '0', ('radmod_namelist', 'IRTOPDAY'): '0.0',
                         ('radmod_namelist', 'IRTOPNIGHT'): '0.0', ('radmod_namelist', 'NICEOPT'): '0',
-                        ('radmod_namelist', 'NLWCORR'): '0'}
+                        ('radmod_namelist', 'NLWCORR'): '0', ('rainmod_namelist', 'NEVAPPREC'): '1'}
     assert set(found) == {('planet_namelist', k) for k in ('GA', 'PLARAD', 'ECCEN', 'GSOL0')} | \
         {('rainmod_namelist', 'CWSCALE')}
     lab, terluna = ({key: float(pair[i]) for key, pair in found.items()} for i in (0, 1))

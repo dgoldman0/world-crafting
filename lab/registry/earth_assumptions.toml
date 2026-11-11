@@ -1,4 +1,4 @@
-# The registry of Earth assumptions: a seed of sixteen entries in draft schema 0 (lab/design/architecture.md,
+# The registry of Earth assumptions: a seed of eighteen entries in draft schema 0 (lab/design/architecture.md,
 # "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
 # it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
 # specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
@@ -117,6 +117,35 @@ state = "calibrated"
 repair = { patch = "05-water-shortwave-absorptivity", switch = "SWH2OSCALE" }
 action = "require-refit"
 evidence = ["notes/defect_log.md B17"]
+
+[[entry]]
+id = "B30"
+model = "exoplasim"
+where = "plasim/src/rainmod.f90, mkrain (gamma = 0.01; 0.007 at T42 on ten levels)"
+form = "constant"
+assumes = "Earth's rain: a share of each layer's saturation deficit evaporated in each step, set for Earth's drops, their fall speeds and Earth's layer depths"
+when = [{ q = "gravity_m_s2", ne = 9.80665, rel_tolerance = 1e-3 }, { config = "exoplasim.switches.rain_evaporation", ne = "drop_sizes" }]
+effect = "falling rain evaporates by Earth's tuning whatever its drops: 29% of PlaSim's rain on the Open Moon, where Terluna's CM1 boxes with lunar drops evaporated 61%"
+state = "repaired"
+repair = { patch = "14-rain-from-drop-sizes", switch = "NEVAPPREC", value = 2, default = 1, namelist = ["NRDROP_JOIN", "RDROP_WARM", "RDROP_MELT", "RDROP_KSC", "RDROP_RHOEXP", "RDROP_STEP"], table = "lab_rain_law.txt", setting = "exoplasim.switches.rain_evaporation" }
+action = "warn"
+note = "the repair evaporates the rain from its drops' sizes and fall speeds, with the fall law, the self-collection rate and the breakup's density exponent computed for the world's air at 2 m by python/climate/gcm/rain_drops.py; the rule and the sizes of the rain's births are a calibration (exoplasim-rain-births); the action is a warning, since each fix enters the lab opt-in (PLAN.md) and the Earth control's test of the scheme is still to be run; the patch at its default runs Earth's control byte for byte as the build before it, and no lab run has measured the scheme's effect on a climate; the snow's sublimation keeps gamma"
+evidence = ["notes/defect_log.md B30", "notes/exoplasim.md, Rain from its drops' sizes", "models/exoplasim/README.md, Rain from drop sizes (patch 14)"]
+
+[[entry]]
+id = "exoplasim-rain-births"
+model = "exoplasim"
+where = "patch 14, NRDROP_JOIN, RDROP_WARM and RDROP_MELT: the rule by which rain formed as rain makes its drops, and the mean diameters of new rain and of rain melted from snow"
+form = "fit beyond its range"
+assumes = "the gravity, the surface pressure and the level set of the cloud-resolving boxes on which the births were fitted"
+when = [{ config = "exoplasim.switches.rain_evaporation", eq = "drop_sizes" },
+        { calibration = "calibration:plasim-rain-births", outside_envelope = true }]    # proposed (lab/design/terluna_fixes.md, row 8)
+effect = "the share of new drops follows the layers' thickness: on CM1's own levels Terluna's rule made 42-47% of the rain formed as rain into new drops, against 65-69% on PlaSim's fifteen layers, and its column evaporated 0.04-0.06 less of CM1's rain"
+state = "calibrated"
+repair = { patch = "14-rain-from-drop-sizes", switch = "NRDROP_JOIN, RDROP_WARM, RDROP_MELT" }
+action = "require-refit"
+note = "the lab has one calibration, Terluna's for the Open Moon on its fifteen levels: the share rule, 0.439 mm from its CM1 sea box and 2.95 mm from its McSnow run at 1 mm/h (python/climate/gcm/rain_drops.py, TERLUNA_OPEN_MOON_BIRTHS); the boxes behind it ran Earth's warm-rain rates (B38) and ice sized by Earth's limits; the design proposes gamma for a run outside the envelope, and the adapter refuses the drops' sizes in a run that states no births"
+evidence = ["lab/design/terluna_fixes.md, row 8", "models/exoplasim/README.md, Rain from drop sizes (patch 14)"]
 
 [[entry]]
 id = "B21"

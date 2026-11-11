@@ -296,8 +296,19 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   The adapter writes `NGUST` and `NSIMW` from one setting, `switches.surface_gust`, each where the run's series
   holds its patch, and refuses a gust whose patches the series lacks. The defaults keep `none`, the released
   transfer, until the Earth control's test (`PLAN.md`). At the switches' defaults the builds of patches 01–12 and of
-  the whole series run Earth's control, over two days, byte for byte as the build of patches 01–11, and each
+  patches 01–13 run Earth's control, over two days, byte for byte as the build of patches 01–11, and each
   setting changes the output (`lab/tests/test_builds.py`).
+- **The rain's drops.** Patch 14 evaporates PlaSim's falling rain from its drops' sizes and fall speeds, in place
+  of the constant `gamma`, behind the third value of PlaSim's own switch `NEVAPPREC`
+  (`models/exoplasim/README.md`). The adapter writes that switch from one setting, `switches.rain_evaporation`,
+  where the run's series holds the patch. With `drop_sizes` it writes the patch's six entries and the table
+  `lab_rain_law.txt` from one record of the run's calibrations (`RainDrops`): the fall law, the self-collection
+  rate and the breakup's density exponent, which `python/climate/gcm/rain_drops.py` computes from the scenario's
+  air at 2 m, and the rule and sizes of the rain's births, a calibration on cloud-resolving boxes. It refuses the
+  setting on a series without the patch, in a first run, without that record, and with a table on which the model
+  would stop. The defaults keep `gamma` until the Earth control's test (`PLAN.md`). At that default the whole
+  series' build runs Earth's control, over two days, byte for byte as the build of patches 01–13, and the drops'
+  sizes change the output (`lab/tests/test_builds.py`).
 
 **CM1.**
 
