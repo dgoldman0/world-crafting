@@ -154,7 +154,7 @@ model = "exoplasim"
 where = "plasim/src/plasim.f90, initpm (the ten half levels of its formula, NEQSIG 0)"
 form = "geometry"
 assumes = "Earth's scale height: the levels are fractions of the surface pressure chosen for Earth's air, the lowest full level at 0.0168 scale heights and the lowest layer 0.034 deep"
-when = [{ q = "exoplasim_lowest_level_m", gt = 350.0 }]      # proposed: the design's "about 0.3 km" (lab/design/terluna_fixes.md, row 9), set between the 307 m of the Open Moon's fifteen levels and the 0.39 km it gives Mars's ten
+when = [{ q = "exoplasim_lowest_level_m", gt = 345.0 }]      # provisional and of low confidence (PLAN.md, Decisions, 11 November 2026): the tested range, 10% over the highest lowest-level height run so far, the 313 m at which the Open Moon's fifteen levels stand in Terluna's design runs at 301 K (307 m at the scenario's 295 K); to be revisited when the automatic rule for the heights is designed
 effect = "the levels stand higher where the scale height is larger: the lowest full level at 0.14 km in Earth's air and at 0.88 km in the Open Moon's, where the lowest layer averages away the 1.4-2.3 kJ/kg of moist static energy that CM1's updraughts draw from the surface layer, and CM1's 6 km night boundary layer with its clouds' 7-8 km tops falls inside one layer"
 state = "repaired"
 repair = { setting = "exoplasim.levels", namelist = ["NEQSIG", "SIGH", "TFRC"], default = 10, tool = "python/climate/gcm/levels.py, generate" }

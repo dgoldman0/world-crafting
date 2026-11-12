@@ -407,9 +407,11 @@ levels, 0.9886 for the lowest.
 lowest layer 286 m deep, where the Open Moon's stand at 882 m and 1,779 m. The rule has nothing to add near
 Earth's ground: it refuses the Open Moon's 600 m layer there, which is deeper than the released model's own,
 and the Earth control keeps `levels = 10`, as `PLAN.md` decides for a world whose scale height is near
-Earth's. Registry entry B31 warns where a run's lowest full level stands above a proposed 350 m at the
-scenario's scale height (`exoplasim_lowest_level_m`): the Open Moon on the ten draws the warning, and on the
-fifteen, at 307 m, it falls silent.
+Earth's. Registry entry B31 warns where a run's lowest full level stands above 345 m at the scenario's
+scale height (`exoplasim_lowest_level_m`): the Open Moon on the ten draws the warning, and on the fifteen, at
+307 m, it falls silent. The threshold is provisional and of low confidence: it marks the tested range, 10% over
+the highest such height run so far, the Open Moon's fifteen levels in Terluna's design runs, and it is to be
+revisited when the automatic rule for the heights is designed (`PLAN.md`, "Decisions").
 
 **What follows the count in PlaSim.** The friction's preset holds for ten levels alone (`readnl`), which the
 `TFRC` entry replaces. `rainmod` presets `gamma` 0.007 for ten levels at T42 and switches the shallow

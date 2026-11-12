@@ -128,7 +128,8 @@ each with an identity default equal to the released model:
   add, the released ten standing at 142 m already. The study states the heights, which Terluna placed by hand from
   its CM1 boxes; a rule that places them from a boundary layer's depth is still to be chosen. The adapter reads a
   calibration by layer on the half levels it states, `levels.carry_restart` takes a restart from one set onto
-  another, and registry B31 warns where the lowest full level stands above a proposed 350 m.
+  another, and registry B31 warns where the lowest full level stands above 345 m, a provisional threshold at the edge of
+  the tested range (`PLAN.md`, "Decisions").
 - **Convection.** The scheme as a setting (`nprc`), Kuo at 1 as the default, with Terluna's simplified Betts–Miller
   scheme (2) and mass-flux scheme (3) as the candidates, ported as patches with identity defaults once one of them
   matches CM1 at both of Terluna's sites (proposed); so far each setting misses CM1's rain by time of day at one

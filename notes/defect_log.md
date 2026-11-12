@@ -822,8 +822,9 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   values for the Open Moon the rule returns its fifteen levels at the four places Terluna states them; in two of
   them the last bit is the compiled model's, where Terluna's module computes the released formula with numpy's
   powers. A restart goes onto another set by the conservative remap, and the writer reads a calibration by layer
-  on the half levels it states. Registry B31 warns where a run's lowest full level stands above a proposed 350 m
-  at the scenario's scale height, and `exoplasim-longwave-fit` asks for a refit where the correction leaves its
+  on the half levels it states. Registry B31 warns where a run's lowest full level stands above 345 m at the
+  scenario's scale height, a provisional threshold of low confidence at 10% over the highest such height run so
+  far (`PLAN.md`, "Decisions"), and `exoplasim-longwave-fit` asks for a refit where the correction leaves its
   envelope.
 - **Evidence for the port.** With the released count the writer's files are unchanged. On Earth's control over
   96 steps the released ten stated as a generated set give the output and the restart of PlaSim's own formula byte

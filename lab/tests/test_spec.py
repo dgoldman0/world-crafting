@@ -210,14 +210,14 @@ def test_plasims_rain_constant_warns_off_earths_gravity_and_the_births_keep_thei
 
 
 def test_plasims_levels_warn_where_the_lowest_stands_high_and_the_longwave_fit_keeps_its_level_set():
-    """B31 warns where the run's lowest full level stands above the proposed 350 m at the scenario's scale height, and
+    """B31 warns where the run's lowest full level stands above 345 m at the scenario's scale height, a provisional threshold, and
     names the generated set, the table a study puts in place of the count, as its repair. The Earth control on the
     released ten stays silent; the Open Moon draws the warning on the ten, and Terluna's fifteen silence it. A
     longwave correction read outside its envelope, whose dimensions hold the level set, asks for a refit."""
     entries = {e['id']: e for e in LIB.registry()}
     b31, fit = entries['B31'], entries['exoplasim-longwave-fit']
     assert (b31['state'], b31['action']) == ('repaired', 'warn') and 'planned' not in b31
-    assert b31['when'] == [{'q': 'exoplasim_lowest_level_m', 'gt': 350.0}]
+    assert b31['when'] == [{'q': 'exoplasim_lowest_level_m', 'gt': 345.0}]
     assert (b31['repair']['setting'], b31['repair']['default']) == ('exoplasim.levels', 10)
     assert b31['repair']['namelist'] == ['NEQSIG', 'SIGH', 'TFRC']
     defaults = LIB.defaults('exoplasim/defaults')
@@ -226,9 +226,9 @@ def test_plasims_levels_warn_where_the_lowest_stands_high_and_the_longwave_fit_k
                                                         exoplasim=run)['exoplasim_lowest_level_m']
     fifteen = {**defaults, 'levels': dict(scale_height_m=51000.0, upper=6, interfaces_m=[
         15500.0, 11500.0, 9000.0, 7000.0, 5000.0, 3100.0, 1730.0, 600.0])}
-    assert height('earth', 'earth/control', defaults) < 350.0 < height('moon', 'moon/open-moon', defaults)
-    assert height('waterworld-seed', 'waterworld-seed/gaean-1bar', defaults) > 350.0
-    assert height('moon', 'moon/open-moon', fifteen) < 350.0
+    assert height('earth', 'earth/control', defaults) < 345.0 < height('moon', 'moon/open-moon', defaults)
+    assert height('waterworld-seed', 'waterworld-seed/gaean-1bar', defaults) > 345.0
+    assert height('moon', 'moon/open-moon', fifteen) < 345.0
     assert (fit['state'], fit['action']) == ('calibrated', 'require-refit')
     assert fit['when'] == [{'config': 'exoplasim.switches.longwave_correction', 'eq': True},
                            {'calibration': 'calibration:plasim-longwave', 'outside_envelope': True}]
