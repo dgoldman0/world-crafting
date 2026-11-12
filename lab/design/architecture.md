@@ -327,18 +327,23 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
 - **Builds.** Gravity, CO2 and O2 are the three values Terluna's builds compile in: core patches 01–03, 06
   and 07 and the electrified series' fall speeds read them as macros (`models/cm1/README.md`), so each world
   or air has needed builds of its own. CM1's dynamics and the Morrison scheme already take gravity from
-  `set_constants` as the model starts. A planned core patch reads all three from the namelist, giving RRTMG
-  and the CAPE diagnostic the run's gravity and RRTMG its CO2 and O2, and a companion patch in the
-  electrified series gives the NSSL fall speeds the same gravity, so that one build of each patch set serves
-  every world, as the author preferred on 2026-10-17. MYNN's shared constants need gravity at compile time
-  and keep 9.81; the lab already refuses MYNN off Earth. Until the patches pass their checks (plan.md,
-  stage 3), the adapter compiles the values in, and a build's key covers them with its patch set, flags and
-  compiler.
+  `set_constants` as the model starts. Since 11 November 2026 patch 06 of the lab's series reads all three
+  from the namelist as `world_g`, `world_co2` and `world_o2`, each with the build's value as its default: it
+  gives `set_constants`, RRTMG and the CAPE diagnostic the run's gravity and RRTMG its CO2 and O2, so that one
+  build of the core and lab series serves every world, as the author preferred on 2026-10-17
+  (`models/cm1/README.md`, "The world from the namelist"). A companion patch in the electrified series, still
+  to write, gives the NSSL fall speeds the same gravity; until then an electrified build compiles its gravity
+  in. The MYNN and MYJ boundary layers and the MYJ surface layer take gravity when they compile and keep the
+  build's value, 9.81 in a build without the macro; the registry refuses them off Earth, and the model stops
+  on them where the namelist's gravity differs from the build's. Until the namelist build passes its checks
+  on one-day segments (plan.md, stage 3), the adapter compiles the values in (`world_constants = "build"` in
+  `cm1/defaults`), and a build's key covers them with its patch set, flags and compiler.
 - **Points in the series.** A build names how far it applies each patch series, as ExoPlaSim's builds
-  name their point in theirs. Each planned patch is appended after core 17 and electrified 9, as core 18
-  onward and electrified 10, and at its identity default gives the output of the build without it: Earth's
-  gravity and air for the namelist patches, Morrison's 2.8 mm cap, patch 08's 5–80 cm soil and patch 05's
-  equinox Sun.
+  name their point in theirs. The lab's patches follow the core series in a series of their own
+  (`series-lab`), and each at its identity default gives the output of the build without it: the build's
+  gravity and air for patch 06, Morrison's 2.8 mm cap, patch 08's 5–80 cm soil for the lab's patch 07 and
+  patch 05's equinox Sun for the lab's patch 08. The electrified series' companion patch follows its
+  patch 9.
 - **Case kinds,** as Terluna has them:
   - a ring on a circle of latitude, or on a tilted great circle;
   - a box: flat, over terrain, or over terrain with sea;
@@ -365,9 +370,8 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   - **Unscaled:** with the world's Sun in a case, the run length is set in the world's solar days, and the
     output, restart and nudging intervals stay in seconds. Terluna's gravity pair, which ran without a Sun,
     scaled those too (`time_scale`, `cm1_run.py:1974-2029`).
-- **Raindrops, soil and the Sun.** Each follows the world through a patch with an identity default, the
-  rain's in the lab's series since 11 November 2026 and the other two planned (registry B28, `cm1-soil-day`,
-  `cm1-equinox-sun`):
+- **Raindrops, soil and the Sun.** Each follows the world through a patch with an identity default, all in
+  the lab's series since 11 November 2026 (registry B28, `cm1-soil-day`, `cm1-equinox-sun`):
   - Morrison's breakup diameter and its cap on rain's mean diameter scale as (9.81/g)^½, the capillary
     length. Patch 03 of the lab's CM1 series scales both inside CM1 at the build's gravity where the namelist
     sets `brkup_gscale = 1`, refines the breakup's lengths by the air's density and sets the cap on the fall
@@ -377,8 +381,10 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
     rain, which the electrified box runs, has its explicit breakup off (`irainbreak`), and stage 3 identifies
     any other size limit it holds.
   - The slab soil's layers scale as (solar day/1 d)^½, where patch 08 fixes the lunar 5–80 cm on every
-    world.
-  - The Sun takes the declination of the case's season, where patch 05's stands at the equinox. Each case
+    world. The lab's patch 07 reads the top layer from the namelist as `soil_dz1`, 0.05 m by default, and
+    the four layers below double from it.
+  - The Sun takes the declination of the case's season, where patch 05's stands at the equinox. The lab's
+    patch 08 reads it from the namelist as `sun_decl`, in degrees north and 0 by default. Each case
     starts at its own sunrise, at an hour angle of −acos(−tan φ tan δ), and the GCM reference it is forced
     from averages a window of solar longitude around its season, where Terluna's rings averaged whole
     model years.
@@ -584,7 +590,7 @@ lab stop open-moon-0.960:design                  # the runner writes the job's s
 | Patches | Builds apply the `models/` series alone, which `models/check_patches.sh` applies to the pinned upstream sources |
 | Format | TOML specifications, with sources as comments beside values; JSON products and records, in the form of Terluna's products |
 | Runs | The lab's own runs begin once stages 2–3 have checked its inputs and builds and stage 7's runner holds them to the machine budget, and they are filed in its store; Terluna's runs stay in Terluna's folders, where the comparisons read them |
-| CM1 compiled once | Planned patches read gravity, CO2 and O2 from the namelist; once they pass plan stage 3, one build of each patch set serves every world (Model adapters) |
+| CM1 compiled once | Patch 06 of the lab's CM1 series reads gravity, CO2 and O2 from the namelist, with the build's values as its defaults (11 November 2026); once the namelist build passes plan stage 3, one build of each patch set serves every world, the electrified set after its companion patch (Model adapters) |
 | The flagship | A family of low-gravity waterworlds after Arnscheidt, Wordsworth and Ding (2019): their steam worlds first, to evaluate the ensemble against the paper, then Gaean air over the same bodies, then protection where that air lasts too briefly ([waterworlds.md](waterworlds.md)); the Open Moon, compared with Terluna's results, is the lab's test case (2026-10-19) |
 | Later additions | The Moon at 1.0 atm, the same body with every calibration refitted; Mars at 1 bar, a new column and ledger inside RRTMG's range; and a slowly rotating Earth-like planet, which needs the general repairs alone. The decision of 2026-10-17 placed them after the Open Moon, and since 2026-10-19 they wait as possible additions after the waterworlds |
 | Internal forms | Where a form of the lab's own serves its computation better, each kind of quantity keeps that one form, and readers convert outside data into it on import, recording the conversion (2026-10-19; Principles) |

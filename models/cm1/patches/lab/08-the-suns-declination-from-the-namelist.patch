@@ -1,0 +1,98 @@
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -424,6 +424,7 @@
+       world_co2 = TERLUNA_CO2   ! Lab: RRTMG's CO2, a mole fraction; the build's unless the namelist gives it
+       world_o2 = TERLUNA_O2     ! Lab: RRTMG's O2, a mole fraction; the build's unless the namelist gives it
+       soil_dz1 = 0.05           ! Lab: the slab soil's top layer (m); core patch 08's 5 cm unless the namelist gives it
++      sun_decl = 0.0            ! Lab: the Sun's declination (degrees north); the equinox unless the namelist gives it
+       solconrce = 0.0
+       zenanglrce = 0.0
+       trn_swirl = 0.0
+--- a/src/input.F
++++ b/src/input.F
+@@ -299,6 +299,7 @@
+       real :: world_g   ! Lab: gravity (m/s2) of the dynamics, the physics, RRTMG and the CAPE diagnostic
+       real :: world_co2,world_o2   ! Lab: RRTMG's CO2 and O2, mole fractions of the air
+       real :: soil_dz1   ! Lab: the thickness of the slab soil's top layer (m); each layer below is twice the one above
++      real :: sun_decl   ! Lab: the Sun's declination (degrees north) under the solar day of var19 seconds
+ !  Begin namelists:
+ 
+       namelist /param0/ nx,ny,nz,ppnode,                                &
+@@ -322,7 +323,7 @@
+                         umove,vmove,v_t,l_h,lhref1,lhref2,l_inf,brkup_db,ipbl2_per_mass,gust_over_water,ndcnst,nt_c, &
+                         brkup_gscale,brkup_rhor,brkup_rhoexp,rain_fall_law,rain_selfcoll, &
+                         rain_autoconv_fac,rain_accr_fac, &
+-                        world_g,world_co2,world_o2,soil_dz1, &
++                        world_g,world_co2,world_o2,soil_dz1,sun_decl, &
+                         csound,cstar,solconrce,zenanglrce
+       namelist /param4/ stretch_x,dx_inner,dx_outer,nos_x_len,tot_x_len
+       namelist /param5/ stretch_y,dy_inner,dy_outer,nos_y_len,tot_y_len
+--- a/src/param.F
++++ b/src/param.F
+@@ -427,6 +427,7 @@
+       call MPI_BCAST(world_co2,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)           ! Lab
+       call MPI_BCAST(world_o2,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
+       call MPI_BCAST(soil_dz1,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
++      call MPI_BCAST(sun_decl,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
+       call MPI_BCAST(ndcnst ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(nt_c   ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(csound ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+@@ -774,6 +775,16 @@
+         if(myid.eq.0) print *,'  Lab soil: soil_dz1 must be positive'
+         call stopcm1
+       ENDIF
++      ! Lab: the Sun's declination, sun_decl of param3 in degrees north, 0 by default. It acts on the Sun of core
++      ! patch 05, which RRTMG takes with a solar day of var19 seconds (radiation_driver.F).
++      IF( .not.(abs(sun_decl).le.90.0) )THEN
++        if(myid.eq.0) print *,'  Lab Sun: sun_decl must lie between -90 and 90 degrees'
++        call stopcm1
++      ENDIF
++      IF( sun_decl.ne.0.0 .and. .not.(radopt.eq.2 .and. var19.gt.1.0) )THEN
++        if(myid.eq.0) print *,'  Lab Sun: sun_decl is read with radopt = 2 and a solar day of var19 seconds'
++        call stopcm1
++      ENDIF
+ 
+       call set_constants( testcase , world_g )
+ 
+@@ -3213,6 +3224,7 @@
+       if(dowr) write(outfile,*) 'world_co2 =',world_co2  ! Lab
+       if(dowr) write(outfile,*) 'world_o2 =',world_o2  ! Lab
+       if(dowr) write(outfile,*) 'soil_dz1 =',soil_dz1  ! Lab
++      if(dowr) write(outfile,*) 'sun_decl =',sun_decl  ! Lab
+       if(dowr) write(outfile,*) 'ndcnst    =',ndcnst
+       if(dowr) write(outfile,*) 'nt_c      =',nt_c
+       if(dowr) write(outfile,*) 'csound    =',csound
+--- a/src/radiation_driver.F
++++ b/src/radiation_driver.F
+@@ -34,6 +34,7 @@
+       use constants, only : pi,g,cp,cpl,cpi,cv,cvv,rd,cvdcp,degdpi
+       use input, only : var12,var16,var17,var18,var19   ! Terluna: the lunar day
+       use input, only : world_co2,world_o2   ! Lab: the run's CO2 and O2 for RRTMG
++      use input, only : sun_decl   ! Lab: the Sun's declination
+       use bc_module, only : bcs
+       use radtrns3d_module, only : radtrns,setradwrk,zenangl,nrad2d,       &
+                                    nrsirbm,nrsirdf,nrsuvbm,nrsuvdf,ncosz,  &
+@@ -594,6 +595,23 @@
+             coszen(i,j) = min( 1.0 , max( -1.0 , cos(terluna_lat)*cos(hrang(i,j)) ) )
+           enddo
+           enddo
++          IF( sun_decl.ne.0.0 )THEN
++            ! Lab: the Sun at the declination sun_decl (degrees north, param3), where the loop above holds it at the
++            ! equinox: cos(zenith) = sin(lat) sin(decl) + cos(lat) cos(decl) cos(hour angle), CM1's own form
++            ! (calc_coszen), at each column's latitude and at the hour angle set above. At the default, 0, the loop
++            ! above stands alone, so the equinox Sun keeps its statements. The declination passed on, which CM1
++            ! writes among its diagnostics (rad_declin), becomes the namelist's.
++            declin = sun_decl*pi/180.0
++            do j=1,nj
++            do i=1,ni
++              terluna_lat = ctrlat*pi/180.0
++              if( var16.gt.1.0 .and. var12.gt.0.0 )  &
++                terluna_lat = asin( sin(var12*pi/180.0)*sin(2.0*pi*xh(i)/var16) )
++              coszen(i,j) = min( 1.0 , max( -1.0 , sin(terluna_lat)*sin(declin)   &
++                                                  + cos(terluna_lat)*cos(declin)*cos(hrang(i,j)) ) )
++            enddo
++            enddo
++          ENDIF
+         ENDIF
+ 
+         if( nstep.le.1 .and. myid.eq.0 )then

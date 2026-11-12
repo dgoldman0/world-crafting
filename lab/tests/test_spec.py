@@ -150,6 +150,40 @@ def test_the_warm_rains_earth_rates_warn_off_earths_gravity():
     assert LIB.defaults('cm1/defaults')['physics']['warm_rain_rates'] == 'earth'
 
 
+def test_cm1s_world_entries_stand_in_the_registry_with_their_identity_defaults():
+    """B1 names patch 06 of the lab's CM1 series beside the build constant: the patch reads the gravity from the
+    namelist as world_g, whose default is the build's value, and the entry stays require-build, with the world's
+    constants compiled in by default, until stage 3's check of one-day segments. The soil's and the Sun's entries name
+    patches 07 and 08 with their entries and identity defaults and warn as before, and the schemes that hold Earth's
+    gravity, or the build's at compile time, are refused off 9.81 m/s2."""
+    entries = {e['id']: e for e in LIB.registry()}
+    b1, soil, sun, schemes = (entries[name] for name in ('B1', 'cm1-soil-day', 'cm1-equinox-sun', 'cm1-earth-g-schemes'))
+    patches = LAB.parent / 'models' / 'cm1' / 'patches'
+    assert (b1['state'], b1['action']) == ('repaired', 'require-build')
+    assert b1['repair']['patches'] == ['core/01-04', 'lab/06-gravity-co2-and-o2-from-the-namelist']
+    assert (b1['repair']['build_constant'], b1['repair']['namelist']) == ('TERLUNA_G', ['world_g'])
+    assert (patches / (b1['repair']['patches'][1] + '.patch')).exists()
+    defaults = LIB.defaults('cm1/defaults')
+    assert defaults['world_constants'] == 'build' and b1['repair']['setting'] == 'cm1.world_constants'
+    for entry, patch, name, default, setting in (
+            (soil, 'lab/07-the-soils-top-layer-from-the-namelist', 'soil_dz1', 0.05, 'cm1.diurnal.soil_top_layer_m'),
+            (sun, 'lab/08-the-suns-declination-from-the-namelist', 'sun_decl', 0.0, 'cm1.physics.sun_declination')):
+        assert (entry['state'], entry['action']) == ('repaired', 'warn') and 'planned' not in entry
+        assert (entry['repair']['patch'], entry['repair']['namelist'], entry['repair']['default']) == (patch, [name], default)
+        assert entry['repair']['setting'] == setting and (patches / (patch + '.patch')).exists()
+    assert soil['when'] == [{'q': 'soil_layer_ratio', 'outside': [0.9, 1.1]}]
+    assert sun['when'] == [{'field': 'rotation.obliquity_deg', 'gt': 5.0},
+                           {'config': 'cm1.physics.sun_declination', 'eq': 'equinox'}]
+    # The defaults ask for the world's own soil and season, which the two patches let a case hand to CM1.
+    assert defaults['diurnal']['soil_top_layer_m'] == 0.01 and defaults['physics']['sun_declination'] == 'from-season'
+    # On the Open Moon patch 08's 5 cm lies within a tenth of the day's depth, and the tilt is 1.54 degrees.
+    moon = derive.planet(LIB.world('moon'), LIB.scenario('moon/open-moon'))
+    assert 0.9 < 0.05 / (0.01 * derive.soil_factor(moon['solar_day_days'])) < 1.1
+    assert LIB.world('moon')['rotation']['obliquity_deg'] < 5.0 < LIB.world('mars')['rotation']['obliquity_deg']
+    assert schemes['action'] == 'refuse' and schemes['when'][0] == {'q': 'gravity_m_s2', 'ne': 9.81, 'rel_tolerance': 0.005}
+    assert {'mynn', 'myj', 'nssl', 'gsfc-lfo', 'lfo', 'goddard'} <= set(schemes['when'][1]['any_in'])
+
+
 def test_plasims_rain_constant_warns_off_earths_gravity_and_the_births_keep_their_envelope():
     """B30 warns where PlaSim evaporates its rain by the constant gamma off Earth's gravity, and names the third value
     of NEVAPPREC, patch 14's, as its repair. With the drops' sizes a second entry asks for a refit where the births'

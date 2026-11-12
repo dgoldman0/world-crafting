@@ -1,0 +1,447 @@
+--- a/src/base.F
++++ b/src/base.F
+@@ -3242,7 +3242,7 @@
+     if(dowr) write(outfile,*)
+     do n=1,3
+       call getcape( n , nk+1 , pfoo , tfoo , qvfoo , cape , cin ,   &
+-                    zlcl, zlfc, zel , psource , tsource , qvsource )
++                    zlcl, zlfc, zel , psource , tsource , qvsource , g )   ! Lab: at the run's gravity
+       if(n.eq.1)then
+         if(dowr) write(outfile,*) '    for surface parcel:'
+       elseif(n.eq.2)then
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -1,3 +1,12 @@
++#ifndef TERLUNA_G
++#define TERLUNA_G 9.81
++#endif
++#ifndef TERLUNA_CO2
++#define TERLUNA_CO2 400.e-6
++#endif
++#ifndef TERLUNA_O2
++#define TERLUNA_O2 0.209488
++#endif
+ 
+       program cm1
+ 
+@@ -411,6 +420,9 @@
+       rain_selfcoll = 0.0  ! Lab: CM1's 5.78 m3/kg/s unless the namelist gives a positive rate
+       rain_autoconv_fac = 1.0   ! Lab: a factor on Morrison's autoconversion of cloud to rain; 1 keeps CM1's rate
+       rain_accr_fac = 1.0       ! Lab: a factor on rain's accretion of cloud; 1 keeps CM1's rate
++      world_g = TERLUNA_G       ! Lab: gravity (m/s2); the build's unless the namelist gives it
++      world_co2 = TERLUNA_CO2   ! Lab: RRTMG's CO2, a mole fraction; the build's unless the namelist gives it
++      world_o2 = TERLUNA_O2     ! Lab: RRTMG's O2, a mole fraction; the build's unless the namelist gives it
+       solconrce = 0.0
+       zenanglrce = 0.0
+       trn_swirl = 0.0
+--- a/src/constants.F
++++ b/src/constants.F
+@@ -1,6 +1,3 @@
+-#ifndef TERLUNA_G
+-#define TERLUNA_G 9.81
+-#endif
+   MODULE constants
+ 
+   implicit none
+@@ -70,10 +67,11 @@
+ 
+     !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ 
+-      subroutine set_constants( testcase )
++      subroutine set_constants( testcase , world_g )
+       implicit none
+ 
+       integer, intent(in) :: testcase
++      real, intent(in) :: world_g   ! Lab: the run's gravity (m/s2), from the namelist (param3)
+ 
+ 
+       !--------------------
+@@ -113,7 +111,7 @@
+ !!!        earth_radius  =  6371000.0
+ 
+         !  cm1 defaults:
+-        g      = TERLUNA_G   ! Terluna: gravity set at build time
++        g      = world_g   ! Lab: the run's gravity; the namelist's world_g, by default the build's value
+         rd     = 287.04
+         cp     = 1005.7
+         cpv    = 1870.0
+--- a/src/domaindiag.F
++++ b/src/domaindiag.F
+@@ -2315,7 +2315,7 @@
+             ! dum2(2) = lfc
+ 
+             call getcape( 3 , nk+1 , pfoo , tfoo , qfoo , dum1(i,j,1) , dum1(i,j,2) ,   &
+-                          dum2(i,j,1), dum2(i,j,2), zel , psource , tsource , qvsource )
++                          dum2(i,j,1), dum2(i,j,2), zel , psource , tsource , qvsource , g )   ! Lab
+ 
+             deallocate( pfoo )
+             deallocate( tfoo )
+--- a/src/getcape.F
++++ b/src/getcape.F
+@@ -1,6 +1,3 @@
+-#ifndef TERLUNA_G
+-#define TERLUNA_G 9.81
+-#endif
+   MODULE getcape_module
+ 
+   implicit none
+@@ -15,12 +12,13 @@
+ !-----------------------------------------------------------------------
+ 
+     subroutine getcape( source, nk , p_in , t_in , q_in, cape , cin,   &
+-                        zlcl, zlfc, zel , psource , tsource , qvsource )
++                        zlcl, zlfc, zel , psource , tsource , qvsource , g )
+     implicit none
+ 
+     integer, intent(in) :: source,nk
+     real, dimension(nk), intent(in) :: p_in,t_in,q_in
+     real, intent(out) :: cape,cin,psource,tsource,qvsource
++    real, intent(in) :: g   ! Lab: the run's gravity (m/s2), CM1's g
+ 
+ !-----------------------------------------------------------------------
+ !
+@@ -96,10 +94,10 @@
+     real :: thlast,fliq,fice,tbar,qvbar,qlbar,qibar,lhv,lhs,lhf,rm,cpm
+     double precision :: avgth,avgqv
+     real :: ee,zlcl,zlfc,zel,plcl,plfc,pel,zh
++    real :: cpdg   ! Lab: cp/g, set below from the run's gravity
+ 
+ !-----------------------------------------------------------------------
+ 
+-    real, parameter :: g     = TERLUNA_G   ! Terluna: gravity for CAPE
+     real, parameter :: p00   = 100000.0
+     real, parameter :: cp    = 1005.7
+     real, parameter :: rd    = 287.04
+@@ -120,7 +118,6 @@
+     real, parameter :: reps  = rv/rd
+     real, parameter :: rddcp = rd/cp
+     real, parameter :: cpdrd = cp/rd
+-    real, parameter :: cpdg  = cp/g
+ 
+     real, parameter :: converge = 0.0005
+ 
+@@ -128,6 +125,8 @@
+ 
+ !-----------------------------------------------------------------------
+ 
++    cpdg = cp/g
++
+ !---- convert p,t,td to mks units; get pi,q,th,thv ----!
+ 
+     do k=1,nk
+--- a/src/init_physics.F
++++ b/src/init_physics.F
+@@ -14,6 +14,7 @@
+       use radtrns3d_module
+       use module_ra_rrtmg_lw , only : rrtmg_lwinit
+       use module_ra_rrtmg_sw , only : rrtmg_swinit
++      use module_model_constants , only : lab_build_g => g   ! Lab: the gravity MYNN and MYJ hold
+       use module_sf_mynn , only : mynn_sf_init_driver
+       use module_sf_myjsfc , only : myjsfcinit
+       use sf_sfclayrev , only : sf_sfclayrev_init
+@@ -91,7 +92,8 @@
+                    myid = myid ,                                            &
+                   ids=1  ,ide=ni+1 , jds= 1 ,jde=nj+1 , kds=1  ,kde=nk+1 ,  &
+                   ims=ib ,ime=ie   , jms=jb ,jme=je   , kms=kb ,kme=ke ,    &
+-                  its=1  ,ite=ni   , jts=1  ,jte=nj   , kts=1  ,kte=nk )
++                  its=1  ,ite=ni   , jts=1  ,jte=nj   , kts=1  ,kte=nk ,    &
++                  grv=g )   ! Lab: RRTMG takes the run's gravity
+ 
+ !!!             aclwalloc = .true.
+ 
+@@ -107,7 +109,8 @@
+                    myid = myid ,                                             &
+                   ids=1  ,ide=ni+1 , jds= 1 ,jde=nj+1 , kds=1  ,kde=nk+1 ,   &
+                   ims=ib ,ime=ie   , jms=jb ,jme=je   , kms=kb ,kme=ke ,     &
+-                  its=1  ,ite=ni   , jts=1  ,jte=nj   , kts=1  ,kte=nk )
++                  its=1  ,ite=ni   , jts=1  ,jte=nj   , kts=1  ,kte=nk ,     &
++                  grv=g )   ! Lab: RRTMG takes the run's gravity
+ #ifdef MPI
+              call MPI_BARRIER (MPI_COMM_WORLD,ierr)
+ #endif
+@@ -122,6 +125,15 @@
+ 
+       lab_gust_water = gust_over_water   ! Lab: the namelist's choice for the MM5 surface layer's gust over water
+ 
++      ! Lab: the MYNN and MYJ boundary layers and the MYJ surface layer hold gravity as a compile-time constant, g of
++      ! module_model_constants (module_ra_etc.F), which is the build's value. A run that selects one of them stops
++      ! unless the namelist's world_g equals that value.
++      IF( (ipbl.eq.4 .or. ipbl.eq.5 .or. ipbl.eq.6 .or. sfcmodel.eq.7) .and. world_g.ne.lab_build_g )THEN
++        if(myid.eq.0) print *,'  Lab world: ipbl = 4, 5, 6 and sfcmodel = 7 hold the gravity of the build, ',lab_build_g
++        if(myid.eq.0) print *,'  Lab world: world_g must equal it'
++        call stopcm1
++      ENDIF
++
+       IF( isfcflx.eq.1 )THEN
+         if( sfcmodel.eq.2 )then
+           call sfclayinit
+--- a/src/input.F
++++ b/src/input.F
+@@ -296,6 +296,8 @@
+       integer :: rain_fall_law   ! Lab: 1 reads rain's fall law from lab_rain_law.txt; 0 keeps Morrison's power law
+       real :: rain_selfcoll   ! Lab: rain's self-collection rate (m3/kg/s); 0 keeps CM1's 5.78
+       real :: rain_autoconv_fac,rain_accr_fac   ! Lab: factors on Morrison's autoconversion and accretion; 1 keeps CM1's
++      real :: world_g   ! Lab: gravity (m/s2) of the dynamics, the physics, RRTMG and the CAPE diagnostic
++      real :: world_co2,world_o2   ! Lab: RRTMG's CO2 and O2, mole fractions of the air
+ !  Begin namelists:
+ 
+       namelist /param0/ nx,ny,nz,ppnode,                                &
+@@ -319,6 +321,7 @@
+                         umove,vmove,v_t,l_h,lhref1,lhref2,l_inf,brkup_db,ipbl2_per_mass,gust_over_water,ndcnst,nt_c, &
+                         brkup_gscale,brkup_rhor,brkup_rhoexp,rain_fall_law,rain_selfcoll, &
+                         rain_autoconv_fac,rain_accr_fac, &
++                        world_g,world_co2,world_o2, &
+                         csound,cstar,solconrce,zenanglrce
+       namelist /param4/ stretch_x,dx_inner,dx_outer,nos_x_len,tot_x_len
+       namelist /param5/ stretch_y,dy_inner,dy_outer,nos_y_len,tot_y_len
+--- a/src/module_ra_etc.F
++++ b/src/module_ra_etc.F
+@@ -412,7 +412,7 @@
+ 
+    ! needed for mynn:
+    REAL    , PARAMETER ::  KARMAN=0.4
+-   REAL    , PARAMETER :: g = TERLUNA_G  ! Terluna: gravity for RRTMG, set at build time
++   REAL    , PARAMETER :: g = TERLUNA_G  ! Lab: the build's gravity, which MYNN and MYJ hold; RRTMG takes the run's
+    REAL    , PARAMETER :: p1000mb      = 100000.
+    REAL    , PARAMETER :: r_v          = 461.5
+    REAL    , PARAMETER :: rcp          = r_d/cp
+--- a/src/module_ra_rrtmg_lw.F
++++ b/src/module_ra_rrtmg_lw.F
+@@ -1,9 +1,3 @@
+-#ifndef TERLUNA_CO2
+-#define TERLUNA_CO2 400.e-6
+-#endif
+-#ifndef TERLUNA_O2
+-#define TERLUNA_O2 0.209488
+-#endif
+ ! Terluna: the design air, longwave
+ !MODULE module_ra_rrtmg_lw
+ 
+@@ -11449,7 +11443,7 @@
+ !------------------------------------------------------------------
+ MODULE module_ra_rrtmg_lw
+ 
+-use module_model_constants, only : cp , grv => g
++use module_model_constants, only : cp   ! Lab: the gravity comes with the call of rrtmg_lwinit
+ use module_wrf_error
+ #if (HWRF == 1)
+    USE module_state_description, ONLY : FER_MP_HIRES, FER_MP_HIRES_ADVECT, ETAMP_HWRF 
+@@ -11520,7 +11514,7 @@
+                        progn,calc_clean_atm_diag,                 & !czhao
+                        qndrop3d,f_qndrop,                         & !czhao
+ !ccc added for time varying gases.
+-                       yr,julian,co2out,                          &
++                       yr,julian,co2out,lab_co2,lab_o2,           &
+ !ccc
+                        mp_physics,                                &
+                        ids,ide, jds,jde, kds,kde,                 & 
+@@ -11578,6 +11572,7 @@
+    INTEGER, INTENT(IN    ) ::                                 yr
+    REAL, INTENT(IN    ) ::                                julian
+    real, intent(out)          :: co2out
++   real, intent(in)           :: lab_co2,lab_o2   ! Lab: the run's CO2 and O2, mole fractions (world_co2, world_o2)
+ !ccc
+ 
+ !
+@@ -11792,8 +11787,7 @@
+     data ccl4 / 0.0 / 
+ !!!    data ccl4 / 0.0 /    ! rcemip
+ ! Set oxygen volume mixing ratio (for o2mmr=0.23143)
+-    real :: o2
+-    data o2 / TERLUNA_O2 /
++    real :: o2   ! Lab: set from lab_o2, beside co2
+ 
+     integer :: iplon, irng, permuteseed
+     integer :: nb
+@@ -11913,7 +11907,8 @@
+ ! Pressures are in mb
+ !
+ ! Annual function for co2 in WRF v4.2
+-      co2 = TERLUNA_CO2
++      co2 = lab_co2   ! Lab: the run's CO2 and O2, from the namelist (world_co2 and world_o2 of param3)
++      o2 = lab_o2
+       co2out = co2
+ 
+ !ccc Read time-varying trace gases concentrations and interpolate them to run date.
+@@ -13034,7 +13029,7 @@
+                        p_top, allowed_to_read , myid,               &
+                        ids, ide, jds, jde, kds, kde,                &
+                        ims, ime, jms, jme, kms, kme,                &
+-                       its, ite, jts, jte, kts, kte                 )
++                       its, ite, jts, jte, kts, kte, grv            )
+ !--------------------------------------------------------------------
+    IMPLICIT NONE
+ !--------------------------------------------------------------------
+@@ -13045,6 +13040,7 @@
+                                      its, ite, jts, jte, kts, kte
+    REAL, INTENT(IN)               :: p_top 
+    integer, intent(in) :: myid
++   REAL, INTENT(IN)               :: grv   ! Lab: the run's gravity (m/s2), CM1's g
+ 
+ ! Steven Cavallo.  Added for buffer layer adjustment.   December 2010.
+    NLAYERS = kme + nint(p_top*0.01/deltap)- 1 ! Model levels plus new levels.
+--- a/src/module_ra_rrtmg_sw.F
++++ b/src/module_ra_rrtmg_sw.F
+@@ -1,9 +1,3 @@
+-#ifndef TERLUNA_CO2
+-#define TERLUNA_CO2 400.e-6
+-#endif
+-#ifndef TERLUNA_O2
+-#define TERLUNA_O2 0.209488
+-#endif
+ ! Terluna: the design air, shortwave
+ !!MODULE module_ra_rrtmg_sw
+                 
+@@ -9923,7 +9917,7 @@
+ !------------------------------------------------------------------
+ MODULE module_ra_rrtmg_sw
+ 
+-use module_model_constants, only : cp , grv => g
++use module_model_constants, only : cp   ! Lab: the gravity comes with the call of rrtmg_swinit
+ USE module_wrf_error
+ #if (HWRF == 1)
+ USE module_state_description, ONLY : FER_MP_HIRES, FER_MP_HIRES_ADVECT, ETAMP_HWRF 
+@@ -9989,7 +9983,7 @@
+                        tauaer3d_sw,ssaaer3d_sw,asyaer3d_sw,       & ! jararias 2013/11
+                        swddir, swddni, swddif,                    & ! jararias 2013/08
+                        swdownc, swddnic, swddirc,                 & ! PAJ
+-                       xcoszen,yr,julian,co2out                   & ! jararias 2013/08
++                       xcoszen,yr,julian,co2out,lab_co2,lab_o2    & ! jararias 2013/08
+                                                                   )
+ !------------------------------------------------------------------
+    IMPLICIT NONE
+@@ -10067,6 +10061,7 @@
+ 
+    integer, intent(in)        :: yr
+    real, intent(out)          :: co2out
++   real, intent(in)           :: lab_co2,lab_o2   ! Lab: the run's CO2 and O2, mole fractions (world_co2, world_o2)
+    real, optional, intent(in) :: &
+             julian      ! julian day (1-366)
+    real, dimension(ims:ime,jms:jme), intent(in) :: &
+@@ -10289,8 +10284,7 @@
+     data n2o / 0.0 / 
+ !!!    data n2o / 306.e-9 /    ! rcemip
+ ! Set oxygen volume mixing ratio (for o2mmr=0.23143)
+-    real :: o2
+-    data o2 / TERLUNA_O2 /
++    real :: o2   ! Lab: set from lab_o2, beside co2
+ 
+     integer :: iplon, irng, permuteseed
+     integer :: nb
+@@ -10353,7 +10347,8 @@
+ 
+ !------------------------------------------------------------------
+ ! Annual function for co2 in WRF v4.2
+-      co2 = TERLUNA_CO2
++      co2 = lab_co2   ! Lab: the run's CO2 and O2, from the namelist (world_co2 and world_o2 of param3)
++      o2 = lab_o2
+       co2out = co2
+ #if ( WRF_CHEM == 1 )
+       IF ( aer_ra_feedback == 1) then
+@@ -11361,7 +11356,7 @@
+                        allowed_to_read , myid,                      &
+                        ids, ide, jds, jde, kds, kde,                &
+                        ims, ime, jms, jme, kms, kme,                &
+-                       its, ite, jts, jte, kts, kte                 )
++                       its, ite, jts, jte, kts, kte, grv            )
+ !--------------------------------------------------------------------
+    IMPLICIT NONE
+ !--------------------------------------------------------------------
+@@ -11371,6 +11366,7 @@
+                                      ims, ime, jms, jme, kms, kme,  &
+                                      its, ite, jts, jte, kts, kte
+    integer, intent(in) :: myid
++   REAL, INTENT(IN)               :: grv   ! Lab: the run's gravity (m/s2), CM1's g
+ 
+ ! Read in absorption coefficients and other data
+    IF ( allowed_to_read ) THEN
+--- a/src/param.F
++++ b/src/param.F
+@@ -423,6 +423,9 @@
+       call MPI_BCAST(rain_selfcoll,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)       ! Lab
+       call MPI_BCAST(rain_autoconv_fac,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)   ! Lab
+       call MPI_BCAST(rain_accr_fac,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)       ! Lab
++      call MPI_BCAST(world_g,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)             ! Lab
++      call MPI_BCAST(world_co2,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)           ! Lab
++      call MPI_BCAST(world_o2,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
+       call MPI_BCAST(ndcnst ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(nt_c   ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(csound ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+@@ -748,7 +751,25 @@
+ !-----------------------------------------------------------------------
+ !  Set constants:
+ 
+-      call set_constants( testcase )
++      ! Lab: the world's gravity and air come from the namelist: world_g, world_co2 and world_o2 of param3, each with
++      ! the build's value as its default (cm1.F). world_g is the gravity of the dynamics, of every scheme that takes
++      ! CM1's g, of RRTMG and of the CAPE diagnostic; world_co2 and world_o2 are RRTMG's CO2 and O2, mole fractions
++      ! of the air. Test cases 4 and 5 set their own constants, a gravity of 9.81 among them, so a run of either
++      ! stops on another world_g. The model stops here on a value it cannot take.
++      IF( .not.(world_g.gt.0.0) )THEN
++        if(myid.eq.0) print *,'  Lab world: world_g must be positive'
++        call stopcm1
++      ENDIF
++      IF( (testcase.eq.4 .or. testcase.eq.5) .and. world_g.ne.9.81 )THEN
++        if(myid.eq.0) print *,'  Lab world: test cases 4 and 5 set a gravity of 9.81, and world_g must equal it'
++        call stopcm1
++      ENDIF
++      IF( .not.(world_co2.ge.0.0 .and. world_o2.ge.0.0 .and. (world_co2+world_o2).le.1.0) )THEN
++        if(myid.eq.0) print *,'  Lab world: world_co2 and world_o2 are mole fractions, 0 or more each, 1 at most in sum'
++        call stopcm1
++      ENDIF
++
++      call set_constants( testcase , world_g )
+ 
+ !-----------------------------------------------------------------------
+ !  Some "dummy" checks:
+@@ -3182,6 +3203,9 @@
+       if(dowr) write(outfile,*) 'rain_selfcoll =',rain_selfcoll  ! Lab
+       if(dowr) write(outfile,*) 'rain_autoconv_fac =',rain_autoconv_fac  ! Lab
+       if(dowr) write(outfile,*) 'rain_accr_fac =',rain_accr_fac  ! Lab
++      if(dowr) write(outfile,*) 'world_g =',world_g  ! Lab
++      if(dowr) write(outfile,*) 'world_co2 =',world_co2  ! Lab
++      if(dowr) write(outfile,*) 'world_o2 =',world_o2  ! Lab
+       if(dowr) write(outfile,*) 'ndcnst    =',ndcnst
+       if(dowr) write(outfile,*) 'nt_c      =',nt_c
+       if(dowr) write(outfile,*) 'csound    =',csound
+--- a/src/radiation_driver.F
++++ b/src/radiation_driver.F
+@@ -33,6 +33,7 @@
+                         timestats,mytime,time_rad
+       use constants, only : pi,g,cp,cpl,cpi,cv,cvv,rd,cvdcp,degdpi
+       use input, only : var12,var16,var17,var18,var19   ! Terluna: the lunar day
++      use input, only : world_co2,world_o2   ! Lab: the run's CO2 and O2 for RRTMG
+       use bc_module, only : bcs
+       use radtrns3d_module, only : radtrns,setradwrk,zenangl,nrad2d,       &
+                                    nrsirbm,nrsirdf,nrsuvbm,nrsuvdf,ncosz,  &
+@@ -712,7 +713,8 @@
+                   ids=1  ,ide=ni+1 , jds= 1 ,jde=nj+1 , kds=1  ,kde=nk+1 ,          &
+                   ims=ib ,ime=ie   , jms=jb ,jme=je   , kms=kb ,kme=ke ,            &
+                   its=1  ,ite=ni   , jts=1  ,jte=nj   , kts=1  ,kte=nk ,            &
+-                  mp_physics=mp_physics,co2out=co2out               )
++                  mp_physics=mp_physics,co2out=co2out,              &
++                  lab_co2=world_co2,lab_o2=world_o2 )   ! Lab
+ 
+ 
+             !$omp parallel do default(shared)  &
+@@ -780,7 +782,8 @@
+                      asyaer3d_sw=asyaer_sw,                             & ! jararias 2013/11
+                      swddir=swddir,swddni=swddni,swddif=swddif,         & ! jararias 2013/08/10
+                      swdownc=swdownc, swddnic=swddnic, swddirc=swddirc, &
+-                     xcoszen=coszen,yr=yr,julian=julian,mp_physics=mp_physics,co2out=co2out ) ! jararias 2013/08/14
++                     xcoszen=coszen,yr=yr,julian=julian,mp_physics=mp_physics,co2out=co2out, & ! jararias 2013/08/14
++                     lab_co2=world_co2,lab_o2=world_o2 )   ! Lab
+ 
+             if( nstep.le.1 .and. myid.eq.0 ) print *,'  co2 = ',co2out
+ 
+--- a/src/writeout.F
++++ b/src/writeout.F
+@@ -2949,7 +2949,7 @@
+             ! dum2(2) = lfc
+ 
+             call getcape( 3 , nk+1 , pfoo , tfoo , qfoo , dum1(i,j,1) , dum1(i,j,2) ,   &
+-                          dum2(i,j,1), dum2(i,j,2), zel , psource , tsource , qvsource )
++                          dum2(i,j,1), dum2(i,j,2), zel , psource , tsource , qvsource , g )   ! Lab
+ 
+             deallocate( pfoo )
+             deallocate( tfoo )

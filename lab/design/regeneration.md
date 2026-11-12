@@ -177,10 +177,11 @@ The product groups that head the columns:
    The shortwave fit then uses the ledger's slant factors.
 2. **The Rayleigh multiplier scales a coefficient that ExoPlaSim derives from the spectrum,** so a
    multiplier fitted under one spectrum is refitted under another.
-3. **CM1's builds compile gravity, CO2 and O2** until the namelist patches pass plan stage 3. O2 is held as a
-   partial pressure, so a change of surface pressure moves its mole fraction and with it every build, even
-   with the O2 partial pressure, the CO2 ppm and the Ar/N2 ratio unchanged. Once the patch passes, the same
-   change reaches the case inputs alone.
+3. **CM1's builds compile gravity, CO2 and O2** until the namelist build passes plan stage 3: patch 06 of the
+   lab's CM1 series reads the three from the namelist since 11 November 2026, with the build's values as its
+   defaults (`models/cm1/README.md`). O2 is held as a partial pressure, so a change of surface pressure moves
+   its mole fraction and with it every build, even with the O2 partial pressure, the CO2 ppm and the Ar/N2
+   ratio unchanged. Once the namelist build passes, the same change reaches the case inputs alone.
 4. **The tables depend on the sunlight's total through the column's state.**
    - The design column is computed under a stated sunlight, so a new scale or a new stellar total makes
      it stale.
@@ -298,8 +299,8 @@ The product groups that head the columns:
   - a model day of 1.0289 d: Slingo's cloud cover needs patch 03's convective day (B11);
   - CCM3's cloud water at 3.72 m/s²: patch 02's gravity switch (B12);
   - a column 2.6 times Earth's: every calibration refitted;
-  - a tilt of 25.19°: the equinox-Sun entry warns until the planned declination patch gives each case its
-    season's.
+  - a tilt of 25.19°: the equinox-Sun entry warns of a case that keeps the equinox, and patch 08 of the lab's
+    CM1 series gives each case its season's declination (`sun_decl`).
 - **Before any of this:** the lab refuses every stage that reads an unchosen field (the world's surface
   heights, the scenario's seas, land, ozone and cloud droplets) until it is chosen.
 

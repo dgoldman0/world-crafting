@@ -59,16 +59,16 @@ corrected there. The companion note `verification_record.md` describes the check
 | A8 | WRF-ELEC `lightmsz` | Channel reach marked only above threshold `scth` | 10-05, a5205d2 | Flash log takes reach from charge handed to ions | 13 flashes logged no reach | Fixed (logging) | R |
 | A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | `ipbl2_per_mass` (0): the lab's series, patch 01, from Terluna's build `moon_omp_rain_law_pbl` | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | A10 | ExoPlaSim, low-I/O output | `hus` in the mean output is the humidity held from the last output step, where every other field is a mean; the held field is absent from the restart, so each year file's first record holds about 2% of the vapour | 10-27, Terluna `domain/climate` 984606a5 | None in the model; a reader's rule (Terluna's `climate/gcm/year_files.py`) | Read as means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as humid | Open here; read by rule in Terluna | R, P |
-| B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant; fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
-| B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`; same scaling | Required | Fixed | R |
+| B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant, which the namelist's `world_g` replaces in the lab's series (patch 06, default the build's value); fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
+| B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`, still compiled in beside the lab's patch 06; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
 | B4 | WRF-ELEC | Breakdown field capped at 180 kV/m | 10-04, bf2fa5e | `lightning` 4 (lunar 4), 62b4c1e | Cap active below ~36 km in lunar air (44% at the ground) | Fixed for lunar runs | R |
 | B5 | WRF-ELEC | Ground strike when a channel reaches air warmer than −7 °C; stopping field 0.15 of breakdown | 10-05, 54ea2b2 | Rule kept as upper bound; leader crossing `var1` (lunar 1 kV/m), ac55dc2 | Ground strikes from none to a fifth of flashes | Bounded | R |
 | B6 | WRF-ELEC | 0.75-s sub-step tuned to Earth's 500-m layers and fall speeds | 10-04, 13c839e | `substep_s` (lunar 6.8 s) | One 8-s sub-step per step in the boxes | Fixed | R |
 | B7 | WRF-ELEC | Other Earth calibrations: 50 MV, 10 kV/m, 0.9/0.8 of breakdown, 200 V/m, NOx yield, Earth conductivity table, laboratory charging laws | 10-04 to 10-05 | Retained; Takahashi law tested | Polarity depends on the charging law | Open | R |
-| B8 | CM1 RRTMG | Earth's trace gases, CO₂ by calendar year, ozone profile | 09-27, 16319e1 | Design CO₂ and O₂ compiled in; others zero | Required | Fixed | R |
+| B8 | CM1 RRTMG | Earth's trace gases, CO₂ by calendar year, ozone profile | 09-27, 16319e1 | Design CO₂ and O₂ compiled in, which the namelist's `world_co2` and `world_o2` replace in the lab's series (patch 06, defaults the build's values); others zero | Required | Fixed | R |
 | B9 | CM1 RRTMG | Uses the Sun's own spectrum, not the shield-filtered one | 09-29, 36e29c4 | None | 5 W/m² of clear-air absorption at 0° E | Open | R |
-| B10 | CM1 | Earth-day soil, solar day, damping time and PBL length; Earth's Ω and radius in the beta plane | 09-27, 16319e1; beta plane V | Soil 5–80 cm; `var16`–`var19` Sun; scaled `rdalpha`, `l_inf`; beta plane bypassed | Required; beta plane reaches no result | Fixed or bypassed | R, V |
+| B10 | CM1 | Earth-day soil, solar day, damping time and PBL length; Earth's Ω and radius in the beta plane | 09-27, 16319e1; beta plane V | Soil 5–80 cm, its top layer from `soil_dz1` in the lab's series (patch 07, default 0.05 m); `var16`–`var19` Sun, its declination from `sun_decl` there (patch 08, default 0); scaled `rdalpha`, `l_inf`; beta plane bypassed | Required; beta plane reaches no result | Fixed or bypassed | R, V |
 | B11 | PlaSim | Convective cover counts rain per model day (29.8 Earth days) | 09-25, 86bfb63 | `CONVDAY` via `convective_day_s` (86400) | +0.42 cover; Moon 1.6 K warmer when fixed | Fixed | R |
 | B12 | PlaSim | CCM3 cloud water falls off with geometric height on an Earth scale | 09-25, 071f5ce | `CWGREF`, `CWSCALE` via `cloud_water` (`'earth_path'`) | High cloud waterless; Moon 2.5 K warmer when fixed | Fixed | R |
 | B13 | PlaSim | Earth's horizon slant factor of 35 (Moon: 13.5 for water, 7.1 for air) | 10-14, 2ac4359 | `ZMLUNAR`, `ZMAIRLUNAR`, with `--twilight` (`full`) | Part of B14; not separated | Fixed | R |
@@ -348,6 +348,18 @@ to a reference on the lunar design column), as `paper/notes/ideation.md` defines
   record).
 - **Effect.** Required for every lunar run. Cloud droplets fall 6× slower, raindrops 2.9× and graupel 2.3×
   (`climate/crm/README.md:31-36`).
+- **In the lab's series** (patch 06 of `models/cm1/series-lab`, 2026-11-11). The gravity is the namelist's `world_g`,
+  whose default is the build's `TERLUNA_G`, so that one build without the macro serves every world. `set_constants`
+  gives CM1's `g` the entry, from which the dynamics and Morrison's scheme read it as before; RRTMG's two
+  initialisations and the CAPE diagnostic take `g` as an argument, where each held a compile-time constant. In the
+  suite the constants, the diagnostic, one column of RRTMG and one of Morrison's scheme, handed the Moon's gravity,
+  return the bits of the same code with it compiled in, under both of the builds' flag sets
+  (`python/climate/tests/test_cm1_world.py`). In single scratch runs of that day, three hours of Terluna's 45° N
+  ring from a rainy restart agreed byte for byte, output and restart files alike, between a build with the Moon
+  compiled in and one build told the Moon by its namelist, under both flag sets, and CM1's released supercell
+  kept its output at the defaults. The MYNN and MYJ schemes keep the build's gravity and stop
+  a run whose `world_g` differs from it, and the lab's adapter compiles the gravity in until the one-day segments
+  and the timing of plan stage 3 pass (`models/cm1/README.md`, "The world from the namelist").
 
 ### B2. WRF-ELEC NSSL: gravity 9.8 and fall-speed laws (R)
 
@@ -359,6 +371,11 @@ to a reference on the lunar design column), as `paper/notes/ideation.md` defines
     `GRAVITY_PATCH`, `climate/crm/cm1_elec.py:437-487`).
 - **Verified.** `test_cm1_elec.py:116`: the scaling acts only where the particle is present and not at Earth's
   gravity. The Earth supercell agrees with CM1's own NSSL twin (verification record).
+- **In the lab's series.** Patch 03 of the electrified series still reads `TERLUNA_G`, so an electrified build
+  compiles its gravity in while the lab's patch 06 reads the rest of the model's from the namelist (B1). A companion
+  patch that hands NSSL's fall speeds and ventilation the namelist's gravity is still to write. CM1's own copy of
+  the NSSL scheme, which the electrified build replaces, keeps `gr = 9.8` (`module_mp_nssl_2mom.F` 935, 6857), and
+  the registry refuses it at another gravity since 2026-11-11 (`cm1-earth-g-schemes`).
 
 ### B3. WRF-ELEC NSSL: ventilation tied to Earth fall speeds (R)
 
@@ -436,6 +453,12 @@ to a reference on the lunar design column), as `paper/notes/ideation.md` defines
 - **Fix** (16319e1). CO₂ and O₂ are compiled in from the forcing GCM run (`TERLUNA_CO2`, `TERLUNA_O2`), and the other
   gases and ozone are set to zero (`cm1_run.py:746-763`). The setup checks the build's compiled air against the
   forcing run and refuses a mismatch (`cm1_run.py:2444-2449`).
+- **In the lab's series** (patch 06, 2026-11-11). CO₂ and O₂ are the namelist's `world_co2` and `world_o2`, mole
+  fractions whose defaults are the build's macros, and RRTMG's two drivers take them as arguments. In the suite one
+  column of RRTMG, longwave and shortwave, handed the Open Moon's CO₂ and O₂ returns the bits of RRTMG with them
+  compiled in, and twice the CO₂ lowers a clear column's outgoing longwave by 4.4 W/m². The gases set to zero stay
+  so in every build: an Earth case of CM1 runs without Earth's ozone, methane and nitrous oxide
+  (`models/cm1/README.md`, "The world from the namelist").
 
 ### B9. CM1 RRTMG: the unfiltered solar spectrum (R; open)
 
@@ -452,6 +475,15 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
     Sun keeps a declination of zero, "equinox sunlight", which ignores the 1.54° tilt;
   - the Rayleigh damping time (300 s) and the PBL asymptotic length (75 m) scale by the gravity ratio
     (`cm1_run.py:2004-2005`).
+- **In the lab's series** (patches 07 and 08, 2026-11-11). The soil's top layer is the namelist's `soil_dz1`, 0.05 m
+  by default, from which the four layers below double, so that a case states the depth its world's day reaches:
+  CM1's 1 cm times the square root of the solar day in Earth days, where 5 cm on every world leaves an Earth case
+  with layers five times too thick. The Sun's declination is the namelist's `sun_decl`, in degrees north and 0 by
+  default, and the zenith cosine takes its spherical form, sin(lat) sin(δ) + cos(lat) cos(δ) cos(hour angle). In the
+  suite the lines that lay out the soil and the block that sets the Sun keep their bits at the defaults, the layers
+  double from the top layer they are handed, and the Sun follows the formula to 2 parts in 10⁶ and stands on the
+  horizon at the lab's sunrise hour angle. The effect of either entry on a run is unmeasured
+  (`models/cm1/README.md`, "The world from the namelist").
 - **Bypassed, not changed (V).** CM1's beta plane derives its latitude and gradient from Earth's rotation,
   `omega = 2π/86400` (`constants.F:25`), and Earth's radius, 6,370 km (`constants.F:119`). It does so as
   `phi = asin(fcor/2Ω)` and `beta0 = 2Ω cos(phi)/earth_radius` (`param.F:9715-9718`).

@@ -1,0 +1,79 @@
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -423,6 +423,7 @@
+       world_g = TERLUNA_G       ! Lab: gravity (m/s2); the build's unless the namelist gives it
+       world_co2 = TERLUNA_CO2   ! Lab: RRTMG's CO2, a mole fraction; the build's unless the namelist gives it
+       world_o2 = TERLUNA_O2     ! Lab: RRTMG's O2, a mole fraction; the build's unless the namelist gives it
++      soil_dz1 = 0.05           ! Lab: the slab soil's top layer (m); core patch 08's 5 cm unless the namelist gives it
+       solconrce = 0.0
+       zenanglrce = 0.0
+       trn_swirl = 0.0
+--- a/src/init_surface.F
++++ b/src/init_surface.F
+@@ -181,12 +181,16 @@
+     IF( sfcmodel.eq.2 .or. sfcmodel.eq.3 .or. sfcmodel.eq.4 .or. sfcmodel.eq.6 .or. sfcmodel.eq.7 )THEN
+ 
+       IF (num_soil_layers.NE.1)THEN
+-      slab_dzs(1)=.05   ! Terluna: layers of 5-80 cm
++      ! Lab: the top layer from the namelist (soil_dz1 of param3), each layer below twice the one above. The default,
++      ! 0.05 m, gives Terluna's layers of 5-80 cm, where CM1's own top layer is 1 cm; a world's layers follow the
++      ! depth its day's heat reaches, 1 cm times the square root of the solar day in Earth days.
++      slab_dzs(1)=soil_dz1
+       slab_zs(1)=.5*slab_dzs(1)
+       DO l=2,num_soil_layers
+          slab_dzs(l)=2*slab_dzs(l-1)
+          slab_zs(l)=slab_zs(l-1)+.5*slab_dzs(l-1)+.5*slab_dzs(l)
+       ENDDO
++      if(dowr) write(outfile,*) '  Lab soil: the layers (m) ',slab_dzs   ! Lab
+       DO l=1,num_soil_layers
+          DO j=jb,je
+             DO i=ib,ie
+--- a/src/input.F
++++ b/src/input.F
+@@ -298,6 +298,7 @@
+       real :: rain_autoconv_fac,rain_accr_fac   ! Lab: factors on Morrison's autoconversion and accretion; 1 keeps CM1's
+       real :: world_g   ! Lab: gravity (m/s2) of the dynamics, the physics, RRTMG and the CAPE diagnostic
+       real :: world_co2,world_o2   ! Lab: RRTMG's CO2 and O2, mole fractions of the air
++      real :: soil_dz1   ! Lab: the thickness of the slab soil's top layer (m); each layer below is twice the one above
+ !  Begin namelists:
+ 
+       namelist /param0/ nx,ny,nz,ppnode,                                &
+@@ -321,7 +322,7 @@
+                         umove,vmove,v_t,l_h,lhref1,lhref2,l_inf,brkup_db,ipbl2_per_mass,gust_over_water,ndcnst,nt_c, &
+                         brkup_gscale,brkup_rhor,brkup_rhoexp,rain_fall_law,rain_selfcoll, &
+                         rain_autoconv_fac,rain_accr_fac, &
+-                        world_g,world_co2,world_o2, &
++                        world_g,world_co2,world_o2,soil_dz1, &
+                         csound,cstar,solconrce,zenanglrce
+       namelist /param4/ stretch_x,dx_inner,dx_outer,nos_x_len,tot_x_len
+       namelist /param5/ stretch_y,dy_inner,dy_outer,nos_y_len,tot_y_len
+--- a/src/param.F
++++ b/src/param.F
+@@ -426,6 +426,7 @@
+       call MPI_BCAST(world_g,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)             ! Lab
+       call MPI_BCAST(world_co2,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)           ! Lab
+       call MPI_BCAST(world_o2,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
++      call MPI_BCAST(soil_dz1,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
+       call MPI_BCAST(ndcnst ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(nt_c   ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(csound ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+@@ -768,6 +769,11 @@
+         if(myid.eq.0) print *,'  Lab world: world_co2 and world_o2 are mole fractions, 0 or more each, 1 at most in sum'
+         call stopcm1
+       ENDIF
++      ! Lab: the slab soil's top layer, soil_dz1 of param3, whose default is core patch 08's 5 cm (init_surface.F).
++      IF( .not.(soil_dz1.gt.0.0) )THEN
++        if(myid.eq.0) print *,'  Lab soil: soil_dz1 must be positive'
++        call stopcm1
++      ENDIF
+ 
+       call set_constants( testcase , world_g )
+ 
+@@ -3206,6 +3212,7 @@
+       if(dowr) write(outfile,*) 'world_g =',world_g  ! Lab
+       if(dowr) write(outfile,*) 'world_co2 =',world_co2  ! Lab
+       if(dowr) write(outfile,*) 'world_o2 =',world_o2  ! Lab
++      if(dowr) write(outfile,*) 'soil_dz1 =',soil_dz1  ! Lab
+       if(dowr) write(outfile,*) 'ndcnst    =',ndcnst
+       if(dowr) write(outfile,*) 'nt_c      =',nt_c
+       if(dowr) write(outfile,*) 'csound    =',csound

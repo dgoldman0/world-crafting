@@ -3,3 +3,6 @@ patches/lab/02-beljaars-gust-over-water.patch
 patches/lab/03-raindrop-limits-at-the-builds-gravity.patch
 patches/lab/04-rains-fall-law-and-self-collection-for-the-world.patch
 patches/lab/05-factors-on-autoconversion-and-accretion.patch
+patches/lab/06-gravity-co2-and-o2-from-the-namelist.patch
+patches/lab/07-the-soils-top-layer-from-the-namelist.patch
+patches/lab/08-the-suns-declination-from-the-namelist.patch

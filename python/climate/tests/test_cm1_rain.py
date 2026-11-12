@@ -8,7 +8,8 @@ by accretion at the namelist's factors.
 
 The lab's own file. Terluna's tests of its edit lists and of its runner's namelist writers stay in Terluna
 (climate/tests/test_cm1_rain_limits.py and test_cm1_rain_law.py at 39c5ee04). The column is CM1's mp_graupel, called as
-mp_driver.F calls it; a compiled case of the whole model is stage 3's test (lab/design/plan.md).
+mp_driver.F calls it; a compiled case of the whole model is stage 3's test (lab/design/plan.md). The column is built
+at the series' end too, where the lab's patch 06 hands CM1's constants the namelist's gravity (test_cm1_world.py).
 """
 import math
 import os
@@ -29,7 +30,8 @@ PATCH_02 = 'patches/lab/02-beljaars-gust-over-water.patch'
 PATCH_03 = 'patches/lab/03-raindrop-limits-at-the-builds-gravity.patch'
 PATCH_04 = 'patches/lab/04-rains-fall-law-and-self-collection-for-the-world.patch'
 PATCH_05 = 'patches/lab/05-factors-on-autoconversion-and-accretion.patch'
-POINTS = (PATCH_02, PATCH_03, PATCH_04, PATCH_05)
+PATCH_08 = 'patches/lab/08-the-suns-declination-from-the-namelist.patch'     # the series' end, whose constants take the
+POINTS = (PATCH_02, PATCH_03, PATCH_04, PATCH_05, PATCH_08)                  # gravity from the namelist's world_g
 CPP = ('cpp', '-C', '-P', '-traditional', '-Wno-invalid-pp-token', '-ffreestanding', '-DOPENMP')
 # gfortran's flags in the two makefiles of the builds: CM1's own for OpenMP (makefile-gnu-omp.patch), and Terluna's
 # optimisation of them (makefile-omp-O3-march-native.patch), the lab's default, under which gfortran fuses products
@@ -68,8 +70,7 @@ program rain_column
   read(*,*) auto_factor, accr_factor
   timestats = 0
   testcase = 0
-  call set_constants(testcase)
-  g = gravity
+!GRAVITY
   dowr = .true.
   outfile = 6
   ib = 1; ie = 1; jb = 1; je = 1; kb = 1; ke = levels
@@ -137,6 +138,11 @@ end subroutine stopcm1
 TAKES = {PATCH_02: '', PATCH_03: '  brkup_gscale = limits_switch; brkup_rhor = density_ratio; brkup_rhoexp = exponent'}
 TAKES[PATCH_04] = TAKES[PATCH_03] + '\n  rain_fall_law = law_switch; rain_selfcoll = collection_rate'
 TAKES[PATCH_05] = TAKES[PATCH_04] + '\n  rain_autoconv_fac = auto_factor; rain_accr_fac = accr_factor'
+TAKES[PATCH_08] = TAKES[PATCH_05]
+# How the scheme's gravity reaches CM1's constants, from which Morrison's start reads it: before the lab's patch 06
+# the build compiles it in, which the driver replaces; after it set_constants takes the namelist's world_g.
+GRAVITY = dict.fromkeys(POINTS, '  call set_constants(testcase)\n  g = gravity')
+GRAVITY[PATCH_08] = '  world_g = gravity\n  call set_constants(testcase, world_g)'
 
 
 @pytest.fixture(scope='module')
@@ -149,7 +155,7 @@ def moon():
 
 @pytest.fixture(scope='module')
 def columns(cm1_series, moon, tmp_path_factory):
-    """The column's executable from the series through the lab's patch 02, 03, 04 and 05, under each flag set: eight
+    """The column's executable from the series through the lab's patch 02, 03, 04, 05 and 08, under each flag set: ten
     builds of input.F, constants.F and morrison.F with the driver, about 0.7 MB each, with the Open Moon's table beside
     the builds that read one."""
     if shutil.which('gfortran') is None or shutil.which('cpp') is None:
@@ -163,10 +169,11 @@ def columns(cm1_series, moon, tmp_path_factory):
                 text = subprocess.run([*CPP, f'{source}.F'], cwd=folder, check=True, capture_output=True,
                                       encoding='latin-1').stdout
                 (folder / f'{source}.f90').write_text(text, encoding='latin-1')
-            (folder / 'driver.f90').write_text(DRIVER.replace('!SETTINGS', TAKES[through]))
+            (folder / 'driver.f90').write_text(DRIVER.replace('!SETTINGS', TAKES[through])
+                                               .replace('!GRAVITY', GRAVITY[through]))
             subprocess.run(['gfortran', *flags, 'input.f90', 'constants.f90', 'morrison.f90', 'driver.f90', '-o',
                             'column'], cwd=folder, check=True, capture_output=True)
-            if through in (PATCH_04, PATCH_05):
+            if through in (PATCH_04, PATCH_05, PATCH_08):
                 (folder / fall_law.TABLE_FILE).write_text(fall_law.table_text(moon['table']))
             built[through, name] = folder / 'column'
     return built
@@ -255,8 +262,8 @@ def mean_diameter(fields):
 # The patches' texts.
 
 def test_the_rain_patches_follow_the_labs_series(cm1_series):
-    assert cm1_series.names[-5:] == ['patches/lab/01-the-simple-boundary-layers-tendencies-per-unit-mass.patch', PATCH_02,
-                                     PATCH_03, PATCH_04, PATCH_05]
+    assert cm1_series.names[-8:-3] == ['patches/lab/01-the-simple-boundary-layers-tendencies-per-unit-mass.patch', PATCH_02,
+                                       PATCH_03, PATCH_04, PATCH_05] and cm1_series.names[-1] == PATCH_08
     for patch in (PATCH_03, PATCH_04, PATCH_05):
         text = (cm1_series.folder / patch).read_text()
         assert re.findall(r'^\+\+\+ b/src/(\S+)', text, flags=re.M) == ['cm1.F', 'input.F', 'morrison.F', 'param.F']
@@ -385,7 +392,8 @@ def test_the_factors_patch_keeps_cm1s_statements(cm1_series):
 def test_a_column_keeps_its_bits_at_the_defaults(columns):
     """The storm column over 100 steps of 6 s and twelve random columns over 20 steps of 10 s, at the Moon's gravity
     and CM1's own: with the switches at their defaults the scheme after each patch returns every field bit for bit as
-    the scheme before the two, under CM1's flags and under -O3 -march=native."""
+    the scheme before the two, under CM1's flags and under -O3 -march=native. So does the scheme at the series' end,
+    where the gravity reaches it through the namelist's world_g (the lab's patch 06)."""
     rng = random.Random(20261111)
     cases = [(storm(), 100, 6.0)] + [(random_column(rng), 20, 10.0) for _ in range(12)]
     for flags in FLAGS:
@@ -393,7 +401,7 @@ def test_a_column_keeps_its_bits_at_the_defaults(columns):
             for rows, steps, step_s in cases:
                 before = run(columns[PATCH_02, flags], rows, steps, step_s, gravity)[1]
                 assert len(before) == 18 and all(len(words) in (1, len(rows)) for words in before.values())
-                for patch in (PATCH_03, PATCH_04, PATCH_05):
+                for patch in (PATCH_03, PATCH_04, PATCH_05, PATCH_08):
                     assert run(columns[patch, flags], rows, steps, step_s, gravity)[1] == before, (flags, gravity, patch)
     # The storm rains, and the switches move it: the identity above is of a column in which the patched lines act.
     off, on = (run(columns[PATCH_04, 'cm1'], storm(), 100, 6.0, MOON_G, settings)[1] for settings in (OFF, LUNAR))

@@ -29,7 +29,7 @@ through CM1's own threaded loops, though the cause remains unlocated (a
 restarted box parted from itself 50–85 steps in on four threads), while one-thread runs repeat bit for
 bit (Terluna `climate/crm/README.md` 80–110).
 
-## Gravity (core patches 01–03)
+## Gravity (core patches 01–03; the lab's patch 06)
 
 **The Earth value.** CM1 r22.0 sets g = 9.81 in `constants.F` (the dynamics), separately in
 `module_ra_etc.F`'s `module_model_constants` (whence RRTMG's `rrtmg_lw_ini`/`rrtmg_sw_ini` take their
@@ -44,6 +44,22 @@ sunlight reflected, absorbed in the air and reaching the ground lie within 2.5 p
 line-by-line model, and within 8 W/m² each over the lunar day. On 990 cloud-free columns of the 45° N ring,
 CM1's longwave comes within 0.013 K a day of the correlated-k model in every layer (0.2–1.3 W/m²), and within
 0.008 K a day of the same RRTMG run offline (Terluna `domain/atmosphere` fe49ad9).
+
+**One build for every world.** Since 11 November 2026 patch 06 of the lab's series reads the gravity from the
+namelist as `world_g`, and RRTMG's CO2 and O2 beside it as `world_co2` and `world_o2`, each with the build's
+macro as its default, so that a build without the macros serves every world and a build with them runs as before
+where its namelist is silent. `set_constants` gives CM1's `g` the entry, from which the dynamics, Morrison's
+scheme and the schemes that take `g` by argument read it as they did; RRTMG's two initialisations take `g` as an
+argument, where they read the constant of `module_model_constants`, and the CAPE diagnostic takes it as an
+argument, where it held a constant of its own. Identity and reproduction: compiled on their own, the constants,
+the diagnostic, one column of RRTMG and one of Morrison's scheme, handed the Moon's gravity and air, return the
+bits of the same code with them compiled in, under CM1's flags and under `-O3 -march=native`. In single scratch
+runs of that day, three hours of Terluna's 45° N ring from a rainy restart agreed byte for byte, output and
+restart files alike, between a build with the Moon compiled in and one build told the Moon by its namelist,
+under both flag sets, and CM1's released supercell kept its output at the defaults. The lab's adapter compiles
+the world in until the one-day segments and the timing of plan stage 3 pass, the electrified series' NSSL still
+reads the build's gravity, and the MYNN and MYJ schemes hold it as they compile (`models/cm1/README.md`, "The
+world from the namelist").
 
 **Reading CM1's radiative output.** Under `eqtset = 2`, the equation set of the lunar cases,
 `radiation_driver.F` stores RRTMG's heating as `lwten = hr*cp/cvm`, and `swten` alike, with cp/cvm 1.38–1.39 in
@@ -62,10 +78,29 @@ gravity in schemes the lunar cases do not select: the MYNN surface layer (`modul
 1348, 1375, 1582), the GFS EDMF boundary layer and GFDL surface layer (`module_gfs_physcons.F` 13,
 `module_sf_gfdl.F` 918, in cgs), the exchange coefficients for hurricane runs (`module_sf_exchcoef.F` 38–208),
 the P3 (`module_mp_p3.F` 206), WSM6 (`mp_wsm6.F` 106), Jensen–Ishmael (`module_mp_jensen_ishmael.F` 37) and
-LFO (`lfoice.F` 122) microphysics, and the Goddard radiation (`radtrns3d.F` 1725). CM1's `omega` is Earth's
+LFO (`lfoice.F` 122) microphysics, and the Goddard radiation (`radtrns3d.F` 1725). A scan of the patched source
+for gravity's numbers on 11 November 2026, which the suite repeats (`python/climate/tests/test_cm1_world.py`),
+found two more: the NASA-GSFC version of the LFO microphysics (`ptype` 2; `goddard.F` 1170, 981 cm/s² in its
+hail's drag) and CM1's own copy of the NSSL scheme (`ptype` 26 to 28; `module_mp_nssl_2mom.F` 935 and 6857,
+`gr = 9.8`), whose place the electrified build's WRF-ELEC module takes with the build's gravity. Three schemes
+hold the build's gravity as a compile-time constant, `g` of `module_model_constants`: the MYNN boundary layer
+(`module_bl_mynn_common.F`, `grav`, `gtr` and `g_inv`) and the MYJ boundary layer and surface layer
+(`module_bl_myjpbl.F`, `module_sf_myjsfc.F`). They follow a gravity compiled in as `TERLUNA_G` and keep 9.81 in a
+build told its gravity by the namelist, where the model stops on them unless `world_g` equals the build's value.
+The registry refuses each of these schemes off 9.81 m/s² (`cm1-earth-g-schemes`). The scan finds numbers: the
+fall-speed fits of the microphysics other than Morrison's hold Earth's gravity without one, as Morrison's did
+before core patch 04, and no entry of the registry names them yet. CM1's `omega` is Earth's
 2π/86,400 s and its `earth_radius` 6,370 km; both enter only the stock beta plane, which the tilted rings
 replace and the boxes leave off. A case that switches to any of these options brings Earth's gravity
 back, and a port to another world should either patch them or refuse them.
+
+**The CAPE diagnostic's mixed layer.** CM1's output CAPE, CIN, LCL and LFC are those of a mixed-layer parcel
+(`domaindiag.F` and `writeout.F` call `getcape` with source 3), which `getcape.F` averages over the sounding's
+lowest 500 m (`ml_depth`) at every gravity. At lunar gravity those 500 m span a sixth of the pressure they span at
+Earth's, about a hundredth of the Open Moon's scale height, and on a sounding whose second level stands above
+500 m the diagnostic takes the lowest level alone (`python/climate/tests/test_cm1_world.py`). The surface parcel's and the most unstable parcel's energies are
+the sounding's at any gravity, with their heights as 1/g. The depth is an Earth length that no patch scales; a
+reader of CM1's CAPE fields on another world takes it as the parcel of the lowest 500 m.
 
 ## Fall speeds (core patch 04; the lab's patches 03 and 04)
 
@@ -164,27 +199,37 @@ Earth's clouds; the boxes' 100 droplets per cm³, to whose −1.79 power the aut
 either. The factors multiply the formulas that the scheme's `IRAIN = 0` selects, the only ones CM1's copy takes, and
 NSSL's rain keeps its own rates.
 
-## The Sun, the rings and the boxes (core patches 05, 15, 16)
+## The Sun, the rings and the boxes (core patches 05, 15, 16; the lab's patch 08)
 
 **Correctness.** Reproduction: a six-hour test of ring A gives the Sun's elevation within 8×10⁻⁷ of the
 spherical formula and the Coriolis parameter within 3×10⁻¹² s⁻¹ of 2Ω sin(latitude); the rebuilt CM1
 reproduced the first model day of `ring_80n_lsw` bit for bit, and again with its vertical wind given as a
 table of identical columns.
 
-**Limits.** The rings keep the equinox (the 1.54° tilt's quarter swing of 80° sunlight over the year is
-left out). They are two-dimensional, so storms organise into lines, air crosses mountains only over the
-top (the terrain ring turned to gales along its whole length), and a ring at a latitude has no
-north–south flow. Rain and cloud at a place depend on the slice's direction by a factor of several, while
-temperature, humidity and wind at a place agree within about a degree and 0.3 m/s between crossing
-rings. A tilted ring holds one upper-air profile along its whole path. A box takes one Sun across 385 km,
-12.7° of longitude or about a day of local time. Patch 16 changes the stock beta plane for every run that
-uses it.
+**Limits.** The rings keep the equinox (the 1.54° tilt's quarter swing of 80° sunlight over the year is left
+out). Since 11 November 2026 patch 08 of the lab's series gives the Sun of patch 05 a declination from the
+namelist (`sun_decl`, in degrees north and 0 by default): the zenith cosine becomes sin(lat) sin(δ) + cos(lat)
+cos(δ) cos(hour angle) at each column's latitude, on a circle of latitude or a tilted great circle, and the
+equinox's loop stays as it was. Compiled on its own, the block follows the formula to 2 parts in 10⁶ and puts
+the Sun on the horizon at the lab's sunrise hour angle, −acos(−tan φ tan δ); the declination holds through a
+run, so a case that spans a season restates it with each segment (`models/cm1/README.md`, "The world from the
+namelist"). The rings are two-dimensional, so storms organise into lines, air crosses mountains only over the
+top (the terrain ring turned to gales along its whole length), and a ring at a latitude has no north–south flow.
+Rain and cloud at a place depend on the slice's direction by a factor of several, while temperature, humidity
+and wind at a place agree within about a degree and 0.3 m/s between crossing rings. A tilted ring holds one
+upper-air profile along its whole path. A box takes one Sun across 385 km, 12.7° of longitude or about a day of
+local time. Patch 16 changes the stock beta plane for every run that uses it.
 
-## Soil (core patch 08)
+## Soil (core patch 08; the lab's patch 07)
 
 The slab soil's five layers are 5–80 cm thick in place of 1–16 cm, reaching below the month-long day's
 thermal wave (about 0.6 m deep). The change is unconditional in the patched builds. It is a general
-repair for any day of more than a few Earth days.
+repair for any day of more than a few Earth days. Since 11 November 2026 patch 07 of the lab's series reads the top
+layer from the namelist (`soil_dz1`, 0.05 m by default), and the four layers below double from it, so that a case
+states the depth its world's day reaches: CM1's 1 cm times the square root of the solar day in Earth days, 5.4 cm
+on the Open Moon and CM1's own 1 cm on Earth, where patch 08 alone leaves an Earth case with layers five times too
+thick. CM1 lays the layers out at each start and keeps them out of its restart files, so a case holds one
+`soil_dz1` over its segments. The effect of the layers on a run is unmeasured in the lab.
 
 ## Forcing a slice of the GCM (core 09–14, 17; terrain 01–09)
 
@@ -298,6 +343,19 @@ released draft took the MM5 formula. The lab's series (`series-lab`, patch 02) t
 when a case sets `gust_over_water = 1`. Since the change also moves Earth's output, the Earth control's test decides
 whether it serves every world (`PLAN.md`).
 
+## The MM5 surface layer's roughness diagnostics over land
+
+CM1's MM5 surface layer (`sfcmodel = 2`, `sfclay.F`) computes its roughness lengths for heat and moisture, the
+locals `Z0T` and `Z0Q`, over water alone, by Fairall's (2003) form, and copies both to its output at every point
+(`z0tout(i) = z0t` and the line after it, 788–789 of the pinned file). Over land the fields `z0t` and `z0q`
+therefore hold what the locals held: the last water point's values, or uninitialised memory in a row that begins
+with land. In the lab's all-land test case of 11 November 2026, under CM1's flags, `z0t` read NaN in one build and
+9.5 × 10²² m in the next and `z0q` read zero in both; under `-O3 -march=native` both fields differed from build to
+build; and every other field of the builds compared agreed to the bit (`models/cm1/README.md`, "The world from the
+namelist"). The two fields go to the output files and to the domain's averages (`writeout.F`, `domaindiag.F`), and
+the model reads neither back, so its state is untouched; a reader takes CM1's `z0t` and `z0q` over water alone. The
+lines stand in the released cm1r22.0, and the defect log holds no entry for them yet.
+
 ## The twilight hook (series-twilight)
 
 **Correctness.** In a two-hour test, columns 2–10° past sunset gained 0.016–0.036 K a day of sunlight's
@@ -314,7 +372,9 @@ can resolve (above). Shells above the model's 150 km top are left out with the a
   case), not the shield's filtered spectrum: about 5 W/m² of the air's absorbed sunlight at the crossing
   (Terluna's record).
 - Ozone, methane, N2O and CFCs are zero, as the titania shield's design requires; cloud-ice radii reach
-  RRTMG capped at 140 µm (logged above the cap in the NSSL runs).
+  RRTMG capped at 140 µm (logged above the cap in the NSSL runs). CO2 and O2 are the build's, or since the lab's
+  patch 06 the namelist's (`world_co2`, `world_o2`); the gases set to zero stay so in every build, so an Earth
+  case of CM1 runs without Earth's ozone, methane and nitrous oxide until a later patch reads them too.
 
 ## Constant gravity and a thin shell
 
@@ -338,8 +398,11 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
 7. Two-way coupling, or nesting in the GCM, so that the slice's own state feeds back on its forcing.
 8. Find and fix the source of CM1's threaded parting, first by a threaded run of stock CM1 with these boxes' options.
 9. Gravity falling with height in the base state and hydrostatics for a 150 km domain.
-10. Upstream: report the boundary layer's density fault, and make gravity one namelist parameter in CM1, honoured by
-   every scheme.
+10. Upstream: report the boundary layer's density fault and the surface layer's unset `z0t` and `z0q` over land, and
+   offer gravity as one namelist entry, as the lab's patch 06 reads it, honoured by every scheme.
 11. Choose how the lab's builds treat fused multiply-adds: time a build with `-ffp-contract=off`, under which the
    rain patches' default path kept its bits in Terluna's form as in the lab's on 11 November, against the present
    `-O3 -march=native`.
+12. Give the electrified series its companion patch: NSSL's fall speeds and ventilation at the namelist's gravity,
+   where patch 03 of that series reads the build's `TERLUNA_G`, so that one build serves every world there too.
+13. Scale the CAPE diagnostic's mixed-layer depth with the world, where `getcape.F` holds 500 m at every gravity.

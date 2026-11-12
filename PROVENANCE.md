@@ -37,7 +37,10 @@ with a step of zero or less, which the lists leave unchecked (`models/cm1/README
 `moon_omp_rain_law_pbl_wind_gust_aloft_inflow` (research drive, `cm1/build/`, sha256 `79170284b1487597…`) to the bit
 on 21 test columns under CM1's flags, at the defaults and with the Open Moon's settings. Patch 05 of the same
 folder, the two factors on Morrison's autoconversion and accretion, is the lab's own, written on 2026-11-11 with
-no Terluna source (defect log B38). ExoPlaSim's patch 14 was written on 2026-11-11 from Terluna's edit list at
+no Terluna source (defect log B38). Patches 06 to 08, which read the world's gravity, CO2 and O2, the soil's top
+layer and the Sun's declination from the namelist, are the lab's own too, written the same day: Terluna compiles
+one build for each world, and its macros, which core patches 01 to 03, 06 and 07 read, give the entries their
+defaults (defect log B1, B8, B10). ExoPlaSim's patch 14 was written on 2026-11-11 from Terluna's edit list at
 `39c5ee04` (commits `8e805f60` and `f5f767fa`), applied to the pinned `rainmod.f90` after patches 02 and 03. The
 comments are the lab's and the namelist's six names Terluna's. Its five routines from `rdroptab` through
 `rdropevap` equal those of Terluna's deployed `rainmod.f90` (research drive,

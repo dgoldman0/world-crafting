@@ -28,7 +28,7 @@ Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
 ## Running
 
 ```sh
-python -m pytest python               # from the repository root: 360 tests, the sky solver's 34 among them
+python -m pytest python               # from the repository root: 372 tests, the sky solver's 34 among them
 ```
 
 On 2026-10-17, after the electricity tools were added, all 111 passed in the research drive's `optics`
@@ -61,7 +61,11 @@ day: seven in Python alone, one that reads Morrison's closures from the pinned C
 ExoPlaSim series, and seven of the lab's patch 14, which apply that series to the pinned ExoPlaSim archive; six of
 those compile `mkrain` with gfortran, and without the archives or the tools they skip. The lab's environment then
 collected 286 and passed 285. PlaSim's levels brought forty that day, in Python alone and with no inputs, with which
-the lab's environment collected 326.
+the lab's environment collected 326. CM1's world from the namelist brought twelve that day, of the lab's patches 06 to
+08, which apply the CM1 series to the pinned archive: four read the patched sources, a scan of all 91 for gravity's
+numbers among them, and eight compile parts of the model with gfortran and cpp, the constants, the CAPE diagnostic,
+one column of RRTMG with its two tables from the archive, the block that sets the Sun and the lines that lay out
+the soil; without the archive or the tools they skip. The lab's environment then collected 338.
 
 ## What still needs Terluna
 
@@ -113,7 +117,9 @@ same calculation on the Open Moon's air and pin the numbers of Terluna's product
 Moon's gravity and Earth's; the two tests of the recovered solver's vapour diffusivity stay in Terluna with
 `recovered.py`. `climate/tests/test_cm1_rain.py` is the lab's own: it compiles one column of the Morrison scheme from
 the lab's series on the pinned CM1 archive (`climate/tests/conftest.py`, `cm1_series`), where Terluna's tests of its
-rain patches read its runner's edit lists.
+rain patches read its runner's edit lists. `climate/tests/test_cm1_world.py` is the lab's own too, with no Terluna
+counterpart: it tests the three patches that read a world's gravity, air, soil and Sun from CM1's namelist, where
+Terluna compiles a build for each world.
 
 `climate/gcm/rain_drops.py` and its test came from Terluna at `39c5ee04` on 2026-11-11. The Fortran is in
 `models/exoplasim/patches/14-rain-from-drop-sizes.patch`, where Terluna's module keeps it as an edit list with the
