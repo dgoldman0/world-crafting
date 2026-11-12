@@ -187,7 +187,7 @@ tests, and its compute is the tests' short runs.
 |---|---|---|---|
 | 1 | The raindrop limits, with the fall law and self-collection at the world's gravity | — | Done (`lab` 3e05ec2) |
 | 2 | Factors on autoconversion and accretion (B38) | — | Done (`lab` ade4116) |
-| 3 | Gravity, CO2 and O2 read from the namelist, with the soil's layers and the Sun's declination, so that one build serves every world (planned in the lab's stage 3) | — | To start |
+| 3 | Gravity, CO2 and O2 read from the namelist, with the soil's layers and the Sun's declination, so that one build serves every world (planned in the lab's stage 3) | — | Done (`lab` 3174a0e) as patches 06 to 08, each entry the build's value by default. The lab's adapter still compiles the world in until stage 3's one-day ring segments and timing are run, and the electrified series' NSSL reads the build's gravity until a companion patch |
 | 4 | The whole-column forcing with the wind by local time and the inflow, and the extraction that writes it (`python/climate/crm/gcm_site.py`), which reads the GCM's humidity by the rule of A10 | — | To start |
 | 5 | The damped gravity wave, by which a box makes its own ascent | — | To start, for block 4 |
 | 6 | The sea's temperature by local time (B37) | — | To start |
@@ -359,3 +359,10 @@ the root README's "Where current understanding differs from the paper" then list
   set at their stages.
 - Snow sublimation's assessment, and CM1's clipped water, before either is classed.
 - The unified interface's design.
+- The automatic rule that places a world's GCM level heights, an option beside stated heights, with the registry's
+  provisional threshold for the lowest level revisited beside it ("Decisions").
+- Whether two faults of the released CM1 found during the ports on 11 November 2026 enter the defect log and the
+  paper's count: its MM5 surface layer writes two roughness lengths, `z0t` and `z0q`, from uninitialised memory over
+  land, in output alone, and its CAPE diagnostic mixes the parcel over a fixed 500 m at every gravity
+  (`notes/cm1.md` on the lab's branch).
+- The companion patch that hands the electrified series' NSSL the namelist's gravity.
