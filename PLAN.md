@@ -183,8 +183,8 @@ tests, and its compute is the tests' short runs.
 | 1 | Beljaars's gust with similarity theory over ice-free water | — | Done (`lab` fc20979) |
 | 2 | Rain evaporated from drop sizes, its fall-law tables computed for each world (`python/climate/gcm/rain_drops.py`) | — | Done (`lab` 42a6bad) |
 | 3 | Level sets generated from a world's scale height, with the restart's remap (the input writer; `python/climate/gcm/levels.py`) | — | Done (`lab` 173fca2), with no patch: a study states the heights of the half levels near the ground, counted at a scale height. Still to do: the automatic rule that places them for a world, an option beside the stated heights, and the registry's threshold for the lowest level moved from the port's 350 m to the tested range, a provisional choice ("Decisions"). The Open Moon's study states Terluna's 51 km |
-| 4 | The clear share of the twilight, and the night's twilight counted once in patch 07 (defect log C21) | — | Done (`lab` 165fbc4) as patches 15 and 16, each off by default in the model; the lab's writer counts the night's twilight once by default ("Decisions"), set on the lab's branch after the 10 m wind's port |
-| 5 | The 10 m wind | — | To start |
+| 4 | The clear share of the twilight, and the night's twilight counted once in patch 07 (defect log C21) | — | Done (`lab` 165fbc4) as patches 15 and 16, each off by default in the model; the lab's writer counts the night's twilight once by default ("Decisions"; `lab` 41e20dc) |
+| 5 | The 10 m wind | — | Done (`lab` 7275699) as patch 17, a diagnostic off by default; whether it writes by default is open ("Open items") |
 | 6 | Simplified Betts–Miller convection as an option beside Kuo's scheme, its depth test a fraction of the surface pressure and its relaxation time a setting scaled with the world (B39) | — | To start |
 | 7 | The equinox's regression, its count carried through restarts and branches | — | To start |
 | 8 | The cold cloud's factors as namelist values with identity defaults | — | To start |
@@ -371,6 +371,9 @@ the root README's "Where current understanding differs from the paper" then list
 - The automatic rule that places a world's GCM level heights, an option beside stated heights, with the registry's
   provisional threshold for the lowest level revisited beside it ("Decisions").
 - The companion patch that hands the electrified series' NSSL the namelist's gravity.
+- Whether the lab's writer writes the wind at 10 m by default. Patch 17 is a diagnostic that leaves the run's state
+  as it was and adds two fields of output, about 2 MB a model year at T21, which the waves and lakes downstream
+  read; the writer keeps it off under the opt-in rule.
 - The wind's nudging time for a forced box on another world. Terluna's 2 hours is a tenth of the Moon's window of
   local time (0.82 days); Earth's windows last 40 minutes, so its boxes in block 4 need a time of their own, as a
   registry rule or a setting scaled with the window.
