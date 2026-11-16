@@ -192,7 +192,7 @@ tests, and its compute is the tests' short runs.
 | 1 | The raindrop limits, with the fall law and self-collection at the world's gravity | — | Done (`lab` 3e05ec2) |
 | 2 | Factors on autoconversion and accretion (B38) | — | Done (`lab` ade4116) |
 | 3 | Gravity, CO2 and O2 read from the namelist, with the soil's layers and the Sun's declination, so that one build serves every world (planned in the lab's stage 3) | — | Done (`lab` 3174a0e) as patches 06 to 08, each entry the build's value by default. The lab's adapter still compiles the world in until stage 3's one-day ring segments and timing are run, and the electrified series' NSSL reads the build's gravity until a companion patch |
-| 4 | The whole-column forcing with the wind by local time and the inflow, and the extraction that writes it (`python/climate/crm/gcm_site.py`), which reads the GCM's humidity by the rule of A10 | — | In part (`lab` 5731fc5): the extraction, the forcing through the whole column, the wind by local time and the reader's rule, with no patch. The rest, the wind's own nudging time, its pull from the GCM's lowest level up and the inflow, needs patch 09 of the lab's CM1 series, next |
+| 4 | The whole-column forcing with the wind by local time and the inflow, and the extraction that writes it (`python/climate/crm/gcm_site.py`), which reads the GCM's humidity by the rule of A10 | — | Done (`lab` 5731fc5, 48603e3): the extraction, the forcing through the whole column and the wind by local time in Python, and patch 09 of the lab's CM1 series for the wind's own nudging time, its pull from the GCM's lowest level up and the inflow; a forced box's defaults follow Terluna's latest boxes |
 | 5 | The damped gravity wave, by which a box makes its own ascent | — | To start, for block 4 |
 | 6 | The sea's temperature by local time (B37) | — | To start |
 
@@ -366,3 +366,6 @@ the root README's "Where current understanding differs from the paper" then list
 - The automatic rule that places a world's GCM level heights, an option beside stated heights, with the registry's
   provisional threshold for the lowest level revisited beside it ("Decisions").
 - The companion patch that hands the electrified series' NSSL the namelist's gravity.
+- The wind's nudging time for a forced box on another world. Terluna's 2 hours is a tenth of the Moon's window of
+  local time (0.82 days); Earth's windows last 40 minutes, so its boxes in block 4 need a time of their own, as a
+  registry rule or a setting scaled with the window.
