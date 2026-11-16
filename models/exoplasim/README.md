@@ -476,9 +476,10 @@ Patch 17 gives PlaSim the wind at 10 m that Terluna added on 19 October 2026 (`W
 `climate/gcm/exoplasim_run.py` on `domain/climate`, commit `4318bf67`, its statements unchanged at `39c5ee04`).
 Terluna's runner applies it as three edit lists in its twilight copy of ExoPlaSim under `--wind10`. The lab wrote it
 as one unified patch after patch 16, behind Terluna's switch `NWIND10` in fluxmod's namelist, 0 by default. The lab's
-writer sets it through `switches.wind_10m` (`lab/configs/exoplasim/defaults.toml`), false by default under the
-opt-in rule for each port (`PLAN.md`); it writes `NWIND10` where the run's series holds the patch, in a first run as
-in any other, and refuses the setting on a series without it.
+writer sets it through `switches.wind_10m` (`lab/configs/exoplasim/defaults.toml`), true by default, since a
+diagnostic that changes no state leaves the Earth control's test nothing to gate (`PLAN.md`, "Decisions",
+2026-11-16); it writes `NWIND10` where the run's series holds the patch, in a first run as in any other, and a run on
+a series that stops before the patch writes no wind at 10 m.
 
 **What PlaSim writes near the ground.** The released PlaSim writes no wind below its lowest full level. ExoPlaSim's
 postprocessor names codes 165 and 166 `uas` and `vas`, the eastward and northward wind at 10 m (`pyburn.py`), and
@@ -603,7 +604,7 @@ and with it the restart, stays as it was.
   (`python/climate/tests/test_wind_10m.py`), and 0.3% and 0.5% stronger at 10 m/s (a scratch calculation of
   16 November 2026 on the same columns). Terluna's runs whose commands its README lists with `--wind10` and
   `--surface-gust beljaars_similarity` took the wind on PlaSim's roughness;
-- the setting off by default, under the opt-in rule, though the patch changes no state.
+- the setting on by default, since the patch changes no state; a run on a build before patch 17 writes none.
 
 ## Level sets (no source change)
 

@@ -326,9 +326,10 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   lowest layer, from the drag of the surface transfer at each step and on that drag's roughness, and writes its
   means as codes 165 and 166, `uas` and `vas` (`models/exoplasim/README.md`). It is a diagnostic: the model's state
   stays as it was. The adapter writes `NWIND10` from `switches.wind_10m` where the run's series holds the patch, in
-  a first run as in any other, and refuses the setting on a series without it. The default writes no wind, under
-  the opt-in rule (`PLAN.md`). At that default the whole series' build runs Earth's control, over two days, byte
-  for byte as the build of patches 01–16; with the switch on, the run ends in the same restart byte for byte and
+  a first run as in any other, and a series that stops before the patch writes none. The default writes the wind,
+  since a diagnostic that changes no state leaves the Earth control's test nothing to gate (`PLAN.md`,
+  "Decisions"). With the switch at 0 the whole series' build runs Earth's control, over two days, byte for byte as
+  the build of patches 01–16; with the switch on, the run ends in the same restart byte for byte and
   its output gains the two codes, every other record byte for byte (`lab/tests/test_builds.py`).
 - **The levels.** A run's `levels` is the released model's count, 10 by default, or the table of a set generated
   for the world from the scale height and the heights its study states (`python/climate/gcm/levels.py`;

@@ -89,13 +89,14 @@ rain_evaporation = "gamma"                     # 14: NEVAPPREC. "gamma" keeps th
                                                # RDROP_RHOEXP and RDROP_STEP), reading the fall law of the scenario's
                                                # air from lab_rain_law.txt in the run's folder. The released model's
                                                # evaporation stays the default until the Earth control's test (PLAN.md)
-wind_10m = false                               # 17: NWIND10. true writes the wind at 10 m, codes 165 and 166 (uas and
+wind_10m = true                                # 17: NWIND10. true writes the wind at 10 m, codes 165 and 166 (uas and
                                                # vas to ExoPlaSim's postprocessor), each a mean since the last output:
                                                # the lowest level's wind brought down Geleyn's profile through the
                                                # lowest layer from the surface transfer's own drag, a diagnostic that
-                                               # leaves the model's state as it was. false writes neither, as the
-                                               # released model does; the default follows the opt-in rule for each
-                                               # port (PLAN.md)
+                                               # leaves the model's state as it was; false writes neither, as the
+                                               # released model does. On by default, since a diagnostic that changes no
+                                               # state leaves the Earth control's test nothing to gate; a run on a
+                                               # build before patch 17 writes none (PLAN.md, "Decisions", 2026-11-16)
 
 [calibration]                                  # the stages whose products, fitted to the study's scenario, a run reads
                                                # where its switches use them

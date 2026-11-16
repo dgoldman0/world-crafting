@@ -429,8 +429,9 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     from its drops' sizes on a series without patch 14. The twilight's clear share and its single count
     (`TWILIGHT_QUALIFIERS`) qualify the curved air's terms, so they resolve off wherever those terms are off, a first
     run's among them. On, the clear share is refused on a series that lacks patch 15, and the single count, on by
-    default, takes patch 07's passes on a series that stops before patch 16, as the ice weights take patch 10's. The wind at 10 m, a diagnostic, holds in
-    a first run as in any other and is refused on a series without patch 17."""
+    default, takes patch 07's passes on a series that stops before patch 16, as the ice weights take patch 10's. The
+    wind at 10 m, a diagnostic on by default, holds in a first run as in any other, and a series that stops before
+    patch 17 writes none."""
     switches = dict(run['switches'])
     if world is not None and locked(world):
         switches['sun_clock'] = 'plasim'
@@ -462,7 +463,7 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
             raise SpecError(f"switches.{name} takes {patch}, which the run's series lacks")
     switches['wind_10m'] = bool(_switch(switches.get('wind_10m'), 'switches.wind_10m'))
     if switches['wind_10m'] and PATCH_17 not in series(run):
-        raise SpecError(f"switches.wind_10m takes {PATCH_17}, which the run's series lacks")
+        switches['wind_10m'] = False                     # the build writes no wind at 10 m
     return switches
 
 

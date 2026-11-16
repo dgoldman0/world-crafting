@@ -327,8 +327,8 @@ on them (`notes/geography.md`):
   (defect log C21). Both qualify the twilight, so they resolve off where `twilight` is `none`, a first run's among
   them, and either is refused on a series without its patch. `wind_10m` becomes `NWIND10` in fluxmod's namelist
   through patch 17, written where the run's series holds it: the wind at 10 m, codes 165 and 166, brought down from
-  the lowest level on the drag of the run's own surface transfer. A diagnostic, it holds in a first run and is
-  refused on a series without the patch.
+  the lowest level on the drag of the run's own surface transfer. A diagnostic on by default, it holds in a first
+  run, and a series without the patch writes none.
 - **The levels.** A run's `levels` is the released model's count, 10 by default, or the table of a set generated
   for the world: `scale_height_m`, a number of metres or "scenario" for the scenario's own at its reference
   temperature, `upper`, the count of the released model's highest half levels kept, and `interfaces_m`, the heights

@@ -529,7 +529,8 @@ def test_patch_17_at_its_default_runs_byte_for_byte_and_on_adds_the_wind_at_10_m
                                                                                      tmp_path):
     """Earth's control over two days. The folder the adapter writes for the build of patches 01-16, whose fluxmod
     namelist names no NWIND10, gives the same output and restart under the whole series' build, where NWIND10 takes
-    its default, and so does the folder written for the whole series with NWIND10 0. With the wind at 10 m on, the run
+    the patch's default, 0, and so does the folder written for the whole series with the wind stated off. With the
+    wind at 10 m on, the lab's default, the run
     ends in the same state byte for byte, under PlaSim's own surface transfer and under Beljaars's gust with the
     similarity over water; its output holds every record of the run without it, byte for byte and in order, and after
     each 2 m temperature (167) the two components of the wind at 10 m (165 and 166) at the same output time, finite,
@@ -543,9 +544,9 @@ def test_patch_17_at_its_default_runs_byte_for_byte_and_on_adds_the_wind_at_10_m
     assert json.loads((b17 / 'build.json').read_text())['sources'] == pinned
     executables = {'16': _executable(b16, sixteen), '17': _executable(b17, whole)}
     similarity = 'beljaars_similarity'
-    written = {'sixteen': sixteen, 'default': whole, 'wind': _switched(whole, wind_10m=True),
-               'gust': _switched(whole, surface_gust=similarity),
-               'gust_wind': _switched(whole, surface_gust=similarity, wind_10m=True)}
+    written = {'sixteen': sixteen, 'quiet': _switched(whole, wind_10m=False), 'wind': whole,
+               'gust': _switched(whole, surface_gust=similarity, wind_10m=False),
+               'gust_wind': _switched(whole, surface_gust=similarity)}
     for name, run in written.items():
         record = ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=ex.Calibrations.identity(),
                               store=STORE)
@@ -556,17 +557,17 @@ def test_patch_17_at_its_default_runs_byte_for_byte_and_on_adds_the_wind_at_10_m
         [' NGUST = 0', ' NSIMW = 0'], [' NGUST = 0', ' NSIMW = 0', ' NWIND10 = 0'],
         [' NGUST = 0', ' NSIMW = 0', ' NWIND10 = 1'], [' NGUST = 1', ' NSIMW = 1', ' NWIND10 = 0'],
         [' NGUST = 1', ' NSIMW = 1', ' NWIND10 = 1']]
-    for name in ('default', 'wind', 'gust', 'gust_wind'):
+    for name in ('quiet', 'wind', 'gust', 'gust_wind'):
         assert _differing(tmp_path / 'sixteen', tmp_path / name) == {'fluxmod_namelist'}
     out = {(name, build): _run_records(tmp_path / name, executables[build], 96)
-           for name, build in (('sixteen', '16'), ('sixteen', '17'), ('default', '17'), ('wind', '17'),
+           for name, build in (('sixteen', '16'), ('sixteen', '17'), ('quiet', '17'), ('wind', '17'),
                                ('gust', '17'), ('gust_wind', '17'))}
     hashes = {key: found for key, (found, _) in out.items()}
     assert set(hashes['sixteen', '16']) == {'plasim_output', 'plasim_status'}
-    assert hashes['sixteen', '17'] == hashes['sixteen', '16'] == hashes['default', '17']
-    assert hashes['gust', '17']['plasim_status'] != hashes['default', '17']['plasim_status']
+    assert hashes['sixteen', '17'] == hashes['sixteen', '16'] == hashes['quiet', '17']
+    assert hashes['gust', '17']['plasim_status'] != hashes['quiet', '17']['plasim_status']
     winds = {}
-    for off, on in (('default', 'wind'), ('gust', 'gust_wind')):
+    for off, on in (('quiet', 'wind'), ('gust', 'gust_wind')):
         assert hashes[on, '17']['plasim_status'] == hashes[off, '17']['plasim_status'], on
         plain, windy = out[off, '17'][1], out[on, '17'][1]
         assert [r for r in windy if _header(r)[0] not in (165, 166)] == plain
