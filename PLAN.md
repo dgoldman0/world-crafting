@@ -91,6 +91,10 @@ ExoPlaSim's output and five open entries to the defect log on the lab's branch (
 - A study states the heights of its GCM's levels near the ground, and the lab also offers a rule that places them
   for a world automatically, as an option beside the stated heights (11 November 2026). The rule is still to be
   designed.
+- A11, CM1's MM5 surface layer writing its roughness lengths from unset memory over land, counts as the seventh
+  defect in the released codes, by the paper's rule for its count, the defects on the lunar runs' paths, under which
+  A10's output fault counts as well. The paper takes it in its next revision, after the author's reading of the
+  present draft, so that the draft under reading stays as it is (16 November 2026).
 - The Open Moon's study counts its level heights at Terluna's 51 km, which returns Terluna's fifteen levels, so
   that the lab's runs compare with Terluna's on the same levels (11 November 2026).
 - The registry warns of a GCM run whose lowest level stands above the tested range: 10% over the highest
@@ -319,7 +323,7 @@ each stage and a full editorial review to close, each recorded in `paper/review/
 
 | Passage | What version 2 states | Ready, or waiting on |
 |---|---|---|
-| `abstract.tex` 15, `introduction.tex` 85, `assumptions.tex` 92 and its inventory | Six defects in the released codes, the fifth the simple boundary layer's density fault (A9) and the sixth the humidity held in ExoPlaSim's mean output (A10); CM1's gust over water among the Earth values | Ready (paper branch ff378e2) |
+| `abstract.tex` 15, `introduction.tex` 85, `assumptions.tex` 92 and its inventory, `changes.tex` and the root README's row | Seven defects in the released codes, the fifth the simple boundary layer's density fault (A9), the sixth the humidity held in ExoPlaSim's mean output (A10) and the seventh the MM5 surface layer's roughness lengths written from unset memory over land (A11); CM1's gust over water and its CAPE diagnostic's 500 m mixed layer (B40) among the Earth values | Six ready (paper branch ff378e2); the seventh and B40 in the next revision, after the author's reading of the present draft |
 | `introduction.tex` 67 | The GCM's convection, levels, gust and rain evaporation as run, convection the open item | The ports |
 | `worlds.tex` 97 (H24), `appendix.tex` 62 | The turned Moon: its tilt of 1.61° and its orientation | Ready; the settled orientation if the orientation check moves it |
 | `repairs.tex` and the appendix's repairs table | The repairs above, each with its kind and limits | The ports |
@@ -361,10 +365,4 @@ the root README's "Where current understanding differs from the paper" then list
 - The unified interface's design.
 - The automatic rule that places a world's GCM level heights, an option beside stated heights, with the registry's
   provisional threshold for the lowest level revisited beside it ("Decisions").
-- Whether the paper's next revision counts A11 as a seventh defect in the released codes. The defect log on the
-  lab's branch took two faults of the released CM1 found during the ports (16 November 2026, `lab` 5fa8ecb): A11,
-  an upstream defect, in which the MM5 surface layer writes its roughness lengths `z0t` and `z0q` from unset memory
-  over land, in output alone; and B40, an Earth value, the CAPE diagnostic's parcel mixed over 500 m at every
-  gravity, which Terluna's box analyses read. The paper counts the defects on the lunar runs' paths, A10's output
-  fault among them, and A11's lines run there.
 - The companion patch that hands the electrified series' NSSL the namelist's gravity.
