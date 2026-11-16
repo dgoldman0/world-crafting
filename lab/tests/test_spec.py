@@ -44,9 +44,9 @@ def test_every_seed_loads():
     assert set(study.gcm) == {'design', 'design_lw_ice'}
     assert set(study.crm) == {'ring_45n', 'ring_45n_twilight', 'box_jura'}
     assert {'A1', 'B1', 'B28', 'B30', 'B31', 'cm1-rain-limits-range', 'cm1-soil-day', 'cm1-equinox-sun',
-            'exoplasim-ice-weights', 'exoplasim-rain-births', 'exoplasim-longwave-fit'} <= \
+            'exoplasim-ice-weights', 'exoplasim-rain-births', 'exoplasim-longwave-fit', 'cm1-damping-below-convection'} <= \
         {e['id'] for e in LIB.registry()}
-    assert len(LIB.registry()) == 20
+    assert len(LIB.registry()) == 21
 
 
 def test_a_moon_takes_its_hosts_orbit():
@@ -267,6 +267,20 @@ def test_a_study_generates_a_runs_level_set_by_setting_a_table_in_place_of_the_c
     moon, open_moon = LIB.world('moon'), LIB.scenario('moon/open-moon')
     eleven = derive.levels(scenarios.settings, moon, open_moon)
     assert eleven['count'] == 11 and eleven['half_levels'][9:] == (0.9886, 1.0) and eleven['interfaces_m'] == (600.0,)
+
+
+def test_a_case_damped_below_the_gcms_convection_is_refused_by_a_proposed_rule():
+    """The case writer's forcing refuses a case whose Rayleigh layer begins below the GCM's convection's top plus one
+    layer (PLAN.md, proposed), and the registry states the rule as proposed, bounded and refusing, on the clearance the
+    forcing computes (python/climate/crm/gcm_site.py, damping_clearance_m)."""
+    from climate.crm import gcm_site
+    entry = {e['id']: e for e in LIB.registry()}['cm1-damping-below-convection']
+    assert (entry['state'], entry['action'], entry['model']) == ('bounded', 'refuse', 'cm1')
+    assert entry['when'] == [{'q': 'cm1_damping_clearance_m', 'lt': 0.0}]
+    text = (LAB / 'registry' / 'earth_assumptions.toml').read_text()
+    line = next(x for x in text.splitlines() if 'cm1_damping_clearance_m' in x)
+    assert '# proposed' in line and 'proposed' in entry['note']
+    assert hasattr(gcm_site, 'damping_clearance_m') and hasattr(gcm_site, 'check_damping')
 
 
 def test_the_registrys_config_paths_name_fields_of_the_defaults():

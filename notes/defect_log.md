@@ -60,7 +60,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | A7 | WRF-ELEC | No conduction by default; ion charge persists for weeks in month-long runs | 10-05, e09aa30 | `leakage` (lunar 1), 4499e35 | ~20 kV/m at the ground over the whole box; lightning unchanged | Fixed for lunar runs | R |
 | A8 | WRF-ELEC `lightmsz` | Channel reach marked only above threshold `scth` | 10-05, a5205d2 | Flash log takes reach from charge handed to ions | 13 flashes logged no reach | Fixed (logging) | R |
 | A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | `ipbl2_per_mass` (0): the lab's series, patch 01, from Terluna's build `moon_omp_rain_law_pbl` | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
-| A10 | ExoPlaSim, low-I/O output | `hus` in the mean output is the humidity held from the last output step, where every other field is a mean; the held field is absent from the restart, so each year file's first record holds about 2% of the vapour | 10-27, Terluna `domain/climate` 984606a5 | None in the model; a reader's rule (Terluna's `climate/gcm/year_files.py`) | Read as means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as humid | Open here; read by rule in Terluna | R, P |
+| A10 | ExoPlaSim, low-I/O output | `hus` in the mean output is the humidity held from the last output step, where every other field is a mean; the held field is absent from the restart, so each year file's first record holds about 2% of the vapour | 10-27, Terluna `domain/climate` 984606a5 | None in the model; a reader's rule (Terluna's `climate/gcm/year_files.py`, the lab's `python/climate/gcm/year_files.py` since 11-16) | Read as means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as humid | Open in the model; read by rule in Terluna and in the lab; the true mean as a further output still to port | R, P |
 | A11 | CM1 r22.0 | The MM5 surface layer (`sfcmodel = 2`) sets its roughness lengths for heat and moisture over water alone and copies them to the output at every point, so `z0t` and `z0q` over land hold unset memory | 11-11, `lab` 3174a0e | None; a reader takes both over water alone | Output and domain averages alone: NaN or 9.5 × 10²² m over land in the lab's test builds; the model reads neither back, and no analysis of Terluna's or the lab's reads either | Open | L |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant, which the namelist's `world_g` replaces in the lab's series (patch 06, default the build's value); fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`, still compiled in beside the lab's patch 06; same scaling | Required | Fixed | R |
@@ -123,6 +123,8 @@ corrected there. The companion note `verification_record.md` describes the check
 | C19 | CM1 set-up | Nudging toward the GCM from 8 km (full at 16 km), with the day–night table stopping at 16 km | 10-21, Terluna `domain/climate` 13e7123 | Site forcing through the column, each layer's total kept, air held only above the GCM's convection top (`gcm_site.py`; 2cc5179, 5a44e5e) | Sea box: the nudging supplied 89 of the 107 W/m² its radiation removed, rain 0.06 against the GCM's 2.72 mm/day; the interpolation dried the column 0.55 mm/day | Fixed in Terluna's site boxes; every earlier ring and box ran it | R |
 | C20 | CM1 analyses | Stored radiative tendencies (`lwten`, `swten`, at constant volume under `eqtset = 2`) read as rates at constant pressure | 10-20, Terluna `domain/atmosphere` fe49ad9 | Conventions in `climate/crm/cm1_output.py`: × cvm/cp against another code, × cv/cp in a θ budget | Radiation overstated by 38–40%: the extra RRTMG cooling of 4.5–10.2 W/m² and the 45° N ring's heat budget | Fixed | R |
 | C22 | GCM and CM1 set-up | Sunlight taken at the Earth–Moon barycentre's distance: the Moon's monthly swing toward and away from the Sun left out | 11-09 | None | ±0.51% of the sunlight through each lunar day; the far side's noon 1.0% brighter than the near side's | An idealisation of the scenario, stated with it; an option in the lab | P |
+| C23 | CM1 forcing from the GCM (`gcm_site`) | The fit by local time undoes a true mean's damping, sin(x)/x, on the humidity's means read by A10's rule, an average of each interval's two ends, which damps the n-th daily harmonic by cos(x) | 11-16, the lab's port of `gcm_site` | The lab's `gcm_site` undoes cos(x); Terluna's treatment kept as `humidity_filter` `'mean'` | Near-side Sea, design years: the humidity's third harmonic at the ground two thirds of its size, its fourth under half; the storage by local time up to 0.2 g/kg/day short of a 0.5–0.8 swing; the moistening by local time moves by up to 8% | Fixed in the lab's forcing; open in Terluna | L |
+| C24 | CM1 forcing from the GCM (`gcm_site`, `cm1_run`) | The GCM's specific humidity written as CM1's mixing ratio in the box's air, its nudging and its moistening | 11-16, the lab's port of `gcm_site` | The lab converts, r = q/(1 − q), and the moistening by (1 + r) | Near-side Sea, design years: 14.12 g/kg at the ground where the mixing ratio is 14.32; the moistening 1.4% weak | Fixed in the lab's forcing; open in Terluna | L |
 
 ## (a) Upstream defects exposed by the adaptation
 
@@ -319,10 +321,14 @@ as a seventh is an open item of `PLAN.md`.
   moved its coldest hours by up to 0.36 K by cell (`research/decisions.md` line 871 at `59dcda1c`).
 - **Rule and status.** Terluna's `climate/gcm/year_files.py` takes each interval's mean as the average of a record
   and the next and leaves out each year file's first and last records; `gcm_site`, the CM1 boxes' forcing, has read
-  by it since 984606a5. The lab's readers of ExoPlaSim's output need the same rule, stage 3's extraction among
-  them. Terluna's runner writes the humidity's true mean as a further field behind a switch (`nhusmean`,
-  `domain/climate` b93a046e), the fix to port, and an open pull request upstream (ExoPlaSim #54, on #53) recomputes
-  the field at every step in low-I/O mode. The paper counts the fault as the sixth defect in the released codes
+  by it since 984606a5. The lab's `python/climate/gcm/year_files.py` holds the same rule since 2026-11-16 (from
+  Terluna at `39c5ee04`), with a refusal of a file of fewer than three records, and CM1's forcing from a GCM site
+  (`python/climate/crm/gcm_site.py`) reads by it; each further reader of `hus` takes it too. A fit by local time of
+  the rule's means undoes the filter they carry, cos(x) for an average of an interval's two ends, where Terluna's
+  forcing undoes a true mean's (C23).
+  Terluna's runner writes the humidity's true mean as a further field behind a switch (`nhusmean`,
+  `domain/climate` b93a046e), the fix still to port, and an open pull request upstream (ExoPlaSim #54, on #53)
+  recomputes the field at every step in low-I/O mode. The paper counts the fault as the sixth defect in the released codes
   (the author's decision of 2026-11-11). Upstream already holds the report: pull requests #53 and #54, open since
   2026-08-19, state the fault and fix it, and the fix is unmerged, so the released model and `master` keep the
   fault. The lab's issue #71, posted on 2026-11-11, was closed by the maintainer the same day as redundant with
@@ -1313,6 +1319,32 @@ integration.
 - **Classed as an idealisation (2026-11-11).** Terluna's set-up states the choice, so the omission is a known
   simplification of the scenario: by the author's decision the paper states it with the scenario, outside its count
   of defects, and the lab offers the swing as an option that a study switches on or off (`PLAN.md`, "Decisions").
+
+### C23. CM1 forcing from the GCM: the humidity's fit undoes the filter of a true mean (L; fixed in the lab)
+
+- **Defect.** Terluna's `climate/crm/gcm_site.py` (at `39c5ee04`, `undamped`) fits each field's means by local time
+  and divides each daily harmonic by sin(x)/x, x = n w/2 for means over w degrees of hour angle, the damping a true
+  mean over the interval gives it. Since 984606a5 the humidity's means are read by the rule of A10, the average of the
+  humidity at an interval's two ends, which damps the n-th harmonic by cos(x).
+- **Effect.** On Terluna's design years at the Near-side Sea, with w of 36°, the fit left the humidity's third daily
+  harmonic at the ground at two thirds of its size and its fourth under half, and the storage by local time up to
+  0.2 g/kg/day short where it swings 0.5–0.8 g/kg/day. Undone as cos(x), the box's moistening by local time moves by
+  up to 8% of its largest value.
+- **Fix and status.** The lab's `python/climate/crm/gcm_site.py` undoes cos(x) for means read by the rule, which
+  agrees with a fit of the held records as snapshots at their intervals' starts within 0.02 g/kg/day (a single
+  scratch calculation of 2026-11-16), and keeps Terluna's treatment as `humidity_filter = 'mean'` for comparison.
+  Open in Terluna's boxes forced since 984606a5.
+
+### C24. CM1 forcing from the GCM: specific humidity written as CM1's mixing ratio (L; fixed in the lab)
+
+- **Defect.** CM1 holds vapour as a mixing ratio, kg per kg of dry air, and reads its sounding and nudging files in
+  it; PlaSim writes specific humidity, kg per kg of moist air. Terluna's set-up (`climate/crm/gcm_site.py` and
+  `cm1_run.py` at `39c5ee04`) wrote the GCM's specific humidity into the box's air, its nudging windows and its table
+  of moistening as CM1's mixing ratio.
+- **Effect.** At the ground over the Near-side Sea on the design years the box's air held 14.12 g/kg where the mixing
+  ratio is 14.32, and its moistening ran 1.4% weak. The gap, q²/(1 − q), grows with the vapour.
+- **Fix and status.** The lab converts the air's vapour to r = q/(1 − q) and the moistening by (1 + r), so that CM1's
+  dry mass gains the vapour the GCM's layer gains (`reference_air` and `to_cm1`). Open in Terluna.
 
 ## (d) Record inconsistencies found in this pass, not yet corrected in Terluna (V)
 

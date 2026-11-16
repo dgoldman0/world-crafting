@@ -436,8 +436,17 @@ radiation. The same hook carries any infrared source above the air: a host plane
 - **The humidity in the output**: in low-I/O mode with spectral humidity, `hus` holds the humidity at the end of
   the interval before each record, where the temperature, pressure, winds and fluxes beside it are means, and each
   year file's first record holds about 2% of the vapour. A reader takes each interval's mean as the average of a
-  record and the next and leaves out each file's first and last records, Terluna's rule; Terluna's switch `nhusmean`
-  writes the true mean as a further field (defect log A10). Upstream's open pull requests #53 and #54 state the
+  record and the next and leaves out each file's first and last records, Terluna's rule, which the lab's reader
+  holds since 16 November 2026 (`python/climate/gcm/year_files.py`), every field read over the same records. The
+  rule's average of an interval's two ends damps the humidity's daily harmonics by cos(x) where the true mean damps
+  them by sin(x)/x, x half the interval's share of the day in radians: 0.951 against 0.984 for a tenth of the day,
+  and for the fourth harmonic 0.31 against 0.76. The records read as means lag by half an interval, an error about
+  ten times the rule's on a daily cosine (`python/climate/tests/test_year_files.py`). CM1's forcing from a GCM site
+  reads the humidity by the rule and undoes its filter, cos(x), in its fits by local time
+  (`python/climate/crm/gcm_site.py`), where Terluna's undoes it as a true mean (defect log A10); each further reader
+  of `hus` takes the rule too. Terluna's switch `nhusmean`
+  writes the true mean as a further field (defect log A10), the second half of the port, still to come; the reader
+  keeps every record of a run that writes it. Upstream's open pull requests #53 and #54 state the
   fault and fix it, unmerged as of 2026-11-11; the lab's issue #71 of that day was closed as redundant with them
   (`models/exoplasim/upstream-held-humidity.md`).
 - **The equinox's regression**: Terluna's precession patch (`domain/climate` 39ac7f0c, awaiting its port) counts

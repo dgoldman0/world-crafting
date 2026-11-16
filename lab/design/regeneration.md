@@ -194,7 +194,9 @@ The product groups that head the columns:
    Terluna's drainage of 2026-09-29 replaced that lakes file under its name with lakes from run A28_dim5_moon's
    runoff, and the surfaces now hold lakes that the file under their recorded name no longer holds.
 6. **A box takes its day–night forcing from a ring's output.** A change upstream of the ring therefore
-   arrives at the box twice: through its own GCM extraction, and through the ring.
+   arrives at the box twice: through its own GCM extraction, and through the ring. A box forced through the whole
+   column from the GCM's own budget at its site (`python/climate/crm/gcm_site.py`, ported on 16 November 2026)
+   depends on the GCM run alone, its year files and its record, so a change upstream of that run reaches it once.
 7. **Albedos typed apart.**
    - CM1's placeholder land row in `LANDUSE.TBL` holds its own albedo of 20%, typed apart from the GCM's 0.2
      (`cm1_run.py:1088`). In the lab both read the scenario's land albedo, so a change alters the CM1 case

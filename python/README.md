@@ -3,7 +3,8 @@
 The tools the ExoPlaSim and CM1 adaptations rest on, copied byte for byte from Terluna at 186b294 under
 their Terluna package paths (`provenance.json` lists every file with its sha256 and, where another commit is its
 source, that commit; the geography package, the surface transfer's two modules, the rain package's two, PlaSim's rain
-from its drops, PlaSim's levels and twelve tests are modified, below).
+from its drops, PlaSim's levels, the reader of PlaSim's year files, CM1's forcing from a GCM site and fourteen tests
+are modified, below).
 Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
 
 | Package | Holds | Notes |
@@ -20,6 +21,8 @@ Import from this folder (`pytest` sets the path; elsewhere `PYTHONPATH=python`).
 | `climate/gcm/surface_gust.py`, `surface_similarity.py` | PlaSim's surface transfer on one column, in Python: as released, with Beljaars's gust in the bulk formulas' wind, and with CM1's surface-layer similarity over ice-free water at the world's viscosity; the copies that the Fortran of patches 12 and 13 is tested against | the same |
 | `climate/gcm/rain_drops.py` | PlaSim's falling rain evaporated from its drops' sizes and fall speeds, on columns of any world, in Python: the copy that the Fortran of patch 14 is tested against. For a world's air at 2 m and a calibration of the rain's births it gives the entries of rainmod's namelist and, through `atmosphere/rain/fall_law.py`, the table of the fall law that the run's folder holds. It records Terluna's calibration of the births for the Open Moon | the same; [../models/exoplasim/README.md](../models/exoplasim/README.md), "Rain from drop sizes" |
 | `climate/gcm/levels.py` | PlaSim's vertical levels for a world: the released model's half levels in the compiled model's doubles; the set generated from a scale height and the heights a study states for the half levels near the ground, under a stated count of the released model's highest half levels; the entries of a run on a generated set, `NEQSIG` −1, `SIGH` and `TFRC`; and the conservative remap in σ that carries a restart from one set onto another. It records Terluna's values for the Open Moon's fifteen levels | the same; [../models/exoplasim/README.md](../models/exoplasim/README.md), "Level sets" |
+| `climate/gcm/year_files.py` | The humidity read from PlaSim's year files by the rule of defect A10: each interval's mean the average of a record and the next, each file's first and last records left out, and every field read over the same records; a run that writes the humidity's true mean keeps every record | [../notes/exoplasim.md](../notes/exoplasim.md), "Settings and inputs"; [../notes/defect_log.md](../notes/defect_log.md), A10 |
+| `climate/crm/gcm_site.py` | CM1's forcing from a GCM run at a site, through the whole column: from a PlaSim run's record and its year files, the GCM's mean air and surface at the site's cells, its mean vertical wind from its continuity on its spectral fields, its circulation's heating and moistening by local time from its own budget, its wind by local time and the top of its convection; on a box's levels, the table with each GCM layer laid on them by pressure, the reference air in CM1's mixing ratio, the wind's nudging windows, the held air's heights and the proposed refusal of a damping layer below the GCM's convection; the files `terluna_wls.txt`, `terluna_lsadv.txt` and `lsnudge_NNNN.dat` and the namelist entries a case writer places. It records the sites of Terluna's boxes for the Open Moon | [../notes/cm1.md](../notes/cm1.md), "Forcing a slice of the GCM" |
 | `climate/gcm/twilight.py` | The curved-air ledger: what the Moon's tall, curved air does to sunlight and infrared against flat columns, and the terms the GCM and CM1 patches read | [../notes/reference_radiation.md](../notes/reference_radiation.md) |
 | `climate/gcm/sun_check.py` | PlaSim's solar-position arithmetic, upstream and corrected, against a run's sunlight | [../notes/exoplasim.md](../notes/exoplasim.md) |
 | `geography/` (`topography.py`, `basins.py`, `atlas.py`, `drainage.py`, `nomenclature.py`) | A body's heights above its geoid, from a PDS3 height image and a SHADR gravity field read through their labels, with the body's spin and the permanent tide of a host fixed in its sky; the common water level that floods a given share of the surface, and the connected seas below it; the atlas of seas, islands and flooded maria at that level; the steady routing of a GCM run's runoff into rivers and fill-and-spill lakes; and the IAU gazetteer's names. The lab's general versions of Terluna's lunar tools; Terluna's other geography tools (tides, groundwater, shores and coasts, the water inventory, the calendar) stay there | [../notes/geography.md](../notes/geography.md) |
@@ -65,7 +68,12 @@ the lab's environment collected 326. CM1's world from the namelist brought twelv
 08, which apply the CM1 series to the pinned archive: four read the patched sources, a scan of all 91 for gravity's
 numbers among them, and eight compile parts of the model with gfortran and cpp, the constants, the CAPE diagnostic,
 one column of RRTMG with its two tables from the archive, the block that sets the Sun and the lines that lay out
-the soil; without the archive or the tools they skip. The lab's environment then collected 338.
+the soil; without the archive or the tools they skip. The lab's environment then collected 338. The reader of the
+year files and CM1's forcing from a GCM site brought 25 on 2026-11-16: six of the reader, two of them on netCDF files
+written to carry the held humidity's fault, and nineteen of the forcing, seventeen on synthetic year files and inputs
+written in the test and two that read Terluna's design run and its sea box in place from the research drive, through
+the lab's `worldlab.roots`, and skip where it is absent; those two read ten year files twice, about 30 s. All need
+netCDF4.
 
 ## What still needs Terluna
 
@@ -149,6 +157,25 @@ Terluna's checks of the sets' placement, of a run's entries, of the remap and of
 generates, and adds the rule against hand arithmetic, the released half levels' doubles, Earth's values, a restart
 carried onto its own set and the refusals; the tests of Terluna's runner and of its products on the two sets stay in
 Terluna, and the compiled model's tests are in `lab/tests/test_builds.py`.
+
+`climate/gcm/year_files.py` and `climate/crm/gcm_site.py`, with their tests, came from Terluna at `39c5ee04` on
+2026-11-16 (commits `5a44e5e3`, `2cc51790`, `13e71235` and `984606a5`; Terluna's head has moved since, with both files
+unchanged). The reader keeps Terluna's rule and functions and refuses a file of fewer than three records. The forcing
+keeps Terluna's harmonics, continuity, fits, remap, convection's top and wind windows, and takes from Terluna's
+`cm1_run.py` the pieces the forcing needs: the held air's heights, the vapour held above the GCM's top level, and the
+formats of the three files. Where Terluna's module reads its planet record, its run folder by name and its constants,
+the lab's reads a run's record (`run_record`): the gravity, radius, gas constant and heat capacity the GCM ran with,
+PlaSim's gas constant of vapour and latent heat, the run's half levels and truncation, and its output interval, from
+which the window of each mean follows; CM1's constants set the box's air. The humidity's fit undoes the filter its
+records carry, the rule's average of two ends, where Terluna's undoes a true mean's (defect log A10). The table and
+the reference air carry the GCM's specific humidity into CM1's mixing ratio, which Terluna handed CM1 unconverted.
+Left out: Terluna's capped forcing of its first boxes (`top_m`), the table on the GCM's own levels, the command line,
+the GCM's weather at a site (`record_seconds`, `site_sequence`, `redamped`, `gcm_time`, `sequence_state`,
+`sequence_tendency`, and the records `site_forcing` returned for them, from `af42e928`) and the damped gravity wave's
+inputs (`dgw_forcing`, `first_mode`, from `c3898a7c`), which wait for later ports. With Terluna's constants and choices stated as values,
+its treatment of the humidity's filter among them, the lab's extraction gives Terluna's recorded forcing of its three
+boxes on the design years bit for bit at the GCM's levels; on the run's own constants it departs by causes the test
+states (`climate/tests/test_gcm_site.py`).
 
 The geography package is the lab's general version of Terluna's, and `provenance.json` notes each file's changes.
 Its tools take a body's grid, gravity field, rotation, tide and share as arguments, read PDS3 images and SHADR

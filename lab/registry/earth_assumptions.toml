@@ -285,3 +285,16 @@ state = "repaired"
 repair = { patch = "11-ice-weights", switch = "ZICEW", default = "patch 10's constants", setting = "exoplasim.switches.ice_weights" }
 action = "warn"
 evidence = ["lab/design/regeneration.md, cross-dependency 13", "lab/tests/test_builds.py, patch 11's identity test"]
+
+[[entry]]
+id = "cm1-damping-below-convection"
+model = "cm1"
+where = "the case's Rayleigh layer, from zd = damping_base_fraction x ztop (cm1/defaults; param3 zd), beside the forcing GCM's convection at the site (python/climate/crm/gcm_site.py, convection_top and check_damping)"
+form = "geometry"
+assumes = "a damping layer that begins above the convection the forcing GCM resolves at the site, as CM1's cases on Earth begin it above the tropopause"
+when = [{ q = "cm1_damping_clearance_m", lt = 0.0 }]          # proposed (PLAN.md, Porting: confidence, form and cost; lab/design/terluna_fixes.md, row 6): the height of the Rayleigh layer's base above the GCM's first level over its convection's top, the level from which the box holds its air; -inf where the convection reaches the GCM's top level
+effect = "unmeasured: the box would relax toward its base state air that the GCM's convection reaches, beside the forcing the GCM's circulation brings there; Terluna's boxes ran clear of it, their damping from 115.5 km above the GCM's convection top at 72-73 km and its next level at 93-95 km"
+state = "bounded"
+action = "refuse"
+note = "the threshold is proposed and awaits the author's decision; python/climate/crm/gcm_site.py refuses such a case as it writes the forcing (case_inputs) and states the clearance in the case's record; on Terluna's design run at the Near-side Sea the clearance is 20.8 km, the convection's top at 73.4 km and its next level at 94.7 km in the run's own gas constant; on Earth's defaults the damping begins at 18.6 km (lab/design/terluna_fixes.md, row 6), close above a tropical tropopause of 16-17 km, so an Earth box's clearance depends on the forcing GCM's levels there; the forcing reaches the box's top whatever the clearance, and the rule bounds where the box's own damping meets it"
+evidence = ["lab/design/terluna_fixes.md, row 6", "notes/cm1.md, The nudging and the convection", "python/climate/tests/test_gcm_site.py"]

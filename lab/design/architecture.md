@@ -159,7 +159,7 @@ flowchart TB
 | Registry and reach | `worldlab.registry`, `lab/registry/` | Earth-assumption entries and calibration envelopes, evaluated for a world, a scenario and a run's settings into a reach report | `notes/defect_log.md`, classes (a) and (b); the paper's table of reach |
 | Stage graph and store | `worldlab.stages`, `worldlab.store` | Stage definitions, product keys and headers, read-set tracking, staleness, priced plans | Terluna's run key, `case.json`'s input hashes, `shared/provenance.py` |
 | Model adapters | `worldlab.exoplasim`; `worldlab.cm1`, planned | Builds, input files, namelists, runs and guards for each model | `exoplasim_run.py`, `cm1_run.py`, `cm1_elec.py` |
-| Coupling | `worldlab.couple` | GCM state to CRM inputs: reference profiles, mean vertical wind, sideways forcing, surfaces along rings and in boxes; a ring's output to a box's day–night forcing, which plan stage 3 replaces with the GCM's own budget at the box's site, through the whole column | `cm1_run.py:1162-1956`, `ring_crossings.day_night_advection`, `ring_heat_budget.gcm_sideways` |
+| Coupling | `worldlab.couple` | GCM state to CRM inputs: reference profiles, mean vertical wind, sideways forcing, surfaces along rings and in boxes; a ring's output to a box's day–night forcing, which plan stage 3 replaces with the GCM's own budget at the box's site, through the whole column. That forcing is ported as `python/climate/crm/gcm_site.py` (16 November 2026), which the coupling calls: from a run's record and year files, the humidity read by the rule of defect A10, it gives a site box's files and namelist entries | `cm1_run.py:1162-1956`, `ring_crossings.day_night_advection`, `ring_heat_budget.gcm_sideways`; Terluna's `climate/crm/gcm_site.py` at `39c5ee04` |
 | Producers | `worldlab.produce.*`, calling `python/` | The surface grid and sunlight files, reference columns, the curved-air ledger, the gas-band, shortwave, water-continuum and longwave fits, the ice optics; the seas from the heights and the lakes from runoff; the infrared of a glow in space. Each runs on the scenario's own values, where Terluna's tools default to Earth's air and a ground albedo of 0.1 | `boundary.py`, `exoplasim_run.sunlight`, `python/climate/gcm/*`, `python/atmosphere/*`, `python/illumination/sky/*`; Terluna's `geography/atlas.py`, `geography/drainage.py` and `glow.py` |
 | Runner | `worldlab.runner` | A local service that keeps the job queue in the store, orders the stale products by the stage graph, starts each job once its inputs exist and the machine budget allows, and takes start, stop, resume, cancel and reorder from its clients | The shell chains in `session-tools/` |
 | Jobs | `worldlab.jobs` | Each model job's wrapper: locks, segments, resume and stop files, with its progress written to its record | The loops of Terluna's two run scripts |
@@ -366,7 +366,10 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
     giving columns of 965 m and a 24.1 km top.
   - From plan stage 3 the nudging heights are taken out of the rule: the air is held to the GCM's only above the forcing GCM's
     convection top, read from its output, since in Terluna's box over the Near-side Sea the 8–16 km hold stood in
-    for the deep convection (`notes/cm1.md`, "The nudging and the convection").
+    for the deep convection (`notes/cm1.md`, "The nudging and the convection"). The forcing gives them from the GCM's
+    first level above that top, fully from the next (`python/climate/crm/gcm_site.py`, `held_heights`), and refuses a
+    case whose Rayleigh layer, from `damping_base_fraction` of its top, begins below the first of them
+    (proposed; registry `cm1-damping-below-convection`).
   - **Unscaled:** with the world's Sun in a case, the run length is set in the world's solar days, and the
     output, restart and nudging intervals stay in seconds. Terluna's gravity pair, which ran without a Sun,
     scaled those too (`time_scale`, `cm1_run.py:1974-2029`).

@@ -761,7 +761,39 @@
    "terluna_sha256": "56dfc24499f855222bde025b639ea4224d777422f8d22f20b508d1965870f408",
    "terluna_commit": "39c5ee04",
    "modified": "rewritten around the lab's rule: Terluna's tests of the fourteen and fifteen levels' placement, of a run's entries, of the remap's column integrals, linear profiles and shared layers and of a carried restart kept, on sets generated from TERLUNA_OPEN_MOON_LEVELS in place of Terluna's named sets, the synthetic restart stating nlat, nlon and nrsp; tests added of the released half levels' doubles, of the rule by hand arithmetic and at the released half levels' own heights, of its refusals, of Terluna's recorded half and full levels and its runs' SIGH with the two last bits pinned, of Earth's values, of the friction's refusal, of the remap by hand on two layers split into four, of a restart carried onto its own set byte for byte, of the fourteen months beside fourteen levels, and of the restarts the carrier refuses; the tests of Terluna's runner and of its twilight and longwave products on the two sets (the last two of Terluna's file) left in Terluna"
+  },
+  {
+   "path": "climate/crm/gcm_site.py",
+   "sha256": "ea7a408750d8fc4fe1c5449ae59ef91d9ee53f1248564545c397488b4d11041c",
+   "bytes": 56452,
+   "terluna_sha256": "70df7df9498d14d2d39ece66656205019d3dec65c47871eeec89c15e02be7038",
+   "terluna_commit": "39c5ee04",
+   "modified": "the GCM's weather at a site (record_seconds, site_sequence, redamped, gcm_time, sequence_state, sequence_tendency, and the series and index site_forcing returned for them, from af42e928) and the damped gravity wave's inputs (dgw_forcing, first_mode, from c3898a7c) left out for later ports, with the capped forcing of Terluna's first boxes (TOP_M, top_m), the table on the GCM's own levels (day_night, and to_cm1's path without the box's air), the budget's terms on that table and the command line (main, argparse); site_forcing reads a run's record (run_record, added, from the run's planet, plasim and landmod namelists and its surface geopotential) where Terluna's reads its planet record, a run folder under its own tree and CM1's constants: the run's gravity, radius, GASCON, heat capacity (GASCON / AKAP), PlaSim's RV and ALV, its half levels, its truncation (from the year file's spectral modes, where Terluna's holds T21) and a window of 360 times its output interval over the world's solar day (where Terluna's holds 36 degrees); the humidity's fit undoes the rule's own filter, cos(n w/2) (undamped's kind 'ends', with humidity_filter 'mean' for Terluna's treatment); the site, the harmonics, the bins and the convection's share are arguments, TERLUNA_OPEN_MOON_SITES recording Terluna's sites; reference_air, held_heights, held_share_above, the three files' writers (wls_text, lsadv_text, nudging_text) and case_inputs added from Terluna's cm1_run.py at 39c5ee04 (held_heights, held_share_above, write_vertical_wind, write_day_night, setup and case_settings), the vapour carried into CM1's mixing ratio (mixing_ratio) and the column's pressures by CM1's own virtual temperature (virtual_theta); damping_clearance_m and check_damping added for the proposed refusal; the refusals of check_site, edges, Spectral and site_forcing added; Spectral, omega, remap, convection_top, the fits and wind_windows keep Terluna's arithmetic; the docstring rewritten for a world, with Terluna's record of its findings"
+  },
+  {
+   "path": "climate/gcm/year_files.py",
+   "sha256": "65f3235a1e54d67c9e1ea46d019460c1019eb705db5a187545619e4d8f1183db",
+   "bytes": 4488,
+   "terluna_sha256": "b338b013a0079a8221ae57692884a2adaaa58831486fcf027f057d925325485d",
+   "terluna_commit": "39c5ee04",
+   "modified": "the rule and the four functions kept; interval_means and fields refuse a file of fewer than three records, where Terluna's return nothing; the docstring rewritten in the lab's words, with Terluna's measurements cited as Terluna's"
+  },
+  {
+   "path": "climate/tests/test_gcm_site.py",
+   "sha256": "f9acd999eb3b6929e52d0db51463bc03bca0c62a708dd7914aa2d077d66eeb6a",
+   "bytes": 50995,
+   "terluna_sha256": "52a3a752bc9bf9947ce3f8f5d495a2a0685dd4c16609b760eb8686bd502cc5a5",
+   "terluna_commit": "39c5ee04",
+   "modified": "rewritten around the lab's module: Terluna's tests of the harmonics, the continuity, the fits, the cells, the remap, the column's pressure, the convection's top, the table on CM1's levels and the wind's windows kept, adapted to the lab's arguments and to the vapour in CM1's mixing ratio; tests added of a flow across a sloping surface pressure, of the remap's limiter, of a box whose top stands below the GCM's top level, of the held air's heights and the proposed refusal, of the whole extraction on synthetic year files written as PlaSim writes them, at the Moon's constants and at Earth's, of the humidity's filter, of the refusals, of the reference air, and of the case's files read back as CM1 reads them; Terluna's tests on its branch run A28R_301k_cold_moist and of site_sequence left in Terluna, and in their place two that read Terluna's design run and its recorded sea box from the research drive, with Terluna's choices and with the run's own constants"
+  },
+  {
+   "path": "climate/tests/test_year_files.py",
+   "sha256": "59ad463dc1b705f96f8c6e27637625a526a4a9420e05a1da75294d357b790b2b",
+   "bytes": 7027,
+   "terluna_sha256": "62c045394e8c21082d05b85c6eb3261289abeaccf5ec90d7ffa2f3ddbd01740e",
+   "terluna_commit": "39c5ee04",
+   "modified": "Terluna's three tests kept, the stand-in variable given a shape; tests added of the refusal of a short file and of netCDF files written to carry the held humidity's fault, with and without the true mean"
   }
  ],
- "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography package brought from 186b294 byte for byte (82b4b59), then generalised, its modified files holding both hashes; 2026-11-08: climate/crm/cm1_output.py brought from Terluna bdda5a07 byte for byte, and its test with one check adapted; 2026-11-11: climate/gcm/surface_gust.py and surface_similarity.py and their two tests brought from Terluna 39c5ee04 (domain/climate) and changed as their entries record; 2026-11-11: atmosphere/rain/drops.py, sources.json and the licence and Gunn-Kinzer fall speeds of its vendored rainprops brought from Terluna 39c5ee04 byte for byte, and breakup.py, fall_law.py and three tests brought from it and changed as their entries record; 2026-11-11: climate/gcm/rain_drops.py and its test brought from Terluna 39c5ee04 and changed as their entries record; 2026-11-11: climate/gcm/levels.py and its test brought from Terluna 39c5ee04 and changed as their entries record"
+ "checked": "2026-10-17: every other file byte-identical to Terluna 186b294; 2026-10-18: the geography package brought from 186b294 byte for byte (82b4b59), then generalised, its modified files holding both hashes; 2026-11-08: climate/crm/cm1_output.py brought from Terluna bdda5a07 byte for byte, and its test with one check adapted; 2026-11-11: climate/gcm/surface_gust.py and surface_similarity.py and their two tests brought from Terluna 39c5ee04 (domain/climate) and changed as their entries record; 2026-11-11: atmosphere/rain/drops.py, sources.json and the licence and Gunn-Kinzer fall speeds of its vendored rainprops brought from Terluna 39c5ee04 byte for byte, and breakup.py, fall_law.py and three tests brought from it and changed as their entries record; 2026-11-11: climate/gcm/rain_drops.py and its test brought from Terluna 39c5ee04 and changed as their entries record; 2026-11-11: climate/gcm/levels.py and its test brought from Terluna 39c5ee04 and changed as their entries record; 2026-11-16: climate/gcm/year_files.py and climate/crm/gcm_site.py and their two tests brought from Terluna 39c5ee04 (domain/climate) and changed as their entries record"
 }

@@ -261,6 +261,41 @@ time
 (`climate/crm/gcm_site.py`; 2cc5179, 5a44e5e, 13e7123). How far the 8–16 km hold restrained the rings' convection
 is unmeasured.
 
+**The lab's forcing at a site.** `python/climate/crm/gcm_site.py` carries Terluna's forcing of its site boxes into the
+lab (Terluna `domain/climate` 39c5ee04, from 5a44e5e, 2cc5179, 13e7123 and 984606a). From a PlaSim run's record and
+year files it takes the GCM's column at the site: the circulation's heating and moistening by local time from the
+GCM's own budget, the humidity read by the rule of defect A10, the mean vertical wind from the GCM's continuity on its
+harmonics, the wind by local time and the top of the convection. It lays the circulation on the box's levels by
+pressure and writes `terluna_wls.txt`, `terluna_lsadv.txt`, the nudging windows and the entries of `&param8` and
+`&param19`, which core patches 09–14 and 17 and CM1's own nudging read, so this part of the forcing needs no new
+patch.
+
+The lab's form departs from Terluna's in four places, each tested. The run's record supplies the gravity, radius, gas
+constants, heat capacity and levels the GCM ran with, where Terluna's module took CM1's gas constant and the planet
+record's radius: on Terluna's design run the run's GASCON of 288.38 J/kg/K, against CM1's 287.04, raises the GCM's
+heights by 0.47% and the held air's start from 94.3 to 94.7 km. The window of each mean follows from the run's output
+interval and the world's solar day, 36.32° of hour angle where Terluna's fits took 36°. The humidity's means, read by
+the rule, average each interval's two ends, so the fits undo that filter, cos(n w/2) for the n-th daily harmonic;
+Terluna's undid them as true means, which left the humidity's third and fourth harmonics at the ground at two thirds
+and under half of their size, and the lab's moistening by local time departs from Terluna's by up to 8% of its
+largest value. Last, the box's air and moistening reach CM1 as a mixing ratio, the variable CM1 holds, where
+Terluna's set-up handed CM1 the GCM's specific humidity: at the ground over the sea that left the box's starting air
+0.20 g/kg drier, 14.12 g/kg against 14.32, and its moistening there 1.4% weaker.
+
+With Terluna's constants and treatment stated as values, the extraction gives the forcing that Terluna's three boxes
+on its design years record, bit for bit at the GCM's levels (`python/climate/tests/test_gcm_site.py` for the sea box;
+a single scratch run of 16 November 2026 for the two land boxes). A case whose Rayleigh layer begins below the GCM's
+first level above its convection's top is refused, a proposed rule (registry `cm1-damping-below-convection`) that
+Terluna's boxes cleared by 21 to 22 km. No lab run has taken the forcing; a forced box waits for the case writer of
+`PLAN.md`'s block 2.
+
+Three corrections of Terluna's later boxes wait for a CM1 patch, the next of the lab's series: the wind's own nudging
+time (Terluna's `var10`, 2 hours), since CM1 relaxes the wind and the held air on one `lsnudge_tau`, whose 3 days held
+the sea box's mean wind at 44–67% of its target's speed; the wind's pull from the GCM's lowest level up (`var8`); and
+the inflow of the reference's air where the mean wind converges (`var7`; Daleu, Woolnough and Plant 2012), which in
+Terluna's day of trial halved the sea box's drying of its column, 0.30 against 0.67 mm/day (238638f, 3dd0c96,
+191d967). Until that patch lands, a box written by the lab relaxes its wind on its held air's time.
+
 **What the forcing revealed.** Without the GCM's sideways transport the 45° N ring drifts warm: its lowest
 1.8 km warm from 20.0 to 26.7 °C over two lunar days. The GCM's circulation carries about 15 W/m² of heat
 out of the air below 8 km at that latitude; imposed, it removes about a third of the offset (5.9 → 3.7 K
@@ -388,21 +423,23 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
    build does.
 2. Rerun a reference ring with that fix and the forcing taken through the column, to size the bias the rings'
    results carry.
-3. Give NSSL's rain the limits, the fall law and the self-collection that Morrison's rain takes since patches 03
+3. Give the series the wind's own nudging time, its pull from the GCM's lowest level up and the inflow of the
+   reference's air, as Terluna's corrected boxes have them, behind switches with identity defaults.
+4. Give NSSL's rain the limits, the fall law and the self-collection that Morrison's rain takes since patches 03
    and 04 of the lab's series, and run a box with them on the lab's own builds.
-4. Size the two factors on Morrison's autoconversion and accretion, which patch 05 of the lab's series reads from
+5. Size the two factors on Morrison's autoconversion and accretion, which patch 05 of the lab's series reads from
    the namelist with identity defaults, at 0.166 and 0.340 in a sea box of two lunar days (defect log B38; `PLAN.md`,
    block 4, step 2).
-5. Give RRTMG the shield's spectrum.
-6. Let a sea box follow the GCM's sea temperature by local time, as it follows the wind (defect log B37).
-7. Two-way coupling, or nesting in the GCM, so that the slice's own state feeds back on its forcing.
-8. Find and fix the source of CM1's threaded parting, first by a threaded run of stock CM1 with these boxes' options.
-9. Gravity falling with height in the base state and hydrostatics for a 150 km domain.
-10. Upstream: report the boundary layer's density fault and the surface layer's unset `z0t` and `z0q` over land, and
+6. Give RRTMG the shield's spectrum.
+7. Let a sea box follow the GCM's sea temperature by local time, as it follows the wind (defect log B37).
+8. Two-way coupling, or nesting in the GCM, so that the slice's own state feeds back on its forcing.
+9. Find and fix the source of CM1's threaded parting, first by a threaded run of stock CM1 with these boxes' options.
+10. Gravity falling with height in the base state and hydrostatics for a 150 km domain.
+11. Upstream: report the boundary layer's density fault and the surface layer's unset `z0t` and `z0q` over land, and
    offer gravity as one namelist entry, as the lab's patch 06 reads it, honoured by every scheme.
-11. Choose how the lab's builds treat fused multiply-adds: time a build with `-ffp-contract=off`, under which the
+12. Choose how the lab's builds treat fused multiply-adds: time a build with `-ffp-contract=off`, under which the
    rain patches' default path kept its bits in Terluna's form as in the lab's on 11 November, against the present
    `-O3 -march=native`.
-12. Give the electrified series its companion patch: NSSL's fall speeds and ventilation at the namelist's gravity,
+13. Give the electrified series its companion patch: NSSL's fall speeds and ventilation at the namelist's gravity,
    where patch 03 of that series reads the build's `TERLUNA_G`, so that one build serves every world there too.
-13. Scale the CAPE diagnostic's mixed-layer depth with the world, where `getcape.F` holds 500 m at every gravity.
+14. Scale the CAPE diagnostic's mixed-layer depth with the world, where `getcape.F` holds 500 m at every gravity.

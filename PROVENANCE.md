@@ -85,7 +85,7 @@ drive. Upstream source code is never committed whole.
 ## Python tools
 
 The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna, at
-186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 139 files they hold with their
+186b294 unless their entry names another commit, under their Terluna package paths; `python/provenance.json` lists the 143 files they hold with their
 sha256 (98 brought first; the electricity package's conductivity column, muon ionization and charging laws, with
 their three tests and committed products, added on 2026-10-17; and on 2026-10-18 the geography package's
 heights above the geoid, storage levels, atlas, drainage and gazetteer reader, with their three tests and the
@@ -93,7 +93,8 @@ package's `.gitignore`; on 2026-11-08 CM1's output conventions and their test, f
 the Python copies of PlaSim's gust and similarity over water with their two tests, from `39c5ee04`; and that day
 the rain package's solver, breakup scale and fall law with their three tests, its record of sources and two files of
 its vendored rainprops, from the same commit; and that day the Python copy of PlaSim's rain from its drops with its
-test, from the same commit; and that day PlaSim's levels with their test, from the same commit).
+test, from the same commit; and that day PlaSim's levels with their test, from the same commit; and on 2026-11-16
+the reader of PlaSim's year files and CM1's forcing from a GCM site with their two tests, from the same commit).
 `python/climate/tests/test_plasim_ice_optics.py` takes the ice routines it compiles from
 `models/exoplasim/patches/10-ice-optics.patch` in place of the runner's Python string (both hashes recorded).
 The geography package came over byte for byte (82b4b59), with its input restorer and manifest, the level table
@@ -149,3 +150,24 @@ scratch runs that day, with Terluna's doubles, the lab's remap matrices equalled
 a copy, on five pairs of its grids, and the lab's carrier wrote Terluna's carried fifteen-level restart of
 `A28R_301k_cold` (research drive, `gcm-runs/A28R_301k_cold_l15_restart/MOST_REST.00019`, sha256
 `29343e47f9b681b9…`) from its year-19 restart (`5a0f31f96382169a…`) byte for byte.
+On 2026-11-16 `climate/gcm/year_files.py` and `climate/crm/gcm_site.py` came over from Terluna at `39c5ee04`
+(commits `5a44e5e3`, `2cc51790`, `13e71235` and `984606a5`, branch `domain/climate`) with their tests, each changed
+as its entry records, with both hashes; Terluna's head had moved to `81f405e4` by then, with the four files unchanged.
+The forcing also takes, from Terluna's `climate/crm/cm1_run.py` at the same commit (sha256 `ba507fc66d1ea4fd…`),
+the held air's heights (`held_heights`), the vapour held above the GCM's top level (`held_share_above`) and the
+formats of `terluna_wls.txt`, `terluna_lsadv.txt` and the nudging files (`write_vertical_wind`, `write_day_night`
+and the set-up's lines), and the entries a site box sets (`case_settings`). The reader keeps Terluna's rule and adds
+the refusal of a file of fewer than three records. The forcing reads a run's record where Terluna's module reads its
+planet record and constants, undoes the humidity's own filter in its fits, carries the vapour into CM1's mixing
+ratio, and leaves out the capped forcing of
+Terluna's first boxes, the GCM's weather at a site (`af42e928`) and the damped gravity wave's inputs (`c3898a7c`).
+Run with Terluna's constants and choices stated as values, its undoing of the humidity's means as true means among
+them, the lab's extraction gave the forcing that Terluna's
+three site boxes on its design years record (research drive, `crm-runs/box_near_side_sea_design_years`,
+`box_0e_design_years` and `box_se_dry_design_years`, `case.json` sha256 `19cfa6e54749e7c2…`, `0a9527e2e881d656…`
+and `48dc816e4eaa1cf5…`) bit for bit at the GCM's levels, from the run `gcm-runs/A28R_301k_design_l15_snow_s934`
+read in place, with each box's vertical wind and held air's heights to the digits its files print. The sea box's
+nudging windows matched to their printed digits, their vapour within 1 part in 10³ once Terluna's specific humidity
+was carried into a mixing ratio, and its table, with Terluna's addition of the mean wind's advection of its starting
+air taken back out, within 1 part in 10⁴ of its largest value. The sea box is compared in the suite, and the three
+boxes were in a single scratch run that day.
