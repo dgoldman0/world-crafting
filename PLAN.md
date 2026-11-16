@@ -183,7 +183,7 @@ tests, and its compute is the tests' short runs.
 | 6 | Simplified Betts–Miller convection as an option beside Kuo's scheme, its depth test a fraction of the surface pressure and its relaxation time a setting scaled with the world (B39) | — | To start |
 | 7 | The equinox's regression, its count carried through restarts and branches | — | To start |
 | 8 | The cold cloud's factors as namelist values with identity defaults | — | To start |
-| 9 | The humidity held in the output (A10): the reader's rule in `python/climate/gcm/year_files.py` first, then the true mean as a further output, Terluna's switch `nhusmean` (`domain/climate` b93a046e) | — | To start |
+| 9 | The humidity held in the output (A10): the reader's rule in `python/climate/gcm/year_files.py` first, then the true mean as a further output, Terluna's switch `nhusmean` (`domain/climate` b93a046e) | — | The reader's rule done (`lab` 5731fc5, with CM1's port 4); the true mean as a further output to start |
 | 10 | The Sun's distance through a moon's month (C22), an option that a study switches on or off | — | To start |
 | 11 | Snow sublimed from capped flakes | Its assessment | Waiting |
 
@@ -192,7 +192,7 @@ tests, and its compute is the tests' short runs.
 | 1 | The raindrop limits, with the fall law and self-collection at the world's gravity | — | Done (`lab` 3e05ec2) |
 | 2 | Factors on autoconversion and accretion (B38) | — | Done (`lab` ade4116) |
 | 3 | Gravity, CO2 and O2 read from the namelist, with the soil's layers and the Sun's declination, so that one build serves every world (planned in the lab's stage 3) | — | Done (`lab` 3174a0e) as patches 06 to 08, each entry the build's value by default. The lab's adapter still compiles the world in until stage 3's one-day ring segments and timing are run, and the electrified series' NSSL reads the build's gravity until a companion patch |
-| 4 | The whole-column forcing with the wind by local time and the inflow, and the extraction that writes it (`python/climate/crm/gcm_site.py`), which reads the GCM's humidity by the rule of A10 | — | To start |
+| 4 | The whole-column forcing with the wind by local time and the inflow, and the extraction that writes it (`python/climate/crm/gcm_site.py`), which reads the GCM's humidity by the rule of A10 | — | In part (`lab` 5731fc5): the extraction, the forcing through the whole column, the wind by local time and the reader's rule, with no patch. The rest, the wind's own nudging time, its pull from the GCM's lowest level up and the inflow, needs patch 09 of the lab's CM1 series, next |
 | 5 | The damped gravity wave, by which a box makes its own ascent | — | To start, for block 4 |
 | 6 | The sea's temperature by local time (B37) | — | To start |
 
