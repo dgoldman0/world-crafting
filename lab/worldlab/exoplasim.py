@@ -428,7 +428,8 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     radmod.f90:1397-1414). A surface gust whose patches the run's series lacks is refused, and so is rain evaporated
     from its drops' sizes on a series without patch 14. The twilight's clear share and its single count
     (`TWILIGHT_QUALIFIERS`) qualify the curved air's terms, so they resolve off wherever those terms are off, a first
-    run's among them; on, each is refused on a series that lacks its patch. The wind at 10 m, a diagnostic, holds in
+    run's among them. On, the clear share is refused on a series that lacks patch 15, and the single count, on by
+    default, takes patch 07's passes on a series that stops before patch 16, as the ice weights take patch 10's. The wind at 10 m, a diagnostic, holds in
     a first run as in any other and is refused on a series without patch 17."""
     switches = dict(run['switches'])
     if world is not None and locked(world):
@@ -455,6 +456,9 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     for name, (patch, _) in TWILIGHT_QUALIFIERS.items():
         switches[name] = bool(_switch(switches.get(name), f'switches.{name}')) and switches['twilight'] != 'none'
         if switches[name] and patch not in series(run):
+            if name == 'twilight_counted_once':         # the build's own passes, the double count of defect C21
+                switches[name] = False
+                continue
             raise SpecError(f"switches.{name} takes {patch}, which the run's series lacks")
     switches['wind_10m'] = bool(_switch(switches.get('wind_10m'), 'switches.wind_10m'))
     if switches['wind_10m'] and PATCH_17 not in series(run):

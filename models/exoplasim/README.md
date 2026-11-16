@@ -363,9 +363,11 @@ in its twilight copy of ExoPlaSim and switches both on in its runs, the clear sh
 start since 8 November. The lab wrote them as two unified patches after patch 14, each behind its own switch and
 under Terluna's name for it, so that patch 07 stays as Terluna deployed it on 2026-10-17 (`expected.sha256`). The
 lab's writer sets them through `switches.twilight_clear_share` and `switches.twilight_counted_once`
-(`lab/configs/exoplasim/defaults.toml`), both false by default, since each fix enters the lab opt-in (`PLAN.md`).
-It writes each switch where the run's series holds its patch, resolves both off where the curved air's terms are
-off, a first run's among them, and refuses either on a series without its patch.
+(`lab/configs/exoplasim/defaults.toml`). The clear share is false by default, since each fix enters the lab opt-in,
+and the single count true, since the double count lets a diagnostic change the run's state where the released
+model's diagnostic leaves it alone (`PLAN.md`, "Decisions", 2026-11-16). It writes each switch where the run's
+series holds its patch, resolves both off where the curved air's terms are off, a first run's among them, refuses
+the clear share on a series without patch 15, and takes patch 07's passes on a series that stops before patch 16.
 
 **What changes.** The ledger's terms are clear-sky values: the sunlight that the curved air adds to each layer and to
 the ground, and the infrared that it lets out of each layer and the ground, computed on a cloudless column. Patch 07
@@ -465,8 +467,8 @@ ledger, as before (`lab/design/terluna_fixes.md`, row 10). The ledger itself is 
 - Terluna's statements, in which the clear share is a factor of exactly 1 with the switch at 0, which leaves every
   product as it was under ExoPlaSim's flags. A form that kept patch 07's statements on a branch of their own was
   tried in a scratch build and also moved the last bits under `-march=native`, so it gained nothing;
-- two settings off by default, where Terluna's runner switches both on for every run with the twilight, and both
-  resolved off with the twilight, where they would change nothing.
+- the clear share off by default and the single count on, where Terluna's runner switches both on for every run
+  with the twilight, and both resolved off with the twilight, where they would change nothing.
 
 ## The wind at 10 m (patch 17)
 

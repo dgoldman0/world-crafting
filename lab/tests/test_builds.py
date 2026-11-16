@@ -437,7 +437,8 @@ def test_patches_15_and_16_at_their_defaults_run_byte_for_byte_as_the_build_with
         for clear_sky in (True, False):
             folder = lambda point: tmp_path / f'{twilight}-{int(clear_sky)}-{point}'
             for point, (run, _) in points.items():
-                ex.write_run(folder(point), EARTH, CONTROL, _twilit(run, twilight, clear_sky),
+                ex.write_run(folder(point), EARTH, CONTROL,
+                             _twilit(run, twilight, clear_sky, twilight_counted_once=False),
                              calibrations=calibrations, store=STORE)
             assert _differing(folder('14'), folder('15')) == _differing(folder('14'), folder('16')) == \
                 {'radmod_namelist'}

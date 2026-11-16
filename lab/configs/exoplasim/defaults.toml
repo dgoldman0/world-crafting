@@ -60,12 +60,15 @@ twilight_clear_share = false                   # 15: NTWLCLEAR. false keeps patc
                                                # layer's sunlight in the clear sky above it, by PlaSim's random
                                                # overlap of cover, and its escape and the ground's through the cloud
                                                # above at PlaSim's longwave transmissivity of each layer
-twilight_counted_once = false                  # 16: NTWLZERO. false keeps patch 07's passes, in which the clear-sky
-                                               # diagnostic (clear_sky) adds its pass's twilight below the horizon to
-                                               # the run's (defect log C21); true starts each pass of swr from zero
-                                               # where the Sun is down. Both qualify the twilight, resolve off where it
-                                               # is "none", and keep patch 07's behaviour by default, since each fix
-                                               # enters opt-in (PLAN.md, "Porting: confidence, form and cost")
+twilight_counted_once = true                   # 16: NTWLZERO. true starts each pass of swr from zero where the Sun
+                                               # is down, so that the clear-sky diagnostic (clear_sky) leaves the run's
+                                               # state as it was; false keeps patch 07's passes, in which that
+                                               # diagnostic adds its pass's twilight below the horizon to the run's
+                                               # (defect log C21). Both qualify the twilight and resolve off where it is
+                                               # "none". The clear share keeps patch 07's terms by default, since each
+                                               # fix enters opt-in; the single count is on by default, since it
+                                               # restores the released model's diagnostic, and a run on a build before
+                                               # patch 16 keeps patch 07's passes (PLAN.md, "Decisions", 2026-11-16)
 gas_bands = true                               # 08: NGASBANDS, ZGASQ, ZGASW, ZMAIRLUNAR
 longwave_correction = false                    # 09: NLWCORR
 ice_optics = false                             # 10: NICEOPT, TICEOPT

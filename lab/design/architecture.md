@@ -316,8 +316,9 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   `models/exoplasim/README.md`). Both read the run's own cloud and Sun, so the ledger stays a clear-sky ledger of
   the world's column. The adapter writes `NTWLCLEAR` and `NTWLZERO` from `switches.twilight_clear_share` and
   `switches.twilight_counted_once`, each where the run's series holds its patch; both resolve off where the curved
-  air's terms are off, and either is refused on a series without its patch. The defaults keep patch 07's terms and
-  passes, since each fix enters opt-in (`PLAN.md`). At those defaults the builds of patches 01–15 and 01–16 run
+  air's terms are off. The defaults keep patch 07's terms, since each fix enters opt-in, and count the night's
+  twilight once, since that restores the released model's diagnostic (`PLAN.md`, "Decisions"); the clear share is
+  refused on a series without patch 15, and a series that stops before patch 16 keeps patch 07's passes. At those defaults the builds of patches 01–15 and 01–16 run
   Earth's control with the Open Moon's ledger, over two days, byte for byte as the build of patches 01–14, with
   the twilight and the clear-sky diagnostic each on and off; with the single count, the run with the diagnostic
   ends in the state of the run without it, and the clear share changes the output (`lab/tests/test_builds.py`).

@@ -213,11 +213,13 @@ def test_the_switches_resolve_to_what_the_build_does():
         ex.resolve({**sized, 'patches': list(ex.series(DESIGN))[:13]}, _given())
     with pytest.raises(SpecError, match='rain_evaporation'):
         ex.resolve(_with(DESIGN, switches={'rain_evaporation': 'kessler'}), _given())
-    # The twilight's two qualifiers: off by default; on, they hold with the curved air's terms and resolve off where
-    # the run or a first run leaves those terms out, and each is refused on a series that lacks its patch.
+    # The twilight's two qualifiers: the clear share off by default and the single count on; on, they hold with the
+    # curved air's terms and resolve off where the run or a first run leaves those terms out. The clear share is
+    # refused on a series that lacks its patch, and the single count takes patch 07's passes on a series before
+    # patch 16.
     names = tuple(ex.TWILIGHT_QUALIFIERS)
     assert names == ('twilight_clear_share', 'twilight_counted_once')
-    assert all(first[n] is False and later[n] is False for n in names)
+    assert all(first[n] is False for n in names) and (later[names[0]], later[names[1]]) == (False, True)
     both = _with(DESIGN, switches={n: True for n in names})
     assert all(ex.resolve(both, _given())[n] is True for n in names)
     for dark in (ex.resolve(_with(both, switches={'twilight': 'none'}), _given(ledger=None)),
@@ -227,10 +229,10 @@ def test_the_switches_resolve_to_what_the_build_does():
         assert dark['twilight'] == 'none' and all(dark[n] is False for n in names)
     fifteen = list(ex.series(DESIGN))[:15]
     assert ex.resolve(_with({**DESIGN, 'patches': fifteen}, switches={names[0]: True}), _given())[names[0]] is True
-    for name, patches in ((names[1], fifteen), (names[0], list(ex.series(DESIGN))[:14])):
-        with pytest.raises(SpecError, match=f"switches.{name} takes {re.escape(ex.TWILIGHT_QUALIFIERS[name][0])}, "
-                                            "which the run's series lacks"):
-            ex.resolve(_with({**DESIGN, 'patches': patches}, switches={name: True}), _given())
+    assert ex.resolve(_with({**DESIGN, 'patches': fifteen}, switches={names[1]: True}), _given())[names[1]] is False
+    with pytest.raises(SpecError, match=f"switches.{names[0]} takes {re.escape(ex.TWILIGHT_QUALIFIERS[names[0]][0])}, "
+                                        "which the run's series lacks"):
+        ex.resolve(_with({**DESIGN, 'patches': list(ex.series(DESIGN))[:14]}, switches={names[0]: True}), _given())
     for value in (1, 'yes', None):
         with pytest.raises(SpecError, match=f'switches.{names[0]} is true or false'):
             ex.resolve(_with(DESIGN, switches={names[0]: value}), _given())
@@ -356,8 +358,9 @@ def test_the_twilights_qualifiers_set_their_entries_where_the_series_holds_patch
         radmod = ex.namelists(MOON, OPEN_MOON, run, top=top, calibrations=calibrations or _given())['radmod_namelist']
         return {name: radmod[name] for name in names if name in radmod}
 
-    assert not DEFAULTS['switches']['twilight_clear_share'] and not DEFAULTS['switches']['twilight_counted_once']
-    assert entries(DESIGN) == {'NTWLCLEAR': 0, 'NTWLZERO': 0}
+    assert not DEFAULTS['switches']['twilight_clear_share'] and DEFAULTS['switches']['twilight_counted_once']
+    assert entries(DESIGN) == {'NTWLCLEAR': 0, 'NTWLZERO': 1}
+    assert entries(_with(DESIGN, switches={'twilight_counted_once': False})) == {'NTWLCLEAR': 0, 'NTWLZERO': 0}
     both = _with(DESIGN, switches={'twilight_clear_share': True, 'twilight_counted_once': True})
     assert entries(both) == {'NTWLCLEAR': 1, 'NTWLZERO': 1}
     assert entries(_with(DESIGN, switches={'twilight_counted_once': True})) == {'NTWLCLEAR': 0, 'NTWLZERO': 1}
@@ -755,13 +758,13 @@ def test_the_design_runs_namelists_are_terlunas_but_for_five_entries_each_with_i
         assert not theirs, (path.name, theirs)
         found.update({(path.name, k): v for k, v in differ.items()})
         lab_only.update({(path.name, k): v for k, v in mine.items()})
-    # The entries the lab adds hold the values PlaSim and the patches take without them. The design run took the
-    # twilight with the clear-sky diagnostic on and both of patch 07's passes (defect log C21), as NTWLZERO 0 keeps
-    # them.
+    # The entries the lab adds hold the values PlaSim and the patches take without them, but for NTWLZERO: the design
+    # run took the twilight with the clear-sky diagnostic on and both of patch 07's passes (defect log C21), and the
+    # lab's writer counts the night's twilight once by default (PLAN.md, "Decisions", 2026-11-16).
     assert lab_only == {('plasim_namelist', 'NDIAGGP'): '0', ('radmod_namelist', 'IRTOPDAY'): '0.0',
                         ('radmod_namelist', 'IRTOPNIGHT'): '0.0', ('radmod_namelist', 'NICEOPT'): '0',
                         ('radmod_namelist', 'NLWCORR'): '0', ('rainmod_namelist', 'NEVAPPREC'): '1',
-                        ('radmod_namelist', 'NTWLCLEAR'): '0', ('radmod_namelist', 'NTWLZERO'): '0'}
+                        ('radmod_namelist', 'NTWLCLEAR'): '0', ('radmod_namelist', 'NTWLZERO'): '1'}
     assert set(found) == {('planet_namelist', k) for k in ('GA', 'PLARAD', 'ECCEN', 'GSOL0')} | \
         {('rainmod_namelist', 'CWSCALE')}
     lab, terluna = ({key: float(pair[i]) for key, pair in found.items()} for i in (0, 1))

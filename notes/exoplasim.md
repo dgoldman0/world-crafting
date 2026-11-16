@@ -341,7 +341,8 @@ is unchanged: its terms stay clear-sky values, which the model takes in the run'
 reflecting it; a layer's own cloud leaves its own term whole; and the infrared passes the cloud at PlaSim's diffuse
 transmissivity, where the curved air's escape runs along slant paths. The ledger's ground term assumes ground of
 albedo 0.1 whatever the run's ground, which by Terluna's record puts 1.5–4.5 times too much of it into snow or sea
-ice. The lab's defaults keep patch 07's double count until a study switches the single count on.
+ice. The lab's writer counts the night's twilight once by default (`PLAN.md`, "Decisions", 2026-11-16), and a run
+on a build before patch 16 keeps patch 07's double count.
 
 ### Levels for a world (the `levels` setting; no patch)
 
