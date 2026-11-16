@@ -361,8 +361,10 @@ the root README's "Where current understanding differs from the paper" then list
 - The unified interface's design.
 - The automatic rule that places a world's GCM level heights, an option beside stated heights, with the registry's
   provisional threshold for the lowest level revisited beside it ("Decisions").
-- Whether two faults of the released CM1 found during the ports on 11 November 2026 enter the defect log and the
-  paper's count: its MM5 surface layer writes two roughness lengths, `z0t` and `z0q`, from uninitialised memory over
-  land, in output alone, and its CAPE diagnostic mixes the parcel over a fixed 500 m at every gravity
-  (`notes/cm1.md` on the lab's branch).
+- Whether the paper's next revision counts A11 as a seventh defect in the released codes. The defect log on the
+  lab's branch took two faults of the released CM1 found during the ports (16 November 2026, `lab` 5fa8ecb): A11,
+  an upstream defect, in which the MM5 surface layer writes its roughness lengths `z0t` and `z0q` from unset memory
+  over land, in output alone; and B40, an Earth value, the CAPE diagnostic's parcel mixed over 500 m at every
+  gravity, which Terluna's box analyses read. The paper counts the defects on the lunar runs' paths, A10's output
+  fault among them, and A11's lines run there.
 - The companion patch that hands the electrified series' NSSL the namelist's gravity.
