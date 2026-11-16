@@ -100,7 +100,7 @@ lowest 500 m (`ml_depth`) at every gravity. At lunar gravity those 500 m span a 
 Earth's, about a hundredth of the Open Moon's scale height, and on a sounding whose second level stands above
 500 m the diagnostic takes the lowest level alone (`python/climate/tests/test_cm1_world.py`). The surface parcel's and the most unstable parcel's energies are
 the sounding's at any gravity, with their heights as 1/g. The depth is an Earth length that no patch scales; a
-reader of CM1's CAPE fields on another world takes it as the parcel of the lowest 500 m.
+reader of CM1's CAPE fields on another world takes it as the parcel of the lowest 500 m (defect log B40).
 
 ## Fall speeds (core patch 04; the lab's patches 03 and 04)
 
@@ -354,7 +354,7 @@ with land. In the lab's all-land test case of 11 November 2026, under CM1's flag
 build; and every other field of the builds compared agreed to the bit (`models/cm1/README.md`, "The world from the
 namelist"). The two fields go to the output files and to the domain's averages (`writeout.F`, `domaindiag.F`), and
 the model reads neither back, so its state is untouched; a reader takes CM1's `z0t` and `z0q` over water alone. The
-lines stand in the released cm1r22.0, and the defect log holds no entry for them yet.
+lines stand in the released cm1r22.0 (defect log A11).
 
 ## The twilight hook (series-twilight)
 

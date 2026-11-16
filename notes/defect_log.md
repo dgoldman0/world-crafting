@@ -38,6 +38,8 @@ corrected there. The companion note `verification_record.md` describes the check
 - **P**: found or checked in the pass of 2026-11-09 by reading the PlaSim source that Terluna's runs import
   (`exoplasim-twilight` on the research drive), the design runs' namelists and output and the pinned CM1 source, with
   arithmetic here. No model was run.
+- **L**: found in the lab's own builds and test cases of the pinned sources during its ports, from 2026-11-11, with
+  the source read. The entry names the commit that records it.
 
 **Other terms.**
 - "Default" is the runner's default at 186b294.
@@ -59,6 +61,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | A8 | WRF-ELEC `lightmsz` | Channel reach marked only above threshold `scth` | 10-05, a5205d2 | Flash log takes reach from charge handed to ions | 13 flashes logged no reach | Fixed (logging) | R |
 | A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | `ipbl2_per_mass` (0): the lab's series, patch 01, from Terluna's build `moon_omp_rain_law_pbl` | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | A10 | ExoPlaSim, low-I/O output | `hus` in the mean output is the humidity held from the last output step, where every other field is a mean; the held field is absent from the restart, so each year file's first record holds about 2% of the vapour | 10-27, Terluna `domain/climate` 984606a5 | None in the model; a reader's rule (Terluna's `climate/gcm/year_files.py`) | Read as means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as humid | Open here; read by rule in Terluna | R, P |
+| A11 | CM1 r22.0 | The MM5 surface layer (`sfcmodel = 2`) sets its roughness lengths for heat and moisture over water alone and copies them to the output at every point, so `z0t` and `z0q` over land hold unset memory | 11-11, `lab` 3174a0e | None; a reader takes both over water alone | Output and domain averages alone: NaN or 9.5 × 10²² m over land in the lab's test builds; the model reads neither back, and no analysis of Terluna's or the lab's reads either | Open | L |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant, which the namelist's `world_g` replaces in the lab's series (patch 06, default the build's value); fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`, still compiled in beside the lab's patch 06; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
@@ -98,6 +101,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B37 | PlaSim; CM1 set-up | A slab sea 50 m deep, Earth's seasonal mixed layer; CM1's sea boxes hold its mean temperature | 11-09 | `MLDEPTH` (50 m) | The sea site's surface swings 0.63 K through the lunar day; 2.5 to 5 times that in a layer of 10–20 m, by estimate; Terluna's calm column reaches 37.1 °C where the slab shows 30.9 °C | Open | P, R |
 | B38 | CM1 Morrison | Cloud turns into rain at Earth's rates: Khairoutdinov and Kogan's autoconversion and accretion carry no gravity | Limit noted 10-17; sized 11-09 | `rain_autoconv_fac`, `rain_accr_fac` (1 each): the lab's series, patch 05, the lab's own | Unmeasured; by scaling, rain forms about 6 and 3 times too readily in each passage through a lunar cloud | A switch in the lab's series, off by default; its effect unmeasured | V, P |
 | B39 | PlaSim, Terluna's `nprc` 2 | The simplified Betts–Miller scheme relaxes over 2 h, Frierson's value for Earth | 11-09, `lab/design/gap_series.md` | `tau_bm` (7,200 s) | Unmeasured; 12 h by similarity | Open | P |
+| B40 | CM1 r22.0 | CAPE, CIN, LCL and LFC in the output are those of a parcel mixed over the lowest 500 m at every gravity | 11-11, `lab` 3174a0e | None | Terluna's box analyses read CM1's CAPE and inhibition; at the Moon's gravity 500 m is about a hundredth of the scale height, and a sounding whose second level stands above it gives the lowest level alone | Open | L |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
 | C2 | CM1–GCM check | GCM's missing sunlight booked as reflection | 09-29, be50d8b retracts 36e29c4 | Each model's own arriving sunlight | A false "reflects too much" finding | Fixed | R |
 | C3 | Twilight ledger | Sky model's channels overstate absorbed energy by 58%; ledger's first channels put near-IR sunlight too high | 10-14, 2ac4359 and 55e5020 | 10,697 channels keeping heights | First two 20-year GCM tests used the old terms | Fixed | R |
@@ -130,7 +134,10 @@ little or no error at Earth's values, and A5, hidden by SWAN's usual configurati
 makes a fifth on the lunar runs' path; the draft predates it, and its error, which grows with the air's density,
 reaches Earth's runs as well. A6, the parting of CM1's threaded runs, most likely in CM1's own threaded loops, and
 A4, PlaSim's cold lowest level, are faults of uncertain cause, since stock CM1 has yet to run with these cases'
-options, which would place A6 in or out of the released code.
+options, which would place A6 in or out of the released code. The paper's second version counts A10, ExoPlaSim's held
+humidity, as a sixth (2026-11-11). A11, CM1's roughness lengths over land, was found in the lab's port of 2026-11-11
+and logged on 2026-11-16, after that count. Its lines run on the lunar runs' path, and whether the paper counts it
+as a seventh is an open item of `PLAN.md`.
 
 ### A1. ExoPlaSim: `solang`'s Sun clock (R)
 
@@ -320,6 +327,23 @@ options, which would place A6 in or out of the released code.
   2026-08-19, state the fault and fix it, and the fix is unmerged, so the released model and `master` keep the
   fault. The lab's issue #71, posted on 2026-11-11, was closed by the maintainer the same day as redundant with
   them; `models/exoplasim/upstream-held-humidity.md` keeps its text.
+
+### A11. CM1 r22.0: the MM5 surface layer writes its roughness lengths over land from unset memory (L)
+
+- **Defect.** CM1's MM5 surface layer (`sfcmodel = 2`, `sfclay.F`) computes its roughness lengths for heat and
+  moisture, the locals `Z0T` and `Z0Q`, over water alone, by Fairall's (2003) form, and copies both to the arrays
+  `z0t` and `z0q` at every point (`sfclay.F` 788–789). Over land the arrays take what the locals last held: the
+  previous water point's values, or unset memory in a row that begins with land.
+- **Found** on 2026-11-11 in the lab's port of CM1's world values (`lab` 3174a0e), in an all-land test case. Under
+  CM1's flags `z0t` read NaN in one build and 9.5 × 10²² m in the next, and `z0q` read zero in both; under
+  `-O3 -march=native` both fields differed from build to build, while every other field agreed to the bit
+  (`notes/cm1.md`, "The MM5 surface layer's roughness diagnostics over land").
+- **Effect.** The model reads neither array back, so its state is untouched. `writeout.F` writes both fields in
+  every run of the MM5 surface layer, and `domaindiag.F` averages `z0t` over the domain, so a run with land carries
+  the unset values into its output and its domain means. Terluna's lunar CM1 cases run that surface layer, its rings
+  and land boxes over land; no analysis of Terluna's or the lab's reads either field.
+- **Status.** Open. A reader takes `z0t` and `z0q` over water alone. A fix sets the two locals over land, or writes
+  a fill value there; `notes/cm1.md` lists a report to CM1's developer among its improvements.
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
@@ -1006,6 +1030,22 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 - **Effect.** Unmeasured for the time alone, since the closures changed their reference profiles with it.
 - **Status.** Open. One GCM run of the design scheme at 43,200 s would size it; `lab/design/terluna_fixes.md`, row 12, holds the scheme
   for assessment before its port.
+
+### B40. CM1 r22.0: the CAPE diagnostic's mixed layer of 500 m (L; open)
+
+- **Earth value.** CM1's output CAPE, CIN, LCL and LFC are those of a mixed-layer parcel: `domaindiag.F` and
+  `writeout.F` call `getcape` with source 3, which averages the sounding's lowest 500 m (`ml_depth`, `getcape.F`) at
+  every gravity.
+- **On another world.** At the Moon's gravity 500 m spans a sixth of the pressure it spans on Earth, about a
+  hundredth of the Open Moon's scale height, and on a sounding whose second level stands above 500 m the diagnostic
+  takes the lowest level alone (`python/climate/tests/test_cm1_world.py`). The surface parcel and the most unstable
+  parcel, sources 1 and 2, depend on no such length. By the similarity under which CM1's lengths follow the scale
+  height (`lab/design/world_spec.md`, rule 9), the depth would be about 3 km on the Open Moon.
+- **Effect.** Terluna's box analyses read CM1's CAPE and inhibition: by quarter of the lunar day
+  (`climate/crm/box_days.py` at `39c5ee04`), at the onset of rain (`climate/crm/box_onset.py`) and across
+  resolutions (`climate/crm/box_resolution.py`, which names the parcel as mixed over 0.5 km). Their values are those
+  of the 500 m parcel. The paper gives no CAPE value.
+- **Status.** Open. `notes/cm1.md` lists a patch that scales the depth with the world among its improvements.
 
 ## (c) Defects in Terluna's own work
 
