@@ -75,7 +75,10 @@ written in the test and two that read Terluna's design run and its sea box in pl
 the lab's `worldlab.roots`, and skip where it is absent; those two read ten year files twice, about 30 s. All need
 netCDF4. The twilight's patches 15 and 16 brought six of the lab's own the same day, which apply the ExoPlaSim series
 to the pinned archive with `patch`; five of them compile parts of `radmod.f90` with gfortran, and without the archive
-or the tools they skip. The lab's environment then collected 377.
+or the tools they skip. The lab's environment then collected 377. The wind at 10 m, patch 17, brought eight of the
+lab's own that day: three in Python alone, on the profile by hand arithmetic and on the Python copies of the surface
+transfer, and five that apply the ExoPlaSim series to the pinned archive, four of which compile `surflx` or the
+patched modules with gfortran; without the archive or the tools they skip. The lab's environment then collected 385.
 
 ## What still needs Terluna
 
@@ -137,7 +140,10 @@ lists read their text. `climate/tests/test_twilight_patches.py` is the lab's own
 under a stand-in for `radstep`'s two passes, and checks them against arithmetic written out in the test, where
 Terluna's tests of its two edit lists compile a stand-in `swr` from the lists' text. `climate/gcm/twilight.py` and
 its ledger stay Terluna's: the clear share of patch 15 reads the run's own cloud at each step, so the ledger keeps
-its clear-sky terms.
+its clear-sky terms. `climate/tests/test_wind_10m.py` is the lab's own too: it compiles `surflx` from the series
+before patch 17 and with it, against the stub of PlaSim's module that the gust's test builds, and checks the wind at
+10 m against a copy of Geleyn's profile written in the test on the transfer of `climate/gcm/surface_gust.py` and
+`surface_similarity.py`, where Terluna's test of its edit list compiles the profile's lines alone on a stand-in.
 
 `climate/gcm/rain_drops.py` and its test came from Terluna at `39c5ee04` on 2026-11-11. The Fortran is in
 `models/exoplasim/patches/14-rain-from-drop-sizes.patch`, where Terluna's module keeps it as an edit list with the

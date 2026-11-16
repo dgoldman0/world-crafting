@@ -102,6 +102,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B38 | CM1 Morrison | Cloud turns into rain at Earth's rates: Khairoutdinov and Kogan's autoconversion and accretion carry no gravity | Limit noted 10-17; sized 11-09 | `rain_autoconv_fac`, `rain_accr_fac` (1 each): the lab's series, patch 05, the lab's own | Unmeasured; by scaling, rain forms about 6 and 3 times too readily in each passage through a lunar cloud | A switch in the lab's series, off by default; its effect unmeasured | V, P |
 | B39 | PlaSim, Terluna's `nprc` 2 | The simplified Betts–Miller scheme relaxes over 2 h, Frierson's value for Earth | 11-09, `lab/design/gap_series.md` | `tau_bm` (7,200 s) | Unmeasured; 12 h by similarity | Open | P |
 | B40 | CM1 r22.0 | CAPE, CIN, LCL and LFC in the output are those of a parcel mixed over the lowest 500 m at every gravity | 11-11, `lab` 3174a0e | None | Terluna's box analyses read CM1's CAPE and inhibition; at the Moon's gravity 500 m is about a hundredth of the scale height, and a sounding whose second level stands above it gives the lowest level alone | Open | L |
+| B41 | PlaSim | Roughness lengths set for Earth: Charnock's 0.018 with a floor of 1.5 × 10⁻⁵ m over the sea, 10⁻³ m over sea ice, 2 m over land | 11-16, the lab's port of the wind at 10 m | None; over ice-free water with `NSIMW` 1 (the lab's patch 13) the similarity's own roughness, which patch 17's wind at 10 m takes too | Unmeasured; they set PlaSim's neutral transfer coefficient and the log of the wind at 10 m, and at 2 m/s in neutral air over the sea PlaSim's roughness stands at 0.4–0.5 of the similarity's | Open | L |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
 | C2 | CM1–GCM check | GCM's missing sunlight booked as reflection | 09-29, be50d8b retracts 36e29c4 | Each model's own arriving sunlight | A false "reflects too much" finding | Fixed | R |
 | C3 | Twilight ledger | Sky model's channels overstate absorbed energy by 58%; ledger's first channels put near-IR sunlight too high | 10-14, 2ac4359 and 55e5020 | 10,697 channels keeping heights | First two 20-year GCM tests used the old terms | Fixed | R |
@@ -1061,6 +1062,24 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   resolutions (`climate/crm/box_resolution.py`, which names the parcel as mixed over 0.5 km). Their values are those
   of the 500 m parcel. The paper gives no CAPE value.
 - **Status.** Open. `notes/cm1.md` lists a patch that scales the depth with the world among its improvements.
+
+### B41. PlaSim: roughness lengths set for Earth (L; open)
+
+- **Earth values.** `seamod.f90` takes the open sea's roughness from the model's stress by Charnock's relation,
+  0.018 u*²/g with the model's gravity, at least 1.5 × 10⁻⁵ m (`charnock`, `dz0sea`); sea ice takes 10⁻³ m (`dz0ice`),
+  and land 2 m (`dz0land`, `landmod.f90`) where the surface files give no roughness. Charnock's constant is a fit to
+  Earth's wind seas, and the floor stands near the smooth-flow roughness 0.11 ν/u* of Earth's sea-level air at a
+  friction velocity of 0.1 m/s.
+- **On another world.** Gravity enters Charnock's relation, so at a given friction velocity the sea's roughness goes
+  as 1/g, six times Earth's on the Moon; the constant and the floor keep Earth's waves and air.
+- **Effect.** Unmeasured on any climate. The roughness sets PlaSim's neutral transfer coefficient,
+  (κ/ln(1 + z_L/z0))², and the log of the profile on which patch 17 brings the wind down to 10 m. Over ice-free water with `NSIMW` 1 the transfer
+  takes the similarity's own roughness, with CM1's Earth values (`models/exoplasim/README.md`, patches 12 and 13), and
+  so does the wind at 10 m. In light wind the two part: at 2 m/s in neutral air PlaSim's roughness stands at 0.51 of
+  the similarity's on the Moon's fifteen levels and 0.40 on Earth's ten, and a wind at 10 m on it runs 5.4% and 6.8%
+  stronger (`python/climate/tests/test_wind_10m.py`; the roughnesses from a scratch calculation of 16 November 2026).
+- **Status.** Open. The sea's roughness from the ensemble's wave model at the world's gravity, which the notes list
+  for the similarity (`notes/exoplasim.md`), would serve PlaSim's own transfer as well.
 
 ## (c) Defects in Terluna's own work
 

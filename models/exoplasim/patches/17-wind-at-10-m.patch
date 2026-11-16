@@ -1,0 +1,129 @@
+--- a/plasim/src/plasimmod.f90
++++ b/plasim/src/plasimmod.f90
+@@ -523,6 +523,12 @@
+       real :: atauy(NHOR) = 0. ! acculumated meridional wind stress
+       real :: aqvi(NHOR)  = 0. ! acculumated vertical integrated q
+       real :: atsa(NHOR)  = 0. ! accumulated surface air temperature
++      integer :: nwind10 = 0   ! Lab: 1 writes the wind at 10 m, codes 165 and 166 (fluxmod's namelist)
++      integer :: nu10acc = 0   ! Lab: the steps summed in au10 and av10 since the last output
++      real :: du10(NHOR)  = 0. ! Lab: the wind at 10 m (m/s), from surflx
++      real :: dv10(NHOR)  = 0.
++      real :: au10(NHOR)  = 0. ! Lab: its sum since the last output
++      real :: av10(NHOR)  = 0.
+       real :: atsama(NHOR)= 0. ! maximum surface air temperature
+       real :: atsami(NHOR)= 0. ! minimum surface air temperature
+       real :: ats0(NHOR)  = 0. ! accumulated surface temperature
+--- a/plasim/src/fluxmod.f90
++++ b/plasim/src/fluxmod.f90
+@@ -78,7 +78,7 @@
+       namelist/fluxmod_nl/nvdiff,nshfl,nevap,nstress,ntsa                  &
+      &                ,zumin,vdiff_lamm,vdiff_b,vdiff_c,vdiff_d            &
+      &                ,ngust,gust_beta,gust_umin,pbl_b,pbl_eps,pbl_betam,pbl_ricru,pbl_bu          &
+-     &                ,nsimw,simw_mub,simw_mus
++     &                ,nsimw,simw_mub,simw_mus,nwind10
+ !
+       if(mypid==NROOT) then
+          open(11,file=fluxmod_namelist)
+@@ -113,6 +113,7 @@
+       call mpbci(nsimw)
+       call mpbcr(simw_mub)
+       call mpbcr(simw_mus)
++      call mpbci(nwind10)
+ 
+       return
+       end subroutine fluxini
+@@ -187,6 +188,8 @@
+       real zri(NHOR)       ! bulk richardson number
+       real zrifh(NHOR)     ! factor for heat flux transfere coef.
+       real zrifm(NHOR)     ! factor for momentum flux transfere coef.
++      real zz0w(NHOR)      ! Lab: the roughness of the drag the wind at 10 m takes (m)
++      real zbn,zbd,zf10    ! Lab: the wind at 10 m on Geleyn's profile
+ !
+ !     allocatable arrays for dbug diagnostics
+ !
+@@ -262,6 +265,17 @@
+      &       *(dtsa(:)-dt(:,NLEP)*(1.+(1./rdbrv-1.)*dq(:,NLEP)))
+       endif
+ 
++!
++!     Lab: the roughness of the drag that the wind at 10 m takes (nwind10 = 1): PlaSim's own dz0, and over
++!     ice-free water with nsimw = 1 the similarity's, as simwcol finds it before it carries it to the next step
++!
++      if (nwind10 == 1) then
++       zz0w(:)=dz0(:)
++       if (nsimw == 1) then
++        where(dls(:) < 1. .and. dicec(:) <= 0.) zz0w(:)=dsimz0(:)
++       endif
++      endif
++
+       do jhor=1,NHOR
+        if (zbz0(jhor)+1. .le. -1.0) then
+           write(nud,*) "negative z/z0"
+@@ -307,6 +321,25 @@
+       enddo
+ 
+ !
++!     Lab: the wind at 10 m (nwind10 = 1), on Geleyn's (1988) profile through the lowest layer from the drag
++!     computed above: u(z) = u_L (ln(1 + z/z0) - (z/z_L) (B_N - B_D)) / B_D, with B_N = ln(1 + z_L/z0) and
++!     B_D = vonkarman/sqrt(C_D) = ln(1 + z_L/dz0)/sqrt(zrifm), C_D the drag coefficient of dtransm against
++!     the wind of the bulk formulas and z0 the roughness of that drag (zz0w). Neutral air takes the log law,
++!     stable air brings less of the lowest level's wind down and unstable air more, and the factor on that
++!     wind is held between 0 and 1. du10 and dv10 go to the output alone, and the model's state stays as it was
++!
++      if (nwind10 == 1) then
++       do jhor=1,NHOR
++        zbd=LOG(zbz0(jhor)+1.)/SQRT(zrifm(jhor))
++        zbn=LOG(znl(jhor)/zz0w(jhor)+1.)
++        zf10=(LOG(1.+10./zz0w(jhor))-10./znl(jhor)*(zbn-zbd))/zbd
++        zf10=MAX(0.,MIN(1.,zf10))
++        du10(jhor)=zf10*du(jhor,NLEV)
++        dv10(jhor)=zf10*dv(jhor,NLEV)
++       enddo
++      endif
++
++!
+ !*    dbug diagnostic output if nprint=2 (pumamod)
+ !
+ 
+--- a/plasim/src/outmod.f90
++++ b/plasim/src/outmod.f90
+@@ -635,6 +635,17 @@
+       atsa(:)=atsa(:)/real(naccuout)
+       call writegp(40,atsa,167,0)
+ 
++!     ************************************************************
++!     * Lab: the wind at 10 m, its mean since the last output    *
++!     ************************************************************
++
++      if (nwind10 == 1) then
++       au10(:)=au10(:)/real(max(nu10acc,1))
++       call writegp(40,au10,165,0)
++       av10(:)=av10(:)/real(max(nu10acc,1))
++       call writegp(40,av10,166,0)
++      endif
++
+ !     ******************************
+ !     * surface temperature (accu) *
+ !     ******************************
+@@ -2413,6 +2424,9 @@
+ !       asndch(:)=0. !Let the net snow change keep accumulating
+       aqvi(:)=0.
+       atsa(:)=0.
++      au10(:)=0.
++      av10(:)=0.
++      nu10acc=0
+       ats0(:)=0.
+       atsami(:)=1.E10
+       atsama(:)=0.
+@@ -2535,6 +2549,11 @@
+       asndch(:)=asndch(:)+dsndch(:)
+       aqvi(:)=aqvi(:)+dqvi(:)
+       atsa(:)=atsa(:)+dtsa(:)
++      if (nwind10 == 1) then   ! Lab: the wind at 10 m
++       au10(:)=au10(:)+du10(:)
++       av10(:)=av10(:)+dv10(:)
++       nu10acc=nu10acc+1
++      endif
+       ats0(:)=ats0(:)+dt(:,NLEP)
+       atsami(:)=AMIN1(atsami(:),dtsa(:))
+       atsama(:)=AMAX1(atsama(:),dtsa(:))

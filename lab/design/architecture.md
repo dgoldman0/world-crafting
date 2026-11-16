@@ -317,11 +317,18 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   the world's column. The adapter writes `NTWLCLEAR` and `NTWLZERO` from `switches.twilight_clear_share` and
   `switches.twilight_counted_once`, each where the run's series holds its patch; both resolve off where the curved
   air's terms are off, and either is refused on a series without its patch. The defaults keep patch 07's terms and
-  passes, since each fix enters opt-in (`PLAN.md`). At those defaults the builds of patches 01–15 and of the whole
-  series run Earth's control with the Open Moon's ledger, over two days, byte for byte as the build of patches
-  01–14, with the twilight and the clear-sky diagnostic each on and off; with the single count, the run with the
-  diagnostic ends in the state of the run without it, and the clear share changes the output
-  (`lab/tests/test_builds.py`).
+  passes, since each fix enters opt-in (`PLAN.md`). At those defaults the builds of patches 01–15 and 01–16 run
+  Earth's control with the Open Moon's ledger, over two days, byte for byte as the build of patches 01–14, with
+  the twilight and the clear-sky diagnostic each on and off; with the single count, the run with the diagnostic
+  ends in the state of the run without it, and the clear share changes the output (`lab/tests/test_builds.py`).
+- **The wind at 10 m.** Patch 17 brings the lowest level's wind down to 10 m on Geleyn's profile through the
+  lowest layer, from the drag of the surface transfer at each step and on that drag's roughness, and writes its
+  means as codes 165 and 166, `uas` and `vas` (`models/exoplasim/README.md`). It is a diagnostic: the model's state
+  stays as it was. The adapter writes `NWIND10` from `switches.wind_10m` where the run's series holds the patch, in
+  a first run as in any other, and refuses the setting on a series without it. The default writes no wind, under
+  the opt-in rule (`PLAN.md`). At that default the whole series' build runs Earth's control, over two days, byte
+  for byte as the build of patches 01–16; with the switch on, the run ends in the same restart byte for byte and
+  its output gains the two codes, every other record byte for byte (`lab/tests/test_builds.py`).
 - **The levels.** A run's `levels` is the released model's count, 10 by default, or the table of a set generated
   for the world from the scale height and the heights its study states (`python/climate/gcm/levels.py`;
   `models/exoplasim/README.md`, "Level sets"). The set takes no patch: PlaSim reads its half levels from the

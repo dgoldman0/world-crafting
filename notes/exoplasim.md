@@ -1,8 +1,8 @@
 # ExoPlaSim on a breathable Moon: correctness, limits and room for improvement
 
-Notes on the sixteen patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten, the lab's patch 11 and
-patches 12 to 16, which the lab wrote from Terluna's surface transfer, its rain from drop sizes and its two corrections
-of the twilight, the settings that
+Notes on the seventeen patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten, the lab's patch 11 and
+patches 12 to 17, which the lab wrote from Terluna's surface transfer, its rain from drop sizes, its two corrections
+of the twilight and its wind at 10 m, the settings that
 carry the Moon, the level set generated for a world, the offline copies of PlaSim's radiation, surface transfer and
 falling rain in `python/climate/gcm/`, and what in PlaSim stays Earth's. References to Terluna are at commit 186b294
 unless another commit is named; to ExoPlaSim, at the 3.4.2 source distribution.
@@ -18,7 +18,7 @@ physical validation of a lunar climate, which no observation can supply.
 
 - Applied with GNU patch to pristine ExoPlaSim 3.4.2, patches 01–10 reproduce the copy every Terluna run
   imported on 2026-10-17 byte for byte (`models/check_patches.sh`; `models/exoplasim/expected.sha256`), and the
-  series of sixteen gives the sources of `models/exoplasim/expected-series.sha256`.
+  series of seventeen gives the sources of `models/exoplasim/expected-series.sha256`.
 - Prefixes of the series reproduce the source hashes 32 Terluna runs recorded, so each reported result
   can be rebuilt from the series (`models/exoplasim/runs.json`). The two exceptions are explained there.
 - The deployed copy compiled and ran in Terluna's runs. The lab compiles each point of the series in its store
@@ -458,6 +458,43 @@ transmissivities, so its spectrum is ignored; about 4% of the ring fleet's glow 
 the dimming that offsets it is 0.71 of its watts on the earlier radiation, about 0.59 on the corrected
 radiation. The same hook carries any infrared source above the air: a host planet's glow for a moon.
 
+### The wind at 10 m (patch 17, `NWIND10`)
+
+**What PlaSim wrote.** The released model writes no wind below its lowest full level, whose height in metres follows
+the scale height: about 0.15 km on Earth's ten levels and 0.9 km in the Open Moon's air. ExoPlaSim's postprocessor
+names codes 165 and 166 the wind at 10 m, `uas` and `vas`, and leaves both out of a file that asks for them, since
+PlaSim writes neither. A wind near the ground read from the released output is the lowest level's, and Terluna's lake
+studies brought it down a neutral log profile from about 0.9 km.
+
+**What the patch adds.** With `NWIND10` 1, `surflx` brings the lowest level's wind down Geleyn's (1988) profile
+through the lowest layer, from the drag it has just computed: the log law in neutral air, less of the wind in stable
+air and more in unstable air, the factor held between 0 and 1. The profile takes whichever drag the surface transfer
+uses, PlaSim's, the gust's or the similarity's, on that drag's roughness, and the output writes its means since the
+last output as codes 165 and 166. The statements are Terluna's (`domain/climate` `4318bf67`), but for two choices of
+the lab's: the wind is computed in a loop of its own after the transfer's, and over ice-free water under the
+similarity the profile takes the similarity's roughness, where Terluna's takes PlaSim's, on which the wind at 10 m
+runs 5.4% stronger at 2 m/s in neutral air on the Moon's fifteen levels and 6.8% on Earth's ten
+([../models/exoplasim/README.md](../models/exoplasim/README.md), patch 17).
+Nothing in it is the Moon's: the lowest level's height, the drag and the roughness are the run's own at each step.
+
+**Correctness.** By evidence state:
+
+| Evidence | What it shows | Where |
+|---|---|---|
+| Identity | On Earth's control over 96 steps the whole series' build with `NWIND10` unstated or 0 gives the output and restart of the build of patches 01–16 byte for byte; with `NWIND10` 1 the restart stays byte for byte, under PlaSim's transfer and under the gust with the similarity, and the output gains codes 165 and 166 after each 2 m temperature, every other record byte for byte; `surflx` alone prints the transfer's digits of the series before the patch with the switch at 0 and 1, under ExoPlaSim's flags and under `-O3 -march=native` | `lab/tests/test_builds.py`; `python/climate/tests/test_wind_10m.py` |
+| Reproduction | `surflx` from the patched source gives the wind of the Python copy in the test to 10⁻¹⁰ at the Moon's gravity and Earth's, under each surface transfer, over sea, land and sea ice; the copy gives the log law in neutral air, the lowest level's wind at its height, and Terluna's recorded factors of 0.72, 0.51 and 0.88 at 885 m; with the similarity settled in neutral air the wind follows the similarity's log law | `python/climate/tests/test_wind_10m.py` |
+| Reproduction, single scratch runs of 16 November 2026 | Fifteen wrong statements put one at a time into the patch each failed the harness's tests, one of them after the test of the output's lines was tightened; with Terluna's three lines in place of the lab's, the harness printed every digit of the lab's wind on every column off the similarity's ice-free water | `models/exoplasim/README.md` |
+| Terluna's runs with its own edits | A month from one restart gave a wind at 10 m of 1.24 m/s on fifteen levels and 1.17 m/s on fourteen, whose lowest level stands three times as high; two years gave 1.28 and 1.19 m/s | Terluna `climate/gcm/README.md` at `39c5ee04` |
+
+**Limits.** Geleyn derived the profile for a layer of constant flux, so it is faithful where the lowest level stands
+in the lowest tenth of the boundary layer: under a layer 1.5 km deep for Earth's ten levels, 3 km for Terluna's
+lunar fifteen and 9 km for the Open Moon's released ten, where the registry's B31 warns. Under shallower layers the
+profile interpolates between the drag at the ground and the wind at the lowest level. The means are means of the
+components. The sums stay outside the restart, so a segment that starts between outputs averages its first wind over
+its own steps. The roughness takes PlaSim's Earth values, Charnock's 0.018 and a floor over the sea and 2 m over
+land (defect log B41), and over land 10 m stands five roughness lengths up. The snapshot and high-cadence files carry
+no wind at 10 m.
+
 ## Settings and inputs
 
 - **Whole model days** (`runsteps` 17,160): before 2026-09-29 each year ran 17,280 steps and the output
@@ -509,6 +546,7 @@ radiation. The same hook carries any infrared source above the air: a host plane
 | Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and its least wind shear of 1 m/s (`zumin`) | Over the Near-side Sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour up through 5.2 km, mostly by resolved motion, where PlaSim's median diffusivity is 0.1–0.3 m²/s (21d98fc) | Lengths scaled with gravity, an untested scaling; a nonlocal scheme with explicit entrainment, tested in single columns, brings the land's afternoon mixed layer down toward CM1's and misses the sea's night, where Terluna reads CM1's 10–12 W/m² of heat carried down through 6–7 km as entrainment driven from the cloud's top (6d0c707; defect log B32). In the surface transfer, where the same `zumin` floors the wind, patch 12's gust takes its place with `NGUST` 1 |
 | Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³ (Miller, Beljaars and Palmer 1992), at the series' defaults | Its tank law goes as (g/p_s)^⅓, 0.00083 on the Moon; at that value the Near-side Sea's evaporation falls from 3.82 to 3.62 mm/day, against CM1's 2.98 (b182515) | Beljaars's gust with the similarity over ice-free water, patches 12 and 13 (`NGUST`, `NSIMW`), which drop the term; they stay off until the Earth control's test, and Terluna's lunar value of the constant has no patch here (defect log B33) |
 | With `NSIMW` 1: Charnock's 0.0185, the 2.85 mm cap on the sea's roughness, Fairall's roughness for heat and vapour, Paulson's functions, and Sutherland's two constants for the dynamic viscosity of Earth's dry air (`SIMW_MUB`, `SIMW_MUS`), which the lab's writer leaves at the patch's defaults in every run; with `NGUST` 1: β = 1 and the depth rule's constants | Unmeasured. Gravity enters w*, the Richardson numbers, z/L and Charnock's relation explicitly, and the kinematic viscosity takes each column's own density under Earth's dry air's dynamic viscosity, while the cap and Fairall's lengths are fits to Earth's seas | The sea's roughness from the ensemble's wave model at the world's gravity; large-eddy runs at that gravity for β and the depth; the dynamic viscosity of the scenario's own air, written by the adapter |
+| PlaSim's roughness: Charnock's 0.018 u*²/g over the sea with a floor of 1.5 × 10⁻⁵ m, 10⁻³ m over sea ice and 2 m over land | Gravity enters Charnock's relation and the constant and floor stay Earth's; at 2 m/s in neutral air PlaSim's sea roughness stands at 0.51 of the similarity's on the Moon, and a wind at 10 m on it runs 5.4% stronger (defect log B41) | The sea's roughness from the ensemble's wave model at the world's gravity; over land, a roughness and displacement height from the world's surface |
 | Shallow convection's tops capped at 700 hPa | An Earth height, near 28 km in the Moon's air; binds in 1–1.4% of cells (1d05c3d) | A cap tied to the deep-convection depth test (defect log B34) |
 | Horizontal diffusion's damping times at the truncation scale: 0.2, 1.1, 5.6 and 0.1 days for divergence, vorticity, temperature and humidity, counted in 24-hour days | Earth's T21 times on a wave 3.7 times shorter: a given wind crosses the Moon's smallest wave 3.7 times faster while the damping keeps its time. The design run's spectra fall smoothly to the truncation except in the vertical motion, flat to wavenumber 18 | The Earth control's spectra as the comparison; one run with the times multiplied by 0.27 (defect log B36) |
 | A slab sea 50 m deep (`MLDEPTH`) | Earth's seasonal mixed layer under a 29.5-day cycle of sunlight: the Near-side Sea site's surface swings 0.63 K through the lunar day, and by estimate two to four times that if the heat stays in the top 10–20 m; the sea's rain by time of day depends on the swing | One run at 15 m; the depth as a setting by world (defect log B37) |
@@ -558,3 +596,5 @@ gives the copy's tendencies and precipitation to 10⁻¹⁰ ("Rain from its drop
    term at several ground albedos.
 12. Upstream: the Sun clock, the orbit default's documentation, the free-convection constant's gravity, and the
    switches whose defaults are identity.
+13. Carry the wind at 10 m's sums in the restart, write the wind in the snapshot and high-cadence files, and set it
+   beside the 10 m winds of cloud-resolving boxes forced from the same GCM state.

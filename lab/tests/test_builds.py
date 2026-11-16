@@ -118,6 +118,13 @@ def fifteen_point():
 
 
 @pytest.fixture(scope='module')
+def sixteen_point():
+    """The build at the series' first sixteen patches, through the twilight's single count, before the wind at 10 m."""
+    run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:16]}
+    return run, builds.build(run, store=STORE, env=ENV)
+
+
+@pytest.fixture(scope='module')
 def whole_point():
     """The build of the whole series, as the defaults name it."""
     return DEFAULTS, builds.build(DEFAULTS, store=STORE, env=ENV)
@@ -410,23 +417,20 @@ def _twilit(run: dict, twilight: str, clear_sky: bool, **switches) -> dict:
 
 @needs_build
 def test_patches_15_and_16_at_their_defaults_run_byte_for_byte_as_the_build_without_them(fourteen_point, fifteen_point,
-                                                                                         whole_point, tmp_path):
+                                                                                         sixteen_point, tmp_path):
     """Earth's control over two days, with the released model's values stated as calibrations and the Open Moon's
     ledger for the curved air's terms. With those terms on and off, and the clear-sky diagnostic on and off, the
-    folders written for the build of patches 01-14, for that of 01-15 with NTWLCLEAR 0 and for the whole series with
+    folders written for the build of patches 01-14, for that of 01-15 with NTWLCLEAR 0 and for that of 01-16 with
     NTWLZERO 0 as well differ in those entries alone and give the same output and restart, each under its own build;
-    the folder that names neither entry gives them under the whole series' build too. The twilight changes the run,
-    and with it off the diagnostic leaves the run's state as it was. Each run's files are removed once their hashes
-    are taken."""
-    (fourteen, b14), (fifteen, b15), (whole, b16) = fourteen_point, fifteen_point, whole_point
-    patches = list(ex.series(whole))
+    the folder that names neither entry gives them under the build of patches 01-16 too. The twilight changes the
+    run, and with it off the diagnostic leaves the run's state as it was. Each run's files are removed once their
+    hashes are taken."""
+    (fourteen, b14), (fifteen, b15), (sixteen, b16) = fourteen_point, fifteen_point, sixteen_point
+    patches = list(ex.series(sixteen))
     assert patches[14:] == [ex.PATCH_15, ex.PATCH_16]
     assert fourteen['patches'] == patches[:14] and fifteen['patches'] == patches[:15]
-    # The whole series' build compiled the sources that models/check_patches.sh pins.
-    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
-    assert json.loads((b16 / 'build.json').read_text())['sources'] == pinned
     points = {'14': (fourteen, _executable(b14, fourteen)), '15': (fifteen, _executable(b15, fifteen)),
-              '16': (whole, _executable(b16, whole))}
+              '16': (sixteen, _executable(b16, sixteen))}
     ledger, out = _ledger(), {}
     for twilight in ('full', 'none'):
         calibrations = ex.Calibrations(**RELEASED, ledger=ledger if twilight == 'full' else None)
@@ -481,6 +485,101 @@ def test_the_clear_share_changes_the_run_and_the_single_count_leaves_the_diagnos
     for sky in (False, True):
         for kind in ('plasim_output', 'plasim_status'):
             assert out[True, sky, True][kind] != out[False, sky, True][kind], (sky, kind)
+
+
+# The wind at 10 m.
+
+def _records(path) -> list:
+    """PlaSim's raw output as (header, field) pairs, after the two records that open the file: each header eight
+    integers, the field's code first and the steps run seventh, and each field in single precision (outmod.f90, outini,
+    writegp and writesp)."""
+    data, records, i = path.read_bytes(), [], 0
+    while i < len(data):
+        size = struct.unpack('<i', data[i:i + 4])[0]
+        assert struct.unpack('<i', data[i + 4 + size:i + 8 + size])[0] == size
+        records.append(data[i + 4:i + 4 + size])
+        i += size + 8
+    assert len(records) % 2 == 0
+    return list(zip(records[2::2], records[3::2]))
+
+
+def _header(record) -> tuple:
+    return struct.unpack('<8i', record[0])
+
+
+def _run_records(folder, executable, steps: int) -> tuple[dict, list]:
+    """PlaSim run as `_hashes` runs it, with the records of its output read before its files are removed."""
+    written = {p.name for p in folder.iterdir()}
+    _run_plasim(folder, executable, steps)
+    records = _records(folder / 'plasim_output')
+    made = [p for p in folder.iterdir() if p.name not in written]
+    out = {p.name: _sha256(p) for p in made if p.name in ('plasim_output', 'plasim_status')}
+    for p in made:
+        p.unlink()
+    return out, records
+
+
+def _switched(run: dict, **switches) -> dict:
+    return {**run, 'switches': {**run['switches'], **switches}}
+
+
+@needs_build
+def test_patch_17_at_its_default_runs_byte_for_byte_and_on_adds_the_wind_at_10_m_alone(sixteen_point, whole_point,
+                                                                                     tmp_path):
+    """Earth's control over two days. The folder the adapter writes for the build of patches 01-16, whose fluxmod
+    namelist names no NWIND10, gives the same output and restart under the whole series' build, where NWIND10 takes
+    its default, and so does the folder written for the whole series with NWIND10 0. With the wind at 10 m on, the run
+    ends in the same state byte for byte, under PlaSim's own surface transfer and under Beljaars's gust with the
+    similarity over water; its output holds every record of the run without it, byte for byte and in order, and after
+    each 2 m temperature (167) the two components of the wind at 10 m (165 and 166) at the same output time, finite,
+    below 30 m/s and somewhere nonzero. The gust with the similarity changes the run, and with it the wind at 10 m.
+    Each run's files are removed once their hashes and records are taken."""
+    (sixteen, b16), (whole, b17) = sixteen_point, whole_point
+    patches = list(ex.series(whole))
+    assert patches[16:] == [ex.PATCH_17] and sixteen['patches'] == patches[:16]
+    # The whole series' build compiled the sources that models/check_patches.sh pins.
+    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
+    assert json.loads((b17 / 'build.json').read_text())['sources'] == pinned
+    executables = {'16': _executable(b16, sixteen), '17': _executable(b17, whole)}
+    similarity = 'beljaars_similarity'
+    written = {'sixteen': sixteen, 'default': whole, 'wind': _switched(whole, wind_10m=True),
+               'gust': _switched(whole, surface_gust=similarity),
+               'gust_wind': _switched(whole, surface_gust=similarity, wind_10m=True)}
+    for name, run in written.items():
+        record = ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=ex.Calibrations.identity(),
+                              store=STORE)
+        assert record['switches']['wind_10m'] is (name in ('wind', 'gust_wind'))
+    # The folders differ in fluxmod's namelist alone.
+    flux = lambda name: (tmp_path / name / 'fluxmod_namelist').read_text().splitlines()[1:-1]
+    assert [flux(name) for name in written] == [
+        [' NGUST = 0', ' NSIMW = 0'], [' NGUST = 0', ' NSIMW = 0', ' NWIND10 = 0'],
+        [' NGUST = 0', ' NSIMW = 0', ' NWIND10 = 1'], [' NGUST = 1', ' NSIMW = 1', ' NWIND10 = 0'],
+        [' NGUST = 1', ' NSIMW = 1', ' NWIND10 = 1']]
+    for name in ('default', 'wind', 'gust', 'gust_wind'):
+        assert _differing(tmp_path / 'sixteen', tmp_path / name) == {'fluxmod_namelist'}
+    out = {(name, build): _run_records(tmp_path / name, executables[build], 96)
+           for name, build in (('sixteen', '16'), ('sixteen', '17'), ('default', '17'), ('wind', '17'),
+                               ('gust', '17'), ('gust_wind', '17'))}
+    hashes = {key: found for key, (found, _) in out.items()}
+    assert set(hashes['sixteen', '16']) == {'plasim_output', 'plasim_status'}
+    assert hashes['sixteen', '17'] == hashes['sixteen', '16'] == hashes['default', '17']
+    assert hashes['gust', '17']['plasim_status'] != hashes['default', '17']['plasim_status']
+    winds = {}
+    for off, on in (('default', 'wind'), ('gust', 'gust_wind')):
+        assert hashes[on, '17']['plasim_status'] == hashes[off, '17']['plasim_status'], on
+        plain, windy = out[off, '17'][1], out[on, '17'][1]
+        assert [r for r in windy if _header(r)[0] not in (165, 166)] == plain
+        codes = [_header(r)[0] for r in windy]
+        at = [i for i, code in enumerate(codes) if code == 167]
+        assert at and codes.count(165) == codes.count(166) == len(at)
+        for i in at:
+            assert codes[i + 1:i + 3] == [165, 166]
+            assert {_header(windy[j])[2:4] + _header(windy[j])[6:7] for j in (i, i + 1, i + 2)} == \
+                {_header(windy[i])[2:4] + _header(windy[i])[6:7]}
+        fields = np.array([np.frombuffer(windy[i + k][1], '<f4') for i in at for k in (1, 2)])
+        assert np.isfinite(fields).all() and np.abs(fields).max() < 30.0 and np.abs(fields).max() > 0.0
+        winds[on] = fields
+    assert not np.array_equal(winds['wind'], winds['gust_wind'])
 
 
 # The level set.

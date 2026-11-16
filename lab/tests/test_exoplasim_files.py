@@ -179,8 +179,8 @@ def test_the_templates_come_from_the_pinned_archive_alone(tmp_path):
 
 def test_the_switches_resolve_to_what_the_build_does():
     assert ex.series(DESIGN)[10:] == ('11-ice-weights.patch', ex.PATCH_12, ex.PATCH_13, ex.PATCH_14, ex.PATCH_15,
-                                      ex.PATCH_16)
-    assert len(ex.series(DESIGN)) == 16
+                                      ex.PATCH_16, ex.PATCH_17)
+    assert len(ex.series(DESIGN)) == 17
     first, later = ex.resolve(DESIGN, ex.Calibrations.identity()), ex.resolve(LW_ICE, _given())
     assert (first['twilight'], first['gas_bands'], first['ice_weights']) == ('none', False, 'from-spectrum')
     assert (later['twilight'], later['gas_bands'], later['ice_weights'], later['ice_optics']) == \
@@ -234,6 +234,18 @@ def test_the_switches_resolve_to_what_the_build_does():
     for value in (1, 'yes', None):
         with pytest.raises(SpecError, match=f'switches.{names[0]} is true or false'):
             ex.resolve(_with(DESIGN, switches={names[0]: value}), _given())
+    # The wind at 10 m: off by default; on, it holds in a first run as in any other, and it is refused on a series
+    # that lacks patch 17.
+    assert first['wind_10m'] is False and later['wind_10m'] is False
+    windy = _with(DESIGN, switches={'wind_10m': True})
+    assert ex.resolve(windy, _given())['wind_10m'] is True
+    assert ex.resolve(windy, ex.Calibrations.identity())['wind_10m'] is True
+    with pytest.raises(SpecError, match=f"switches.wind_10m takes {re.escape(ex.PATCH_17)}, which the run's series "
+                                        'lacks'):
+        ex.resolve({**windy, 'patches': list(ex.series(DESIGN))[:16]}, _given())
+    for value in (1, 'yes', None):
+        with pytest.raises(SpecError, match='switches.wind_10m is true or false'):
+            ex.resolve(_with(DESIGN, switches={'wind_10m': value}), _given())
 
 
 # The rules each entry follows.
@@ -314,9 +326,10 @@ def test_the_surface_gust_sets_the_switches_of_the_patches_the_series_holds():
     fluxmod = lambda run: ex.namelists(MOON, OPEN_MOON, run, top=LATER, calibrations=_given()).get('fluxmod_namelist')
     setting = lambda choice, patches=None: _with({**DESIGN, 'patches': patches or DESIGN['patches']},
                                                  switches={'surface_gust': choice})
-    assert DEFAULTS['switches']['surface_gust'] == 'none' and fluxmod(DESIGN) == {'NGUST': 0, 'NSIMW': 0}
-    assert fluxmod(setting('beljaars')) == {'NGUST': 1, 'NSIMW': 0}
-    assert fluxmod(setting('beljaars_similarity')) == {'NGUST': 1, 'NSIMW': 1}
+    assert DEFAULTS['switches']['surface_gust'] == 'none'
+    assert fluxmod(DESIGN) == {'NGUST': 0, 'NSIMW': 0, 'NWIND10': 0}
+    assert fluxmod(setting('beljaars')) == {'NGUST': 1, 'NSIMW': 0, 'NWIND10': 0}
+    assert fluxmod(setting('beljaars_similarity')) == {'NGUST': 1, 'NSIMW': 1, 'NWIND10': 0}
     twelve, eleven = (list(ex.series(DESIGN))[:n] for n in (12, 11))
     assert fluxmod(setting('none', twelve)) == {'NGUST': 0} and fluxmod(setting('beljaars', twelve)) == {'NGUST': 1}
     assert fluxmod(setting('none', eleven)) is None
@@ -329,7 +342,8 @@ def test_the_surface_gust_sets_the_switches_of_the_patches_the_series_holds():
 def test_the_surface_gusts_switches_are_written_into_fluxmods_namelist():
     run = _with(DESIGN, switches={'surface_gust': 'beljaars_similarity'})
     entries = ex.namelists(MOON, OPEN_MOON, run, top=LATER, calibrations=_given())
-    assert ex.namelist_texts(entries)['fluxmod_namelist'] == ' &fluxmod_nl\n NGUST = 1\n NSIMW = 1\n /END\n'
+    assert ex.namelist_texts(entries)['fluxmod_namelist'] == \
+        ' &fluxmod_nl\n NGUST = 1\n NSIMW = 1\n NWIND10 = 0\n /END\n'
 
 
 def test_the_twilights_qualifiers_set_their_entries_where_the_series_holds_patches_15_and_16():
@@ -354,6 +368,24 @@ def test_the_twilights_qualifiers_set_their_entries_where_the_series_holds_patch
     assert entries(dark, _given(ledger=None)) == {'NTWLCLEAR': 0, 'NTWLZERO': 0}
     assert entries(both, ex.Calibrations.identity(), FIRST) == {'NTWLCLEAR': 0, 'NTWLZERO': 0}
     assert set(names) <= set(ex.ADDITIONS['radmod_namelist'])
+
+
+def test_the_wind_at_10_m_sets_its_entry_where_the_series_holds_patch_17():
+    """Patch 17: NWIND10 in fluxmod's namelist where the run's series holds the patch, so that a build at an earlier
+    point reads a namelist of the names it knows; 0 by default, 1 as the run states it, in a first run too, and beside
+    either surface gust."""
+    def entries(run, calibrations=None, top=LATER):
+        written = ex.namelists(MOON, OPEN_MOON, run, top=top, calibrations=calibrations or _given())
+        return written.get('fluxmod_namelist')
+
+    assert DEFAULTS['switches']['wind_10m'] is False and entries(DESIGN)['NWIND10'] == 0
+    windy = _with(DESIGN, switches={'wind_10m': True})
+    assert entries(windy) == {'NGUST': 0, 'NSIMW': 0, 'NWIND10': 1}
+    assert entries(windy, ex.Calibrations.identity(), FIRST)['NWIND10'] == 1
+    assert entries(_with(windy, switches={'surface_gust': 'beljaars_similarity'})) == \
+        {'NGUST': 1, 'NSIMW': 1, 'NWIND10': 1}
+    assert entries({**DESIGN, 'patches': list(ex.series(DESIGN))[:16]}) == {'NGUST': 0, 'NSIMW': 0}
+    assert 'NWIND10' in ex.ADDITIONS['fluxmod_namelist']
 
 
 def test_the_rains_evaporation_sets_its_entries_where_the_series_holds_patch_14():
@@ -661,6 +693,7 @@ def test_an_eccentric_orbit_states_its_longitude_of_perihelion():
     (MOON, {**DESIGN, 'clear_sky': 1}, OPEN_MOON, 'clear_sky'),
     (MOON, _with(DESIGN, switches={'twilight_clear_share': 'on'}), OPEN_MOON, 'switches.twilight_clear_share'),
     (MOON, _with(DESIGN, switches={'twilight_counted_once': 1}), OPEN_MOON, 'switches.twilight_counted_once'),
+    (MOON, _with(DESIGN, switches={'wind_10m': 'on'}), OPEN_MOON, 'switches.wind_10m'),
     (MOON, {**DESIGN, 'seed': 1.5}, OPEN_MOON, 'seed'),
     (MOON, DESIGN, _with(OPEN_MOON, air={'reference_level': 'mean-radius'}), 'level its heights start from'),
     (MOON, DESIGN, _with(OPEN_MOON, air={'ozone': 'terluna:atmosphere/ozone.json'}), 'ozone'),

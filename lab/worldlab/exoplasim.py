@@ -90,6 +90,10 @@ RAIN_TABLE = 'lab_rain_law.txt'      # the table's name in the run's folder, pyt
 TWILIGHT_QUALIFIERS = {'twilight_clear_share': ('15-twilight-clear-share.patch', 'NTWLCLEAR'),
                        'twilight_counted_once': ('16-twilight-counted-once.patch', 'NTWLZERO')}
 PATCH_15, PATCH_16 = (patch for patch, _ in TWILIGHT_QUALIFIERS.values())
+# The wind at 10 m, a diagnostic: surflx brings the lowest level's wind down Geleyn's profile through the lowest layer,
+# from the drag of the surface transfer, and the output writes its mean as codes 165 and 166, which ExoPlaSim's
+# postprocessor names uas and vas (patch 17, NWIND10). The model's state stays as it was.
+PATCH_17 = '17-wind-at-10-m.patch'
 # PlaSim presets parts of rainmod for pairs of truncation and level count (rainmod.f90, rainini): at T42 its ten levels
 # evaporate falling rain with a gamma of 0.007, where every other count keeps 0.01, and at T21 five levels switch its
 # shallow convection off. A generated set that would run on another such preset than the released ten at its
@@ -144,7 +148,7 @@ ADDITIONS = {
                         'TICEOPT', 'ZICEW', 'NTWLCLEAR', 'NTWLZERO'),
     'rainmod_namelist': ('CWGREF', 'CWSCALE', 'CONVDAY', 'RCRIT', 'NEVAPPREC', 'NRDROP_JOIN', 'RDROP_WARM',
                          'RDROP_MELT', 'RDROP_KSC', 'RDROP_RHOEXP', 'RDROP_STEP'),
-    'fluxmod_namelist': ('NGUST', 'NSIMW'),
+    'fluxmod_namelist': ('NGUST', 'NSIMW', 'NWIND10'),
 }
 
 
@@ -424,7 +428,8 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     radmod.f90:1397-1414). A surface gust whose patches the run's series lacks is refused, and so is rain evaporated
     from its drops' sizes on a series without patch 14. The twilight's clear share and its single count
     (`TWILIGHT_QUALIFIERS`) qualify the curved air's terms, so they resolve off wherever those terms are off, a first
-    run's among them; on, each is refused on a series that lacks its patch."""
+    run's among them; on, each is refused on a series that lacks its patch. The wind at 10 m, a diagnostic, holds in
+    a first run as in any other and is refused on a series without patch 17."""
     switches = dict(run['switches'])
     if world is not None and locked(world):
         switches['sun_clock'] = 'plasim'
@@ -451,6 +456,9 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
         switches[name] = bool(_switch(switches.get(name), f'switches.{name}')) and switches['twilight'] != 'none'
         if switches[name] and patch not in series(run):
             raise SpecError(f"switches.{name} takes {patch}, which the run's series lacks")
+    switches['wind_10m'] = bool(_switch(switches.get('wind_10m'), 'switches.wind_10m'))
+    if switches['wind_10m'] and PATCH_17 not in series(run):
+        raise SpecError(f"switches.wind_10m takes {PATCH_17}, which the run's series lacks")
     return switches
 
 
@@ -560,12 +568,15 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
     if PATCH_14 in patches:
         rainmod.update(_rain_entries(switches, calibrations, where))
 
-    # The surface transfer's switches, each written where the run's series holds its patch (patches 12 and 13).
+    # The surface transfer's switches and the wind at 10 m, each written where the run's series holds its patch
+    # (patches 12, 13 and 17).
     fluxmod = entries['fluxmod_namelist']
     if PATCH_12 in patches:
         fluxmod['NGUST'] = int(switches['surface_gust'] != 'none')
     if PATCH_13 in patches:
         fluxmod['NSIMW'] = int(switches['surface_gust'] == 'beljaars_similarity')
+    if PATCH_17 in patches:
+        fluxmod['NWIND10'] = int(switches['wind_10m'])
 
     albedo = scenario['land']['albedo']
     if albedo != 'model-default':

@@ -1,11 +1,11 @@
 # ExoPlaSim 3.4.2 for a breathable Moon
 
-Sixteen patches to PlaSim's radiation, cloud, surface-transfer and rain code inside ExoPlaSim 3.4.2, the
-settings that carry the Moon's orbit and calendar, the level set generated for a world, which takes no patch,
+Seventeen patches to PlaSim's radiation, cloud, surface-transfer, rain and output code inside ExoPlaSim 3.4.2,
+the settings that carry the Moon's orbit and calendar, the level set generated for a world, which takes no patch,
 and the design case's namelists and input tables. The first
-ten patches are Terluna's and the eleventh the world-crafting lab's; the lab wrote the twelfth to the sixteenth
+ten patches are Terluna's and the eleventh the world-crafting lab's; the lab wrote the twelfth to the seventeenth
 from Terluna's later code. Each patch adds a namelist switch, patch 14 a third value of PlaSim's own
-`NEVAPPREC`, whose default reproduces ExoPlaSim as released, and each of patches 11 to 16 at its default
+`NEVAPPREC`, whose default reproduces ExoPlaSim as released, and each of patches 11 to 17 at its default
 reproduces the build of the patches before it. Correctness, limits and room for improvement are in
 [../../notes/exoplasim.md](../../notes/exoplasim.md).
 
@@ -16,7 +16,7 @@ reproduces the build of the patches before it. Correctness, limits and room for 
 | Source | ExoPlaSim 3.4.2, source distribution from PyPI (`pip download exoplasim==3.4.2 --no-binary :all:`) |
 | sha256 of `exoplasim-3.4.2.tar.gz` | `fae502a92f5997ffd18b0bb85b9f0f0677857c62c5d1293f605c9799026f64c2` |
 | Licence | GNU GPL version 3 (`LICENSE.TXT` in the distribution); these patches are distributed under the same licence |
-| Patched files | `exoplasim/plasim/src/radmod.f90`, `exoplasim/plasim/src/rainmod.f90`, `exoplasim/plasim/src/fluxmod.f90` |
+| Patched files | `exoplasim/plasim/src/radmod.f90`, `rainmod.f90`, `fluxmod.f90`, `plasimmod.f90` and `outmod.f90` |
 
 ## Applying the series
 
@@ -34,10 +34,11 @@ rm -f plasim/run/most_plasim_*.x      # ExoPlaSim recompiles PlaSim at the next 
 Terluna applied patches 01–06 to its shared installation and 07–10 to a separate copy that every run
 imports first since 2026-10-14, so earlier runs kept their source. Applied in order to a pristine
 3.4.2, patches 01–10 give `radmod.f90` sha256 `a49791572fa8f5b2…` and `rainmod.f90` `44c0668de3e8f7db…`,
-the copy deployed on 2026-10-17 byte for byte (`expected.sha256`); patches 11 to 16 follow them, and the
-whole series gives `radmod.f90` `3a90be4f7e3a4132…`, as patch 16 leaves it, `fluxmod.f90`
-`6e6b0a1521d5cf97…`, as patch 13 left it, and `rainmod.f90` `7e83a5b6b2caef9f…` (`expected-series.sha256`). The
-lab compiles each point of the series as a build of its own (`lab/worldlab/builds.py`).
+the copy deployed on 2026-10-17 byte for byte (`expected.sha256`); patches 11 to 17 follow them, and the
+whole series gives `radmod.f90` `3a90be4f7e3a4132…`, as patch 16 leaves it, `rainmod.f90` `7e83a5b6b2caef9f…`, as
+patch 14 left it, and `fluxmod.f90` `8534f22f7d10a423…`, `plasimmod.f90` `811f37ee4d72cbfd…` and `outmod.f90`
+`14a440b6dcf11b38…`, as patch 17 leaves them (`expected-series.sha256`). The lab compiles each point of the series as
+a build of its own (`lab/worldlab/builds.py`).
 
 ## The patches
 
@@ -59,6 +60,7 @@ lab compiles each point of the series as a build of its own (`lab/worldlab/build
 | 14 | `rain-from-drop-sizes` | `NEVAPPREC` 2, a third value of PlaSim's switch; `NRDROP_JOIN`, `RDROP_WARM`, `RDROP_MELT`; `RDROP_KSC`, `RDROP_RHOEXP`, `RDROP_STEP` (rainmod); `lab_rain_law.txt` | 1, PlaSim's own; 2, 0 m, 0 m; 5.78 m³ kg⁻¹ s⁻¹, 0, 1,000 m | 2: evaporates falling rain from its drops' sizes and fall speeds, in place of the share `gamma` of each layer's saturation deficit. The rain's drops fall with it as a second flux, Morrison's ventilated evaporation and self-collection with breakup act through each layer, and the fall law of the world's rain comes from a table in the run's folder | General repair of an Earth value (B30), for air of Earth-like composition under Morrison's exponential drop spectrum; the rule and the sizes of the rain's births are a calibration that a study supplies; written by the lab from Terluna's code |
 | 15 | `twilight-clear-share` | `NTWLCLEAR` (radmod) | 0 | 1: takes patch 07's sunlight in each layer in the share of the sky clear of cloud above it, and lets each layer's and the ground's extra infrared through the cloud above at each layer's longwave transmissivity | Repair of patch 07's method, whose terms are clear-sky values; written by the lab from Terluna's code |
 | 16 | `twilight-counted-once` | `NTWLZERO` (radmod) | 0 | 1: starts each pass of `swr` from zero where the Sun is down, so that with the clear-sky diagnostic on the twilight below the horizon is counted once | Repair of a defect in patch 07 (defect log C21); written by the lab from Terluna's code |
+| 17 | `wind-at-10-m` | `NWIND10` (fluxmod) | 0 | 1: brings the lowest level's wind down to 10 m on Geleyn's profile through the lowest layer, from the drag `surflx` computes, and writes its means since the last output as codes 165 and 166 (`uas`, `vas`) | Diagnostic: the model's state stays as it was; written by the lab from Terluna's code |
 
 ## The surface gust and the similarity over water (patches 12 and 13)
 
@@ -392,15 +394,15 @@ ledger, as before (`lab/design/terluna_fixes.md`, row 10). The ledger itself is 
 
 **Verification.** The evidence states are those of the notes: none of them validates a climate.
 
-- **The patches apply.** `models/check_patches.sh` applies the series of sixteen to the pinned archive and finds the
-  sources of `expected-series.sha256`.
+- **The patches apply.** `models/check_patches.sh` applies the series to the pinned archive and finds the sources
+  of `expected-series.sha256`.
 - **They compile.** The lab's builds of patches 01–15 and of the whole series compile PlaSim at T21 on ten levels,
   and the whole series compiles on fifteen (`lab/tests/test_builds.py`).
 - **Identity at the defaults.** On Earth's control over 96 steps on four ranks, with the released model's values
   stated as calibrations and the Open Moon's ledger for the curved air's terms, the folders written for the builds
   of patches 01–14, 01–15 and 01–16 differ in the two entries alone and give the same output and restart, each under
   its own build, with the curved air's terms on and off and with the clear-sky diagnostic on and off; the folder
-  that names neither entry gives them under the whole series' build too (`lab/tests/test_builds.py`). In a harness
+  that names neither entry gives them under the build of patches 01–16 too (`lab/tests/test_builds.py`). In a harness
   of `twilight_term`, `twilight_lw` and the end of `swr`, taken from the series and compiled with ExoPlaSim's flags
   under a stand-in for `radstep`'s passes, the patched routines at their defaults print every digit that patch 07's
   print (`python/climate/tests/test_twilight_patches.py`). Compiled with `-O3 -march=native`, where the compiler
@@ -465,6 +467,141 @@ ledger, as before (`lab/design/terluna_fixes.md`, row 10). The ledger itself is 
   tried in a scratch build and also moved the last bits under `-march=native`, so it gained nothing;
 - two settings off by default, where Terluna's runner switches both on for every run with the twilight, and both
   resolved off with the twilight, where they would change nothing.
+
+## The wind at 10 m (patch 17)
+
+Patch 17 gives PlaSim the wind at 10 m that Terluna added on 19 October 2026 (`WIND10_PATCHES` in
+`climate/gcm/exoplasim_run.py` on `domain/climate`, commit `4318bf67`, its statements unchanged at `39c5ee04`).
+Terluna's runner applies it as three edit lists in its twilight copy of ExoPlaSim under `--wind10`. The lab wrote it
+as one unified patch after patch 16, behind Terluna's switch `NWIND10` in fluxmod's namelist, 0 by default. The lab's
+writer sets it through `switches.wind_10m` (`lab/configs/exoplasim/defaults.toml`), false by default under the
+opt-in rule for each port (`PLAN.md`); it writes `NWIND10` where the run's series holds the patch, in a first run as
+in any other, and refuses the setting on a series without it.
+
+**What PlaSim writes near the ground.** The released PlaSim writes no wind below its lowest full level. ExoPlaSim's
+postprocessor names codes 165 and 166 `uas` and `vas`, the eastward and northward wind at 10 m (`pyburn.py`), and
+`outmod.f90` writes neither code; the postprocessor marks a requested code that the raw output lacks for derivation,
+holds no derivation for these two, and so leaves both names out of the file without an error (Terluna's
+`climate/gcm/README.md` at `39c5ee04`, "The surface stress and the 10 m wind in the output"). The nearest wind in
+the output is the lowest full level's, in the spectral vorticity and divergence (codes 138 and 155) from which the
+postprocessor derives `ua` and `va`. Since the released levels are fixed in σ, that level's height in metres
+follows the world's scale height: about 0.15 km on Earth's ten levels, 0.9 km in the Open Moon's air and 0.3 km on
+Terluna's fifteen. Beside it the output holds the surface stress (codes 180 and 181, means over the interval), u*³
+(159), the roughness (173) and the 2 m temperature (167), which is the lowest level's virtual potential temperature
+at the ground's pressure. A near-surface wind read from the released output is therefore the wind at the lowest
+level's height; Terluna's lake studies brought that wind down a neutral log profile from about 0.9 km, which takes
+the lunar air near the ground as neutral (the same section of Terluna's record).
+
+**What changes.** With `NWIND10` 1, `surflx`, once it has computed each column's transfer, takes the lowest level's
+wind u_L at height z_L down Geleyn's (1988) profile through the lowest layer:
+
+    u(z) = u_L [ln(1 + z/z0) − (z/z_L)(B_N − B_D)] / B_D,   B_N = ln(1 + z_L/z0),   B_D = κ/√C_D
+
+C_D = C_N f_m is the drag coefficient of `dtransm` against the wind of the bulk formulas: C_N = (κ/ln(1 + z_L/z0_P))²
+is PlaSim's neutral coefficient on its own roughness z0_P (`dz0`) and f_m its stability factor for momentum
+(`zrifm`), so that B_D = ln(1 + z_L/z0_P)/√f_m. The profile reaches u_L at z_L, and near the ground it is the log law
+of the friction velocity √C_D u_L; neutral air takes the log law throughout, stable air brings less of the wind down
+and unstable air more, and the factor on u_L is held between 0 and 1. The drag is whichever the surface transfer
+computed at that step: Louis's factors under PlaSim's wind with its least value of 1 m/s, the same factors under
+Beljaars's gust (`NGUST` 1), and over ice-free water with `NSIMW` 1 the similarity's transfer velocity u*²/U, for
+which B_D = κU/u*. The roughness z0 in the log and in B_N is that drag's: PlaSim's `dz0`, and under the similarity
+over ice-free water the similarity's own, as `simwcol` finds it before carrying it to the next step. `outaccu` sums
+the wind at each step, `outgp` divides the sums by the steps counted since the last output and writes them as codes
+165 and 166 after the 2 m temperature on the mean output's unit, and `outreset` starts the sums again. The wind and
+its sums sit in PlaSim's module beside its other accumulators and stay outside the restart, so the model's state,
+and with it the restart, stays as it was.
+
+**The world's values and Earth's.**
+
+| Quantity | Its value in the patched code |
+|---|---|
+| The lowest level's height z_L | The model's own, computed by `surflx` from that level's temperature, `gascon` and `ga` |
+| The drag's neutral coefficient and stability factor | Those `surflx` computes at the step: Louis's factors of the bulk Richardson number, which takes `ga`, with ECHAM's constants of 5 (`vdiff_b`, `vdiff_c`, `vdiff_d`), fitted on Earth; under patches 12 and 13, their transfer (above) |
+| The roughness | PlaSim's own: over the sea Charnock's 0.018 u*²/g from the model's stress and gravity, at least 1.5 × 10⁻⁵ m (`seamod.f90`), 10⁻³ m over sea ice, and over land 2 m or the surface file's (`landmod.f90`), each constant Earth's (defect log B41); under the similarity, its own, with the Earth values listed for patch 13 |
+| The height of 10 m | The convention of codes 165 and 166: the height of the surface stations' anemometers on Earth (WMO), at which bulk flux formulas and wave models, SWAN among them, take their wind |
+| The profile | Geleyn's interpolation through a layer of constant flux, faithful where the lowest level stands in the surface layer ("Limits") |
+
+**Verification.** The evidence states are those of the notes: none of them validates a climate.
+
+- **The patch applies.** `models/check_patches.sh` applies the series of seventeen to the pinned archive, now with
+  `plasimmod.f90` and `outmod.f90` among the files it takes out, and finds the sources of `expected-series.sha256`.
+- **It compiles.** The lab's build of the whole series compiles PlaSim at T21 on ten levels and on fifteen
+  (`lab/tests/test_builds.py`), and the patched `plasimmod.f90` and `fluxmod.f90` compile with PlaSim's module on
+  fifteen levels (`python/climate/tests/test_wind_10m.py`).
+- **Identity at the default, and a diagnostic with the switch on.** On Earth's control over 96 steps on four ranks,
+  the folder written for the build of patches 01–16 gives the same output and restart under the whole series' build,
+  and so does the folder written for the whole series with `NWIND10` 0. With `NWIND10` 1 the run ends in the same
+  restart byte for byte, under PlaSim's own transfer and under the gust with the similarity over water, and its
+  output holds every record of the run without the switch, byte for byte and in order, with codes 165 and 166 after
+  each 2 m temperature at the same output time (`lab/tests/test_builds.py`). In a harness of `surflx` taken from the
+  series and compiled against a stub of PlaSim's module, the transfer, the 2 m temperature and the similarity's
+  carried state print the same digits as the series before patch 17 prints, with the switch at 0 and at 1, under
+  ExoPlaSim's flags and under `-O3 -march=native`.
+- **The wind against its formula.** In that harness `surflx` gives the wind of the Python copy written in the test
+  to 10⁻¹⁰ on lunar columns on fifteen and forty levels and Earth-like columns on ten, under PlaSim's transfer, the
+  gust, and the gust with the similarity from fresh and settled states, over sea, land and sea ice. The copy itself
+  gives the log law in neutral air, the lowest level's wind at its height, the log law of √C_D u_L near the ground,
+  and Terluna's recorded factors at 885 m over a roughness of 0.1 mm: 0.72 in neutral air, 0.51 and 0.88 at stability
+  factors of 0.5 and 1.5. On one column in σ the lowest level stands 6.04 times higher at the Moon's gravity than at
+  Earth's and the factor falls; with the similarity settled in neutral air, the wind follows the similarity's own log
+  law.
+- **Wrong code at fifteen places.** In a single scratch run on 16 November 2026, fifteen wrong statements put one at
+  a time into the patch each failed the harness's tests: the stability factor without its square root, PlaSim's
+  roughness where the similarity's belongs, at either of two places, the similarity's roughness taken over sea ice or
+  left out, the sign of the linear term, the cap at 1 dropped, the two components exchanged at either place, the
+  broadcast dropped, the zonal mean left undivided, the meridional sum fed with the zonal wind, the count left
+  running past an output, the meridional mean written under code 165, and the switch on by default. The wrong
+  meridional sum passed the first round of the tests, and the test of the output's lines, which now pins both sums,
+  catches it.
+- **Agreement with Terluna's code.** The patch's lines in `plasimmod.f90` and `outmod.f90` equal those of Terluna's
+  deployed sources (`exoplasim-twilight` on its research drive, sha256 `4f73e21fe3980fe2…` and `1b105606c36ebf73…`,
+  read on 16 November 2026), comments aside. In `surflx`, where the roughness is PlaSim's own, the lines compute what
+  Terluna's deployed `fluxmod.f90` (`0eadda0bb213cf83…`) computes, operation for operation, in a loop of their own
+  after the transfer's; under the similarity over ice-free water they take its roughness ("Choices made in the
+  port"). In a single scratch run on 16 November 2026, the harness compiled with Terluna's three lines in place of
+  the lab's printed every digit of the lab's wind on every column off the similarity's ice-free water, under
+  ExoPlaSim's flags and under `-O3 -march=native`.
+- **Terluna's runs**, made with its own edits (Terluna's `climate/gcm/README.md` at `39c5ee04`). A one-year smoke run
+  on the 301 K design case's surface wrote both codes (commit `4318bf67`). Over a month from one restart, the
+  fifteen-level run's wind at 10 m averaged 1.24 m/s against 1.17 m/s on fourteen levels, whose lowest level stands
+  three times as high, and over two years 1.28 against 1.19 m/s. The lab has run neither comparison.
+- **Physical validation** remains to be done: no wind at 10 m from a cloud-resolving box or an observation has been
+  set beside the patch's.
+
+**Limits.**
+
+- Geleyn derived the profile for a layer of constant flux, so it is faithful where the lowest level stands in the
+  surface layer, the lowest tenth of the boundary layer: the level near 0.15 km on Earth's ten levels needs a layer
+  1.5 km deep, the level near 0.3 km on Terluna's lunar fifteen one of 3 km, and the level near 0.9 km on the Open
+  Moon's released ten one of 9 km. Under shallower layers, stable nights among them, the profile interpolates between
+  the drag at the ground and the wind at the lowest level; the registry's B31 warns where that level stands above
+  345 m.
+- The means are means of the components, so the speed of the mean wind understates the mean speed where the wind
+  turns within an interval (Terluna's record).
+- The sums stay outside the restart: a segment that starts between two outputs averages its first wind at 10 m over
+  its own steps, while the other means also count the steps before the restart. The lab's output steps fill each
+  model year with whole means (`derive.output_steps`), so a segment of whole years starts on an output.
+- Over land, under PlaSim's preset roughness of 2 m, 10 m stands five roughness lengths above the ground, where
+  profiles over tall vegetation take a displacement height that the profile lacks.
+- The snapshot and high-cadence files (`NSNAPSHOT`, `NHCADENCE`) carry no wind at 10 m.
+- Untested anywhere: a run past the tests' 96 steps; a run restarted with the switch on; the similarity with
+  `NGUST` 0, which the writer never sets; ranks other than four; and PlaSim compiled in single precision.
+
+**Choices made in the port,** where the lab's form differs from Terluna's or the design left it open:
+
+- one patch after patch 16, under Terluna's switch name and with its state in PlaSim's module, as Terluna's lists
+  have them; the comments are the lab's;
+- the wind computed in a loop of its own after the transfer's, where Terluna's lines stand inside the transfer's
+  loop, so that the transfer's loop compiles from the same statements whatever the switch;
+- under the similarity over ice-free water, the profile on the roughness of the drag the similarity sets, where
+  Terluna's lines take PlaSim's `dz0` on every surface. The drag's B_D comes from the similarity's friction velocity
+  on its own roughness, and a profile on PlaSim's roughness then runs its log on another roughness than the drag's.
+  In neutral air the lab's wind follows the similarity's log law exactly, while on PlaSim's Charnock roughness the
+  wind at 10 m comes out 5.4% stronger at 2 m/s on the Moon's fifteen levels and 6.8% on Earth's ten
+  (`python/climate/tests/test_wind_10m.py`), and 0.3% and 0.5% stronger at 10 m/s (a scratch calculation of
+  16 November 2026 on the same columns). Terluna's runs whose commands its README lists with `--wind10` and
+  `--surface-gust beljaars_similarity` took the wind on PlaSim's roughness;
+- the setting off by default, under the opt-in rule, though the patch changes no state.
 
 ## Level sets (no source change)
 

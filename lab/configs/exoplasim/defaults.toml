@@ -6,10 +6,10 @@
 schema = "worldlab.defaults.exoplasim/0"
 id = "exoplasim/defaults"
 upstream = "exoplasim-3.4.2"                   # models/pins.sha256
-patches = "models/exoplasim/patches/series"    # all sixteen applied: Terluna's ten, the lab's patch 11, and patches
-                                               # 12 to 16, written here from Terluna's gust, similarity, rain from its
-                                               # drops and two corrections of the twilight; each switch below, at its
-                                               # default when omitted
+patches = "models/exoplasim/patches/series"    # all seventeen applied: Terluna's ten, the lab's patch 11, and
+                                               # patches 12 to 17, written here from Terluna's gust, similarity, rain
+                                               # from its drops, two corrections of the twilight and its wind at 10 m;
+                                               # each switch below, at its default when omitted
 
 resolution = "T21"
 levels = 10                                    # the released model's own ten sigma levels, which PlaSim computes from
@@ -86,6 +86,13 @@ rain_evaporation = "gamma"                     # 14: NEVAPPREC. "gamma" keeps th
                                                # RDROP_RHOEXP and RDROP_STEP), reading the fall law of the scenario's
                                                # air from lab_rain_law.txt in the run's folder. The released model's
                                                # evaporation stays the default until the Earth control's test (PLAN.md)
+wind_10m = false                               # 17: NWIND10. true writes the wind at 10 m, codes 165 and 166 (uas and
+                                               # vas to ExoPlaSim's postprocessor), each a mean since the last output:
+                                               # the lowest level's wind brought down Geleyn's profile through the
+                                               # lowest layer from the surface transfer's own drag, a diagnostic that
+                                               # leaves the model's state as it was. false writes neither, as the
+                                               # released model does; the default follows the opt-in rule for each
+                                               # port (PLAN.md)
 
 [calibration]                                  # the stages whose products, fitted to the study's scenario, a run reads
                                                # where its switches use them

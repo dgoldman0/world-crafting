@@ -21,8 +21,9 @@ Terluna's runners to pristine upstream sources and recording each group's unifie
 | `models/exoplasim/patches/14-rain-from-drop-sizes.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/rain_drops.py`: `RAIN_DROP_EDITS`, without the snow's edits of `climate/gcm/snow_sublimation.py` that the list joins to them | a5d32149f2a2c1e1 |
 | `models/cm1/patches/lab/09-the-winds-own-nudging-and-the-inflow-of-the-reference.patch` (written 2026-11-16, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/crm/cm1_run.py`: `WIND_TAU_PATCH`, `WIND_ALOFT_PATCH`, `INFLOW_PATCH` | ba507fc66d1ea4fd |
 | `models/exoplasim/patches/15-twilight-clear-share.patch`, `16-twilight-counted-once.patch` (written 2026-11-16, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/exoplasim_run.py`: `TWILIGHT_CLEAR_EDITS`, `TWILIGHT_ZERO_EDITS` | 8c326baeb689ee06 |
+| `models/exoplasim/patches/17-wind-at-10-m.patch` (written 2026-11-16, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/exoplasim_run.py`: `WIND10_PATCHES` (`WIND10_MOD_EDITS`, `WIND10_FLUX_EDITS`, `WIND10_OUT_EDITS`) | 8c326baeb689ee06 |
 
-The last six rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
+The last seven rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
 Terluna's edits at `bdda5a07`, with namelist switches added. ExoPlaSim's patches 12 and 13 were written on
 2026-11-11 from Terluna's edit lists at `39c5ee04`, applied to the pinned `fluxmod.f90` without Terluna's
 free-convection and nonlocal boundary-layer patches, which they follow there, and with the air's viscosity derived
@@ -69,6 +70,14 @@ factors and the second after them. The namelist's two names and the statements a
 lab's. The statements of `twilight_term`, `twilight_lw` and the end of `swr`, and the line of `lwr` that records each
 layer's transmissivity, equal those of Terluna's deployed `radmod.f90` (research drive,
 `exoplasim-twilight/exoplasim/plasim/src/`, sha256 `14b6e9ac17849cfd…`, read on 2026-11-16), comments aside.
+ExoPlaSim's patch 17 was written the same day from Terluna's three edit lists of the wind at 10 m at `39c5ee04`
+(commit `4318bf67`, the lists unchanged since), applied to the pinned `plasimmod.f90`, `fluxmod.f90` and `outmod.f90`
+after patch 16. The namelist's name and the statements in `plasimmod.f90` and `outmod.f90` are Terluna's and equal
+those of its deployed sources (research drive, `exoplasim-twilight/exoplasim/plasim/src/`, sha256
+`4f73e21fe3980fe2…` and `1b105606c36ebf73…`, read on 2026-11-16), the comments the lab's. In `surflx` the lab
+computes the wind in a loop of its own after the transfer's, where Terluna's lines stand inside it, and under the
+similarity over ice-free water takes the similarity's roughness, where Terluna's take PlaSim's; elsewhere the lines
+compute what those of Terluna's deployed `fluxmod.f90` (`0eadda0bb213cf83…`) compute, operation for operation.
 
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).
