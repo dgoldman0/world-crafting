@@ -178,8 +178,9 @@ def test_the_templates_come_from_the_pinned_archive_alone(tmp_path):
 # The switches as the build and the calibrations make them.
 
 def test_the_switches_resolve_to_what_the_build_does():
-    assert ex.series(DESIGN)[10:] == ('11-ice-weights.patch', ex.PATCH_12, ex.PATCH_13, ex.PATCH_14)
-    assert len(ex.series(DESIGN)) == 14
+    assert ex.series(DESIGN)[10:] == ('11-ice-weights.patch', ex.PATCH_12, ex.PATCH_13, ex.PATCH_14, ex.PATCH_15,
+                                      ex.PATCH_16)
+    assert len(ex.series(DESIGN)) == 16
     first, later = ex.resolve(DESIGN, ex.Calibrations.identity()), ex.resolve(LW_ICE, _given())
     assert (first['twilight'], first['gas_bands'], first['ice_weights']) == ('none', False, 'from-spectrum')
     assert (later['twilight'], later['gas_bands'], later['ice_weights'], later['ice_optics']) == \
@@ -212,6 +213,27 @@ def test_the_switches_resolve_to_what_the_build_does():
         ex.resolve({**sized, 'patches': list(ex.series(DESIGN))[:13]}, _given())
     with pytest.raises(SpecError, match='rain_evaporation'):
         ex.resolve(_with(DESIGN, switches={'rain_evaporation': 'kessler'}), _given())
+    # The twilight's two qualifiers: off by default; on, they hold with the curved air's terms and resolve off where
+    # the run or a first run leaves those terms out, and each is refused on a series that lacks its patch.
+    names = tuple(ex.TWILIGHT_QUALIFIERS)
+    assert names == ('twilight_clear_share', 'twilight_counted_once')
+    assert all(first[n] is False and later[n] is False for n in names)
+    both = _with(DESIGN, switches={n: True for n in names})
+    assert all(ex.resolve(both, _given())[n] is True for n in names)
+    for dark in (ex.resolve(_with(both, switches={'twilight': 'none'}), _given(ledger=None)),
+                 ex.resolve(both, ex.Calibrations.identity()),
+                 ex.resolve({**both, 'switches': {**both['switches'], 'twilight': 'none'},
+                             'patches': deployed['patches']}, _given())):
+        assert dark['twilight'] == 'none' and all(dark[n] is False for n in names)
+    fifteen = list(ex.series(DESIGN))[:15]
+    assert ex.resolve(_with({**DESIGN, 'patches': fifteen}, switches={names[0]: True}), _given())[names[0]] is True
+    for name, patches in ((names[1], fifteen), (names[0], list(ex.series(DESIGN))[:14])):
+        with pytest.raises(SpecError, match=f"switches.{name} takes {re.escape(ex.TWILIGHT_QUALIFIERS[name][0])}, "
+                                            "which the run's series lacks"):
+            ex.resolve(_with({**DESIGN, 'patches': patches}, switches={name: True}), _given())
+    for value in (1, 'yes', None):
+        with pytest.raises(SpecError, match=f'switches.{names[0]} is true or false'):
+            ex.resolve(_with(DESIGN, switches={names[0]: value}), _given())
 
 
 # The rules each entry follows.
@@ -308,6 +330,30 @@ def test_the_surface_gusts_switches_are_written_into_fluxmods_namelist():
     run = _with(DESIGN, switches={'surface_gust': 'beljaars_similarity'})
     entries = ex.namelists(MOON, OPEN_MOON, run, top=LATER, calibrations=_given())
     assert ex.namelist_texts(entries)['fluxmod_namelist'] == ' &fluxmod_nl\n NGUST = 1\n NSIMW = 1\n /END\n'
+
+
+def test_the_twilights_qualifiers_set_their_entries_where_the_series_holds_patches_15_and_16():
+    """Patches 15 and 16: NTWLCLEAR and NTWLZERO in radmod's namelist, each written where the run's series holds its
+    patch, so that a build at an earlier point reads a namelist of the names it knows; 0 by default, 1 as the run
+    states it with the curved air's terms on, and 0 where those terms are off, a first run's among them."""
+    names = ('NTWLCLEAR', 'NTWLZERO')
+
+    def entries(run, calibrations=None, top=LATER):
+        radmod = ex.namelists(MOON, OPEN_MOON, run, top=top, calibrations=calibrations or _given())['radmod_namelist']
+        return {name: radmod[name] for name in names if name in radmod}
+
+    assert not DEFAULTS['switches']['twilight_clear_share'] and not DEFAULTS['switches']['twilight_counted_once']
+    assert entries(DESIGN) == {'NTWLCLEAR': 0, 'NTWLZERO': 0}
+    both = _with(DESIGN, switches={'twilight_clear_share': True, 'twilight_counted_once': True})
+    assert entries(both) == {'NTWLCLEAR': 1, 'NTWLZERO': 1}
+    assert entries(_with(DESIGN, switches={'twilight_counted_once': True})) == {'NTWLCLEAR': 0, 'NTWLZERO': 1}
+    fifteen, fourteen = (list(ex.series(DESIGN))[:n] for n in (15, 14))
+    assert entries(_with({**DESIGN, 'patches': fifteen}, switches={'twilight_clear_share': True})) == {'NTWLCLEAR': 1}
+    assert entries({**DESIGN, 'patches': fourteen}) == {}
+    dark = _with(both, switches={'twilight': 'none', 'gas_bands': False})
+    assert entries(dark, _given(ledger=None)) == {'NTWLCLEAR': 0, 'NTWLZERO': 0}
+    assert entries(both, ex.Calibrations.identity(), FIRST) == {'NTWLCLEAR': 0, 'NTWLZERO': 0}
+    assert set(names) <= set(ex.ADDITIONS['radmod_namelist'])
 
 
 def test_the_rains_evaporation_sets_its_entries_where_the_series_holds_patch_14():
@@ -613,6 +659,8 @@ def test_an_eccentric_orbit_states_its_longitude_of_perihelion():
     (MOON, _with(DESIGN, switches={'surface_gust': 'similarity'}), OPEN_MOON, 'switches.surface_gust'),
     (MOON, _with(DESIGN, switches={'rain_evaporation': 'none'}), OPEN_MOON, 'switches.rain_evaporation'),
     (MOON, {**DESIGN, 'clear_sky': 1}, OPEN_MOON, 'clear_sky'),
+    (MOON, _with(DESIGN, switches={'twilight_clear_share': 'on'}), OPEN_MOON, 'switches.twilight_clear_share'),
+    (MOON, _with(DESIGN, switches={'twilight_counted_once': 1}), OPEN_MOON, 'switches.twilight_counted_once'),
     (MOON, {**DESIGN, 'seed': 1.5}, OPEN_MOON, 'seed'),
     (MOON, DESIGN, _with(OPEN_MOON, air={'reference_level': 'mean-radius'}), 'level its heights start from'),
     (MOON, DESIGN, _with(OPEN_MOON, air={'ozone': 'terluna:atmosphere/ozone.json'}), 'ozone'),
@@ -674,10 +722,13 @@ def test_the_design_runs_namelists_are_terlunas_but_for_five_entries_each_with_i
         assert not theirs, (path.name, theirs)
         found.update({(path.name, k): v for k, v in differ.items()})
         lab_only.update({(path.name, k): v for k, v in mine.items()})
-    # The entries the lab adds hold the values PlaSim and the patches take without them.
+    # The entries the lab adds hold the values PlaSim and the patches take without them. The design run took the
+    # twilight with the clear-sky diagnostic on and both of patch 07's passes (defect log C21), as NTWLZERO 0 keeps
+    # them.
     assert lab_only == {('plasim_namelist', 'NDIAGGP'): '0', ('radmod_namelist', 'IRTOPDAY'): '0.0',
                         ('radmod_namelist', 'IRTOPNIGHT'): '0.0', ('radmod_namelist', 'NICEOPT'): '0',
-                        ('radmod_namelist', 'NLWCORR'): '0', ('rainmod_namelist', 'NEVAPPREC'): '1'}
+                        ('radmod_namelist', 'NLWCORR'): '0', ('rainmod_namelist', 'NEVAPPREC'): '1',
+                        ('radmod_namelist', 'NTWLCLEAR'): '0', ('radmod_namelist', 'NTWLZERO'): '0'}
     assert set(found) == {('planet_namelist', k) for k in ('GA', 'PLARAD', 'ECCEN', 'GSOL0')} | \
         {('rainmod_namelist', 'CWSCALE')}
     lab, terluna = ({key: float(pair[i]) for key, pair in found.items()} for i in (0, 1))

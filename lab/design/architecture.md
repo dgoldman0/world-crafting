@@ -306,9 +306,22 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   rate and the breakup's density exponent, which `python/climate/gcm/rain_drops.py` computes from the scenario's
   air at 2 m, and the rule and sizes of the rain's births, a calibration on cloud-resolving boxes. It refuses the
   setting on a series without the patch, in a first run, without that record, and with a table on which the model
-  would stop. The defaults keep `gamma` until the Earth control's test (`PLAN.md`). At that default the whole
-  series' build runs Earth's control, over two days, byte for byte as the build of patches 01–13, and the drops'
+  would stop. The defaults keep `gamma` until the Earth control's test (`PLAN.md`). At that default the build of
+  patches 01–14 runs Earth's control, over two days, byte for byte as the build of patches 01–13, and the drops'
   sizes change the output (`lab/tests/test_builds.py`).
+- **The twilight's clear share and its single count.** Patch 15 takes patch 07's twilight in each layer in the clear
+  sky above it, its sunlight by PlaSim's random overlap of cover and its infrared escape through the cloud above at
+  each layer's longwave transmissivity, and patch 16 starts each pass of `swr` from zero where the Sun is down, so
+  that the clear-sky diagnostic's pass leaves its twilight out of the run (defect log C21;
+  `models/exoplasim/README.md`). Both read the run's own cloud and Sun, so the ledger stays a clear-sky ledger of
+  the world's column. The adapter writes `NTWLCLEAR` and `NTWLZERO` from `switches.twilight_clear_share` and
+  `switches.twilight_counted_once`, each where the run's series holds its patch; both resolve off where the curved
+  air's terms are off, and either is refused on a series without its patch. The defaults keep patch 07's terms and
+  passes, since each fix enters opt-in (`PLAN.md`). At those defaults the builds of patches 01–15 and of the whole
+  series run Earth's control with the Open Moon's ledger, over two days, byte for byte as the build of patches
+  01–14, with the twilight and the clear-sky diagnostic each on and off; with the single count, the run with the
+  diagnostic ends in the state of the run without it, and the clear share changes the output
+  (`lab/tests/test_builds.py`).
 - **The levels.** A run's `levels` is the released model's count, 10 by default, or the table of a set generated
   for the world from the scale height and the heights its study states (`python/climate/gcm/levels.py`;
   `models/exoplasim/README.md`, "Level sets"). The set takes no patch: PlaSim reads its half levels from the

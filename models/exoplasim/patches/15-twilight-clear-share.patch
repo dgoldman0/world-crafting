@@ -1,0 +1,95 @@
+--- a/plasim/src/radmod.f90
++++ b/plasim/src/radmod.f90
+@@ -132,6 +132,8 @@
+       integer :: ntwilw = 0      ! Terluna: 1 adds the curved air's extra infrared escape (twilight.dat)
+       real :: twlw(NLEV+1) = 0.0 ! Terluna: extra infrared to space from each layer and the ground
+       real :: twlt(NLEV+1) = 0.0 ! Terluna: the temperatures it is given at
++      integer :: ntwlclear = 0   ! Lab: 1 takes the twilight's terms in the clear sky above each layer
++      real :: twltau(NHOR,NLEV) = 1.0 ! Lab: each layer's longwave transmissivity under its cloud, from lwr
+       integer :: nlwcorr = 0     ! Terluna: 1 adds the longwave by height (lwcorr.dat)
+       real :: lwcl(NLEV+1) = 0.0 ! Terluna: the longwave by height, extra escape of each layer over land
+       real :: lwcs(NLEV+1) = 0.0 ! Terluna: the same over sea
+@@ -637,7 +639,8 @@
+      &               ,nsol,nclouds,nswrcl,nrscat,rcl1,rcl2,acl2,clgray,tpofmt   &
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+      &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale,irtopday,irtopnight  &
+-     &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar,nlwcorr,niceopt,ticeopt,zicew
++     &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar,nlwcorr,niceopt,ticeopt,zicew  &
++     &               ,ntwlclear
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -833,6 +836,7 @@
+       call mpbci(niceopt)
+       call mpbcr(ticeopt)
+       call mpbcrn(zicew,4)
++      call mpbci(ntwlclear)
+       if (nlwcorr == 1) then   ! Terluna: the longwave by height
+        if (mypid == NROOT) then
+         open(48,file='lwcorr.dat',form='formatted',status='old')
+@@ -2272,8 +2276,12 @@
+ !     solar elevation at each point, below the horizon too: to each layer and, in the column's clear share,
+ !     to the ground, carried down from the top as net downward flux
+ !
++!     Lab: with ntwlclear = 1 each layer takes its term in the share of the sky clear of cloud above it, by
++!     PlaSim's random overlap of the layers' cover, as the ground takes its own in the whole column's share;
++!     with 0 that share is 1 above every layer
++!
+       integer :: jhor, jlev, jlo, jhi, jmid
+-      real :: zel, zu, zsum, zclear, zsun
++      real :: zel, zu, zsum, zclear, zsun, zabove(NLEV)
+       zsun = gsol0 * gdist2
+       do jhor = 1, NHOR
+        zel = asin(max(-1.0, min(1.0, gmuz(jhor)))) * 180.0 / PI
+@@ -2291,13 +2299,15 @@
+        zu = (zel - twlel(jlo)) / (twlel(jhi) - twlel(jlo))
+        zclear = 1.0
+        do jlev = 1, NLEV
++        zabove(jlev) = zclear     ! Lab: the clear share above the layer
+         zclear = zclear * (1.0 - dcc(jhor,jlev) * nclouds)
+        enddo
++       if (ntwlclear /= 1) zabove(:) = 1.0
+        zsum = zsun * ((1.0 - zu) * twlg(jlo) + zu * twlg(jhi)) * zclear
+        dswfl(jhor,NLEP) = dswfl(jhor,NLEP) + zsum
+        dfd(jhor,NLEP) = dfd(jhor,NLEP) + zsum
+        do jlev = NLEV, 1, -1
+-        zsum = zsum + zsun * ((1.0 - zu) * twlq(jlev,jlo) + zu * twlq(jlev,jhi))
++        zsum = zsum + zsun * ((1.0 - zu) * twlq(jlev,jlo) + zu * twlq(jlev,jhi)) * zabove(jlev)
+         dswfl(jhor,jlev) = dswfl(jhor,jlev) + zsum
+         dfd(jhor,jlev) = dfd(jhor,jlev) + zsum
+        enddo
+@@ -2486,6 +2496,7 @@
+         ztaucc0(:,jlev)=1.-dcc(:,jlev)*(1.-exp(zzf3*dql(:,jlev)*dp(:)))
+        endif
+        if (niceopt == 1 .and. clgray <= 0.) call ice_cloud_lw(jlev,ztaucc0(:,jlev)) ! Terluna: ice
++       if (ntwlclear == 1) twltau(:,jlev) = ztaucc0(:,jlev) ! Lab: for the twilight's clear share
+       enddo
+ !
+ !     b) transmissivities, effective radiations and fluxes
+@@ -2661,14 +2672,23 @@
+ !     layer's and the ground's extra escape to space at the design column's temperatures, scaled with their
+ !     own to the fourth power, carried up to the top as upward flux (negative in PlaSim)
+ !
++!     Lab: with ntwlclear = 1 each layer's escape and the ground's pass the cloud above them at each layer's
++!     longwave transmissivity, which lwr records in twltau before it calls this routine; with 0 they pass
++!     at 1
++!
+       integer :: jhor, jlev
+-      real :: zsum
++      real :: zsum, zclear, zabove(NLEV)
+       do jhor = 1, NHOR
+-       zsum = twlw(NLEP) * (dt(jhor,NLEP) / twlt(NLEP))**4
++       zclear = 1.0
++       do jlev = 1, NLEV
++        zabove(jlev) = zclear     ! Lab: the longwave's clear share above the layer
++        if (ntwlclear == 1) zclear = zclear * twltau(jhor,jlev)
++       enddo
++       zsum = twlw(NLEP) * (dt(jhor,NLEP) / twlt(NLEP))**4 * zclear
+        dftu(jhor,NLEP) = dftu(jhor,NLEP) - zsum
+        dlwfl(jhor,NLEP) = dlwfl(jhor,NLEP) - zsum
+        do jlev = NLEV, 1, -1
+-        zsum = zsum + twlw(jlev) * (dt(jhor,jlev) / twlt(jlev))**4
++        zsum = zsum + twlw(jlev) * (dt(jhor,jlev) / twlt(jlev))**4 * zabove(jlev)
+         dftu(jhor,jlev) = dftu(jhor,jlev) - zsum
+         dlwfl(jhor,jlev) = dlwfl(jhor,jlev) - zsum
+        enddo

@@ -103,6 +103,21 @@ def thirteen_point():
 
 
 @pytest.fixture(scope='module')
+def fourteen_point():
+    """The build at the series' first fourteen patches, through the rain from its drops, before the twilight's clear
+    share."""
+    run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:14]}
+    return run, builds.build(run, store=STORE, env=ENV)
+
+
+@pytest.fixture(scope='module')
+def fifteen_point():
+    """The build at the series' first fifteen patches, through the twilight's clear share, before its single count."""
+    run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:15]}
+    return run, builds.build(run, store=STORE, env=ENV)
+
+
+@pytest.fixture(scope='module')
 def whole_point():
     """The build of the whole series, as the defaults name it."""
     return DEFAULTS, builds.build(DEFAULTS, store=STORE, env=ENV)
@@ -283,28 +298,26 @@ def _plain(run: dict, rain: str) -> dict:
 
 
 @needs_build
-def test_patch_14_at_its_default_runs_byte_for_byte_as_the_build_without_it(thirteen_point, whole_point, tmp_path):
+def test_patch_14_at_its_default_runs_byte_for_byte_as_the_build_without_it(thirteen_point, fourteen_point, tmp_path):
     """Earth's control over two days. The folder the adapter writes for the build of patches 01-13, whose rainmod
-    namelist names none of patch 14's entries, gives the same output and restart under the whole series' build, where
-    NEVAPPREC keeps PlaSim's own 1, and so do the folders written for the whole series with PlaSim's constant, as a
+    namelist names none of patch 14's entries, gives the same output and restart under the build of patches 01-14,
+    where NEVAPPREC keeps PlaSim's own 1, and so do the folders written for that build with PlaSim's constant, as a
     first run and with the released model's values stated as calibrations. With the rain evaporated from its drops'
     sizes, by the fall law of Earth's own air and births made up for the test, the folder differs in rainmod's
     namelist and the table alone, and the output changes. Without its table that run stops with PlaSim's abort
     message. Each run's files are removed once their hashes are taken."""
-    (thirteen, thirteen_build), (whole, whole_build) = thirteen_point, whole_point
-    patches = list(ex.series(whole))
+    (thirteen, thirteen_build), (fourteen, fourteen_build) = thirteen_point, fourteen_point
+    patches = list(fourteen['patches'])
     assert patches[13:] == [ex.PATCH_14] and thirteen['patches'] == patches[:13]
-    # The whole series' build compiled the sources that models/check_patches.sh pins.
-    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
-    assert json.loads((whole_build / 'build.json').read_text())['sources'] == pinned
     air = drops.Column(gravity_m_s2=derive.gravity(EARTH), surface_pressure_pa=CONTROL['air']['surface_pressure_pa'],
                        air=DryAir(CONTROL['air']['surface_pressure_pa']), **EARTH_RAIN)
     rain = ex.RainDrops.from_settings(rain_drops.settings(air, MADE_UP_BIRTHS))
     assert (rain.self_collection_m3_kg_s, rain.density_exponent) == (5.78, 0.0)        # Morrison's own, in Earth's air
-    executables = {'thirteen': _executable(thirteen_build, thirteen), 'whole': _executable(whole_build, whole)}
+    executables = {'thirteen': _executable(thirteen_build, thirteen), 'fourteen': _executable(fourteen_build, fourteen)}
     first, later = ex.Calibrations.identity(), ex.Calibrations(**RELEASED)
-    written = {'thirteen': (thirteen, first), 'default': (whole, first), 'gamma': (_plain(whole, 'gamma'), later),
-               'sized': (_plain(whole, 'drop_sizes'), ex.Calibrations(**RELEASED, rain_drops=rain))}
+    written = {'thirteen': (thirteen, first), 'default': (fourteen, first),
+               'gamma': (_plain(fourteen, 'gamma'), later),
+               'sized': (_plain(fourteen, 'drop_sizes'), ex.Calibrations(**RELEASED, rain_drops=rain))}
     for name, (run, calibrations) in written.items():
         ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=calibrations, store=STORE)
     # The folders differ in rainmod's namelist alone, and the drops' folder holds the table besides, so that a change
@@ -319,17 +332,17 @@ def test_patch_14_at_its_default_runs_byte_for_byte_as_the_build_without_it(thir
     names = lambda name: {p.name for p in (tmp_path / name).iterdir()}
     assert names('sized') - names('thirteen') == {ex.RAIN_TABLE} and names('gamma') == names('thirteen')
     out = {(name, build): _hashes(tmp_path / name, executables[build], 96)
-           for name, build in (('thirteen', 'thirteen'), ('thirteen', 'whole'), ('default', 'whole'),
-                               ('gamma', 'whole'), ('sized', 'whole'))}
+           for name, build in (('thirteen', 'thirteen'), ('thirteen', 'fourteen'), ('default', 'fourteen'),
+                               ('gamma', 'fourteen'), ('sized', 'fourteen'))}
     assert set(out['thirteen', 'thirteen']) == {'plasim_output', 'plasim_status'}
-    for key in (('thirteen', 'whole'), ('default', 'whole'), ('gamma', 'whole')):
+    for key in (('thirteen', 'fourteen'), ('default', 'fourteen'), ('gamma', 'fourteen')):
         assert out[key] == out['thirteen', 'thirteen'], key
-    assert out['sized', 'whole']['plasim_output'] != out['gamma', 'whole']['plasim_output']
-    assert out['sized', 'whole']['plasim_status'] != out['gamma', 'whole']['plasim_status']
+    assert out['sized', 'fourteen']['plasim_output'] != out['gamma', 'fourteen']['plasim_output']
+    assert out['sized', 'fourteen']['plasim_status'] != out['gamma', 'fourteen']['plasim_status']
     # Without the table the run stops at its start, on every rank, and leaves PlaSim's abort message.
     (tmp_path / 'sized' / ex.RAIN_TABLE).unlink()
     before = names('sized')
-    done = subprocess.run(['nice', '-n', '10', 'mpirun', '-np', str(DEFAULTS['ranks']), str(executables['whole'])],
+    done = subprocess.run(['nice', '-n', '10', 'mpirun', '-np', str(DEFAULTS['ranks']), str(executables['fourteen'])],
                           cwd=tmp_path / 'sized', capture_output=True, text=True, timeout=300)
     assert 'nevapprec 2 reads lab_rain_law.txt, which is missing' in (tmp_path / 'sized' / 'Abort_Message').read_text()
     assert not (tmp_path / 'sized' / 'plasim_status').exists() and 'MPI_ABORT' in done.stdout + done.stderr
@@ -365,6 +378,109 @@ def test_under_the_moons_gravity_the_rain_evaporates_from_its_drops(whole_point,
         restarts[choice] = _hashes(tmp_path / choice, _executable(whole_build, whole), steps, output=False)
     assert steps == 96 and all(set(found) == {'plasim_status'} for found in restarts.values())
     assert restarts['gamma'] != restarts['drop_sizes']
+
+
+# The curved air's twilight.
+
+# The Open Moon's ledger as the lab keeps it, on the released ten levels: on Earth's control, terms made up for the
+# tests below, which run the code's path and no climate.
+LEDGER = LAB.parent / 'python' / 'climate' / 'results' / 'gcm' / 'twilight.json'
+
+
+def _ledger() -> ex.Ledger:
+    """The ledger's full terms, the curved light with the shells' widening, as Terluna's runner summed them for its
+    "full" mode (exoplasim_run.py:885-902 at 186b294), with the Moon's slant factors."""
+    product = json.loads(LEDGER.read_text())
+    term, cone, longwave = product['gcm_term'], product['gcm_term_cone'], product['longwave']
+    return ex.Ledger(
+        elevation_deg=tuple(term['elevation_deg']), ground=tuple(term['ground']),
+        layers=tuple(tuple(q + c for q, c in zip(lq, lc)) for lq, lc in zip(term['layers'], cone['layers'])),
+        escape_w_m2=tuple(a + b for a, b in zip(longwave['gcm_layers']['curved'], longwave['gcm_layers']['cone']))
+        + (longwave['ground_curved_w_m2'],),
+        escape_temperature_k=tuple(longwave['gcm_layers']['temperature_k']) + (longwave['ground_temperature_k'],),
+        slant=tuple(product['magnification'][k] for k in 'abc'),
+        slant_air=tuple(product['magnification_air'][k] for k in 'abc'))
+
+
+def _twilit(run: dict, twilight: str, clear_sky: bool, **switches) -> dict:
+    """Earth's control with the curved air's terms on or off, the clear-sky diagnostic on or off, and `switches`."""
+    return {**run, 'clear_sky': clear_sky, 'switches': {**run['switches'], 'twilight': twilight, 'gas_bands': False,
+                                                         'rain_evaporation': 'gamma', **switches}}
+
+
+@needs_build
+def test_patches_15_and_16_at_their_defaults_run_byte_for_byte_as_the_build_without_them(fourteen_point, fifteen_point,
+                                                                                         whole_point, tmp_path):
+    """Earth's control over two days, with the released model's values stated as calibrations and the Open Moon's
+    ledger for the curved air's terms. With those terms on and off, and the clear-sky diagnostic on and off, the
+    folders written for the build of patches 01-14, for that of 01-15 with NTWLCLEAR 0 and for the whole series with
+    NTWLZERO 0 as well differ in those entries alone and give the same output and restart, each under its own build;
+    the folder that names neither entry gives them under the whole series' build too. The twilight changes the run,
+    and with it off the diagnostic leaves the run's state as it was. Each run's files are removed once their hashes
+    are taken."""
+    (fourteen, b14), (fifteen, b15), (whole, b16) = fourteen_point, fifteen_point, whole_point
+    patches = list(ex.series(whole))
+    assert patches[14:] == [ex.PATCH_15, ex.PATCH_16]
+    assert fourteen['patches'] == patches[:14] and fifteen['patches'] == patches[:15]
+    # The whole series' build compiled the sources that models/check_patches.sh pins.
+    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
+    assert json.loads((b16 / 'build.json').read_text())['sources'] == pinned
+    points = {'14': (fourteen, _executable(b14, fourteen)), '15': (fifteen, _executable(b15, fifteen)),
+              '16': (whole, _executable(b16, whole))}
+    ledger, out = _ledger(), {}
+    for twilight in ('full', 'none'):
+        calibrations = ex.Calibrations(**RELEASED, ledger=ledger if twilight == 'full' else None)
+        for clear_sky in (True, False):
+            folder = lambda point: tmp_path / f'{twilight}-{int(clear_sky)}-{point}'
+            for point, (run, _) in points.items():
+                ex.write_run(folder(point), EARTH, CONTROL, _twilit(run, twilight, clear_sky),
+                             calibrations=calibrations, store=STORE)
+            assert _differing(folder('14'), folder('15')) == _differing(folder('14'), folder('16')) == \
+                {'radmod_namelist'}
+            entries = lambda point: [line for line in (folder(point) / 'radmod_namelist').read_text().splitlines()
+                                     if line.split()[0] in ('NTWLCLEAR', 'NTWLZERO')]
+            assert (entries('14'), entries('15'), entries('16')) == \
+                ([], [' NTWLCLEAR = 0'], [' NTWLCLEAR = 0', ' NTWLZERO = 0'])
+            lines = lambda point: (folder(point) / 'radmod_namelist').read_text().splitlines()
+            assert [line for line in lines('16') if line not in entries('16')] == lines('14')
+            found = {point: _hashes(folder(point), executable, 96) for point, (_, executable) in points.items()}
+            assert set(found['14']) == {'plasim_output', 'plasim_status'}
+            assert found['15'] == found['14'] and found['16'] == found['14'], (twilight, clear_sky)
+            out[twilight, clear_sky] = found['14']
+    assert 'twilight.dat' in {p.name for p in (tmp_path / 'full-1-14').iterdir()}
+    assert 'twilight.dat' not in {p.name for p in (tmp_path / 'none-1-14').iterdir()}
+    assert _hashes(tmp_path / 'full-1-14', points['16'][1], 96) == out['full', True]
+    assert out['full', True]['plasim_status'] != out['none', True]['plasim_status']
+    assert out['none', True]['plasim_status'] == out['none', False]['plasim_status']
+
+
+@needs_build
+def test_the_clear_share_changes_the_run_and_the_single_count_leaves_the_diagnostic_out_of_it(whole_point, tmp_path):
+    """Earth's control over two days with the Open Moon's ledger, on the whole series. Without the clear-sky
+    diagnostic, swr runs once a step and NTWLZERO 1 changes nothing. With it, patch 07's passes add the diagnostic's
+    clear twilight below the horizon to the run's, which ends in another state than the run without the diagnostic
+    (defect log C21); with NTWLZERO 1 it ends in that run's state, byte for byte, with the clear share and without
+    it. The clear share changes the output and the state. Each run's files are removed once their hashes are taken."""
+    whole, build = whole_point
+    executable, calibrations = _executable(build, whole), ex.Calibrations(**RELEASED, ledger=_ledger())
+    out = {}
+    for clear_share in (False, True):
+        for clear_sky in (False, True):
+            for once in (False, True):
+                name = f'share{int(clear_share)}-sky{int(clear_sky)}-once{int(once)}'
+                run = _twilit(whole, 'full', clear_sky, twilight_clear_share=clear_share, twilight_counted_once=once)
+                record = ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=calibrations, store=STORE)
+                assert (record['switches']['twilight_clear_share'], record['switches']['twilight_counted_once']) == \
+                    (clear_share, once)
+                out[clear_share, clear_sky, once] = _hashes(tmp_path / name, executable, 96)
+    for share in (False, True):
+        state = lambda sky, once: out[share, sky, once]['plasim_status']
+        assert out[share, False, True] == out[share, False, False], share
+        assert state(True, True) == state(False, False) and state(True, False) != state(False, False), share
+        assert out[share, True, True]['plasim_output'] != out[share, True, False]['plasim_output'], share
+    for sky in (False, True):
+        for kind in ('plasim_output', 'plasim_status'):
+            assert out[True, sky, True][kind] != out[False, sky, True][kind], (sky, kind)
 
 
 # The level set.

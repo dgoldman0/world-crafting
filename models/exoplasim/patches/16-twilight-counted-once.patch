@@ -1,0 +1,48 @@
+--- a/plasim/src/radmod.f90
++++ b/plasim/src/radmod.f90
+@@ -134,6 +134,7 @@
+       real :: twlt(NLEV+1) = 0.0 ! Terluna: the temperatures it is given at
+       integer :: ntwlclear = 0   ! Lab: 1 takes the twilight's terms in the clear sky above each layer
+       real :: twltau(NHOR,NLEV) = 1.0 ! Lab: each layer's longwave transmissivity under its cloud, from lwr
++      integer :: ntwlzero = 0    ! Lab: 1 starts each pass of swr from zero where the Sun is down
+       integer :: nlwcorr = 0     ! Terluna: 1 adds the longwave by height (lwcorr.dat)
+       real :: lwcl(NLEV+1) = 0.0 ! Terluna: the longwave by height, extra escape of each layer over land
+       real :: lwcs(NLEV+1) = 0.0 ! Terluna: the same over sea
+@@ -640,7 +641,7 @@
+      &               ,acllwr,tswr1,tswr2,tswr3,th2oc,dawn,starbbtemp,nstartemp  &
+      &               ,nsimplealbedo,nstarfile,starfile,starfilehr,minwavel,rayscale,nsunclock,swh2oscale,irtopday,irtopnight  &
+      &               ,ntwilight,zmlunar,ntwilw,ngasbands,zgasq,zgasw,zmairlunar,nlwcorr,niceopt,ticeopt,zicew  &
+-     &               ,ntwlclear
++     &               ,ntwlclear,ntwlzero
+      namelist/aero_nl/l_source,l_bulk,apart,rhop,fcoeff,l_aerorad,aerofile
+ !
+ !     namelist parameter:
+@@ -837,6 +838,7 @@
+       call mpbcr(ticeopt)
+       call mpbcrn(zicew,4)
+       call mpbci(ntwlclear)
++      call mpbci(ntwlzero)
+       if (nlwcorr == 1) then   ! Terluna: the longwave by height
+        if (mypid == NROOT) then
+         open(48,file='lwcorr.dat',form='formatted',status='old')
+@@ -2264,6 +2266,20 @@
+        endwhere
+       enddo
+ !
++!     Lab: radstep sets the fluxes to zero once and, with the clear-sky diagnostic (ndiagcf), calls swr twice.
++!     swr writes them where the Sun is up, and twilight_term adds to them below the horizon too, so that
++!     there the second pass would keep the first pass's twilight beside its own (defect log C21). With
++!     ntwlzero = 1 each pass starts from zero where the Sun is down, as each pass of lwr starts its fluxes
++!
++      if (ntwlzero == 1) then
++       do jlev=1,NLEP
++        where(.not. losun(:))
++         dfu(:,jlev)=0.0
++         dfd(:,jlev)=0.0
++         dswfl(:,jlev)=0.0
++        endwhere
++       enddo
++      endif
+       if (ntwilight == 1) call twilight_term ! Terluna: the curved air's twilight and side light
+       return
+       end subroutine swr

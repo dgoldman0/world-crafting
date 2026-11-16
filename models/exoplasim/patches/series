@@ -12,3 +12,5 @@
 12-surface-gust.patch
 13-similarity-over-water.patch
 14-rain-from-drop-sizes.patch
+15-twilight-clear-share.patch
+16-twilight-counted-once.patch

@@ -73,7 +73,9 @@ year files and CM1's forcing from a GCM site brought 25 on 2026-11-16: six of th
 written to carry the held humidity's fault, and nineteen of the forcing, seventeen on synthetic year files and inputs
 written in the test and two that read Terluna's design run and its sea box in place from the research drive, through
 the lab's `worldlab.roots`, and skip where it is absent; those two read ten year files twice, about 30 s. All need
-netCDF4.
+netCDF4. The twilight's patches 15 and 16 brought six of the lab's own the same day, which apply the ExoPlaSim series
+to the pinned archive with `patch`; five of them compile parts of `radmod.f90` with gfortran, and without the archive
+or the tools they skip. The lab's environment then collected 377.
 
 ## What still needs Terluna
 
@@ -130,7 +132,12 @@ counterpart: it tests the three patches that read a world's gravity, air, soil a
 Terluna compiles a build for each world. `climate/tests/test_cm1_nudging.py` is the lab's own: it compiles the
 large-scale nudging of `solve1.F` with the relaxation of `solve3.F` from the series before patch 09 and after it and
 steps them on a domain's means, and compiles the patch's stops from `param.F`, where Terluna's tests of the three edit
-lists read their text.
+lists read their text. `climate/tests/test_twilight_patches.py` is the lab's own as well: it compiles patch 07's
+`twilight_term` and `twilight_lw` and the end of `swr` from the series before patch 15 and after patches 15 and 16,
+under a stand-in for `radstep`'s two passes, and checks them against arithmetic written out in the test, where
+Terluna's tests of its two edit lists compile a stand-in `swr` from the lists' text. `climate/gcm/twilight.py` and
+its ledger stay Terluna's: the clear share of patch 15 reads the run's own cloud at each step, so the ledger keeps
+its clear-sky terms.
 
 `climate/gcm/rain_drops.py` and its test came from Terluna at `39c5ee04` on 2026-11-11. The Fortran is in
 `models/exoplasim/patches/14-rain-from-drop-sizes.patch`, where Terluna's module keeps it as an edit list with the

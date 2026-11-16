@@ -20,8 +20,9 @@ Terluna's runners to pristine upstream sources and recording each group's unifie
 | `models/cm1/patches/lab/03-raindrop-limits-at-the-builds-gravity.patch`, `04-rains-fall-law-and-self-collection-for-the-world.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/crm/cm1_run.py`: `RAIN_LIMITS_PATCHES`, `RAIN_LAW_PATCHES` | ba507fc66d1ea4fd |
 | `models/exoplasim/patches/14-rain-from-drop-sizes.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/rain_drops.py`: `RAIN_DROP_EDITS`, without the snow's edits of `climate/gcm/snow_sublimation.py` that the list joins to them | a5d32149f2a2c1e1 |
 | `models/cm1/patches/lab/09-the-winds-own-nudging-and-the-inflow-of-the-reference.patch` (written 2026-11-16, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/crm/cm1_run.py`: `WIND_TAU_PATCH`, `WIND_ALOFT_PATCH`, `INFLOW_PATCH` | ba507fc66d1ea4fd |
+| `models/exoplasim/patches/15-twilight-clear-share.patch`, `16-twilight-counted-once.patch` (written 2026-11-16, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/exoplasim_run.py`: `TWILIGHT_CLEAR_EDITS`, `TWILIGHT_ZERO_EDITS` | 8c326baeb689ee06 |
 
-The last five rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
+The last six rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
 Terluna's edits at `bdda5a07`, with namelist switches added. ExoPlaSim's patches 12 and 13 were written on
 2026-11-11 from Terluna's edit lists at `39c5ee04`, applied to the pinned `fluxmod.f90` without Terluna's
 free-convection and nonlocal boundary-layer patches, which they follow there, and with the air's viscosity derived
@@ -61,7 +62,13 @@ leave it on `lsnudge_tau` (defect log C25), and `param.F` stops the model on set
 leave unchecked. In a single scratch run on 2026-11-16 the large-scale nudging of the lab's `solve1.F` returned the
 bits of that of Terluna's deployed build `moon_omp_rain_law_pbl_wind_gust_aloft_inflow` (research drive,
 `cm1/build/`, `solve1.F` sha256 `75b558a8a40749f1…`) in 120 runs on test domains under CM1's flags and as many under
-`-O3 -march=native`, its slots given the lab's values.
+`-O3 -march=native`, its slots given the lab's values. ExoPlaSim's patches 15 and 16 were written on 2026-11-16 from
+Terluna's two edit lists of its twilight at `39c5ee04` (commits `b73fa088` and `2762669e`), applied to the pinned
+`radmod.f90` after patch 14, where Terluna's runner applies the first before its ice weights and cold cloud's
+factors and the second after them. The namelist's two names and the statements are Terluna's, the comments the
+lab's. The statements of `twilight_term`, `twilight_lw` and the end of `swr`, and the line of `lwr` that records each
+layer's transmissivity, equal those of Terluna's deployed `radmod.f90` (research drive,
+`exoplasim-twilight/exoplasim/plasim/src/`, sha256 `14b6e9ac17849cfd…`, read on 2026-11-16), comments aside.
 
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).

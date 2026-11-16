@@ -75,7 +75,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B11 | PlaSim | Convective cover counts rain per model day (29.8 Earth days) | 09-25, 86bfb63 | `CONVDAY` via `convective_day_s` (86400) | +0.42 cover; Moon 1.6 K warmer when fixed | Fixed | R |
 | B12 | PlaSim | CCM3 cloud water falls off with geometric height on an Earth scale | 09-25, 071f5ce | `CWGREF`, `CWSCALE` via `cloud_water` (`'earth_path'`) | High cloud waterless; Moon 2.5 K warmer when fixed | Fixed | R |
 | B13 | PlaSim | Earth's horizon slant factor of 35 (Moon: 13.5 for water, 7.1 for air) | 10-14, 2ac4359 | `ZMLUNAR`, `ZMAIRLUNAR`, with `--twilight` (`full`) | Part of B14; not separated | Fixed | R |
-| B14 | PlaSim | Flat, sunlit-only radiation columns | 10-14, 2ac4359 | `NTWILIGHT`, `NTWILW` (`--twilight full`), 55e5020 | −0.65 K over 20 years (first ledger) | Fixed | R |
+| B14 | PlaSim | Flat, sunlit-only radiation columns | 10-14, 2ac4359 | `NTWILIGHT`, `NTWILW` (`--twilight full`), 55e5020; each layer's terms in the clear sky above it, `NTWLCLEAR` (b73fa08; the lab's patch 15, opt-in) | −0.65 K over 20 years (first ledger); the clear share about −1 K more on the 301 K ledger | Fixed | R |
 | B15 | PlaSim | No CO₂ or O₂ in the shortwave bands | 10-14, 6a16d63 | `NGASBANDS` (`--gas-bands`, on), 55e5020 | With B14, 292.0 K (−2.9 K), 7.6% less rain | Fixed | R |
 | B16 | PlaSim | Rayleigh coefficient normalised to a 5772 K blackbody; water continuum fitted on Earth | 09-25, 0a33f3c | `RAYSCALE` (2.237), `TH2OC` (0.004): calibration | Uncalibrated run passed 310 K | Calibrated | R |
 | B17 | PlaSim | Lacis–Hansen water absorptivity fitted to Earth's water paths | 09-29, be50d8b | `SWH2OSCALE` (1.292): calibration | Air absorbed 8 points too little; fix cut rain 18% | Calibrated | R |
@@ -122,6 +122,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | C18 | Records | Seven record errors corrected without code change | various | — | — | Corrected | R, V |
 | C19 | CM1 set-up | Nudging toward the GCM from 8 km (full at 16 km), with the day–night table stopping at 16 km | 10-21, Terluna `domain/climate` 13e7123 | Site forcing through the column, each layer's total kept, air held only above the GCM's convection top (`gcm_site.py`; 2cc5179, 5a44e5e) | Sea box: the nudging supplied 89 of the 107 W/m² its radiation removed, rain 0.06 against the GCM's 2.72 mm/day; the interpolation dried the column 0.55 mm/day | Fixed in Terluna's site boxes; every earlier ring and box ran it | R |
 | C20 | CM1 analyses | Stored radiative tendencies (`lwten`, `swten`, at constant volume under `eqtset = 2`) read as rates at constant pressure | 10-20, Terluna `domain/atmosphere` fe49ad9 | Conventions in `climate/crm/cm1_output.py`: × cvm/cp against another code, × cv/cp in a θ budget | Radiation overstated by 38–40%: the extra RRTMG cooling of 4.5–10.2 W/m² and the 45° N ring's heat budget | Fixed | R |
+| C21 | PlaSim, curved-air patch (07) with `NDIAGCF` 1 | The twilight added below the horizon counted twice: the cloud-forcing diagnostic zeroes the shortwave once and calls `swr` twice, and `twilight_term` accumulates in each pass | 11-08, Terluna `domain/climate` 2762669e; checked here in the pinned `radmod.f90` and patch 07 | `NTWLZERO` (0): each sunlight pass from zero where the Sun is down, in Terluna's runner (2762669e); in the lab's series as patch 16, off by default (2026-11-16) | +2.70 W/m² absorbed in the global mean of the turned design case (1.5%), 10.9 at 80° and 17.7 at 86°, all on the night side; absorbed by the dimming (0.924 against about 0.938); every run with the twilight and the diagnostic, the paper's curved-air runs among them | Fixed in the lab's series, opt-in; fixed in Terluna's runner | V; R |
 | C22 | GCM and CM1 set-up | Sunlight taken at the Earth–Moon barycentre's distance: the Moon's monthly swing toward and away from the Sun left out | 11-09 | None | ±0.51% of the sunlight through each lunar day; the far side's noon 1.0% brighter than the near side's | An idealisation of the scenario, stated with it; an option in the lab | P |
 | C23 | CM1 forcing from the GCM (`gcm_site`) | The fit by local time undoes a true mean's damping, sin(x)/x, on the humidity's means read by A10's rule, an average of each interval's two ends, which damps the n-th daily harmonic by cos(x) | 11-16, the lab's port of `gcm_site` | The lab's `gcm_site` undoes cos(x); Terluna's treatment kept as `humidity_filter` `'mean'` | Near-side Sea, design years: the humidity's third harmonic at the ground two thirds of its size, its fourth under half; the storage by local time up to 0.2 g/kg/day short of a 0.5–0.8 swing; the moistening by local time moves by up to 8% | Fixed in the lab's forcing; open in Terluna | L |
 | C24 | CM1 forcing from the GCM (`gcm_site`, `cm1_run`) | The GCM's specific humidity written as CM1's mixing ratio in the box's air, its nudging and its moistening | 11-16, the lab's port of `gcm_site` | The lab converts, r = q/(1 − q), and the moistening by (1 + r) | Near-side Sea, design years: 14.12 g/kg at the ground where the mixing ratio is 14.32; the moistening 1.4% weak | Fixed in the lab's forcing; open in Terluna | L |
@@ -584,6 +585,13 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   - 20 years with the first ledger's terms: 0.65 K cooler. The clouds gave back most of the geometry's loss.
   - A sunlight-only branch warmed 3.7 K in four years and was stopped (`climate/gcm/README.md:1042-1063`).
   - In CM1 the local effect is below detection (C8).
+- **The clear share (Terluna `domain/climate` b73fa088, 2026-10-19).** The ledger's terms are clear-sky values, and
+  the patch above adds each layer's sunlight and lets out its infrared in every column, cloudy or clear. Terluna's
+  `TWILIGHT_CLEAR_EDITS` (`NTWLCLEAR`) take each layer's sunlight in the clear sky above it and its escape and the
+  ground's through the cloud above at PlaSim's longwave transmissivity. A twin of the 301 K branch without them
+  settled about 1 K warmer, 301.9 against 301.0 K, both runs carrying the double count of C21 (Terluna's
+  `climate/gcm/README.md` at `39c5ee04`, "The design years (20 October)"). In the lab's series since 2026-11-16 as
+  patch 15, off by default (`models/exoplasim/README.md`, "The twilight's clear share and its single count").
 
 ### B15. PlaSim: no CO₂ or O₂ in sunlight (R)
 
@@ -1306,10 +1314,42 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
 - **Fix.** One module of conventions, `climate/crm/cm1_output.py`: a stored tendency times cvm/cp against another
   radiation code, times cv/cp in a budget beside CM1's other θ tendencies (fe49ad9).
 
-### C22. GCM and CM1 set-up: sunlight at the barycentre's distance (P; open)
+### C21. PlaSim's twilight with the cloud-forcing diagnostic: the night's twilight counted twice (V; R; fixed in the lab's series)
 
-C21, the night's twilight counted twice, is recorded on the paper's branch and joins this log at the next
-integration.
+- **Defect.** With PlaSim's cloud-forcing diagnostic on (`NDIAGCF` 1), `radstep` sets the shortwave fluxes to zero
+  once (`radmod.f90` lines 994–995 of the pinned ExoPlaSim 3.4.2) and calls `swr` twice, first without cloud and then
+  with it (lines 1021–1046). `swr` writes the fluxes only where the Sun stands above the horizon, while patch 07's
+  `twilight_term`, called at the end of `swr`, adds the curved air's sunlight to `dswfl` and `dfd` wherever the solar
+  elevation lies in its table, down to 40° below the horizon. Below the horizon the all-sky pass therefore keeps the
+  clear pass's twilight and adds its own: under cover c the ground takes T(2 − c) of the clear twilight T where
+  T(1 − c) was meant, and each layer its clear term beside its term in the clear share. The diagnostic's own clear-sky
+  fluxes stay right.
+- **Found** on 2026-11-08 in Terluna's work on the polar sunlight and recorded with its fix in `domain/climate`
+  2762669e (`climate/gcm/README.md`, "Each sunlight pass from zero where the Sun is down"); the two halves checked
+  here in the pinned source and in `models/exoplasim/patches/07-curved-air.patch`.
+- **Effect.** Every run with the twilight and the diagnostic, which includes every curved-air run behind the paper:
+  the curved-air and gas-band states, the corrected-curved-air state and its longwave test, and the refined-physics,
+  turned and design states. Over the turned design case's years 10–49 the double count adds 2.70 W/m² at the top of
+  the air in the global mean, 1.5% of the 178.2 W/m² absorbed, 1.36 W/m² of it at the ground, rising from 1.7 W/m² at
+  the equator to 10.9 at 80° and 17.7 at 86°, 15–26% of the polar columns' sunlight, all of it on the night side. The
+  search for the design temperature took it into the sunlight scale: without it the target takes about 0.938 in place
+  of 0.924 at first order. The paper's first version measured the curved air's effect (−0.65 K) with the double count
+  in the curved-air run alone, so that cooling is too small.
+- **Fix.** `NTWLZERO` 1 (Terluna 2762669e): `swr` sets the three fluxes to zero where the Sun is down before
+  `twilight_term` adds, so each pass starts there from zero; sunlit columns are unchanged bit for bit, 0 leaves the
+  model as it was, and a test of a stand-in `swr` through `radstep`'s two passes finds T(2 − c) with the switch off
+  and T(1 − c) with it on. Terluna's runner sets it for every run with the twilight.
+- **Ported (2026-11-16).** Patch 16 of the lab's series carries Terluna's statements after patch 07, which stays as
+  Terluna deployed it: `NTWLZERO`, 0 by default, which the lab's writer sets from `switches.twilight_counted_once`,
+  off by default since each fix enters opt-in (`models/exoplasim/README.md`, "The twilight's clear share and its
+  single count"). On Earth's control with the Open Moon's ledger over two days, a run with the diagnostic and
+  `NTWLZERO` 1 ends in the state of the run without the diagnostic byte for byte, where patch 07's passes end it
+  elsewhere (`lab/tests/test_builds.py`); compiled alone under a stand-in for `radstep`, patch 07's passes give a
+  cloudless night column exactly twice one pass's twilight and the ground T(2 − c) under cover c, and with
+  `NTWLZERO` 1 the two passes print every digit of one (`python/climate/tests/test_twilight_patches.py`). The
+  lab's defaults, the twilight with the diagnostic, keep the double count until a study switches the fix on.
+
+### C22. GCM and CM1 set-up: sunlight at the barycentre's distance (P; open)
 
 - **Defect.** Terluna's set-up gives the GCM the orbit of the "Earth-Moon barycentre about the Sun: 1 AU,
   Earth-orbit eccentricity" (`climate/gcm/boundary.py` 197 on `domain/climate`), and CM1's cases take the GCM's

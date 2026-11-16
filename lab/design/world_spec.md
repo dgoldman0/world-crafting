@@ -321,7 +321,11 @@ on them (`notes/geography.md`):
   series lacks is refused. `rain_evaporation` becomes PlaSim's `NEVAPPREC` in rainmod's namelist through patch 14,
   1 for the constant `gamma` and 2 for the rain's drops, whose six entries and table, `lab_rain_law.txt`, come from
   the run's calibrations (`RainDrops`); the drops' sizes are refused on a series without the patch, in a first run
-  and without that record.
+  and without that record. `twilight_clear_share` and `twilight_counted_once` become `NTWLCLEAR` and `NTWLZERO` in
+  radmod's namelist through patches 15 and 16, each written where the run's series holds its patch: the curved air's
+  terms in the clear sky above each layer, and each pass of the shortwave started from zero where the Sun is down
+  (defect log C21). Both qualify the twilight, so they resolve off where `twilight` is `none`, a first run's among
+  them, and either is refused on a series without its patch.
 - **The levels.** A run's `levels` is the released model's count, 10 by default, or the table of a set generated
   for the world: `scale_height_m`, a number of metres or "scenario" for the scenario's own at its reference
   temperature, `upper`, the count of the released model's highest half levels kept, and `interfaces_m`, the heights

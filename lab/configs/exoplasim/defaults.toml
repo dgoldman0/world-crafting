@@ -6,9 +6,10 @@
 schema = "worldlab.defaults.exoplasim/0"
 id = "exoplasim/defaults"
 upstream = "exoplasim-3.4.2"                   # models/pins.sha256
-patches = "models/exoplasim/patches/series"    # all fourteen applied: Terluna's ten, the lab's patch 11, and patches
-                                               # 12 to 14, written here from Terluna's gust, similarity and rain from
-                                               # its drops; each switch below, at its default when omitted
+patches = "models/exoplasim/patches/series"    # all sixteen applied: Terluna's ten, the lab's patch 11, and patches
+                                               # 12 to 16, written here from Terluna's gust, similarity, rain from its
+                                               # drops and two corrections of the twilight; each switch below, at its
+                                               # default when omitted
 
 resolution = "T21"
 levels = 10                                    # the released model's own ten sigma levels, which PlaSim computes from
@@ -54,6 +55,17 @@ convective_day_s = 86400.0                     # 03: CONVDAY
 cloud_water = "earth_path"                     # 02: CWGREF = standard gravity, CWSCALE = g / standard gravity
 surface_cloud_rcrit = 0.0                      # PlaSim's own RCRIT in the lowest layer
 twilight = "full"                              # 07: NTWILIGHT, NTWILW, ZMLUNAR, from the curved-air ledger
+twilight_clear_share = false                   # 15: NTWLCLEAR. false keeps patch 07's terms, each layer's sunlight
+                                               # and escape in full whatever the cloud above it; true takes each
+                                               # layer's sunlight in the clear sky above it, by PlaSim's random
+                                               # overlap of cover, and its escape and the ground's through the cloud
+                                               # above at PlaSim's longwave transmissivity of each layer
+twilight_counted_once = false                  # 16: NTWLZERO. false keeps patch 07's passes, in which the clear-sky
+                                               # diagnostic (clear_sky) adds its pass's twilight below the horizon to
+                                               # the run's (defect log C21); true starts each pass of swr from zero
+                                               # where the Sun is down. Both qualify the twilight, resolve off where it
+                                               # is "none", and keep patch 07's behaviour by default, since each fix
+                                               # enters opt-in (PLAN.md, "Porting: confidence, form and cost")
 gas_bands = true                               # 08: NGASBANDS, ZGASQ, ZGASW, ZMAIRLUNAR
 longwave_correction = false                    # 09: NLWCORR
 ice_optics = false                             # 10: NICEOPT, TICEOPT

@@ -84,6 +84,12 @@ RAIN_EVAPORATION = {'gamma': 1, 'drop_sizes': 2}
 PATCH_14 = '14-rain-from-drop-sizes.patch'
 RAIN_RULES = {'one_size': 0, 'join': 1, 'share': 2}                   # patch 14's NRDROP_JOIN, by the birth rule's name
 RAIN_TABLE = 'lab_rain_law.txt'      # the table's name in the run's folder, python/atmosphere/rain/fall_law.TABLE_FILE
+# Two settings that qualify the curved air's terms, by the patch and the entry each takes: the terms in the clear sky
+# above each layer (patch 15, NTWLCLEAR), and each pass of swr started from zero where the Sun is down, so that the
+# clear-sky diagnostic's pass leaves its twilight out of the run (patch 16, NTWLZERO; defect log C21).
+TWILIGHT_QUALIFIERS = {'twilight_clear_share': ('15-twilight-clear-share.patch', 'NTWLCLEAR'),
+                       'twilight_counted_once': ('16-twilight-counted-once.patch', 'NTWLZERO')}
+PATCH_15, PATCH_16 = (patch for patch, _ in TWILIGHT_QUALIFIERS.values())
 # PlaSim presets parts of rainmod for pairs of truncation and level count (rainmod.f90, rainini): at T42 its ten levels
 # evaporate falling rain with a gamma of 0.007, where every other count keeps 0.01, and at T21 five levels switch its
 # shallow convection off. A generated set that would run on another such preset than the released ten at its
@@ -135,7 +141,7 @@ ADDITIONS = {
     'plasim_namelist': ('SEED', 'NDIAGCF', 'NDIAGGP', 'SIGH', 'TFRC'),
     'radmod_namelist': ('TH2OC', 'RAYSCALE', 'NSUNCLOCK', 'SWH2OSCALE', 'IRTOPDAY', 'IRTOPNIGHT', 'NTWILIGHT',
                         'NTWILW', 'ZMLUNAR', 'NGASBANDS', 'ZGASQ', 'ZGASW', 'ZMAIRLUNAR', 'NLWCORR', 'NICEOPT',
-                        'TICEOPT', 'ZICEW'),
+                        'TICEOPT', 'ZICEW', 'NTWLCLEAR', 'NTWLZERO'),
     'rainmod_namelist': ('CWGREF', 'CWSCALE', 'CONVDAY', 'RCRIT', 'NEVAPPREC', 'NRDROP_JOIN', 'RDROP_WARM',
                          'RDROP_MELT', 'RDROP_KSC', 'RDROP_RHOEXP', 'RDROP_STEP'),
     'fluxmod_namelist': ('NGUST', 'NSIMW'),
@@ -416,7 +422,9 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     since patch 04's synodic clock replaces the fixed hour angle of ExoPlaSim's synchronous mode and, at a rotation
     equal to the year, holds the star over 0° E whatever FIXEDLON states (models/exoplasim/patches/04-sun-clock.patch;
     radmod.f90:1397-1414). A surface gust whose patches the run's series lacks is refused, and so is rain evaporated
-    from its drops' sizes on a series without patch 14."""
+    from its drops' sizes on a series without patch 14. The twilight's clear share and its single count
+    (`TWILIGHT_QUALIFIERS`) qualify the curved air's terms, so they resolve off wherever those terms are off, a first
+    run's among them; on, each is refused on a series that lacks its patch."""
     switches = dict(run['switches'])
     if world is not None and locked(world):
         switches['sun_clock'] = 'plasim'
@@ -439,6 +447,10 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
         raise SpecError(f"switches.rain_evaporation 'drop_sizes' takes {PATCH_14}, which the run's series lacks")
     if calibrations.first_run:
         switches.update(twilight='none', gas_bands=False)
+    for name, (patch, _) in TWILIGHT_QUALIFIERS.items():
+        switches[name] = bool(_switch(switches.get(name), f'switches.{name}')) and switches['twilight'] != 'none'
+        if switches[name] and patch not in series(run):
+            raise SpecError(f"switches.{name} takes {patch}, which the run's series lacks")
     return switches
 
 
@@ -514,6 +526,11 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
                   NRADICE=_switch(ocean['sea_ice'], 'water.ocean.sea_ice'), NO3=OZONE[air['ozone']], NSTARFILE=1,
                   STARFILE=STAR_FILES[0], STARFILEHR=STAR_FILES[1])
     radmod.update(_radiation_switches(scenario, switches, calibrations, where, top))
+    # The twilight's two qualifiers, each written where the run's series holds its patch (patches 15 and 16), so that
+    # a build at an earlier point reads a namelist of the names it knows.
+    patches = series(run)
+    radmod.update({entry: int(switches[name]) for name, (patch, entry) in TWILIGHT_QUALIFIERS.items()
+                   if patch in patches})
     if locked(world):                                 # configure's synchronous mode (exoplasim/__init__.py:2628-2630)
         if rotation['obliquity_deg'] != 0.0 or orbit['eccentricity'] != 0.0:
             raise SpecError(f'{world["id"]}: ExoPlaSim\'s synchronous mode holds the star at the latitude of the '
@@ -540,7 +557,6 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
 
     # The rain's evaporation, written where the run's series holds patch 14: PlaSim's own switch, and with the drops'
     # sizes the six entries the patch reads, from the scenario's air and the calibration of the births.
-    patches = series(run)
     if PATCH_14 in patches:
         rainmod.update(_rain_entries(switches, calibrations, where))
 

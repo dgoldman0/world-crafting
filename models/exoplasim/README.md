@@ -1,11 +1,11 @@
 # ExoPlaSim 3.4.2 for a breathable Moon
 
-Fourteen patches to PlaSim's radiation, cloud, surface-transfer and rain code inside ExoPlaSim 3.4.2, the
+Sixteen patches to PlaSim's radiation, cloud, surface-transfer and rain code inside ExoPlaSim 3.4.2, the
 settings that carry the Moon's orbit and calendar, the level set generated for a world, which takes no patch,
 and the design case's namelists and input tables. The first
-ten patches are Terluna's and the eleventh the world-crafting lab's; the lab wrote the twelfth, thirteenth and
-fourteenth from Terluna's later code. Each patch adds a namelist switch, patch 14 a third value of PlaSim's own
-`NEVAPPREC`, whose default reproduces ExoPlaSim as released, and each of patches 11 to 14 at its default
+ten patches are Terluna's and the eleventh the world-crafting lab's; the lab wrote the twelfth to the sixteenth
+from Terluna's later code. Each patch adds a namelist switch, patch 14 a third value of PlaSim's own
+`NEVAPPREC`, whose default reproduces ExoPlaSim as released, and each of patches 11 to 16 at its default
 reproduces the build of the patches before it. Correctness, limits and room for improvement are in
 [../../notes/exoplasim.md](../../notes/exoplasim.md).
 
@@ -34,8 +34,8 @@ rm -f plasim/run/most_plasim_*.x      # ExoPlaSim recompiles PlaSim at the next 
 Terluna applied patches 01–06 to its shared installation and 07–10 to a separate copy that every run
 imports first since 2026-10-14, so earlier runs kept their source. Applied in order to a pristine
 3.4.2, patches 01–10 give `radmod.f90` sha256 `a49791572fa8f5b2…` and `rainmod.f90` `44c0668de3e8f7db…`,
-the copy deployed on 2026-10-17 byte for byte (`expected.sha256`); patches 11 to 14 follow them, and the
-whole series gives `radmod.f90` `50e3df63c3d9872e…`, as patch 11 left it, `fluxmod.f90`
+the copy deployed on 2026-10-17 byte for byte (`expected.sha256`); patches 11 to 16 follow them, and the
+whole series gives `radmod.f90` `3a90be4f7e3a4132…`, as patch 16 leaves it, `fluxmod.f90`
 `6e6b0a1521d5cf97…`, as patch 13 left it, and `rainmod.f90` `7e83a5b6b2caef9f…` (`expected-series.sha256`). The
 lab compiles each point of the series as a build of its own (`lab/worldlab/builds.py`).
 
@@ -57,6 +57,8 @@ lab compiles each point of the series as a build of its own (`lab/worldlab/build
 | 12 | `surface-gust` | `NGUST`; `GUST_BETA`, `GUST_UMIN`; `PBL_B`, `PBL_EPS`, `PBL_BETAM`, `PBL_RICRU`, `PBL_BU` (fluxmod) | 0; 1.0, 0.1 m/s; 8.5, 0.1, 15, 0, 100 | 1: adds Beljaars's convective gust β w* to the lowest level's wind in the surface transfer, at least `GUST_UMIN`, and gives unstable water Louis's factor as land has it, in place of the free-convection term with its Earth constant and the least wind of 1 m/s; w* takes the surface fluxes of the step before and a boundary-layer depth by the bulk Richardson rule | General repair of an Earth value (B33, and B32's wind floor in the surface transfer), for convective surface layers; written by the lab from Terluna's code |
 | 13 | `similarity-over-water` | `NSIMW`; `SIMW_MUB`, `SIMW_MUS` (fluxmod) | 0; 1.458 × 10⁻⁶ kg m⁻¹ s⁻¹ K⁻½, 110.4 K | 1: over ice-free water, takes the transfer of heat, vapour and momentum from CM1's surface-layer similarity at the lowest level's height, under the gust's wind, with the air's kinematic viscosity derived in each column | General repair, where the lowest level stands inside the surface layer; written by the lab from Terluna's code |
 | 14 | `rain-from-drop-sizes` | `NEVAPPREC` 2, a third value of PlaSim's switch; `NRDROP_JOIN`, `RDROP_WARM`, `RDROP_MELT`; `RDROP_KSC`, `RDROP_RHOEXP`, `RDROP_STEP` (rainmod); `lab_rain_law.txt` | 1, PlaSim's own; 2, 0 m, 0 m; 5.78 m³ kg⁻¹ s⁻¹, 0, 1,000 m | 2: evaporates falling rain from its drops' sizes and fall speeds, in place of the share `gamma` of each layer's saturation deficit. The rain's drops fall with it as a second flux, Morrison's ventilated evaporation and self-collection with breakup act through each layer, and the fall law of the world's rain comes from a table in the run's folder | General repair of an Earth value (B30), for air of Earth-like composition under Morrison's exponential drop spectrum; the rule and the sizes of the rain's births are a calibration that a study supplies; written by the lab from Terluna's code |
+| 15 | `twilight-clear-share` | `NTWLCLEAR` (radmod) | 0 | 1: takes patch 07's sunlight in each layer in the share of the sky clear of cloud above it, and lets each layer's and the ground's extra infrared through the cloud above at each layer's longwave transmissivity | Repair of patch 07's method, whose terms are clear-sky values; written by the lab from Terluna's code |
+| 16 | `twilight-counted-once` | `NTWLZERO` (radmod) | 0 | 1: starts each pass of `swr` from zero where the Sun is down, so that with the clear-sky diagnostic on the twilight below the horizon is counted once | Repair of a defect in patch 07 (defect log C21); written by the lab from Terluna's code |
 
 ## The surface gust and the similarity over water (patches 12 and 13)
 
@@ -250,12 +252,12 @@ six settings.
 
 **Verification.** The evidence states are those of the notes: none of them validates a climate.
 
-- **The patch applies.** `models/check_patches.sh` applies the series of fourteen to the pinned archive and
-  finds the sources of `expected-series.sha256`.
-- **It compiles.** The lab's build of the whole series compiles PlaSim at T21 on ten levels
+- **The patch applies.** `models/check_patches.sh` applied the series of fourteen to the pinned archive and
+  found the sources that `expected-series.sha256` then recorded.
+- **It compiles.** The lab's build of patches 01–14 compiles PlaSim at T21 on ten levels
   (`lab/tests/test_builds.py`), and the patched `rainmod.f90` compiles with PlaSim's module on fifteen levels
   (`python/climate/tests/test_rain_drops.py`).
-- **Identity at the default.** On Earth's control over 96 steps on four ranks, the whole series' build gives
+- **Identity at the default.** On Earth's control over 96 steps on four ranks, the build of patches 01–14 gives
   PlaSim's output and restart byte for byte as the build of patches 01–13, from the folder written for that
   build, whose namelist names none of the patch's entries, and from folders that state `NEVAPPREC` 1
   (`lab/tests/test_builds.py`). In a harness of `mkrain` alone, with `NEVAPPREC` 1 and with 0, the patched
@@ -348,6 +350,121 @@ six settings.
   assessment (`PLAN.md`), with the output diagnostics that serve it;
 - one setting of two values in the lab, `switches.rain_evaporation`, with the rain's entries and table in one
   record of the run's calibrations (`RainDrops` in `lab/worldlab/exoplasim.py`).
+
+## The twilight's clear share and its single count (patches 15 and 16)
+
+Patches 15 and 16 add to `radmod.f90` two corrections of patch 07's twilight that Terluna made on `domain/climate`:
+the terms in the clear share above each layer (`TWILIGHT_CLEAR_EDITS`, commit `b73fa088`, 19 October 2026) and
+each pass of the shortwave started from zero where the Sun is down (`TWILIGHT_ZERO_EDITS`, `2762669e`, 8 November;
+defect log C21), both in `climate/gcm/exoplasim_run.py` at `39c5ee04`. Terluna's runner applies them as edit lists
+in its twilight copy of ExoPlaSim and switches both on in its runs, the clear share since 19 October and the zero
+start since 8 November. The lab wrote them as two unified patches after patch 14, each behind its own switch and
+under Terluna's name for it, so that patch 07 stays as Terluna deployed it on 2026-10-17 (`expected.sha256`). The
+lab's writer sets them through `switches.twilight_clear_share` and `switches.twilight_counted_once`
+(`lab/configs/exoplasim/defaults.toml`), both false by default, since each fix enters the lab opt-in (`PLAN.md`).
+It writes each switch where the run's series holds its patch, resolves both off where the curved air's terms are
+off, a first run's among them, and refuses either on a series without its patch.
+
+**What changes.** The ledger's terms are clear-sky values: the sunlight that the curved air adds to each layer and to
+the ground, and the infrared that it lets out of each layer and the ground, computed on a cloudless column. Patch 07
+adds each layer's sunlight in every column and the ground's in the share of the column clear of cloud, and lets out
+the infrared in every column, cloudy or clear.
+
+- With `NTWLCLEAR` 1, `twilight_term` takes each layer's sunlight in the share of the sky clear of cloud above that
+  layer, the product of 1 − cover over the layers above it, by PlaSim's own random overlap (`zcs` in `swr`), as the
+  ground already takes its own in the whole column's share. `lwr` records each layer's longwave transmissivity
+  under its cloud, its own `ztaucc0` with patch 10's ice optics where `NICEOPT` 1, in `twltau`, and `twilight_lw`
+  lets each layer's escape and the ground's through the cloud above at the product of those transmissivities.
+- With `NTWLZERO` 1, `swr` sets `dfu`, `dfd` and `dswfl` to zero where the Sun is down before `twilight_term` adds
+  to them. `radstep` sets the fluxes to zero once and, with the clear-sky diagnostic on (`NDIAGCF` 1), calls `swr`
+  twice, first without cloud and then with it. `swr` writes the fluxes only where the Sun stands above the horizon
+  (`losun`), and `twilight_term` adds the curved air's sunlight wherever the Sun's elevation lies in its table,
+  down to 40° below the horizon. Below the horizon the all-sky pass therefore keeps the clear pass's twilight and
+  adds its own: under cover c the ground takes T(2 − c) of the clear twilight T, where T(1 − c) is meant, and each
+  layer its clear term beside its own. Where the Sun is up, `swr` writes every level in each pass, so those columns
+  stay as they were; the diagnostic's own clear-sky fluxes, read after the clear pass, stay as they were too, and
+  the longwave needs no such start, since `lwr` sets its fluxes to zero at each call.
+
+Neither patch holds a value of the Moon's. The clear share reads the run's own cloud cover and longwave
+transmissivity at each step, and the zero start reads where the Sun is up; the terms come from the world's own
+ledger, as before (`lab/design/terluna_fixes.md`, row 10). The ledger itself is unchanged, and
+`python/climate/gcm/twilight.py` keeps computing clear-sky terms, which the model now takes in the clear share.
+
+**Verification.** The evidence states are those of the notes: none of them validates a climate.
+
+- **The patches apply.** `models/check_patches.sh` applies the series of sixteen to the pinned archive and finds the
+  sources of `expected-series.sha256`.
+- **They compile.** The lab's builds of patches 01–15 and of the whole series compile PlaSim at T21 on ten levels,
+  and the whole series compiles on fifteen (`lab/tests/test_builds.py`).
+- **Identity at the defaults.** On Earth's control over 96 steps on four ranks, with the released model's values
+  stated as calibrations and the Open Moon's ledger for the curved air's terms, the folders written for the builds
+  of patches 01–14, 01–15 and 01–16 differ in the two entries alone and give the same output and restart, each under
+  its own build, with the curved air's terms on and off and with the clear-sky diagnostic on and off; the folder
+  that names neither entry gives them under the whole series' build too (`lab/tests/test_builds.py`). In a harness
+  of `twilight_term`, `twilight_lw` and the end of `swr`, taken from the series and compiled with ExoPlaSim's flags
+  under a stand-in for `radstep`'s passes, the patched routines at their defaults print every digit that patch 07's
+  print (`python/climate/tests/test_twilight_patches.py`). Compiled with `-O3 -march=native`, where the compiler
+  fuses products and sums, they agree with patch 07's within a few units of the last place: there a factor of 1 can
+  change which product a sum takes unrounded. The lab's builds compile with ExoPlaSim's flags.
+- **The switches' effect, in the whole model.** On that control with the twilight on, `NTWLZERO` 1 changes nothing
+  without the diagnostic, where `swr` runs once a step. With the diagnostic, patch 07's passes end the run in another
+  state than the run without it, and with `NTWLZERO` 1 the run ends in that run's state byte for byte, with the
+  clear share and without it. With the twilight off, the diagnostic leaves the run's state as it was. The clear share
+  changes the output and the state (`lab/tests/test_builds.py`).
+- **The switches' effect, against arithmetic.** In the harness, with the diagnostic on, patch 07's passes give each
+  night column under clear sky exactly twice the twilight of one pass and, under cover c, T(2 − c) of the clear
+  twilight on the ground where one pass gives T(1 − c); with `NTWLZERO` 1 the two passes print every digit of one.
+  With `NTWLCLEAR` 1 each layer's sunlight and each layer's and the ground's escape follow the arithmetic written out
+  in the test, the clear sky above by random overlap and the product of the transmissivities above, to 10⁻¹²; under
+  an opaque layer the layers below it and the ground take no twilight sunlight.
+- **Wrong code at eight places.** In a single scratch run on 16 November 2026, eight wrong statements put one at a
+  time into the two patches each failed the harness's tests: the zero start on the sunlit columns, never taken, or
+  leaving `dswfl`; the clear share counting the layer's own cover, kept with the switch at 0, or left off a layer's
+  sunlight; and the longwave share counting the layer's own cloud or left off the ground's escape.
+- **Agreement with Terluna's code.** The statements of `twilight_term`, `twilight_lw` and the end of `swr`, and the
+  line in `lwr` that records the transmissivities, equal those of Terluna's deployed `radmod.f90` (`exoplasim-twilight`
+  on its research drive, sha256 `14b6e9ac17849cfd…`, read on 16 November 2026), comments aside.
+- **Terluna's runs**, made with its own edits (Terluna's `climate/gcm/README.md` at `39c5ee04`, "The terms in the
+  clear share", "Each sunlight pass from zero where the Sun is down" and "The design years (20 October)"). On ten
+  levels, a twin of the 301 K branch without the clear share (`A28R_301k_s0894_noclear`) settled near 301.9 K where
+  the branch with it settled near 301.0 K, so the clear share cooled that climate by about 1 K; both runs had the
+  clear-sky diagnostic on and carried the double count, so that at night the clear share acted on one of the two
+  counts. Over the years 10–49 of the turned design run, on fifteen levels, the double count added 2.70 W/m² at the
+  top of the air in the global mean, 1.5% of the 178.2 W/m² absorbed, rising from 1.7 W/m² at the equator to
+  17.7 W/m² at 85.8°, all on the night side, and the search for the design temperature took it into the sunlight
+  scale, 0.924 where about 0.938 holds without it. The lab has run none of these and has measured neither switch's
+  effect on a climate.
+- **Physical validation** remains to be done. The lab's runs with either switch are the tests' own, of two days,
+  on Earth's control with the Open Moon's ledger.
+
+**Limits.**
+
+- The clear share takes the twilight that the cloud above a layer intercepts out of the budget: the cloud neither
+  absorbs nor reflects it. A layer's own cloud leaves its own term whole, the cover overlaps at random, and the
+  infrared passes the cloud at PlaSim's transmissivity for diffuse light, where the curved air's escape leaves
+  along slant paths.
+- The ledger's ground term is the sunlight absorbed over ground of albedo 0.1 (`SKY_ALBEDO` in `twilight.py`),
+  whatever the run's ground: by Terluna's record that puts 11% too much of the term into land and 3% too little into
+  the sea of its turned design run, and 1.5–4.5 times too much into snow or sea ice. A ledger solved at several
+  ground albedos would correct it.
+- At the writer's defaults a run with the twilight and the clear-sky diagnostic, as `exoplasim/defaults` has it,
+  counts the night's twilight twice, as every Terluna run with the twilight before 8 November did.
+- Untested anywhere: a run past the tests' 96 steps; a run restarted with either switch on, though the patches keep
+  nothing between steps that the next step reads; a ledger on a level set other than the released ten, which the
+  lab has yet to compute; ranks other than four; and PlaSim compiled in single precision.
+
+**Choices made in the port,** where the lab's form differs from Terluna's or the design left it open:
+
+- two patches, one for each switch, in the order Terluna made them, so that each point of the series adds one
+  capability with its own identity test; Terluna's runner applies the clear share before its ice weights and cold
+  cloud's factors and the zero start after them, where the lab's patch 11 precedes both;
+- after patch 14, where the paper's defect log has the zero start ported into patch 07, which the lab keeps as
+  Terluna deployed it;
+- Terluna's statements, in which the clear share is a factor of exactly 1 with the switch at 0, which leaves every
+  product as it was under ExoPlaSim's flags. A form that kept patch 07's statements on a branch of their own was
+  tried in a scratch build and also moved the last bits under `-march=native`, so it gained nothing;
+- two settings off by default, where Terluna's runner switches both on for every run with the twilight, and both
+  resolved off with the twilight, where they would change nothing.
 
 ## Level sets (no source change)
 
@@ -539,7 +656,9 @@ that holds only on Earth; the defect or limitation stays in the released code fo
 [design_case/](design_case/) holds the namelists of `A28_corrected_970` (the design case since
 2026-10-14: patches 01–08, the curved air and the gas bands on, 295.0 K over years 10–19) and of
 `A28_corrected_970_lw_ice` (the same with patches 09 and 10 switched on, settling near 307 K), with
-the `twilight.dat` and `lwcorr.dat` tables those runs read.
+the `twilight.dat` and `lwcorr.dat` tables those runs read. Both ran the clear-sky diagnostic with the curved air's
+terms, before Terluna's clear share and zero start, so the night's twilight counted twice in them (defect log C21),
+as the lab's writer reproduces with patches 15 and 16 at their defaults.
 
 `twilight.dat` holds, in order: the number of solar elevations; for each elevation (degrees) the
 sunlight added to the ground and to each layer, top first, per unit sunlight at the beam; the extra

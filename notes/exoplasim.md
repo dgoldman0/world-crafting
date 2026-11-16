@@ -1,7 +1,8 @@
 # ExoPlaSim on a breathable Moon: correctness, limits and room for improvement
 
-Notes on the fourteen patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten, the lab's patch 11 and
-patches 12 to 14, which the lab wrote from Terluna's surface transfer and its rain from drop sizes, the settings that
+Notes on the sixteen patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten, the lab's patch 11 and
+patches 12 to 16, which the lab wrote from Terluna's surface transfer, its rain from drop sizes and its two corrections
+of the twilight, the settings that
 carry the Moon, the level set generated for a world, the offline copies of PlaSim's radiation, surface transfer and
 falling rain in `python/climate/gcm/`, and what in PlaSim stays Earth's. References to Terluna are at commit 186b294
 unless another commit is named; to ExoPlaSim, at the 3.4.2 source distribution.
@@ -17,7 +18,7 @@ physical validation of a lunar climate, which no observation can supply.
 
 - Applied with GNU patch to pristine ExoPlaSim 3.4.2, patches 01–10 reproduce the copy every Terluna run
   imported on 2026-10-17 byte for byte (`models/check_patches.sh`; `models/exoplasim/expected.sha256`), and the
-  series of fourteen gives the sources of `models/exoplasim/expected-series.sha256`.
+  series of sixteen gives the sources of `models/exoplasim/expected-series.sha256`.
 - Prefixes of the series reproduce the source hashes 32 Terluna runs recorded, so each reported result
   can be rebuilt from the series (`models/exoplasim/runs.json`). The two exceptions are explained there.
 - The deployed copy compiled and ran in Terluna's runs. The lab compiles each point of the series in its store
@@ -191,9 +192,11 @@ flat escape against the exact 1.2253; its flat side matches the radiative–conv
 
 **Limits.** One clear design column over ground of albedo 0.1 stands for every column and climate; the
 infrared terms scale with each layer's temperature alone; no refraction; the ledger's multiple
-scattering records `orders_converged = false`, its residual unquantified; clouds enter only through the
-ground's clear share. The two 20-year tests flew the first ledger's terms; the standard since 2026-10-14
-uses the corrected ledger.
+scattering records `orders_converged = false`, its residual unquantified; clouds enter patch 07's terms
+through the ground's clear share alone, which patch 15 extends to each layer ("The twilight's clear share and its
+single count", below); and with the clear-sky diagnostic on, patch 07 counts the twilight below the horizon twice
+(defect log C21), which patch 16 corrects. The two 20-year tests flew the first ledger's terms; the standard since
+2026-10-14 uses the corrected ledger.
 
 ### CO2 and O2 in the sunlight (patch 08)
 
@@ -290,7 +293,7 @@ the world's and which stay Earth's, and records Terluna's calibration for the Op
 
 | Evidence | What it shows | Where |
 |---|---|---|
-| Identity | On Earth's control over 96 steps the whole series' build gives the output and the restart of the build of patches 01–13 byte for byte, with `NEVAPPREC` unstated and stated as 1; `mkrain` alone prints the same digits with 1 and with 0, under ExoPlaSim's flags and under `-O3 -march=native` | `lab/tests/test_builds.py`; `python/climate/tests/test_rain_drops.py` |
+| Identity | On Earth's control over 96 steps the build of patches 01–14 gives the output and the restart of the build of patches 01–13 byte for byte, with `NEVAPPREC` unstated and stated as 1; `mkrain` alone prints the same digits with 1 and with 0, under ExoPlaSim's flags and under `-O3 -march=native` | `lab/tests/test_builds.py`; `python/climate/tests/test_rain_drops.py` |
 | Reproduction | `mkrain` from the patched source gives the Python copy's tendencies and precipitation to 10⁻¹⁰ under each birth rule at the Moon's gravity and Earth's; the copy agrees with hand arithmetic on a power law's closed forms to 10⁻⁹ and keeps each column's water; from the Open Moon's air it gives the sums of Terluna's module on that module's test columns | `python/climate/tests/test_rain_drops.py` |
 | Reproduction, single scratch runs of 11 November 2026 | The copy gave every field of Terluna's module at `39c5ee04` bit for bit on 72 columns; twelve wrong statements put one at a time into the patch each failed the suite | `models/exoplasim/README.md` |
 | Sensitivity, in the lab's tests | With the drops' sizes Earth's control changes its output over two days, and Earth's control under the Moon's gravity runs two days under floating-point traps and ends in another state than with `gamma` | `lab/tests/test_builds.py` |
@@ -304,6 +307,41 @@ Morrison's self-collection and breakup, taken to another gravity by a similarity
 and the vapour's diffusivity and the air's viscosity are fits for Earth's air. The scheme evaporates and collects at
 the grid cell's mean air and rain content, and the snow still sublimates by `gamma`. The Earth control's test, which
 decides whether the scheme serves every world, is still to be run, and until then the lab's default keeps `gamma`.
+
+### The twilight's clear share and its single count (patches 15 and 16, `NTWLCLEAR`, `NTWLZERO`)
+
+**The weakness and the defect.** The ledger's terms are clear-sky values, and patch 07 adds each layer's sunlight
+in every column and lets each layer's and the ground's extra infrared out of every column, whatever cloud stands
+above them; only the ground's sunlight takes the column's clear share. With the clear-sky diagnostic on, `radstep`
+calls `swr` twice after setting the fluxes to zero once, and since `swr` writes the fluxes where the Sun is up alone
+while `twilight_term` adds below the horizon too, the all-sky pass keeps the clear pass's twilight beside its own:
+under cover c the night's ground takes T(2 − c) of the clear twilight T where T(1 − c) is meant (defect log C21).
+Every Terluna run with the twilight from 14 October to 8 November had the diagnostic on, and so does
+`exoplasim/defaults`.
+
+**Repair.** Patch 15 (`NTWLCLEAR` 1) takes each layer's sunlight in the share of the sky clear of cloud above it,
+by PlaSim's random overlap of cover, and lets each layer's escape and the ground's through the cloud above at each
+layer's longwave transmissivity, which `lwr` records from its own cloud transmissivities, ice optics included.
+Patch 16 (`NTWLZERO` 1) starts each pass of `swr` from zero where the Sun is down, as `lwr` starts each of its own.
+Both are Terluna's statements behind Terluna's switch names (`domain/climate` `b73fa088` and `2762669e`), off by
+default in the lab and resolved off where the twilight is off. Neither holds a value of the Moon's, and the ledger
+is unchanged: its terms stay clear-sky values, which the model takes in the run's own clear sky at each step.
+
+**Correctness.** By evidence state:
+
+| Evidence | What it shows | Where |
+|---|---|---|
+| Identity | On Earth's control over 96 steps, with the Open Moon's ledger, the builds of patches 01–15 and 01–16 at their defaults give the output and the restart of the build of patches 01–14 byte for byte, with the twilight on and off and the clear-sky diagnostic on and off; compiled alone with ExoPlaSim's flags the patched routines print every digit of patch 07's, and under `-O3 -march=native` they agree with them within a few units of the last place | `lab/tests/test_builds.py`; `python/climate/tests/test_twilight_patches.py` |
+| Reproduction | With the diagnostic on, patch 07's passes give the night's columns exactly twice one pass's twilight under clear sky and T(2 − c) on the ground under cover c; with `NTWLZERO` 1 the two passes print every digit of one; with `NTWLCLEAR` 1 each layer's sunlight and escape follow the clear-sky arithmetic written out by hand, to 10⁻¹² | `python/climate/tests/test_twilight_patches.py` |
+| Reproduction, single scratch run of 16 November 2026 | Eight wrong statements put one at a time into the two patches each failed the harness's tests; the routines' statements equal those of Terluna's deployed `radmod.f90`, comments aside | `models/exoplasim/README.md` |
+| Sensitivity, in the lab's tests | With the diagnostic, patch 07's passes end Earth's control in another state than the run without the diagnostic, and with `NTWLZERO` 1 in that run's state byte for byte; without the diagnostic `NTWLZERO` changes nothing; the clear share changes the output and the state | `lab/tests/test_builds.py` |
+| Sensitivity, in Terluna's runs with its own edits | A twin of the 301 K branch without the clear share settled near 301.9 K against 301.0 K with it, both carrying the double count; the double count added 2.70 W/m² at the top of the air in the turned design run's global mean, up to 17.7 W/m² at 85.8°, all on the night side, and moved the design sunlight scale from about 0.938 to 0.924 | Terluna `climate/gcm/README.md` at `39c5ee04` |
+
+**Limits.** The cloud above a layer takes the twilight it intercepts out of the budget, neither absorbing nor
+reflecting it; a layer's own cloud leaves its own term whole; and the infrared passes the cloud at PlaSim's diffuse
+transmissivity, where the curved air's escape runs along slant paths. The ledger's ground term assumes ground of
+albedo 0.1 whatever the run's ground, which by Terluna's record puts 1.5–4.5 times too much of it into snow or sea
+ice. The lab's defaults keep patch 07's double count until a study switches the single count on.
 
 ### Levels for a world (the `levels` setting; no patch)
 
@@ -516,5 +554,7 @@ gives the copy's tendencies and precipitation to 10⁻¹⁰ ("Rain from its drop
    level set on boxes whose warm rain and ice follow the world's gravity.
 10. Take a generated level set through the Earth control's test, fit each set's calibrations, and state each
    world's heights from its own boxes or from a rule on its boundary layer's depth.
-11. Upstream: the Sun clock, the orbit default's documentation, the free-convection constant's gravity, and the
+11. Count the twilight once in every run that takes it with the clear-sky diagnostic, and solve the ledger's ground
+   term at several ground albedos.
+12. Upstream: the Sun clock, the orbit default's documentation, the free-convection constant's gravity, and the
    switches whose defaults are identity.
