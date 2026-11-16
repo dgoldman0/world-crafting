@@ -19,8 +19,9 @@ Terluna's runners to pristine upstream sources and recording each group's unifie
 | `models/exoplasim/patches/12-surface-gust.patch`, `13-similarity-over-water.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/surface_gust.py`: `GUST_EDITS`; `climate/gcm/surface_similarity.py`: `SIMW_EDITS`; `climate/gcm/pbl_fortran.py`: the declarations of the five constants the depth rule reads | fb163850a4aa62d0, b676096169aa7f25, 66a8edb841195d7e |
 | `models/cm1/patches/lab/03-raindrop-limits-at-the-builds-gravity.patch`, `04-rains-fall-law-and-self-collection-for-the-world.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/crm/cm1_run.py`: `RAIN_LIMITS_PATCHES`, `RAIN_LAW_PATCHES` | ba507fc66d1ea4fd |
 | `models/exoplasim/patches/14-rain-from-drop-sizes.patch` (written 2026-11-11, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/rain_drops.py`: `RAIN_DROP_EDITS`, without the snow's edits of `climate/gcm/snow_sublimation.py` that the list joins to them | a5d32149f2a2c1e1 |
+| `models/cm1/patches/lab/09-the-winds-own-nudging-and-the-inflow-of-the-reference.patch` (written 2026-11-16, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/crm/cm1_run.py`: `WIND_TAU_PATCH`, `WIND_ALOFT_PATCH`, `INFLOW_PATCH` | ba507fc66d1ea4fd |
 
-The last four rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
+The last five rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
 Terluna's edits at `bdda5a07`, with namelist switches added. ExoPlaSim's patches 12 and 13 were written on
 2026-11-11 from Terluna's edit lists at `39c5ee04`, applied to the pinned `fluxmod.f90` without Terluna's
 free-convection and nonlocal boundary-layer patches, which they follow there, and with the air's viscosity derived
@@ -51,7 +52,16 @@ is called from `rainini`. The rest differs in form (`models/exoplasim/README.md`
 the defaults are Earth's rate, no density exponent and unset birth sizes, where Terluna's are the Moon's; `rdropini`
 checks the settings and the table and stops on those the scheme cannot take; `mkrain` takes one widened condition
 and one branch, where Terluna's list adds a block that repeats the saturation and the snow's sublimation; and the
-snow's sublimation by its flakes, with its diagnostics, is left out.
+snow's sublimation by its flakes, with its diagnostics, is left out. CM1's patch 09 was written on 2026-11-16 from
+Terluna's three edit lists of its site boxes' nudging at `39c5ee04` (commits `238638f8`, `3dd0c96c` and `191d9675`),
+applied after the lab's patch 08, with entries of `&param3` under the lab's names where Terluna's build read `var10`,
+`var8` and `var7`; the comments, the identifiers and the rates' file name are the lab's. The code differs from the
+lists in two ways: `solve3.F` relaxes the base-state and geostrophic wind on the wind's own time, where the lists
+leave it on `lsnudge_tau` (defect log C25), and `param.F` stops the model on settings it cannot take, which the lists
+leave unchecked. In a single scratch run on 2026-11-16 the large-scale nudging of the lab's `solve1.F` returned the
+bits of that of Terluna's deployed build `moon_omp_rain_law_pbl_wind_gust_aloft_inflow` (research drive,
+`cm1/build/`, `solve1.F` sha256 `75b558a8a40749f1…`) in 120 runs on test domains under CM1's flags and as many under
+`-O3 -march=native`, its slots given the lab's values.
 
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).
@@ -161,6 +171,9 @@ the refusal of a file of fewer than three records. The forcing reads a run's rec
 planet record and constants, undoes the humidity's own filter in its fits, carries the vapour into CM1's mixing
 ratio, and leaves out the capped forcing of
 Terluna's first boxes, the GCM's weather at a site (`af42e928`) and the damped gravity wave's inputs (`c3898a7c`).
+On the same day `case_inputs` gained the entries of the lab's CM1 patch 09 at the values of Terluna's `corrected_wind`
+and `corrected_inflow` (`cm1_run.py` at `39c5ee04`), the inflow's reckoning in a box budget (`box_budget`, `4f63c439`)
+waiting for the lab's box budget; with Terluna's constants the entries take the values its set-up gave the sea box.
 Run with Terluna's constants and choices stated as values, its undoing of the humidity's means as true means among
 them, the lab's extraction gave the forcing that Terluna's
 three site boxes on its design years record (research drive, `crm-runs/box_near_side_sea_design_years`,

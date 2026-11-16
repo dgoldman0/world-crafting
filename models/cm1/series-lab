@@ -6,3 +6,4 @@ patches/lab/05-factors-on-autoconversion-and-accretion.patch
 patches/lab/06-gravity-co2-and-o2-from-the-namelist.patch
 patches/lab/07-the-soils-top-layer-from-the-namelist.patch
 patches/lab/08-the-suns-declination-from-the-namelist.patch
+patches/lab/09-the-winds-own-nudging-and-the-inflow-of-the-reference.patch

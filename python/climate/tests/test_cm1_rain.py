@@ -9,7 +9,7 @@ by accretion at the namelist's factors.
 The lab's own file. Terluna's tests of its edit lists and of its runner's namelist writers stay in Terluna
 (climate/tests/test_cm1_rain_limits.py and test_cm1_rain_law.py at 39c5ee04). The column is CM1's mp_graupel, called as
 mp_driver.F calls it; a compiled case of the whole model is stage 3's test (lab/design/plan.md). The column is built
-at the series' end too, where the lab's patch 06 hands CM1's constants the namelist's gravity (test_cm1_world.py).
+after patch 08 too, where the lab's patch 06 hands CM1's constants the namelist's gravity (test_cm1_world.py).
 """
 import math
 import os
@@ -30,8 +30,8 @@ PATCH_02 = 'patches/lab/02-beljaars-gust-over-water.patch'
 PATCH_03 = 'patches/lab/03-raindrop-limits-at-the-builds-gravity.patch'
 PATCH_04 = 'patches/lab/04-rains-fall-law-and-self-collection-for-the-world.patch'
 PATCH_05 = 'patches/lab/05-factors-on-autoconversion-and-accretion.patch'
-PATCH_08 = 'patches/lab/08-the-suns-declination-from-the-namelist.patch'     # the series' end, whose constants take the
-POINTS = (PATCH_02, PATCH_03, PATCH_04, PATCH_05, PATCH_08)                  # gravity from the namelist's world_g
+PATCH_08 = 'patches/lab/08-the-suns-declination-from-the-namelist.patch'     # the world's patches' end, whose
+POINTS = (PATCH_02, PATCH_03, PATCH_04, PATCH_05, PATCH_08)                  # constants take world_g's gravity
 CPP = ('cpp', '-C', '-P', '-traditional', '-Wno-invalid-pp-token', '-ffreestanding', '-DOPENMP')
 # gfortran's flags in the two makefiles of the builds: CM1's own for OpenMP (makefile-gnu-omp.patch), and Terluna's
 # optimisation of them (makefile-omp-O3-march-native.patch), the lab's default, under which gfortran fuses products
@@ -262,8 +262,10 @@ def mean_diameter(fields):
 # The patches' texts.
 
 def test_the_rain_patches_follow_the_labs_series(cm1_series):
-    assert cm1_series.names[-8:-3] == ['patches/lab/01-the-simple-boundary-layers-tendencies-per-unit-mass.patch', PATCH_02,
-                                       PATCH_03, PATCH_04, PATCH_05] and cm1_series.names[-1] == PATCH_08
+    at = cm1_series.names.index(PATCH_02) - 1
+    assert cm1_series.names[at:at + 5] == ['patches/lab/01-the-simple-boundary-layers-tendencies-per-unit-mass.patch',
+                                           PATCH_02, PATCH_03, PATCH_04, PATCH_05]
+    assert cm1_series.names[at + 7] == PATCH_08
     for patch in (PATCH_03, PATCH_04, PATCH_05):
         text = (cm1_series.folder / patch).read_text()
         assert re.findall(r'^\+\+\+ b/src/(\S+)', text, flags=re.M) == ['cm1.F', 'input.F', 'morrison.F', 'param.F']
@@ -392,7 +394,7 @@ def test_the_factors_patch_keeps_cm1s_statements(cm1_series):
 def test_a_column_keeps_its_bits_at_the_defaults(columns):
     """The storm column over 100 steps of 6 s and twelve random columns over 20 steps of 10 s, at the Moon's gravity
     and CM1's own: with the switches at their defaults the scheme after each patch returns every field bit for bit as
-    the scheme before the two, under CM1's flags and under -O3 -march=native. So does the scheme at the series' end,
+    the scheme before the two, under CM1's flags and under -O3 -march=native. So does the scheme after patch 08,
     where the gravity reaches it through the namelist's world_g (the lab's patch 06)."""
     rng = random.Random(20261111)
     cases = [(storm(), 100, 6.0)] + [(random_column(rng), 20, 10.0) for _ in range(12)]

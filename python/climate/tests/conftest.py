@@ -22,10 +22,11 @@ SOURCES = 'exoplasim-3.4.2/exoplasim/plasim/src/'
 CM1_ARCHIVE = REPO / 'upstream' / 'cm1r22.0.tar.gz'
 CM1 = REPO / 'models' / 'cm1'
 CM1_SOURCES = 'cm1r22.0/src/'
-# The files the tests of CM1 read at the points of the series: the rain's five, and those through which the world's
-# gravity, air, soil and Sun reach the model.
+# The files the tests of CM1 read at the points of the series: the rain's five, those through which the world's
+# gravity, air, soil and Sun reach the model, and the two that nudge a box toward its reference.
 CM1_KEPT = ('cm1.F', 'constants.F', 'input.F', 'morrison.F', 'param.F', 'getcape.F', 'init_physics.F', 'init_surface.F',
-            'module_ra_etc.F', 'module_ra_rrtmg_lw.F', 'module_ra_rrtmg_sw.F', 'radiation_driver.F')
+            'module_ra_etc.F', 'module_ra_rrtmg_lw.F', 'module_ra_rrtmg_sw.F', 'radiation_driver.F', 'solve1.F',
+            'solve3.F')
 CM1_DATA = ('RRTMG_LW_DATA', 'RRTMG_SW_DATA')            # RRTMG's tables, which a column of it reads as it starts
 
 
@@ -89,9 +90,9 @@ def series_sources(tmp_path_factory) -> Series:
 def cm1_series(tmp_path_factory) -> Series:
     """The core series and the lab's on the pinned CM1 archive: the texts of CM1_KEPT as released, after the core
     series and after each of the lab's patches, the patches named as the series files name them (patches/lab/03-...);
-    every source file of the model at the series' end (`tree`); and RRTMG's two tables (`data`). The twenty-one files
+    every source file of the model at the series' end (`tree`); and RRTMG's two tables (`data`). The twenty-two files
     the two series patch leave the archive once in a session, about 4 MB, and the kept texts, the tree and the tables
-    stay in memory, about 34 MB. A test that takes the fixture is skipped where the archive or patch is missing."""
+    stay in memory, about 38 MB. A test that takes the fixture is skipped where the archive or patch is missing."""
     if not CM1_ARCHIVE.exists() or shutil.which('patch') is None:
         pytest.skip('the pinned cm1r22.0 archive (upstream/) or patch is missing')
     archive = _pinned(CM1_ARCHIVE)

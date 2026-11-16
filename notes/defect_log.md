@@ -125,6 +125,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | C22 | GCM and CM1 set-up | Sunlight taken at the Earth–Moon barycentre's distance: the Moon's monthly swing toward and away from the Sun left out | 11-09 | None | ±0.51% of the sunlight through each lunar day; the far side's noon 1.0% brighter than the near side's | An idealisation of the scenario, stated with it; an option in the lab | P |
 | C23 | CM1 forcing from the GCM (`gcm_site`) | The fit by local time undoes a true mean's damping, sin(x)/x, on the humidity's means read by A10's rule, an average of each interval's two ends, which damps the n-th daily harmonic by cos(x) | 11-16, the lab's port of `gcm_site` | The lab's `gcm_site` undoes cos(x); Terluna's treatment kept as `humidity_filter` `'mean'` | Near-side Sea, design years: the humidity's third harmonic at the ground two thirds of its size, its fourth under half; the storage by local time up to 0.2 g/kg/day short of a 0.5–0.8 swing; the moistening by local time moves by up to 8% | Fixed in the lab's forcing; open in Terluna | L |
 | C24 | CM1 forcing from the GCM (`gcm_site`, `cm1_run`) | The GCM's specific humidity written as CM1's mixing ratio in the box's air, its nudging and its moistening | 11-16, the lab's port of `gcm_site` | The lab converts, r = q/(1 − q), and the moistening by (1 + r) | Near-side Sea, design years: 14.12 g/kg at the ground where the mixing ratio is 14.32; the moistening 1.4% weak | Fixed in the lab's forcing; open in Terluna | L |
+| C25 | CM1 build (`WIND_TAU_PATCH`) | The wind's own nudging time reaches the domain-mean wind's tendency alone; the base-state and geostrophic wind, from which the large-scale pressure gradient follows, keep relaxing on `lsnudge_tau` | 11-16, the lab's port of the patch | `wind_nudge_tau` (0) relaxes both on the wind's time: the lab's series, patch 09 | By estimate on the sea box's windows: the base-state wind lags its target 1.5 m/s on average, which at the site's f of 4.6 × 10⁻⁷ s⁻¹ turns the mean wind 0.005 m/s; at Earth's 45°, 0.9 m/s | Fixed in the lab's series; open in Terluna, where it is negligible | L |
 
 ## (a) Upstream defects exposed by the adaptation
 
@@ -1284,6 +1285,10 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
   layer's tendency on CM1's levels with its total kept, applies it through the whole column, holds temperature and
   vapour to the GCM's only above the top of the GCM's convection, from its next level up at 93 km, and nudges the
   mean wind toward the GCM's by local time (2cc5179, 5a44e5e, 13e7123). The rings keep the earlier forcing until they are rerun.
+  Terluna's later boxes relax the wind on its own 2 hours from the GCM's lowest level up and draw the GCM's air in
+  where the mean wind converges (238638f, 3dd0c96, 191d967). The lab's forcing (`python/climate/crm/gcm_site.py`) and
+  patch 09 of its CM1 series carry the same form, the base-state and geostrophic wind relaxed on the wind's time too
+  (C25).
 
 ### C20. CM1 analyses: radiative tendencies read at constant pressure (R)
 
@@ -1345,6 +1350,26 @@ integration.
   ratio is 14.32, and its moistening ran 1.4% weak. The gap, q²/(1 − q), grows with the vapour.
 - **Fix and status.** The lab converts the air's vapour to r = q/(1 − q) and the moistening by (1 + r), so that CM1's
   dry mass gains the vapour the GCM's layer gains (`reference_air` and `to_cm1`). Open in Terluna.
+
+### C25. CM1 build: the wind's own nudging time leaves the pressure gradient's wind on the held air's (L; fixed in the lab)
+
+- **Defect.** CM1's large-scale nudging of the wind acts in two places: `solve1.F` relaxes the domain-mean wind
+  toward its target, and `solve3.F` relaxes the base-state wind (`u0`, `v0`), from which the large-scale pressure
+  gradient follows under `lspgrad = 1`, and the geostrophic wind (`ug`, `vg`, under `lspgrad = 2`) toward the same
+  target, both on `lsnudge_tau`. Terluna's `WIND_TAU_PATCH` (`climate/crm/cm1_run.py` at `39c5ee04`, from 238638f)
+  gives `solve1.F` the wind's own time, `var10`, and leaves `solve3.F` on `lsnudge_tau`, so its site boxes, which take
+  `lspgrad = 1` and the site's Coriolis parameter, pull their mean wind on 2 hours while the pressure gradient's wind
+  follows on 3 days, and the Coriolis force acts on the difference.
+- **Effect,** by estimate. On the sea box's windows over its second lunar day (the lab's forcing of Terluna's design
+  years at the Near-side Sea, 350 m), a base-state wind relaxed on 3 days lags its target by 1.46 m/s on average and
+  3.8 m/s at most. In balance with a 2-hour pull, a lag Δ turns the mean wind off its target by f τ Δ/(1 + f²τ²)^½,
+  which at the site's f of −4.6 × 10⁻⁷ s⁻¹ comes to 0.005 m/s on average, a third of a percent of the lag: negligible
+  in Terluna's boxes. At Earth's 45°, f = 1.03 × 10⁻⁴ s⁻¹, the same lag would hold the wind 0.87 m/s off a target
+  averaging 2.4 m/s. Relaxed on 2 hours, the base-state wind lags by 0.07 m/s on average.
+- **Fix and status.** Patch 09 of the lab's CM1 series relaxes the base-state and geostrophic wind on
+  `wind_nudge_tau` when it is positive, at every level, since the large-scale pressure gradient below the GCM's lowest
+  level is that level's (`models/cm1/README.md`, "The wind's own nudging and the inflow"). Open in Terluna, where the
+  Moon's slow rotation makes it negligible.
 
 ## (d) Record inconsistencies found in this pass, not yet corrected in Terluna (V)
 

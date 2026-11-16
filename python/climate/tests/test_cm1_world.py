@@ -107,7 +107,8 @@ def imports(text, module):
 # The patches' texts.
 
 def test_the_world_patches_follow_the_labs_series(cm1_series):
-    assert cm1_series.names[-3:] == [PATCH_06, PATCH_07, PATCH_08] and cm1_series.before(PATCH_06) == PATCH_05
+    at = cm1_series.names.index(PATCH_06)
+    assert cm1_series.names[at:at + 3] == [PATCH_06, PATCH_07, PATCH_08] and cm1_series.before(PATCH_06) == PATCH_05
     files = {PATCH_06: ['base.F', 'cm1.F', 'constants.F', 'domaindiag.F', 'getcape.F', 'init_physics.F', 'input.F',
                         'module_ra_etc.F', 'module_ra_rrtmg_lw.F', 'module_ra_rrtmg_sw.F', 'param.F',
                         'radiation_driver.F', 'writeout.F'],
@@ -327,7 +328,8 @@ def cape_input(gravity):
 @pytest.fixture(scope='module')
 def capes(cm1_series, tmp_path_factory):
     """The CAPE diagnostic from the series before patch 06, with CM1's gravity and with the Moon's compiled in, and
-    from the series' end, which takes the gravity as an argument, under each flag set: six builds of getcape.F."""
+    from the series after patch 08, which takes the gravity as an argument, under each flag set: six builds of
+    getcape.F."""
     needs_compiler()
     built = {}
     for flags in FLAGS:
@@ -521,8 +523,9 @@ MOON_COLUMN = dict(surface_pa=121590.0, top_m=150000.0, levels=60, lapse_k_m=1.1
 @pytest.fixture(scope='module')
 def rrtmg(cm1_series, tmp_path_factory):
     """One column of RRTMG from the series before patch 06, with CM1's gravity and Earth's air and with the Moon's
-    compiled in, and from the series' end, which takes the three from its caller, under each flag set: six builds of
-    module_ra_etc.F and RRTMG's two files, about 1.7 MB each beside the two tables, three compiling at a time."""
+    compiled in, and from the series after patch 08, which takes the three from its caller, under each flag set: six
+    builds of module_ra_etc.F and RRTMG's two files, about 1.7 MB each beside the two tables, three compiling at a
+    time."""
     needs_compiler()
     names = ('module_ra_etc.F', 'module_ra_rrtmg_lw.F', 'module_ra_rrtmg_sw.F')
 

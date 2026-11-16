@@ -1,0 +1,202 @@
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -425,6 +425,9 @@
+       world_o2 = TERLUNA_O2     ! Lab: RRTMG's O2, a mole fraction; the build's unless the namelist gives it
+       soil_dz1 = 0.05           ! Lab: the slab soil's top layer (m); core patch 08's 5 cm unless the namelist gives it
+       sun_decl = 0.0            ! Lab: the Sun's declination (degrees north); the equinox unless the namelist gives it
++      wind_nudge_tau = 0.0      ! Lab: the wind's nudging time (s); lsnudge_tau unless the namelist gives one
++      wind_nudge_zmin = 0.0     ! Lab: the wind is nudged from this height (m) up; from the ground by default
++      inflow_ref_air = 0        ! Lab: the inflow carries the domain's own air unless the namelist sets 1
+       solconrce = 0.0
+       zenanglrce = 0.0
+       trn_swirl = 0.0
+--- a/src/input.F
++++ b/src/input.F
+@@ -300,6 +300,9 @@
+       real :: world_co2,world_o2   ! Lab: RRTMG's CO2 and O2, mole fractions of the air
+       real :: soil_dz1   ! Lab: the thickness of the slab soil's top layer (m); each layer below is twice the one above
+       real :: sun_decl   ! Lab: the Sun's declination (degrees north) under the solar day of var19 seconds
++      real :: wind_nudge_tau   ! Lab: the time (s) on which lsnudge relaxes the wind; 0 takes lsnudge_tau
++      real :: wind_nudge_zmin   ! Lab: the height (m) from which lsnudge pulls the domain-mean wind
++      integer :: inflow_ref_air   ! Lab: 1 draws the nudging reference's air in where the mean wind converges
+ !  Begin namelists:
+ 
+       namelist /param0/ nx,ny,nz,ppnode,                                &
+@@ -324,6 +327,7 @@
+                         brkup_gscale,brkup_rhor,brkup_rhoexp,rain_fall_law,rain_selfcoll, &
+                         rain_autoconv_fac,rain_accr_fac, &
+                         world_g,world_co2,world_o2,soil_dz1,sun_decl, &
++                        wind_nudge_tau,wind_nudge_zmin,inflow_ref_air, &
+                         csound,cstar,solconrce,zenanglrce
+       namelist /param4/ stretch_x,dx_inner,dx_outer,nos_x_len,tot_x_len
+       namelist /param5/ stretch_y,dy_inner,dy_outer,nos_y_len,tot_y_len
+--- a/src/param.F
++++ b/src/param.F
+@@ -428,6 +428,9 @@
+       call MPI_BCAST(world_o2,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
+       call MPI_BCAST(soil_dz1,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
+       call MPI_BCAST(sun_decl,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
++      call MPI_BCAST(wind_nudge_tau,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)      ! Lab
++      call MPI_BCAST(wind_nudge_zmin,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)     ! Lab
++      call MPI_BCAST(inflow_ref_air,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)   ! Lab
+       call MPI_BCAST(ndcnst ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(nt_c   ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(csound ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+@@ -783,6 +786,32 @@
+       ENDIF
+       IF( sun_decl.ne.0.0 .and. .not.(radopt.eq.2 .and. var19.gt.1.0) )THEN
+         if(myid.eq.0) print *,'  Lab Sun: sun_decl is read with radopt = 2 and a solar day of var19 seconds'
++        call stopcm1
++      ENDIF
++      ! Lab: the wind's own nudging, wind_nudge_tau (s) and wind_nudge_zmin (m) of param3, each 0 by default, under
++      ! which lsnudge relaxes the wind on lsnudge_tau at every level (solve1.F, solve3.F); and inflow_ref_air of
++      ! param3, 0 by default, which with 1 draws the nudging reference's theta and vapour in where the large-scale
++      ! vertical wind converges (solve1.F). The time is a relaxation's, stepped explicitly, so it spans a step at least.
++      IF( .not.(wind_nudge_zmin.ge.0.0 .and. (wind_nudge_tau.eq.0.0 .or. wind_nudge_tau.ge.dtl)) )THEN
++        if(myid.eq.0) print *,'  Lab nudging: wind_nudge_tau must be 0 or at least dtl, and wind_nudge_zmin 0 or more'
++        call stopcm1
++      ENDIF
++      IF( (wind_nudge_tau.gt.0.0 .or. wind_nudge_zmin.gt.0.0) .and.   &
++          .not.(do_lsnudge .and. (do_lsnudge_u .or. do_lsnudge_v)) )THEN
++        if(myid.eq.0) print *,'  Lab nudging: wind_nudge_tau and wind_nudge_zmin act on the wind that lsnudge nudges'
++        call stopcm1
++      ENDIF
++      IF( inflow_ref_air.ne.0 .and. inflow_ref_air.ne.1 )THEN
++        if(myid.eq.0) print *,'  Lab nudging: inflow_ref_air must be 0 or 1'
++        call stopcm1
++      ENDIF
++      IF( inflow_ref_air.eq.1 .and. .not.(do_lsnudge .and. do_lsnudge_th .and. do_lsnudge_qv .and. imoist.eq.1) )THEN
++        if(myid.eq.0) print *,'  Lab nudging: inflow_ref_air draws in the theta and vapour that lsnudge nudges toward'
++        call stopcm1
++      ENDIF
++      IF( inflow_ref_air.eq.1 .and. .not.( (var13.gt.0.5 .and. var13.lt.1.5) .or.   &
++                                         (var13.lt.0.5 .and. testcase.ge.3 .and. testcase.le.7) ) )THEN
++        if(myid.eq.0) print *,'  Lab nudging: inflow_ref_air reads one profile of large-scale vertical wind (var13 = 1)'
+         call stopcm1
+       ENDIF
+ 
+@@ -3225,6 +3254,9 @@
+       if(dowr) write(outfile,*) 'world_o2 =',world_o2  ! Lab
+       if(dowr) write(outfile,*) 'soil_dz1 =',soil_dz1  ! Lab
+       if(dowr) write(outfile,*) 'sun_decl =',sun_decl  ! Lab
++      if(dowr) write(outfile,*) 'wind_nudge_tau =',wind_nudge_tau  ! Lab
++      if(dowr) write(outfile,*) 'wind_nudge_zmin =',wind_nudge_zmin  ! Lab
++      if(dowr) write(outfile,*) 'inflow_ref_air =',inflow_ref_air  ! Lab
+       if(dowr) write(outfile,*) 'ndcnst    =',ndcnst
+       if(dowr) write(outfile,*) 'nt_c      =',nt_c
+       if(dowr) write(outfile,*) 'csound    =',csound
+--- a/src/solve1.F
++++ b/src/solve1.F
+@@ -232,6 +232,8 @@
+       real :: delqv,delpi,delth,delt,fac,epsd,dheat,dz1,xs
+       real :: foo1,foo2
+       real :: dttmp,rtime,rdt,tem,tem0,tem1,tem2,thrad,prad,terluna_w
++      real :: lab_tau_uv   ! Lab: the time (s) on which lsnudge relaxes the wind
++      logical, save :: lab_inflow_out = .true.   ! Lab: the inflow's rates, written as each run starts
+       integer, save :: terluna_nb = 0, terluna_nl = 0   ! Terluna: large-scale horizontal advection by local time
+       real, dimension(:), allocatable, save :: terluna_az
+       real, dimension(:,:), allocatable, save :: terluna_ath,terluna_aqv
+@@ -1806,11 +1808,19 @@
+         call     get_avg_uvt(uavg,vavg,thavg,cavg,th0,ua,va,tha,ruh,ruf,rvh,rvf)
+       endif
+ 
++      ! Lab: the wind's own nudging time and height (param3). With wind_nudge_tau > 0 the domain-mean wind relaxes
++      ! on wind_nudge_tau seconds while theta and vapour keep lsnudge_tau, and its tendency acts at the levels from
++      ! wind_nudge_zmin m up, leaving those below to the surface layer and the turbulence. At the defaults, 0, the
++      ! wind relaxes on lsnudge_tau at every level, as in CM1. solve3.F relaxes the base-state and geostrophic
++      ! wind, which carry the large-scale pressure gradient, on the same time at every level.
++      lab_tau_uv = lsnudge_tau
++      if( wind_nudge_tau.gt.0.0 ) lab_tau_uv = wind_nudge_tau
+       if( donudge .and. do_lsnudge_u )then
+         if( myid.eq.0 ) print *,'  applying large-scale nudging of u, lsnudge_count = ',lsnudge_count
+         rdt = 1.0/dt
+         do k=1,nk
+-          tem1 = -lsnudgefac*( (umove+uavg(k))-lsnudge_u(k,lsnudge_count) )/(lsnudge_tau)
++          tem1 = -lsnudgefac*( (umove+uavg(k))-lsnudge_u(k,lsnudge_count) )/(lab_tau_uv)
++          if( zh(1,1,k).lt.wind_nudge_zmin ) tem1 = 0.0   ! Lab: the levels below wind_nudge_zmin left free
+           ! apply nudging tendency:
+           do j=1,nj
+           do i=1,ni+1
+@@ -1830,7 +1840,8 @@
+         if( myid.eq.0 ) print *,'  applying large-scale nudging of v, lsnudge_count = ',lsnudge_count
+         rdt = 1.0/dt
+         do k=1,nk
+-          tem2 = -lsnudgefac*( (vmove+vavg(k))-lsnudge_v(k,lsnudge_count) )/(lsnudge_tau)
++          tem2 = -lsnudgefac*( (vmove+vavg(k))-lsnudge_v(k,lsnudge_count) )/(lab_tau_uv)
++          if( zh(1,1,k).lt.wind_nudge_zmin ) tem2 = 0.0   ! Lab: the levels below wind_nudge_zmin left free
+           ! apply nudging tendency:
+           do j=1,nj+1
+           do i=1,ni
+@@ -1890,6 +1901,37 @@
+           endif
+         enddo
+       endif
++      ! Lab: the inflow of the reference's air (inflow_ref_air = 1, param3). CM1's large-scale vertical advection
++      ! (wsub) is the flux form less the scalar times the mean wind's mass convergence, d(rho0 w)/dz, so the air that
++      ! the convergence draws in carries the domain's own mean. Where the convergence is positive this term gives
++      ! the inflow the nudging reference's theta and vapour, the upwind value of coupled columns (Daleu, Woolnough
++      ! and Plant 2012, their eq. 9), while the air that leaves keeps the domain's own: each level's domain-mean
++      ! theta and vapour are drawn toward the reference at the rate max(d(rho0 w)/dz, 0)/rho0, wsub's own
++      ! convergence over CM1's base-state density. The term vanishes while the domain's mean air is the reference.
++      ! The rates go to lab_inflow_rate.txt as each run starts: the level count, then height (m) and rate (1/s).
++      IF( inflow_ref_air.eq.1 .and. dolsw )THEN
++        if( lab_inflow_out .and. myid.eq.0 )then
++          open(unit=95,file='lab_inflow_rate.txt',status='replace',action='write')
++          write(95,*) nk
++        endif
++        do k=1,nk
++          tem = max( 0.0 , (rf0(1,1,k+1)*wprof(k+1)-rf0(1,1,k)*wprof(k))*rdz*mh(1,1,k) )*rr0(1,1,k)
++          if( lab_inflow_out .and. myid.eq.0 ) write(95,*) zh(1,1,k),tem
++          tem1 = tem*( lsnudge_th(k,lsnudge_count)-thavg(k) )
++          tem2 = tem*( lsnudge_qv(k,lsnudge_count)-qavg(k,nqv) )
++          do j=1,nj
++          do i=1,ni
++            thten1(i,j,k) = thten1(i,j,k) + tem1
++            qten(i,j,k,nqv) = qten(i,j,k,nqv) + tem2
++          enddo
++          enddo
++        enddo
++        if( lab_inflow_out .and. myid.eq.0 )then
++          close(unit=95)
++          print *,'  Lab: the mean wind draws in the reference air; rates in lab_inflow_rate.txt'
++        endif
++        lab_inflow_out = .false.
++      ENDIF
+       if(timestats.ge.1) time_misc=time_misc+mytime()
+     ENDIF
+ 
+--- a/src/solve3.F
++++ b/src/solve3.F
+@@ -238,6 +238,7 @@
+       real :: gamm,aiu
+       real :: qv,qli,cpli,cpm,cvm,qmax
+       real :: tn,qn,taunudge
++      real :: lab_tau_uv   ! Lab: the time (s) on which lsnudge relaxes the wind
+ 
+       double precision :: weps,afoo,bfoo,p0,p2
+ 
+@@ -361,7 +362,12 @@
+       if( do_lsnudge .and. donudge .and. do_lsnudge_u )then
+         ! update ug,u0:
+         if( myid.eq.0 ) print *,'  applying large-scale nudging to base-state and reference u profiles '
+-        tem = lsnudgefac*dt/lsnudge_tau
++        ! Lab: the base-state wind u0, from which the large-scale pressure gradient follows (lspgrad = 1), and the
++        ! geostrophic ug (lspgrad = 2) relax at every level on the wind's own time, wind_nudge_tau (param3) when
++        ! it is positive, so that the pressure gradient follows the wind it balances; lsnudge_tau by default.
++        lab_tau_uv = lsnudge_tau
++        if( wind_nudge_tau.gt.0.0 ) lab_tau_uv = wind_nudge_tau
++        tem = lsnudgefac*dt/lab_tau_uv
+         do k=1,nk
+           ug(k) = ug(k)-tem*(umove+ug(k)-lsnudge_u(k,lsnudge_count))
+           dumk5(k) = -tem*(umove+u0(1,1,k)-lsnudge_u(k,lsnudge_count))
+@@ -385,7 +391,9 @@
+       if( do_lsnudge .and. donudge .and. do_lsnudge_v )then
+         ! update vg,v0:
+         if( myid.eq.0 ) print *,'  applying large-scale nudging to base-state and reference v profiles '
+-        tem = lsnudgefac*dt/lsnudge_tau
++        lab_tau_uv = lsnudge_tau   ! Lab: v0 and vg as u0 and ug
++        if( wind_nudge_tau.gt.0.0 ) lab_tau_uv = wind_nudge_tau
++        tem = lsnudgefac*dt/lab_tau_uv
+         do k=1,nk
+           vg(k) = vg(k)-tem*(vmove+vg(k)-lsnudge_v(k,lsnudge_count))
+           dumk5(k) = -tem*(vmove+v0(1,1,k)-lsnudge_v(k,lsnudge_count))

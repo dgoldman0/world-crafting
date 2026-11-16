@@ -12,6 +12,7 @@ tests on its branch run and of the GCM's weather at a site stay in Terluna."""
 import io
 import json
 import math
+import re
 from pathlib import Path
 
 import numpy as np
@@ -602,13 +603,39 @@ def test_the_case_takes_its_files_and_entries_as_cm1_reads_them(tmp_path):
     record = case['record']
     assert record['held']['damping_clearance_m'] == pytest.approx(1.0) and record['wind']['windows'] == 72
     json.dumps(record)                                                         # the record a case keeps is JSON
-    # The refusals: the damping below the held air (proposed), and more windows than CM1 reads.
+    # The entries of patch 09 of the lab's CM1 series in &param3, by default: the wind relaxed on its own 2 hours and
+    # pulled from the GCM's lowest level, to 0.1 m, and the windows' air drawn in where the mean wind converges.
+    lowest = f['profile']['z_m'][-1]
+    assert 0.0 < lowest < zw[-1] and lowest != round(lowest, 1)
+    assert case['namelist']['param3'] == dict(wind_nudge_tau=7200.0, wind_nudge_zmin=round(lowest, 1), inflow_ref_air=1)
+    wind, inflow = record['wind'], record['inflow']
+    assert (wind['nudge_tau_s'], wind['pulled_from_m'], wind['pulled_from']) == (7200.0, round(lowest, 1),
+                                                                                "the GCM's lowest level")
+    assert wind['window_s'] == pytest.approx(run['solar_day_s'] / 36.0, rel=1e-12)
+    assert wind['nudge_tau_share_of_window'] == pytest.approx(7200.0 / wind['window_s'], rel=1e-12)
+    assert 0.1 < wind['nudge_tau_share_of_window'] < 0.11                     # a tenth of the Moon's window
+    assert inflow['on'] is True and inflow['rates_file'] == 'lab_inflow_rate.txt'
+    # A case states its own: another time, the pull from the ground, the inflow off; the files stay as they were.
     common = dict(gravity_m_s2=run['gravity_m_s2'], start_hour_deg=-90.0, solar_day_s=run['solar_day_s'],
                   nudge_tau_s=259200.0)
+    same = dict(length_s=2.0 * run['solar_day_s'], damping_base_m=held_from + 1.0, **common)
+    stated = gs.case_inputs(f, zw, air, wind_nudge_tau_s=3600.0, wind_from_m=0.0, inflow=False, **same)
+    assert stated['namelist']['param3'] == dict(wind_nudge_tau=3600.0, wind_nudge_zmin=0.0, inflow_ref_air=0)
+    assert stated['record']['wind']['pulled_from'] == 'stated' and stated['record']['inflow']['on'] is False
+    assert stated['files'] == case['files'] and stated['namelist']['param8'] == p8
+    assert gs.case_inputs(f, zw, air, wind_from_m=312.7, **same)['namelist']['param3']['wind_nudge_zmin'] == 312.7
+    # The refusals: the damping below the held air (proposed), more windows than CM1 reads, a wind's time of zero or
+    # less, and a pull from below the ground or from the box's top up.
     with pytest.raises(ValueError, match='refused \\(proposed rule'):
         gs.case_inputs(f, zw, air, length_s=1e6, damping_base_m=held_from - 1.0, **common)
     with pytest.raises(ValueError, match='CM1 reads at most 100'):
         gs.case_inputs(f, zw, air, length_s=2.8 * run['solar_day_s'], damping_base_m=0.77 * zw[-1], **common)
+    for tau in (0.0, -7200.0, float('nan')):
+        with pytest.raises(ValueError, match="wind's own nudging time is positive"):
+            gs.case_inputs(f, zw, air, wind_nudge_tau_s=tau, **same)
+    for z in (-1.0, zw[-1], float('nan')):
+        with pytest.raises(ValueError, match="wind's pull starts at a height"):
+            gs.case_inputs(f, zw, air, wind_from_m=z, **same)
 
 
 # Terluna's sea box on its design years, from the same GCM run read in place (research drive).
@@ -689,6 +716,14 @@ def test_with_terlunas_choices_the_extraction_gives_terlunas_recorded_sea_box(te
         assert f['profile'][mine] == profile[theirs], mine
     assert case['namelist']['param8']['var14'] == record['configuration']['nudge']['z_start_m']
     assert case['namelist']['param8']['var15'] == record['configuration']['nudge']['z_full_m']
+    # The entries of the lab's patch 09, at their defaults, take the values Terluna's set-up gave the box in the
+    # generic slots its build read them from: the wind's time (var10), its pull's height (var8) and the inflow (var7).
+    text = (terluna_box['case'] / 'namelist.input').read_text()
+    slot = lambda name: float(re.search(rf'^\s*{name}\s*=\s*([^,\n]+),', text, flags=re.M).group(1))
+    assert case['namelist']['param3'] == dict(wind_nudge_tau=slot('var10'), wind_nudge_zmin=slot('var8'),
+                                              inflow_ref_air=int(slot('var7'))) == \
+        dict(wind_nudge_tau=7200.0, wind_nudge_zmin=316.1, inflow_ref_air=1)
+    assert record['corrected_wind'] == dict(var10=7200.0, var8=316.1)
     # The files, read back: the vertical wind to its printed 1e-9 m/s, the windows' wind and air to their printed
     # digits, their heights to the millimetre to which the box's input_grid_z gives the levels it is read from, and the
     # vapour once Terluna's specific humidity is carried into a mixing ratio, to 1 part in 10^3.

@@ -80,12 +80,23 @@ restart_s = 43200.0
 segment_s = 86400.0
 nudge_tau_s = 259200.0
 nudge_ramp_s = 86400.0
+wind_nudge_tau_s = 7200.0                      # a forced box's wind relaxes on its own time (wind_nudge_tau, patch 09
+                                               # of the lab's CM1 series), Terluna's 2 hours, a tenth of the Moon's
+                                               # window of local time; the held air keeps nudge_tau_s. A world whose
+                                               # windows are shorter states its own (gcm_site.case_inputs records the
+                                               # time's share of a window)
 radiation_s = 1800.0
 damping_base_fraction = 0.77                   # the Rayleigh layer from this fraction of the top: zd = 0.77 ztop (cm1_run.py:2004)
 
 [coupling]
 reference_season = "window"                    # the GCM reference averages solar longitudes about the case's season
 season_window_deg = 15.0                       # proposed: +-15 deg, a twelfth of the year
+wind_pulled_from = "gcm-lowest-level"          # a forced box's wind is nudged from the forcing GCM's lowest level up
+                                               # (wind_nudge_zmin, patch 09), the levels below left to its surface
+                                               # layer and turbulence; "ground" nudges every level, CM1's own
+inflow = "gcm-air"                             # where the mean vertical wind converges it draws in the GCM's mean air
+                                               # (inflow_ref_air = 1, patch 09); "box-air" keeps CM1's advection of the
+                                               # box's own air, the patch's default
 
 [physics]
 microphysics = "morrison"                      # ptype 5; its cloud droplets per cm3 come from the scenario's air

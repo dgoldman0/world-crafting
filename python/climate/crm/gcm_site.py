@@ -15,9 +15,11 @@ half_lon_deg of the site whose surface is the site's, sea at sea level or land, 
 (site_cells). From them site_forcing gives the GCM's mean air and surface; its mean vertical wind, which CM1 applies to
 its own air through its own large-scale vertical advection (core patches 10-14, var13 = 1, terluna_wls.txt); the
 heating and moistening the GCM's circulation brings by local time (core patch 17, var11 = 1, terluna_lsadv.txt); its
-wind by local time, toward which CM1 nudges the box's mean wind window by window (CM1's own lsnudge files); and the top
-of its convection, above which alone the box holds its temperature and vapour to the GCM's (core patch 09, var14 and
-var15). The table and the mean wind act through the whole column, the box's top included.
+wind by local time, toward which CM1 nudges the box's mean wind window by window (CM1's own lsnudge files) on the
+wind's own time from the GCM's lowest level up (patch 09 of the lab's series); and the top of its convection, above
+which alone the box holds its temperature and vapour to the GCM's (core patch 09, var14 and var15). The table and the
+mean wind act through the whole column, the box's top included, and where the mean wind converges it draws in the
+GCM's mean air (patch 09 of the lab's series).
 
 The budget. The heating and moistening come from the GCM's own budget at each of its levels, the storage less the
 physics. In Terluna's design climate the Moon's column holds about 220 kg/m2 of vapour, so its circulation moves water
@@ -72,6 +74,19 @@ CM1's dry mass, (1 - q) of each layer's mass, gains the vapour the GCM's layer g
 specific humidity as its mixing ratio, which at the ground over the Near-side Sea in its design years, at 14.1 g/kg,
 left the box's air 0.2 g/kg drier and its moistening 1.4% weaker.
 
+The wind's own nudging and the inflow. CM1 relaxes the box's mean wind and its held air toward the windows on one
+time, lsnudge_tau, and on the held air's three days Terluna's sea box kept its mean wind at 44-67% of its target's
+speed through most of the lunar day, its targets changing every 0.82 days. Patch 09 of the lab's CM1 series reads
+three entries of &param3, which case_inputs sets as a case states them: wind_nudge_tau, the wind's own time, by
+default Terluna's 2 hours (WIND_NUDGE_TAU_S), a tenth of the Moon's window of local time; wind_nudge_zmin, the height
+from which CM1 pulls the wind, by default the GCM's lowest level to 0.1 m, below which the windows repeat that level's
+wind down to the ground and the box's own surface layer and turbulence shape it; and inflow_ref_air, on by default
+(INFLOW), with which the mean wind's convergence draws in the windows' air, the GCM's mean air, at the rate
+max(d(rho0 w)/dz, 0)/rho0, where CM1's own advection draws in the box's (Daleu, Woolnough and Plant 2012). Where a
+world's window of local time is shorter, the wind follows it less closely on 2 hours, and the record states the time's
+share of the window. Every window here holds the GCM's mean air, so the inflow draws toward one reference through the
+run.
+
 What a world and a run supply. Nothing of a world is built in. The run's record (run_record) holds its gravity,
 radius, gas constant and heat capacity as the GCM ran with them, its half levels, its truncation, its output interval
 and its surface heights, and the world's solar day; CM1's constants (CM1_RD, CM1_CP, CM1_RV, constants.F) set the
@@ -86,18 +101,21 @@ constants it departs from it by the causes that test states, each within its tol
 of the forcing, the boxes' rain against the GCM's among them, are Terluna's runs: with the hold from 8 km the sea box
 rained 0.06 mm/day against the GCM's 2.72, the nudging putting back 83.5 W/m2 above 16 km in place of the deep
 convection; forced through the whole column it rained 31% of the GCM's rain over its second lunar day and 49% over its
-third (notes/cm1.md, "The nudging and the convection"). No lab run has taken this forcing; a forced CM1 box waits for
-the lab's case writer (PLAN.md, block 2).
+third (notes/cm1.md, "The nudging and the convection"). Relaxed on 2 hours, the sea box's mean wind at 0.3 km rose
+from 1.44 to 2.49 m/s within three hours against a target of 3.24, and with the GCM's air drawn in, its column dried
+0.30 mm/day over a lunar day where it had dried 0.67 (Terluna's climate/crm/README.md at 39c5ee04). No lab run has
+taken this forcing; a forced CM1 box waits for the lab's case writer (PLAN.md, block 2).
 
 Brought from Terluna's climate/crm/gcm_site.py at 39c5ee04 (python/provenance.json), with the pieces of its
 climate/crm/cm1_run.py that the forcing needs. Spectral, omega, remap, convection_top, the fits and wind_windows keep
 Terluna's arithmetic; run_record, the run's constants and window, the humidity's own filter, the vapour in CM1's mixing
-ratio, the refusals and case_inputs are the lab's.
+ratio, the refusals and case_inputs are the lab's. The entries of patch 09 take the values of Terluna's
+corrected_wind and corrected_inflow (cm1_run.py at 39c5ee04) under the lab's names.
 
-Left for later changes: the wind's own nudging time, its pull from the GCM's lowest level up and the inflow of the
-reference's air where the mean wind converges, which need a CM1 patch (Terluna's WIND_TAU_PATCH, WIND_ALOFT_PATCH and
-INFLOW_PATCH); the GCM's own weather at a site (Terluna's site_sequence and its readers, af42e928); and the damped
-gravity wave's inputs (Terluna's dgw_forcing and first_mode, c3898a7c, CM1 port 5).
+Left for later changes: the reckoning of the inflow against the nudging window CM1 holds at each output, which a box
+budget needs once the windows carry the GCM's weather (Terluna's box_budget, 4f63c439), with the lab's box budget; the
+GCM's own weather at a site (Terluna's site_sequence and its readers, af42e928); and the damped gravity wave's inputs
+(Terluna's dgw_forcing and first_mode, c3898a7c, CM1 port 5).
 """
 from __future__ import annotations
 
@@ -123,6 +141,12 @@ HARMONICS = 4                              # the fits by local time: the day's m
 BINS = 36                                  # the table and the wind's windows: bins of local time from -180 degrees
 CONVECTION_SHARE = 0.01                    # the levels above the GCM's convection top form less than this of its rain
 CM1_NUDGE_FILES = 100                      # lsnudge_nmax (lsnudge.F): the most nudging files CM1 reads
+WIND_NUDGE_TAU_S = 7200.0                  # the wind's own nudging time: Terluna's 2 hours, the time on which
+                                           # cloud-resolving runs forced by observations relax their mean wind
+                                           # (Khairoutdinov, Randall and DeMott 2005; cm1_run.py WIND_TAU_S at 39c5ee04)
+INFLOW = True                              # the windows' air drawn in where the mean wind converges, as Terluna's
+                                           # site boxes take it from 28 October 2026 (corrected_inflow at 39c5ee04)
+INFLOW_RATES_FILE = 'lab_inflow_rate.txt'  # where patch 09 of the lab's CM1 series writes the inflow's rates
 MEANS = ('ta', 'hus', 'ua', 'va', 'ps', 'ts', 'tas', 'czen', 'pr', 'evap', 'prw', 'mrso', 'lsm')
 SNAPSHOTS = ('dt_diab', 'dq_dyn')          # codes 21 and 40: the physics' heating, and its moistening as applied
 SCHEMES = ('dt_conv', 'dt_lsp')            # codes 28 and 27: the convective and large-scale heating, where rain forms
@@ -782,7 +806,8 @@ def nudging_text(t1: float, t2: float, heights, theta, qv, u, v) -> str:
 
 
 def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour_deg: float, solar_day_s: float,
-                length_s: float, damping_base_m: float, nudge_tau_s: float) -> dict:
+                length_s: float, damping_base_m: float, nudge_tau_s: float, wind_nudge_tau_s: float = WIND_NUDGE_TAU_S,
+                wind_from_m: float | None = None, inflow: bool = INFLOW) -> dict:
     """What a CM1 case takes from the forcing: its files (terluna_wls.txt, terluna_lsadv.txt and the nudging windows
     lsnudge_0001.dat on, as text), its namelist entries by section and the record its case keeps. The box starts at the
     local hour angle start_hour_deg and runs length_s seconds of a solar day of solar_day_s, and its Rayleigh layer
@@ -792,10 +817,21 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
     &param8 sets the table (var11), the mean vertical wind (var13), the held air's heights (var14, var15) and the
     hour angle and solar day that core patch 17 reads the table by (var18, var19), which the case's Sun shares;
     &param19 nudges the wind, temperature and vapour toward the windows on nudge_tau_s, from the first step and with
-    no ramp, since CM1 restarts a ramp at each window's start."""
+    no ramp, since CM1 restarts a ramp at each window's start. &param3 holds the three entries of patch 09 of the
+    lab's CM1 series: the wind's own nudging time (wind_nudge_tau, wind_nudge_tau_s, 2 hours by default), the height
+    from which CM1 pulls the wind (wind_nudge_zmin, wind_from_m, by default the GCM's lowest level to 0.1 m, and 0 for
+    every level) and the inflow of the windows' air where the mean wind converges (inflow_ref_air, inflow, on by
+    default). The case is refused on a wind's time of zero or less and on a height outside the box."""
     zw = _w_levels(zw)
     if not (length_s > 0.0 and solar_day_s > 0.0 and nudge_tau_s > 0.0):
         raise ValueError('a case runs a positive length under a positive solar day and nudging time')
+    if not wind_nudge_tau_s > 0.0:
+        raise ValueError("the wind's own nudging time is positive; nudge_tau_s states the held air's")
+    lowest_m = float(np.asarray(forcing['profile']['z_m'], float)[-1])     # the GCM's lowest level (top first)
+    pulled_from_m = round(lowest_m, 1) if wind_from_m is None else float(wind_from_m)
+    if not 0.0 <= pulled_from_m < zw[-1]:
+        raise ValueError(f"the wind's pull starts at a height from the ground up to below the box's top, here "
+                         f"{pulled_from_m} m")
     convection = forcing['convection']
     clearance = check_damping(convection, damping_base_m)
     held = held_heights(convection, zw[-1])
@@ -812,6 +848,8 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
         files[f'lsnudge_{i:04d}.dat'] = nudging_text(t1, 1.0e30 if i == len(windows) else t2, heights, theta, qv,
                                                       window['u_m_s'], window['v_m_s'])
     namelist = dict(
+        param3=dict(wind_nudge_tau=float(wind_nudge_tau_s), wind_nudge_zmin=pulled_from_m,
+                    inflow_ref_air=1 if inflow else 0),
         param8=dict(var11=1.0, var13=1.0, var14=held['var14'], var15=held['var15'], var18=float(start_hour_deg),
                     var19=round(float(solar_day_s), 1)),
         param19=dict(do_lsnudge=True, do_lsnudge_u=True, do_lsnudge_v=True, do_lsnudge_th=True, do_lsnudge_qv=True,
@@ -821,6 +859,7 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
                                    min=float(a[:, low].mean(axis=1).min() * scale),
                                    max=float(a[:, low].mean(axis=1).max() * scale))
     speeds = [float(np.hypot(w['u_m_s'][1], w['v_m_s'][1])) for w in windows]
+    window_s = windows[0]['time_s'][1] - windows[0]['time_s'][0]
     record = dict(
         {k: forcing[k] for k in ('run', 'years', 'site', 'cells', 'cell_heights_m', 'records', 'phases', 'harmonics',
                                  'bins', 'window_deg', 'humidity_filter', 'truncation', 'gcm', 'surface', 'budget',
@@ -830,8 +869,14 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
         mass_above_top_share=cm1['mass_above_top_share'],
         table=dict(lowest_3_km=dict(theta_k_day=spread(cm1['table']['theta_k_s'], 86400.0),
                                     qv_g_kg_day=spread(cm1['table']['qv_kg_kg_s'], 8.64e7))),
-        wind=dict(windows=len(windows), window_s=windows[0]['time_s'][1] - windows[0]['time_s'][0],
-                  start_hour_deg=float(start_hour_deg),
-                  lowest_level_speed_m_s=dict(min=min(speeds), max=max(speeds))),
+        wind=dict(windows=len(windows), window_s=window_s, start_hour_deg=float(start_hour_deg),
+                  lowest_level_speed_m_s=dict(min=min(speeds), max=max(speeds)),
+                  nudge_tau_s=float(wind_nudge_tau_s), nudge_tau_share_of_window=float(wind_nudge_tau_s / window_s),
+                  pulled_from_m=pulled_from_m,
+                  pulled_from="the GCM's lowest level" if wind_from_m is None else 'stated'),
+        inflow=dict(on=bool(inflow), reference="the windows' air, the GCM's mean air at the site",
+                    rate="max(d(rho0 w)/dz, 0)/rho0, the mean vertical wind's convergence over CM1's base-state "
+                         "density",
+                    rates_file=INFLOW_RATES_FILE),
         vapour="CM1's mixing ratio, from the GCM's specific humidity: r = q / (1 - q), the moistening times (1 + r)")
     return dict(files=files, namelist=namelist, record=record, cm1=cm1, windows=windows)

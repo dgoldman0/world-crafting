@@ -289,12 +289,31 @@ first level above its convection's top is refused, a proposed rule (registry `cm
 Terluna's boxes cleared by 21 to 22 km. No lab run has taken the forcing; a forced box waits for the case writer of
 `PLAN.md`'s block 2.
 
-Three corrections of Terluna's later boxes wait for a CM1 patch, the next of the lab's series: the wind's own nudging
-time (Terluna's `var10`, 2 hours), since CM1 relaxes the wind and the held air on one `lsnudge_tau`, whose 3 days held
-the sea box's mean wind at 44–67% of its target's speed; the wind's pull from the GCM's lowest level up (`var8`); and
-the inflow of the reference's air where the mean wind converges (`var7`; Daleu, Woolnough and Plant 2012), which in
-Terluna's day of trial halved the sea box's drying of its column, 0.30 against 0.67 mm/day (238638f, 3dd0c96,
-191d967). Until that patch lands, a box written by the lab relaxes its wind on its held air's time.
+The three corrections of Terluna's later boxes stand in patch 09 of the lab's CM1 series (16 November 2026), each an
+entry of `&param3` whose default keeps CM1's nudging, and `case_inputs` writes them for a forced box at Terluna's
+values. CM1 relaxes the wind and the held air on one `lsnudge_tau`, whose 3 days held the sea box's mean wind at
+44–67% of its target's speed, so `wind_nudge_tau` gives the wind its own time, Terluna's 2 hours (`var10`). A 2-hour
+pull to the ground set the box's lowest levels against their own drag, its 50 m wind at 0.92–0.98 of the 0.3 km wind,
+so `wind_nudge_zmin` pulls it from the GCM's lowest level up (`var8`), below which the windows only repeat that level's
+wind. And since CM1's large-scale advection carries the box's own air in where the mean wind converges, which kept a
+box drier than the GCM drying, `inflow_ref_air` draws the GCM's mean air in there (`var7`; Daleu, Woolnough and Plant
+2012); in Terluna's day of trial it halved the sea box's drying of its column, 0.30 against 0.67 mm/day (238638f,
+3dd0c96, 191d967). The lab's form adds one change of substance. CM1 relaxes the base-state wind, from which the
+large-scale pressure gradient follows under Terluna's `lspgrad = 1`, and the geostrophic wind toward the same target
+in `solve3.F`, which Terluna's edits leave on 3 days; the lab relaxes them on the wind's own time, so that the pressure
+gradient follows the wind it balances. At the Moon's sea site, f = −4.6 × 10⁻⁷ s⁻¹, the 3-day lag turns the wind by
+0.005 m/s, by estimate, and at Earth's 45° it would hold the wind 0.9 m/s off a 2.4 m/s target (defect log C25).
+
+The suite checks the code: the nudging block of `solve1.F` and the relaxation of `solve3.F`, compiled and stepped on a
+domain's means, keep their bits at the defaults under both flag sets, relax the wind on its own time from the given
+height up, and draw the reference's air in at rates within 2% of an independent reckoning, Terluna's own check; and
+`param.F`'s checks stop the model on settings it cannot take (`models/cm1/README.md`, "The wind's own nudging and the
+inflow"). In single scratch runs of 16 November 2026 a lunar box of 8 × 8 columns forced through `gcm_site` from
+Terluna's design run kept its 28 output and restart files byte for byte at the defaults under both flag sets, and with
+the entries as `gcm_site` writes them its rates matched that check to 0.9978–1.0021 and its mean wind's distance from
+its target fell to 0.22 of its start at 4.8 km over three hours, where the defaults' 3 days left 0.95; the lab's
+nudging block returned the bits of the block in Terluna's deployed inflow build. No lab run has read a forced box as a
+study, which waits for the case writer of `PLAN.md`'s block 2.
 
 **What the forcing revealed.** Without the GCM's sideways transport the 45° N ring drifts warm: its lowest
 1.8 km warm from 20.0 to 26.7 °C over two lunar days. The GCM's circulation carries about 15 W/m² of heat
@@ -423,8 +442,9 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
    build does.
 2. Rerun a reference ring with that fix and the forcing taken through the column, to size the bias the rings'
    results carry.
-3. Give the series the wind's own nudging time, its pull from the GCM's lowest level up and the inflow of the
-   reference's air, as Terluna's corrected boxes have them, behind switches with identity defaults.
+3. Done on 16 November 2026 as patch 09 of the lab's series: the wind's own nudging time, its pull from the GCM's
+   lowest level up and the inflow of the reference's air, as Terluna's corrected boxes have them, behind entries with
+   identity defaults, the base-state and geostrophic wind relaxed on the wind's time too.
 4. Give NSSL's rain the limits, the fall law and the self-collection that Morrison's rain takes since patches 03
    and 04 of the lab's series, and run a box with them on the lab's own builds.
 5. Size the two factors on Morrison's autoconversion and accretion, which patch 05 of the lab's series reads from

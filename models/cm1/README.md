@@ -102,7 +102,9 @@ each switch's default, 0, the build keeps CM1's own path. A fifth patch, the lab
 rates at which Morrison's cloud turns into rain; at their default, 1, the scheme keeps CM1's rates. Three more, the
 lab's own, read the world from the namelist, so that one build serves every world: its gravity, CO2 and O2, which
 Terluna's builds compile in, the slab soil's top layer and the Sun's declination. Each entry's default is the
-present build's value.
+present build's value. The ninth puts Terluna's three changes to the nudging of its site boxes behind entries of
+`&param3`, which its build read from CM1's spare reals (the same file at `39c5ee04`); at their defaults the nudging
+stands as CM1 has it.
 
 | # | Files | Switch | Change | Kind |
 |---|---|---|---|---|
@@ -114,12 +116,14 @@ present build's value.
 | 06 | constants.F, getcape.F, base.F, domaindiag.F, writeout.F, init_physics.F, module_ra_etc.F, module_ra_rrtmg_lw.F, module_ra_rrtmg_sw.F, radiation_driver.F; input.F, cm1.F, param.F | `world_g`, `world_co2`, `world_o2` (the build's `TERLUNA_G`, `TERLUNA_CO2` and `TERLUNA_O2` by default: 9.81 m/s², 400 ppm and 0.209488 in a build without the macros) | Gravity, CO2 and O2 from the namelist. `world_g` becomes CM1's `g` as the model starts, which the dynamics, Morrison's scheme and the schemes that take `g` by argument read; RRTMG takes it as an argument of its two initialisations, where it read a compile-time constant, and the CAPE diagnostic as an argument of its three calls. `world_co2` and `world_o2` reach RRTMG's two drivers as arguments. The MYNN and MYJ schemes keep the build's gravity, and a run of them stops unless `world_g` equals it (the lab's own patch, with no Terluna source) | General repair: the values core patches 01–03, 06 and 07 compile in become inputs of one build (B1, B8) |
 | 07 | init_surface.F; input.F, cm1.F, param.F | `soil_dz1` (0.05 m by default, core patch 08's) | The slab soil's top layer from the namelist; each of the four layers below is twice the one above, as in CM1. A world's layer is CM1's 1 cm times the square root of its solar day in Earth days (the lab's own patch) | General repair of a unit of time (`cm1-soil-day`, B10) |
 | 08 | radiation_driver.F; input.F, cm1.F, param.F | `sun_decl` (0° by default, the equinox of core patch 05) | The Sun's declination, in degrees north, under core patch 05's solar day: the zenith cosine sin(lat) sin(δ) + cos(lat) cos(δ) cos(hour angle) at each column's latitude, set by a loop that follows the equinox's where `sun_decl` differs from 0 (the lab's own patch) | General repair of a geometry (`cm1-equinox-sun`, B10) |
+| 09 | solve1.F, solve3.F; input.F, cm1.F, param.F | `wind_nudge_tau` > 0; `wind_nudge_zmin` > 0; `inflow_ref_air` = 1 | CM1's large-scale nudging (`lsnudge`) relaxes the wind on its own time, `wind_nudge_tau` seconds, where θ and vapour keep `lsnudge_tau`: the domain-mean wind in `solve1.F` and the base-state and geostrophic wind in `solve3.F`; it pulls the domain-mean wind only at the levels from `wind_nudge_zmin` m up; and with `inflow_ref_air` = 1 the large-scale vertical wind's convergence draws the nudging reference's θ and vapour in, at max(d(ρ₀w)/dz, 0)/ρ₀ (Terluna's `WIND_TAU_PATCH`, `WIND_ALOFT_PATCH` and `INFLOW_PATCH`; the base-state and geostrophic wind's time the lab's) | Coupling: the forcing of a site box ("The wind's own nudging and the inflow", below) |
 
-Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the eight patches give the sources
+Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the nine patches give the sources
 `expected-series.sha256` records (`models/check_patches.sh`). The sources of the first two compiled with gfortran and
 OpenMP on 8 November 2026, those of the first four on 11 November under CM1's flags and under `-O3 -march=native`,
-those of the first five the same day under CM1's flags (gfortran 13.3.0, at CM1's own gravity and air), and those
-of all eight the same day under both flag sets, at CM1's own gravity and air and with the Moon's compiled in. Where
+those of the first five the same day under CM1's flags (gfortran 13.3.0, at CM1's own gravity and air), those
+of the first eight the same day under both flag sets, at CM1's own gravity and air and with the Moon's compiled in,
+and those of all nine on 16 November under both flag sets, at CM1's own gravity and air. Where
 the rows of patches 02 to 04, their names and their comments say the build's gravity, they mean CM1's `g`, which
 since patch 06 is the run's. Stage 3's CM1
 builds will test the identity at the defaults of a compiled case on the lab's own builds and measure each fix's
@@ -484,6 +488,114 @@ flags, and 91.0 and 90.3 s under `-O3 -march=native`, each a single run beside t
 - Each rank of an MPI build takes the five entries by broadcast, lines that the OpenMP builds leave uncompiled.
 - The identity and the agreement of the two builds were run with gfortran 13.3.0 on one processor that has fused
   multiply-adds, one thread to a run; the suite's parts repeat them under both flag sets wherever the suite runs.
+
+### The wind's own nudging and the inflow (patch 09)
+
+**Why.** CM1's large-scale nudging (`lsnudge`, `&param19`) relaxes the domain-mean wind, potential temperature and
+vapour toward a series of profiles on one time, `lsnudge_tau`, and pulls the wind at every level. A box forced
+through the whole column (`python/climate/crm/gcm_site.py`) holds its air to the GCM's above the GCM's convection on
+three days, while its wind's target changes with each window of local time, every 0.82 days on the Moon; on the
+three days Terluna's sea box kept its mean wind at 44–67% of its target's speed. On 28 October 2026 Terluna gave its
+site boxes three changes, compiled into its build `moon_omp_rain_law_pbl_wind_gust_aloft_inflow` and read through
+CM1's spare reals: the wind's own time (`WIND_TAU_PATCH`, `var10`), its pull from a height up (`WIND_ALOFT_PATCH`,
+`var8`) and the inflow of the reference's air where the mean wind converges (`INFLOW_PATCH`, `var7`), each recorded in
+Terluna's `climate/crm/README.md` at `39c5ee04` with its trials (238638f, 3dd0c96, 191d967). Patch 09 reads the three
+as named entries of `&param3`, whose defaults keep CM1's nudging.
+
+**The entries.**
+
+| Entry | Unit | Default | With a value | A forced box (`gcm_site.case_inputs`) |
+|---|---|---|---|---|
+| `wind_nudge_tau` | s | 0: the wind relaxes on `lsnudge_tau` | The domain-mean wind's nudging in `solve1.F`, and the base-state and geostrophic wind in `solve3.F`, relax on this time; θ and vapour keep `lsnudge_tau` | 7,200 s, Terluna's 2 hours, the time on which cloud-resolving runs forced by observations relax their mean wind (Khairoutdinov, Randall and DeMott 2005), a tenth of the Moon's window of local time |
+| `wind_nudge_zmin` | m | 0: every level | The domain-mean wind's tendency is nil at the levels below this height, which the box's surface layer and turbulence shape; `solve3.F`'s relaxation acts at every level | The GCM's lowest level, to 0.1 m, below which the windows repeat that level's wind: 317.6 m over the Near-side Sea on the design run's own constants, 316.1 m on Terluna's |
+| `inflow_ref_air` | 0 or 1 | 0 | Each level's domain-mean θ and vapour gain max(d(ρ₀w)/dz, 0)/ρ₀ × (reference − domain mean) | 1 |
+
+**What the patch does.** In `solve1.F` the time on which the wind relaxes, `lsnudge_tau` or a positive
+`wind_nudge_tau`, divides the domain-mean wind's departure from its target, and the wind's tendency is set to nil at
+the levels whose height, `zh` of the first column as CM1's nudging reads its levels, lies below `wind_nudge_zmin`;
+θ and vapour, held from `var14` to `var15` by core patch 09, keep `lsnudge_tau`. With `inflow_ref_air` = 1 a block
+after the nudging of vapour, inside the large-scale nudging, adds to each level's θ and vapour the rate
+max(d(ρ₀w)/dz, 0)/ρ₀, the convergence `wsub` forms in `adv_routines.F` from `wprof` and CM1's base-state density, times
+the nudging reference less the domain's mean. CM1's large-scale vertical advection (`wsub`) is the flux form less the
+scalar times that convergence, so the air the convergence draws in carries the domain's own mean; the added term gives
+it the reference's, the upwind value of coupled columns (Daleu, Woolnough and Plant 2012, their equation 9), and the
+air that leaves keeps the domain's own. The term vanishes while the domain's air is the reference, so the day–night
+table's added-back advection still cancels at the start. The block writes its rates to `lab_inflow_rate.txt` as each
+run starts, the level count and then each level's height (m) and rate (s⁻¹), and prints a line that begins
+`Lab: the mean wind draws in`.
+
+**The lab's form.** The code the patch adds to `solve1.F` is Terluna's under the lab's names, and the patch departs
+from Terluna's edit lists in three places.
+
+- In `solve3.F` CM1's nudging of the wind also relaxes the base-state wind `u0` and `v0`, from which the large-scale
+  pressure gradient follows under `lspgrad = 1` (Terluna's boxes), and the geostrophic `ug` and `vg`
+  (`lspgrad = 2`), toward the same target on `lsnudge_tau`. Terluna's `WIND_TAU_PATCH` leaves them there, so its boxes
+  pull the mean wind on 2 hours while the pressure gradient's wind follows on 3 days, and the Coriolis force acts on
+  the difference. The patch relaxes them on the wind's own time, at every level, the pull's height aside, since the
+  large-scale pressure gradient below the GCM's lowest level is that level's. On the sea box's windows the 3-day lag
+  averages 1.46 m/s, which at the site's f of −4.6 × 10⁻⁷ s⁻¹ turns the mean wind 0.005 m/s off its target, and at
+  Earth's 45° would hold it 0.87 m/s off, by estimate (defect log C25).
+- The model stops as it starts on settings it cannot take, where Terluna's lists read the slots unchecked and its
+  inflow stood still unless its conditions held: a `wind_nudge_tau` other than 0 below the step `dtl`, or below zero;
+  a `wind_nudge_zmin` below zero; either set where `lsnudge` nudges no wind; an `inflow_ref_air` other than 0 and 1;
+  and an inflow without `lsnudge`'s θ and vapour and `imoist` = 1, or without one profile of large-scale vertical
+  wind, `var13` = 1 or one of CM1's test cases 3 to 7 (the wind by column of core patches 10–14, `var13` = 2, is
+  refused). Each stop prints a line that begins `Lab nudging:` and ends the run through `stopcm1`. The inflow keeps a
+  guard on `dolsw`, which test case 10's nudging turns off as it runs.
+- The identifiers, the comments and the rates' file name are the lab's; no number of a world is compiled in.
+
+**Checks in the suite** (`make check`; `python/climate/tests/test_cm1_nudging.py`, with the forcing's entries in
+`python/climate/tests/test_gcm_site.py`). The large-scale nudging of `solve1.F` and the relaxation of `solve3.F`,
+taken from the series before patch 09 and after it, compile together in one program that steps them on a domain's
+means without dynamics, under CM1's OpenMP flags and under `-O3 -march=native`.
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The series on the pinned archive | The sources of `expected-series.sha256`, with every Terluna build still reproduced (`models/check_patches.sh`) | The patches apply |
+| The patch's texts | The three entries are declared, given their defaults ahead of the namelist's reading, listed in `&param3`, broadcast, checked and printed. The patch removes four lines, the wind's two divisions by `lsnudge_tau` in `solve1.F` and the relaxation's two in `solve3.F`, and adds the rest; the inflow stands after the nudging of vapour and forms `wsub`'s own convergence; no added line holds a world's number or a Terluna name | Each line the patch changes is found |
+| The nudging at the defaults | Every tendency, every mean stepped by them and the relaxed base-state and geostrophic wind keep their bits after the patch, on four random domains, one step on tendencies already set and twenty from nil, with the wind's nudging off and with the large-scale vertical wind off, under both flag sets | Identity at the default |
+| The wind's own time | With `wind_nudge_tau` 7,200 s the wind's tendency is its departure from its target over 7,200 s to 1 part in 10⁵, θ's and vapour's keep their bits; stepped 36 times on 200 s the means, `ug`, `vg`, `u0` and `v0` approach their targets by (1 − dt/τ)ⁿ, 0.36 in two hours, where the defaults' three days leave 0.97, and θ keeps its three days under core patch 09's weight | Effect, against hand arithmetic |
+| The pull's height | At the levels below `wind_nudge_zmin` the wind's tendencies are nil and the stepped means stand; at that level and above they are the pull from the ground's, bit for bit; θ and vapour and `solve3.F`'s relaxation are the same at every level, under both flag sets | Effect |
+| The inflow | On the mean vertical wind `gcm_site` writes for a moist column under the Moon's gravity and CM1's base-state density from its air: the rates written once match the convergence by hand on the block's inputs to 1 part in 10⁵ of the largest and, by Terluna's own check, the rates reckoned from the file's wind and the air's density at the w levels within 2% at every level where they exceed 1% of the largest (Terluna's trial: within 3%, found 0.983–1.020), and stand at zero where the flow diverges; θ and vapour gain the rate times the reference less the mean in every column; nothing while the domain's air is the reference or the large-scale vertical wind is off; stepped 90 times the low air comes toward the reference by (1 − rate dt)ⁿ | Effect, against hand arithmetic and an independent reckoning |
+| The stops | `param.F`'s five checks, compiled alone: sixteen settings the model cannot take stop it with their message, and six it can take run, a box as `gcm_site` writes it, the defaults and test case 5's inflow among them | The model stops on the values it cannot take |
+| The forcing's entries | `case_inputs` writes `&param3` with 7,200 s, the GCM's lowest level to 0.1 m and the inflow on by default, a case's stated values in their place, the record of each, the time's share of a window and the refusals of a time of zero or less and of a height outside the box; on Terluna's design run read in place, the values Terluna's set-up gave the sea box's `var10`, `var8` and `var7` | The forcing writes the entries |
+
+**Checks run once,** on 16 November 2026, with gfortran 13.3.0 on an Intel i9-11980HK, one thread to a run. Each is
+a single run from scratch scripts and builds on the project drive, which stay outside the repository and the suite
+(`world-crafting-research/tmp/port09/tools/`: `builds.sh`, `case_runs.py`, `terluna_block.py` and `mutations.py`,
+with their logs in `tmp/port09/logs/`), on the sources of `expected-series.sha256`.
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The whole model | Four builds compiled and linked without macros, the series before patch 09 and after it, each under CM1's OpenMP flags and under `-O3 -march=native` | The sources compile |
+| CM1's released cases at the defaults | CM1's released supercell (125 steps of 12 s) and the world case of patches 06 to 08, that supercell with RRTMG every 300 s, the MM5 surface layer over land with the slab soil, core patch 05's Sun and CAPE in its output, between the series before patch 09 and after it: the supercell's 10 files agree byte for byte under both flag sets, and the world case's 10 byte for byte under `-O3 -march=native` and bit for bit under CM1's flags in every field but `z0t`, which CM1's surface layer leaves unset over land; the model prints the three entries at their defaults | Identity at the default, of compiled cases of CM1's own |
+| A lunar box at the defaults | Three hours of a box of 8 × 8 columns of 6 km on the 111 levels of Terluna's `box_near_side_sea_design_years`, told the Moon by its namelist, forced through `gcm_site` from Terluna's design run `A28R_301k_design_l15_snow_s934`, years 10–19, read in place, at the Near-side Sea on the run's own constants: the table, the mean vertical wind, the held air from 94.7 km and CM1's large-scale nudging toward the window's wind and air, with RRTMG, the MM5 surface layer over the sea and Morrison's rain. Its 28 output and restart files agree byte for byte between the series before patch 09 and after it, with the entries silent and with their defaults stated, under both flag sets | Identity at the default, of a compiled forced box |
+| The entries in that box | The model prints the three. With the entries as `gcm_site` writes them, 7,200 s, 317.6 m and the inflow on: the rates CM1 writes match those reckoned, by Terluna's check, from `terluna_wls.txt` and the first output's domain-mean density to 0.9978–1.0021 at the 48 levels where they exceed 1% of the largest, and stand at zero where the flow diverges; the largest is 7.4 × 10⁻⁷ s⁻¹ at 9.3 km, and the low inflow reaches 1.2 km. Over the three hours the domain-mean wind's distance from its target falls to 0.22 of its start at 4.8 km and 0.30 at 950 m, against 0.95 and 0.96 on the defaults' three days; with the pull from the ground it falls to 0.31–0.33 at 50–250 m, and with the pull from 317.6 m to 0.53–0.67 there, the levels the box's own surface layer and turbulence shape. Both flag sets give these to the digits shown | Effect in a compiled forced box; three model hours, read as a test of the code |
+| The stops in the compiled model | In that box under CM1's flags, seven settings each end the run as it starts with its `Lab nudging:` line: a wind's time of 20 s under the 40 s step, a pull's height of −1 m, an inflow of 2, the wind's entries with the wind's nudging off, and the inflow without the vapour nudged, without the large-scale vertical wind (`var13` = 0) and with the wind by column (`var13` = 2); the box as `gcm_site` writes it runs | The model stops on the values it cannot take |
+| Terluna's deployed block | The large-scale nudging of `solve1.F` from Terluna's build `moon_omp_rain_law_pbl_wind_gust_aloft_inflow` (research drive, `cm1/build/`, `solve1.F` sha256 `75b558a8a40749f1…`), its `var10`, `var8` and `var7` given the lab's three values, and the lab's, each in the suite's program with CM1's own `solve3.F`: every tendency, stepped mean and written rate agree bit for bit in 120 runs under each flag set, on six random domains and the inflow's column, at the defaults, the wind's time, its time and height, all three and the inflow alone. With the lab's `solve3.F` the base-state and geostrophic wind alone differ, wherever the wind's time is set | The lab's code is Terluna's where the forms agree |
+| Wrong statements | 33, put one at a time into a copy of the patch (28, each a line replaced so that the patch still applies) and of `gcm_site.py` (5): each fails the suite's tests, and each fails them again with the tests of the patch's text left out, 20 by the compiled nudging, 8 by the compiled stops and 5 by the forcing's case | The suite's tests find each fault put in |
+
+**Limits.**
+
+- The checks test the code. The box ran three model hours on 64 columns, and no lab run has read a forced box as a
+  study; that waits for the case writer of `PLAN.md`'s block 2 and the author's word. Terluna's measured effects are
+  Terluna's runs: relaxed on 2 hours its sea box's mean wind at 0.3 km rose from 1.44 to 2.49 m/s within three hours
+  against a target of 3.24; pulled from the GCM's lowest level up, its 50 m wind fell to 0.92–0.93 of the 0.3 km wind
+  where the pull to the ground held 1.00–1.02; and with the GCM's air drawn in, its column dried 0.30 mm/day over a
+  lunar day where it had dried 0.67.
+- The inflow draws in the windows' air, the GCM's mean air at the site, at rates from CM1's base-state density; the
+  domain's density departs from the base state as the box's air does, by 0.2% in the box above and by up to 2% in
+  Terluna's trial.
+- The rates are written once a run, as the large-scale vertical wind stands through it. A box budget reckons the inflow
+  from them against the nudging window CM1 holds at each output (Terluna's `box_budget`, `4f63c439`); that reckoning
+  waits for the lab's box budget, and every window `gcm_site` writes holds one air.
+- 2 hours is a tenth of the Moon's window of local time. A world whose solar day is short has short windows, 40 minutes
+  for 36 windows of Earth's day, which the wind follows less closely on 2 hours; `gcm_site` records the time's share
+  of a window, and a world's own time is a setting its study states.
+- The pull's height compares the first column's heights, as CM1's nudging reads its levels; CM1 refuses the
+  large-scale vertical wind over terrain, so the inflow runs on flat ground alone.
+- Each rank of an MPI build takes the three entries by broadcast, lines the OpenMP builds leave uncompiled, and the
+  domain's means the inflow reads are CM1's own across the ranks.
 
 ## Settings of the lunar cases
 

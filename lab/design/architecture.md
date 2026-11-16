@@ -341,8 +341,9 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
 - **Points in the series.** A build names how far it applies each patch series, as ExoPlaSim's builds
   name their point in theirs. The lab's patches follow the core series in a series of their own
   (`series-lab`), and each at its identity default gives the output of the build without it: the build's
-  gravity and air for patch 06, Morrison's 2.8 mm cap, patch 08's 5–80 cm soil for the lab's patch 07 and
-  patch 05's equinox Sun for the lab's patch 08. The electrified series' companion patch follows its
+  gravity and air for patch 06, Morrison's 2.8 mm cap, patch 08's 5–80 cm soil for the lab's patch 07,
+  patch 05's equinox Sun for the lab's patch 08, and CM1's nudging, the wind relaxed on `lsnudge_tau` at every
+  level and the box's own air drawn in where the mean wind converges, for the lab's patch 09. The electrified series' companion patch follows its
   patch 9.
 - **Case kinds,** as Terluna has them:
   - a ring on a circle of latitude, or on a tilted great circle;
