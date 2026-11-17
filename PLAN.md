@@ -214,7 +214,7 @@ tests, and its compute is the tests' short runs.
 | 2 | Factors on autoconversion and accretion (B38) | — | Done (`lab` ade4116) |
 | 3 | Gravity, CO2 and O2 read from the namelist, with the soil's layers and the Sun's declination, so that one build serves every world (planned in the lab's stage 3) | — | Done (`lab` 3174a0e) as patches 06 to 08, each entry the build's value by default. The lab's adapter still compiles the world in until stage 3's one-day ring segments and timing are run, and the electrified series' NSSL reads the build's gravity until a companion patch |
 | 4 | The whole-column forcing with the wind by local time and the inflow, and the extraction that writes it (`python/climate/crm/gcm_site.py`), which reads the GCM's humidity by the rule of A10 | — | Done (`lab` 5731fc5, 48603e3): the extraction, the forcing through the whole column and the wind by local time in Python, and patch 09 of the lab's CM1 series for the wind's own nudging time, its pull from the GCM's lowest level up and the inflow; a forced box's defaults follow Terluna's latest boxes |
-| 5 | The damped gravity wave, by which a box makes its own ascent | — | In progress (17 November 2026), ahead of ExoPlaSim's ports 7 to 10, for the test of the box couplings ("Decisions") |
+| 5 | The damped gravity wave, by which a box makes its own ascent | — | Done (`lab` b9fb406) as patch 10, ahead of ExoPlaSim's ports 7 to 10, for the test of the box couplings ("Decisions"): off by default, a case stating its reference column, its coupling's length or time, lid and base; the weak-temperature-gradient coupling joins as a later patch |
 | 6 | The sea's temperature by local time (B37) | — | To start |
 
 The slab sea's depth and the diffusion's damping times are namelist values of the released model, so they need no
@@ -390,3 +390,8 @@ the root README's "Where current understanding differs from the paper" then list
 - The wind's nudging time for a forced box on another world. Terluna's 2 hours is a tenth of the Moon's window of
   local time (0.82 days); Earth's windows last 40 minutes, so its boxes in block 4 need a time of their own, as a
   registry rule or a setting scaled with the window.
+- CM1's count of its nudging windows after a restart (defect log A12, found on 17 November 2026): a restarted run
+  climbs from the first window one a step, so each one-day segment of Terluna's boxes after the first nudged toward
+  earlier windows' air for as many steps as windows had passed (35 steps at the sea box's thirtieth). A fix changes a
+  restarted run's path at the default, so it waits for a decision on its own patch, and on whether it counts among
+  the released codes' defects in the paper's next revision.
