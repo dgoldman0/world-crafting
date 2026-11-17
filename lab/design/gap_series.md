@@ -67,9 +67,8 @@ boxes cost as in the first table.
 | 6. The twin: ExoPlaSim, then sea boxes imposed and DGW | 1 × 10–20 y; 2 × 5 lunar days | 11–12 | Whether the sea's night-rain gap (GCM 50%, CM1 8.5–9.5% [read: paper `results.tex`]) needs land |
 | 7. If step 5 departs: anchors at g 1.2 and 2.5 | 2 GCM; 4 boxes | 29 | Whether the departure grows as g falls |
 
-The CM1 steps wait on stage 3, Terluna's DGW being ported as patch 10 of the lab's CM1 series (17 November 2026;
-`terluna_fixes.md`, row 13), and steps 2, 4
-and 6 on the GCM ports of `PLAN.md` step 2. Steps 1–6 take about 52 four-thread hours, three or four nights at the
+The CM1 steps wait on stage 3, Terluna's DGW ported as patch 10 of the lab's CM1 series (17 November 2026;
+`terluna_fixes.md`, row 13), and steps 2, 4 and 6 on the GCM ports of `PLAN.md` step 2. Steps 1–6 take about 52 four-thread hours, three or four nights at the
 eight-thread budget [calc].
 
 **Checks ahead of the series** [prop]. A pass over the models on 9 November 2026 logged five entries that bear on
@@ -134,6 +133,58 @@ SOCRATES radiation [lit: Vallis et al. 2018], already in Terluna's table of cand
 `climate/gcm/README.md`]. ROCKE-3D, whose SOCRATES radiation is validated for nitrogen–oxygen–water air at other
 pressures [read: same], would come ahead of both once the machine's resources allow it.
 
+## 3. The yardstick read again, 17 November 2026
+
+Two studies on the lab's research drive read Terluna's existing output again, with no model run: a review of the
+routes to closure (`agents/gap_alternatives/`, with the lead's corrections beside it) and four readings, each under
+rules fixed before it was computed (`agents/gap_readings/`) [read]. They move the first step from the GCM's
+convection to the coupling through which a CM1 box meets the GCM.
+
+**The coupling sets the state CM1 works from.** By night the couplings hand the sea box air far apart, the GCM's
+night beside them [calc: `gap_readings`, path 1]:
+
+| Night means at the sea site | θe*_L (σ 0.85–0.50), K | θe_B (σ 1.0–0.85), K | B_L, K | Rain, mm/day |
+|---|---|---|---|---|
+| CM1 under the GCM's imposed ascent | 314.7 | 322.1 | +2.5 | 0.25 |
+| CM1 carrying the GCM's weather | 316.6 | 322.6 | +1.1 | 0.55 |
+| CM1 making its own ascent (DGW) | 327.8 | 328.1 | −3.4 | 1.68 |
+| The GCM, written every 5.5 hours | 328.2 | 321.6 | −7.9 | 1.48 |
+
+Under imposed ascent the box's free troposphere cools as the box spins up, by night 13.5 K below the GCM's in
+saturation θe, and the box rains little under the imposed descent. Making its own ascent, the box keeps the GCM's free
+troposphere, its boundary layer rises to that air's saturation θe, and it rains more after midnight than the GCM
+[calc]. The night's dry box, the evening's dry air near the sea and the dilution study's target, a band about 3.5 K
+below the fine undiluted parcel, all come from boxes under imposed ascent; under the DGW, CM1's raining band stands
+0.15 K above its own parcel [calc; read: the dilution report]. The couplings' own consistency is therefore tested
+before either model's convection changes again, as the review proposed in its path 2: the DGW measured against the
+imposed box's own mean by local time, a weak-temperature-gradient coupling, and the DGW at the planet's scale [prop].
+
+**The GCM's convection starts at a buoyancy where neither CM1 nor Earth's tropics rain.** By B_L, the lower
+troposphere's plume buoyancy of Ahmed and Neelin (2018) with its layers taken as shares of the surface pressure, the
+GCM's rain picks up at −7.5 to −8.6 K at every site and in every run read, against CM1's −2.5 to +1.4 K and Earth's
+pickup near nil [calc; lit: Ahmed and Neelin 2018, read in full]. Under the DGW, in the GCM's own free troposphere,
+CM1's 72 outputs between −6.5 and −5.5 K rain 0.00–0.01 mm/day [calc]. The GCM's lowest level holds a θe 4.2 K above
+its boundary layer's mean, where CM1's under the DGW stands within 0.5 K of its layer's, and the scheme lifts the
+lowest level's air alone, so it fires on a moist surface layer beneath drier air; PlaSim's vertical mixing leaves the
+vapour falling off through layers CM1 keeps uniform (defect log B32) [calc; int]. The GCM's candidates are a trigger
+on the lower troposphere's buoyancy, with Earth's onset statistics as its evidence apart from the comparison, and the
+boundary layer's mixing [prop].
+
+**Ruled out or bounded** [calc]:
+- **A downdraught** for the GCM's evening sub-cloud layer: its convection already removes 1.9–2.3 mm/day there, 25–55
+  times CM1's resolved export, and the layer's state differs between the couplings.
+- **Grid-point storms** behind the redesigns' large-scale condensation: the isolated cells ascend no faster than their
+  neighbours.
+- **The relaxation time:** the grid bounds it near 11 h at T21 (10.7 h from the year written every 6.5 hours), so the
+  12 h of B39's planned run lies just past the bound.
+- **The domain:** the radiative conditions under which small domains turn episodic (Seeley and Wordsworth 2021; Song,
+  Abbot and Yang 2024, read in abstract) hold in the sea boxes, so a box of 192 km may be small for the night's rain,
+  and a larger sea box comes before any verdict on the night [lit; prop].
+
+Two of the review's claims fell to checks against the records (`agents/gap_alternatives/corrections.md`), and one of
+Terluna's records counts the boundary layer's vapour twice in one row (`followups/report_subcloud.md`, its turbulence
+row) [read; calc].
+
 ## First steps, at the author's word [prop]
 
 1. After a rights review, read CM1's RCEMIP output at 300 K, at 1 km and, if CM1 ran it, at 200 m, through the
@@ -142,5 +193,5 @@ pressures [read: same], would come ahead of both once the machine's resources al
 2. With the GCM ports of `PLAN.md` step 2 in place (simplified Betts–Miller, the fifteen-level set, the gust and the
    evaporation from drop sizes), run the Earth control beside Kuo (about 3 hours) and read Palmer and Singh's
    diagnostic on its raining tropics.
-3. With stage 3 built, the DGW being ported (patch 10 of the lab's CM1 series), run the gravity pair under prescribed cooling, each member then under DGW
-   against its own radiative–convective equilibrium (about 24 hours).
+3. With stage 3 built and the DGW ported (patch 10 of the lab's CM1 series), run the gravity pair under prescribed
+   cooling, each member then under DGW against its own radiative–convective equilibrium (about 24 hours).
