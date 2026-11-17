@@ -67,7 +67,8 @@ boxes cost as in the first table.
 | 6. The twin: ExoPlaSim, then sea boxes imposed and DGW | 1 × 10–20 y; 2 × 5 lunar days | 11–12 | Whether the sea's night-rain gap (GCM 50%, CM1 8.5–9.5% [read: paper `results.tex`]) needs land |
 | 7. If step 5 departs: anchors at g 1.2 and 2.5 | 2 GCM; 4 boxes | 29 | Whether the departure grows as g falls |
 
-The CM1 steps wait on stage 3 with Terluna's DGW ported (`terluna_fixes.md`, row 13, "Assess first"), and steps 2, 4
+The CM1 steps wait on stage 3, Terluna's DGW being ported as patch 10 of the lab's CM1 series (17 November 2026;
+`terluna_fixes.md`, row 13), and steps 2, 4
 and 6 on the GCM ports of `PLAN.md` step 2. Steps 1–6 take about 52 four-thread hours, three or four nights at the
 eight-thread budget [calc].
 
@@ -141,5 +142,5 @@ pressures [read: same], would come ahead of both once the machine's resources al
 2. With the GCM ports of `PLAN.md` step 2 in place (simplified Betts–Miller, the fifteen-level set, the gust and the
    evaporation from drop sizes), run the Earth control beside Kuo (about 3 hours) and read Palmer and Singh's
    diagnostic on its raining tropics.
-3. With stage 3 built and the DGW ported, run the gravity pair under prescribed cooling, each member then under DGW
+3. With stage 3 built, the DGW being ported (patch 10 of the lab's CM1 series), run the gravity pair under prescribed cooling, each member then under DGW
    against its own radiative–convective equilibrium (about 24 hours).

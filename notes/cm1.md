@@ -315,6 +315,30 @@ its target fell to 0.22 of its start at 4.8 km over three hours, where the defau
 nudging block returned the bits of the block in Terluna's deployed inflow build. No lab run has read a forced box as a
 study, which waits for the case writer of `PLAN.md`'s block 2.
 
+**The box's own ascent.** Patch 10 of the lab's CM1 series (17 November 2026) lets a forced box make its own
+large-scale vertical wind by the damped gravity wave, Terluna's coupling of 5 November (`DGW_PATCHES`, c3898a7c), behind
+entries of `&param3` whose defaults keep the wind CM1 imposes; `gcm_site.case_inputs` writes them for coupling `'dgw'`.
+Each step the wave solves d²ω/dp² = R_d T_v′/(τ c² p) for the domain-mean ω from the box's virtual-temperature
+departure from its nudging window, between the domain-mean boundary layer's top and a lid at the GCM's convection top,
+with τ = L/c, the length the box stands for over the first baroclinic mode's speed, so that no Earth damping rate
+enters: 2.85 h at the Near-side Sea, from its 418 km footprint and the 40.5–40.8 m/s of the design years' tropics. The
+table then holds the circulation's horizontal part, the windows the GCM's air by local time, and the box starts from
+its first window's air. The lab's form records the wave's means over every interval of the domain diagnostics, the
+segment's last included, which Terluna's build lost, and takes the boundary layer's mean from the depths a restart
+file holds, so that a restarted wave box stays on the path of the run it continues, where Terluna's parted from it at
+each segment's first step. The suite checks the compiled block against the boundary-value problem, the first mode's rate,
+the taper below the base, the inflow's conservation and the record; in single scratch runs a three-hour lunar box kept
+its files byte for byte at the defaults, sank 5 mm/s aloft with the wave on, its wind within 1% of the problem solved on
+its own mean air, and restarted byte for byte; and the lab's block returned the bits of Terluna's deployed one
+(`models/cm1/README.md`, "The box's own large-scale vertical wind"). The case's settings let the gap's next test state a
+reference from another box's domain mean by local time and a length of the planet's radius, 11.9 h; a
+weak-temperature-gradient coupling joins as `lsw_coupling` = 2 with a later patch. Terluna's measured effects are its
+runs: under the wave its sea box rained 2.85 mm/day against the GCM's 1.42 and 1.6–1.7 after midnight, where under the
+imposed ascent it rained about 0.2, and its dry box dried out under steady descent; so the boxes' couplings disagree by
+more than the two models do (`PLAN.md`, "Decisions", 17 November 2026). After every restart CM1 counts its nudging
+windows up again from the first, one a step (defect log A12), which sets a restarted wave box against earlier windows
+for up to an hour and a half of model time in a box of two lunar days.
+
 **What the forcing revealed.** Without the GCM's sideways transport the 45° N ring drifts warm: its lowest
 1.8 km warm from 20.0 to 26.7 °C over two lunar days. The GCM's circulation carries about 15 W/m² of heat
 out of the air below 8 km at that latitude; imposed, it removes about a third of the offset (5.9 → 3.7 K
@@ -445,6 +469,10 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
 3. Done on 16 November 2026 as patch 09 of the lab's series: the wind's own nudging time, its pull from the GCM's
    lowest level up and the inflow of the reference's air, as Terluna's corrected boxes have them, behind entries with
    identity defaults, the base-state and geostrophic wind relaxed on the wind's time too.
+   Done on 17 November 2026 as patch 10: the box's own large-scale vertical wind by the damped gravity wave, behind
+   entries with identity defaults, its record complete over each segment and its base kept through restarts. Still to
+   do: the weak temperature gradient beside it (`lsw_coupling` = 2), and the nudging's count of windows carried
+   through a restart (defect log A12).
 4. Give NSSL's rain the limits, the fall law and the self-collection that Morrison's rain takes since patches 03
    and 04 of the lab's series, and run a box with them on the lab's own builds.
 5. Size the two factors on Morrison's autoconversion and accretion, which patch 05 of the lab's series reads from

@@ -8,7 +8,9 @@ through which CM1 reads it.
     case = gs.case_inputs(forcing, zw, air, gravity_m_s2=run['gravity_m_s2'], start_hour_deg=-90.0,
                           solar_day_s=run['solar_day_s'], length_s=59.0 * 86400.0, damping_base_m=0.77 * zw[-1],
                           nudge_tau_s=259200.0)
-    case['files'], case['namelist'], case['record']                      # for the case writer to place
+    case['files'], case['namelist'], case['start'], case['record']       # for the case writer to place
+    mode = gs.first_mode(run, (10, 19))                                  # a box that makes its own vertical wind
+    case = gs.case_inputs(forcing, zw, air, ..., coupling='dgw', mode=mode)
 
 What a box takes. A box at a site no ring passes takes the GCM's column there: the cells within half_lat_deg and
 half_lon_deg of the site whose surface is the site's, sea at sea level or land, averaged with weights cos(latitude)
@@ -19,7 +21,8 @@ wind by local time, toward which CM1 nudges the box's mean wind window by window
 wind's own time from the GCM's lowest level up (patch 09 of the lab's series); and the top of its convection, above
 which alone the box holds its temperature and vapour to the GCM's (core patch 09, var14 and var15). The table and the
 mean wind act through the whole column, the box's top included, and where the mean wind converges it draws in the
-GCM's mean air (patch 09 of the lab's series).
+GCM's mean air (patch 09 of the lab's series). A box may instead make its own large-scale vertical wind by the damped
+gravity wave (patch 10 of the lab's series; "The box's own large-scale vertical wind", below).
 
 The budget. The heating and moistening come from the GCM's own budget at each of its levels, the storage less the
 physics. In Terluna's design climate the Moon's column holds about 220 kg/m2 of vapour, so its circulation moves water
@@ -84,8 +87,28 @@ wind down to the ground and the box's own surface layer and turbulence shape it;
 (INFLOW), with which the mean wind's convergence draws in the windows' air, the GCM's mean air, at the rate
 max(d(rho0 w)/dz, 0)/rho0, where CM1's own advection draws in the box's (Daleu, Woolnough and Plant 2012). Where a
 world's window of local time is shorter, the wind follows it less closely on 2 hours, and the record states the time's
-share of the window. Every window here holds the GCM's mean air, so the inflow draws toward one reference through the
-run.
+share of the window. Under the imposed wind every window holds the GCM's mean air by default, so the inflow draws
+toward one reference through the run.
+
+The box's own large-scale vertical wind. A box forced by the GCM's mean vertical wind takes much of its free
+troposphere's temperature from motion the GCM supplied. With coupling 'dgw' case_inputs writes patch 10's entries of
+&param3, under which CM1 solves the damped gravity wave (Kuang 2008; Blossey, Bretherton and Wyant 2009) each step for
+the box's own wind from its virtual-temperature departure from the windows' air, between the base of the coupled layer,
+the domain-mean boundary layer's depth no lower than the GCM's lowest level, and a lid at the GCM's convection top at
+the site. For the first baroclinic mode k2/eps = 1/(L c), so the wave takes one time, lsw_tau = L/c: c the mode's speed
+over the run's tropics, the WKB integral of the buoyancy frequency to the top of their convection over pi (first_mode,
+40.5-40.8 m/s on Terluna's design years), and L the length the box stands for, by default its site's footprint
+(footprint_m, 418 km at the Near-side Sea), so about 2.85 h there; a case states another length, such as the planet's
+radius (1,737 km on the Moon, 11.9 h), or the time. terluna_wls.txt then holds nil, and the table holds the
+circulation's horizontal part alone, its tendencies less the advection by the GCM's own vertical wind by local time
+(the fits of omega from continuity, as of the air), heating by default below the coupled layer's base alone, as
+Terluna's boxes took it: above the base the wave's motion stands for the large-scale heating, horizontal gradients of
+temperature being weak there. The windows hold the GCM's air by local time (reference_column), the vapour by the hour
+where the lowest level swings by more than a tenth of its mean through the day (Terluna's rule, which gives the land
+and dry sites theirs by the hour and the sea its mean), and the box starts from its first window's air, so that the
+wave starts from rest. A case states its own reference, such as another box's domain mean by local time for the
+self-consistency test of Edman and Romps (2015), its start and each of the wave's settings, and the record holds each
+with its source. The table is laid on the pressures of the box's own starting air, its base state.
 
 What a world and a run supply. Nothing of a world is built in. The run's record (run_record) holds its gravity,
 radius, gas constant and heat capacity as the GCM ran with them, its half levels, its truncation, its output interval
@@ -94,7 +117,8 @@ potential temperature, Exner function and virtual temperature in which the box's
 harmonics, the bins of local time and the convection's share are settings, Terluna's values by default.
 TERLUNA_OPEN_MOON_SITES records the sites Terluna's boxes took, as values a study of the Open Moon states.
 
-Evidence. A runnable calculation with its tests (climate/tests/test_gcm_site.py). On Terluna's design run read in
+Evidence. A runnable calculation with its tests (climate/tests/test_gcm_site.py; the wave's Fortran in
+climate/tests/test_cm1_coupling.py). On Terluna's design run read in
 place, with Terluna's constants and choices stated as values, the extraction gives the forcing that Terluna's box over
 the Near-side Sea records, bit for bit at the GCM's levels and to the printed digits in its files; on the run's own
 constants it departs from it by the causes that test states, each within its tolerance. Terluna's measured effects
@@ -104,18 +128,29 @@ convection; forced through the whole column it rained 31% of the GCM's rain over
 third (notes/cm1.md, "The nudging and the convection"). Relaxed on 2 hours, the sea box's mean wind at 0.3 km rose
 from 1.44 to 2.49 m/s within three hours against a target of 3.24, and with the GCM's air drawn in, its column dried
 0.30 mm/day over a lunar day where it had dried 0.67 (Terluna's climate/crm/README.md at 39c5ee04). No lab run has
-taken this forcing; a forced CM1 box waits for the lab's case writer (PLAN.md, block 2).
+taken this forcing; a forced CM1 box waits for the lab's case writer (PLAN.md, block 2). With Terluna's choices the
+wave's inputs give those of Terluna's damped-gravity-wave boxes: first_mode's 40.53382926508821 m/s and the three
+footprints to the last bit, the entries Terluna's slots held, its windows and sounding to their printed digits and its
+column of the GCM's vertical advection; laid on the GCM's mean air as Terluna laid it, the table is Terluna's to 1 part
+in 10^4. Terluna's measured effects of the wave are Terluna's runs: its sea box rained 2.85 mm/day against the GCM's
+1.42, 69% of it in the afternoon, and its dry box dried to 2% of the GCM's rain under steady descent (Terluna's
+session-tools/agents/gap_boxes/yardstick/reading_wtg.md).
 
 Brought from Terluna's climate/crm/gcm_site.py at 39c5ee04 (python/provenance.json), with the pieces of its
 climate/crm/cm1_run.py that the forcing needs. Spectral, omega, remap, convection_top, the fits and wind_windows keep
 Terluna's arithmetic; run_record, the run's constants and window, the humidity's own filter, the vapour in CM1's mixing
 ratio, the refusals and case_inputs are the lab's. The entries of patch 09 take the values of Terluna's
-corrected_wind and corrected_inflow (cm1_run.py at 39c5ee04) under the lab's names.
+corrected_wind and corrected_inflow (cm1_run.py at 39c5ee04) under the lab's names. The wave's inputs come from
+Terluna's dgw_forcing, first_mode, footprint_m, dgw_settings and dgw_inputs (gcm_site.py and cm1_run.py at 29af5c16,
+c3898a7c): first_mode and footprint_m keep Terluna's arithmetic, with the run's own constants; dgw_forcing's air,
+vertical wind and horizontal part by local time are site_forcing's own outputs; the reference by local time, its
+vapour rule and the choice of start are reference_column and case_inputs, which also take a case's own column series;
+and the table is laid on the box's starting air, where Terluna's took the GCM's mean air.
 
 Left for later changes: the reckoning of the inflow against the nudging window CM1 holds at each output, which a box
-budget needs once the windows carry the GCM's weather (Terluna's box_budget, 4f63c439), with the lab's box budget; the
-GCM's own weather at a site (Terluna's site_sequence and its readers, af42e928); and the damped gravity wave's inputs
-(Terluna's dgw_forcing and first_mode, c3898a7c, CM1 port 5).
+budget needs once the windows carry the GCM's weather (Terluna's box_budget, 4f63c439), with the lab's box budget and
+its reading of the wave's record (lab_lsw_means.txt); the GCM's own weather at a site (Terluna's site_sequence and its
+readers, af42e928); and the weak temperature gradient, which joins the wave as coupling 'wtg' with a later patch.
 """
 from __future__ import annotations
 
@@ -147,6 +182,19 @@ WIND_NUDGE_TAU_S = 7200.0                  # the wind's own nudging time: Terlun
 INFLOW = True                              # the windows' air drawn in where the mean wind converges, as Terluna's
                                            # site boxes take it from 28 October 2026 (corrected_inflow at 39c5ee04)
 INFLOW_RATES_FILE = 'lab_inflow_rate.txt'  # where patch 09 of the lab's CM1 series writes the inflow's rates
+COUPLING = 'imposed'                       # a box's large-scale vertical wind: the GCM's mean, imposed through CM1's
+                                           # own wprof; 'dgw' makes it the box's own by the damped gravity wave
+                                           # (lsw_coupling = 1, patch 10 of the lab's CM1 series)
+COUPLINGS = ('imposed', 'dgw')
+REFERENCES = ('gcm-mean', 'gcm-by-hour')   # the air of a box's windows, beside a column series a case supplies
+VAPOURS = ('auto', 'by-hour', 'mean')      # the GCM's vapour in a reference by local time
+VAPOUR_SWING = 0.10                        # 'auto' takes the vapour by local time where the GCM's lowest level swings
+                                           # by more than this share of its mean through the day, and its mean
+                                           # otherwise: Terluna's rule F3 for its damped-gravity-wave boxes
+STARTS = ('mean', 'reference')             # a box starts from the GCM's mean air or from its first window's
+TABLE_HEATS = ('every-level', 'below-base')   # where the table heats a coupled box (lsw_table_heat 0 or 1)
+MODE_LAT_LIMIT_DEG = 30.0                  # first_mode's tropics, Terluna's
+LSW_RECORD_FILE = 'lab_lsw_means.txt'      # where patch 10 writes the coupled wind's means by interval
 MEANS = ('ta', 'hus', 'ua', 'va', 'ps', 'ts', 'tas', 'czen', 'pr', 'evap', 'prw', 'mrso', 'lsm')
 SNAPSHOTS = ('dt_diab', 'dq_dyn')          # codes 21 and 40: the physics' heating, and its moistening as applied
 SCHEMES = ('dt_conv', 'dt_lsp')            # codes 28 and 27: the convective and large-scale heating, where rain forms
@@ -637,8 +685,19 @@ def site_forcing(run: dict, years, site: dict, *, harmonics: int = HARMONICS, bi
     q_h = on(q_c)
     shares = q_h * mass[None, :] / (q_h @ mass)[:, None]                     # each level's share of the vapour
     moistening = moistening + (exact - snapped)[:, None] * shares / mass[None, :]
+    # By local time, for a box that makes its own large-scale vertical wind: the GCM's air, its vertical wind from its
+    # continuity, and the circulation's horizontal part, the circulation less the advection by that wind.
+    th_h = on(theta_c)
+    w_h = -on(undamped(harmonic_coefficients(centre, s['omega'], harmonics), window_deg, harmonics)) / (
+        rho[None, :] * gravity)
+    dz = lambda a: np.gradient(a, z, axis=-1)
+    horizontal_th, horizontal_q = heating + w_h * dz(th_h), moistening + w_h * dz(q_h)
+    lowest = evaluate(q_c, np.arange(360) + 0.5 - 180.0, harmonics)[:, -1]
     per_day = 86400.0
     lists = lambda a: np.asarray(a, float).tolist()
+    by_hour = lambda a: [round(float(x), 4) for x in a]
+    columns = {k: (a @ mass) * per_day for k, a in (('circulation', moistening), ('horizontal', horizontal_q),
+                                                     ('vertical_advection', moistening - horizontal_q))}
     return dict(
         run=run.get('name'), years=[first, last], site=site, window_deg=window_deg, harmonics=harmonics, bins=bins,
         humidity_filter=humidity,
@@ -656,6 +715,14 @@ def site_forcing(run: dict, years, site: dict, *, harmonics: int = HARMONICS, bi
         circulation=dict(hour_angle_deg=lists(hours), z_m=lists(z), theta_k_s=lists(heating),
                          specific_humidity_kg_kg_s=lists(moistening)),
         wind_by_hour=dict(hour_angle_deg=lists(hours), z_m=lists(z), u_m_s=lists(on(u_c)), v_m_s=lists(on(v_c))),
+        air_by_hour=dict(hour_angle_deg=lists(hours), z_m=lists(z), theta_k=lists(th_h),
+                         specific_humidity_kg_kg=lists(q_h),
+                         lowest_level_vapour_swing=float((lowest.max() - lowest.min()) / q_c[0][-1])),
+        vertical_wind_by_hour=dict(hour_angle_deg=lists(hours), z_m=lists(z), w_m_s=lists(w_h)),
+        horizontal=dict(hour_angle_deg=lists(hours), z_m=lists(z), theta_k_s=lists(horizontal_th),
+                        specific_humidity_kg_kg_s=lists(horizontal_q),
+                        column_vapour_mm_day={k: dict(mean=float(v.mean()), by_hour=by_hour(v))
+                                              for k, v in columns.items()}),
         convection=dict(convective_rain_formed_mm_day=lists(tm('conv') * per_day),
                         large_scale_rain_formed_mm_day=lists(tm('lsp') * per_day),
                         **convection_top(tm('conv'), z, share)),
@@ -672,6 +739,67 @@ def site_forcing(run: dict, years, site: dict, *, harmonics: int = HARMONICS, bi
             column_heating_w_m2=dict(physics=float(cp * (heat_c[0] * mass * (tm('ps') * sigma / P00)**CM1_KAPPA).sum()),
                                      rain_latent=float(lv * tm('rain'))),
             rain_mm_day=float(tm('rain') * per_day), evaporation_mm_day=float(tm('evaporation') * per_day)))
+
+
+# The coupled box's length and speed.
+
+def first_mode(run: dict, years, *, lat_limit_deg: float = MODE_LAT_LIMIT_DEG, share: float = CONVECTION_SHARE) -> dict:
+    """The first baroclinic gravity wave's speed over a run's tropics (m/s): the WKB estimate c = (1/pi) * integral of
+    N dz on the mean over the years (first, last) of the GCM's mean potential temperature over the cells within
+    lat_limit_deg of the equator, weighted by cos(latitude), from the ground to the top of their convection
+    (convection_top's rule on the convective rain they form by level), and to the model's top level beside it. The
+    potential temperature, the heights and the formed rain take the run's own gas constant, heat capacity and
+    latent heat; the humidity is read by the rule of A10 (climate/gcm/year_files.py)."""
+    import netCDF4
+    from climate.gcm import year_files as yf
+    first, last = (int(y) for y in years)
+    if last < first:
+        raise ValueError(f'years run from the first to the last, where they are {years}')
+    if not 0.0 < lat_limit_deg <= 90.0:
+        raise ValueError(f'the tropics reach a latitude between 0 and 90 degrees, where it is {lat_limit_deg}')
+    gravity, gas, cp = run['gravity_m_s2'], run['gas_constant_j_kg_k'], run['heat_capacity_j_kg_k']
+    rv, lv = run['vapour_gas_constant_j_kg_k'], run['latent_heat_j_kg']
+    half = np.asarray(run['half_levels'], float)
+    e = edges(half)
+    sigma, thick = 0.5 * (e[1:] + e[:-1]), np.diff(e)
+    folder = Path(run['folder'])
+    sums, count = {}, 0
+    for year in range(first, last + 1):
+        path = folder / f'MOST.{year:05d}.nc'
+        with netCDF4.Dataset(path) as d:
+            f = yf.fields(d, ('ta', 'hus', 'ps', 'dt_conv'))
+            lat = np.asarray(d['lat'][:], float)
+            lev = np.asarray(d['lev'][:], float)
+        if lev.shape != sigma.shape or np.abs(lev - sigma).max() > 1e-6:
+            raise ValueError(f"{path}'s levels {lev.tolist()} lie off the full levels of the run's half levels")
+        ps = f['ps'] * 100.0
+        w = np.where(np.abs(lat) <= lat_limit_deg, np.cos(np.radians(lat)), 0.0)[:, None] * np.ones(ps.shape[-1])
+        w /= w.sum()
+        tm = lambda a: np.tensordot(a, w, axes=([-2, -1], [0, 1])).sum(axis=0)          # summed over records
+        for key, value in (('theta', f['ta'] / (sigma[None, :, None, None] * ps[:, None] / P00) ** (gas / cp)),
+                           ('ta', f['ta']), ('q', f['hus']),
+                           ('conv', f['dt_conv'] * cp * ps[:, None] * thick[None, :, None, None] / (gravity * lv))):
+            sums[key] = sums.get(key, 0.0) + tm(value)
+        count += ps.shape[0]
+    mean = {k: v / count for k, v in sums.items()}
+    z = level_heights(mean['ta'], mean['q'], half, gravity, gas, rv)                  # top first
+    top = convection_top(mean['conv'], z, share)
+    zb, thb = z[::-1], mean['theta'][::-1]                                              # the ground up
+    n = np.sqrt(np.maximum(gravity * np.diff(np.log(thb)) / np.diff(zb), 0.0))
+    cum = np.r_[n[0] * zb[0], n[0] * zb[0] + np.cumsum(n * np.diff(zb))]              # from the ground to each level
+    kt = int(np.argmin(np.abs(zb - top['top_m'])))
+    return dict(run=run.get('name'), years=[first, last], lat_limit_deg=float(lat_limit_deg), records=count,
+                convection_top_m=top['top_m'], c_m_s=float(cum[kt] / math.pi),
+                c_to_model_top_m_s=float(cum[-1] / math.pi), z_m=zb.tolist(), theta_k=thb.tolist())
+
+
+def footprint_m(site: dict, radius_m: float) -> float:
+    """The length (m) a box at the site stands for: the square root of the area within half_lat_deg of latitude and
+    half_lon_deg of longitude of its centre, on a sphere of radius_m."""
+    site = check_site(site)
+    a = float(radius_m)
+    return math.sqrt((2.0 * math.radians(site['half_lat_deg']) * a)
+                     * (2.0 * math.radians(site['half_lon_deg']) * a * math.cos(math.radians(site['lat_deg']))))
 
 
 # The box's air and its forcing on CM1's levels.
@@ -805,28 +933,170 @@ def nudging_text(t1: float, t2: float, heights, theta, qv, u, v) -> str:
     return '\n'.join(rows) + '\n'
 
 
+def _nearest(hours, hour: float) -> int:
+    """The index of the hour angle in `hours` nearest `hour` round the day."""
+    return int(np.argmin(np.abs((np.asarray(hours, float) - hour + 180.0) % 360.0 - 180.0)))
+
+
+def reference_column(forcing: dict, air: dict, reference=None, *, vapour: str = 'auto') -> dict:
+    """The air of a box's nudging windows by local time, which CM1 holds the box to above the GCM's convection, draws
+    in where the large-scale wind converges (inflow_ref_air) and, under a coupled wind, measures the box against:
+    potential temperature (theta, K) and vapour mixing ratio (qv, kg/kg) as functions of height (m) and local hour
+    angle (degrees), with the record of their source.
+
+    'gcm-mean' (and None) is the GCM's mean air at the site, the air `air` (reference_air), at every hour.
+    'gcm-by-hour' is that air with the GCM's own swing by local time at the site added, Terluna's reference for its
+    damped-gravity-wave boxes: at each hour the fits' potential temperature less their mean over the day, and the
+    vapour times the ratio of the fits' mixing ratio to its mean over the day, each at the bin of `bins` nearest the
+    hour, interpolated in height and held beyond the GCM's levels. Its vapour follows the hour ('by-hour'), keeps the
+    mean ('mean'), or follows the hour where the GCM's lowest level swings by more than VAPOUR_SWING of its mean
+    through the day ('auto', Terluna's rule). A dict is a column series a case supplies, such as a box's own domain
+    mean by local time: hour_angle_deg (n), z_m (m, rising), theta_k (n, levels) and qv_kg_kg (n, levels, CM1's
+    mixing ratio), with an optional source; each hour takes the series' nearest hour, interpolated in height and
+    held beyond its levels."""
+    if vapour not in VAPOURS:
+        raise ValueError(f"the reference's vapour is one of {VAPOURS}, where it is {vapour!r}")
+    if reference is None or reference == 'gcm-mean':
+        return dict(theta=lambda z, hour: np.asarray(air['theta_at'](z), float),
+                    qv=lambda z, hour: np.asarray(air['qv_at'](z), float),
+                    record=dict(source='gcm-mean', air="the GCM's mean air at the site at every hour"))
+    if reference == 'gcm-by-hour':
+        by = forcing['air_by_hour']
+        zg = np.asarray(by['z_m'], float)[::-1]                              # the ground up
+        hours = np.asarray(by['hour_angle_deg'], float)
+        th = np.asarray(by['theta_k'], float)[:, ::-1]
+        r = mixing_ratio(np.asarray(by['specific_humidity_kg_kg'], float)[:, ::-1])
+        swing = float(by['lowest_level_vapour_swing'])
+        follows = vapour == 'by-hour' or (vapour == 'auto' and swing > VAPOUR_SWING)
+        th_dev, r_ratio = th - th.mean(axis=0), r / r.mean(axis=0)
+        theta = lambda z, hour: np.asarray(air['theta_at'](z), float) + np.interp(z, zg, th_dev[_nearest(hours, hour)])
+        if follows:
+            qv = lambda z, hour: np.asarray(air['qv_at'](z), float) * np.interp(z, zg, r_ratio[_nearest(hours, hour)])
+        else:
+            qv = lambda z, hour: np.asarray(air['qv_at'](z), float)
+        return dict(theta=theta, qv=qv, record=dict(
+            source='gcm-by-hour', air="the GCM's mean air at the site with its swing by local time",
+            vapour='by-hour' if follows else 'mean', vapour_rule=vapour, lowest_level_vapour_swing=swing,
+            swing_threshold=VAPOUR_SWING, bins=int(hours.size)))
+    if isinstance(reference, dict):
+        hours = np.atleast_1d(np.asarray(reference['hour_angle_deg'], float))
+        z = np.asarray(reference['z_m'], float)
+        th, qv_ = (np.asarray(reference[k], float) for k in ('theta_k', 'qv_kg_kg'))
+        if (hours.ndim != 1 or z.ndim != 1 or z.size < 2 or np.any(np.diff(z) <= 0.0)
+                or th.shape != (hours.size, z.size)
+                or qv_.shape != th.shape or not np.all(np.isfinite(np.r_[hours, z, th.ravel(), qv_.ravel()]))
+                or np.any(th <= 0.0) or np.any(qv_ < 0.0) or np.any(np.abs(hours) > 180.0)):
+            raise ValueError('a column series states hour_angle_deg (n, within 180 degrees of noon), z_m (rising), '
+                             'and theta_k and qv_kg_kg (n, levels), finite, with a positive temperature and a vapour '
+                             'of nil or more')
+        return dict(theta=lambda zz, hour: np.interp(zz, z, th[_nearest(hours, hour)]),
+                    qv=lambda zz, hour: np.interp(zz, z, qv_[_nearest(hours, hour)]),
+                    record=dict(source=str(reference.get('source', 'a column series the case supplies')),
+                                hours=int(hours.size), z_m=[float(z[0]), float(z[-1])], vapour='by-hour'))
+    raise ValueError(f"a reference is one of {REFERENCES} or a column series, where it is {reference!r}")
+
+
+def coupling_entries(forcing: dict, zw, *, mode: dict | None, length_m: float | None, time_s: float | None,
+                     top_m: float | None, base_m: float | None, table_heat: str) -> tuple:
+    """The &param3 entries of patch 10 of the lab's CM1 series for a box that makes its own large-scale vertical wind
+    by the damped gravity wave, and their record. The wave's time is the length L the box stands for over the first
+    baroclinic mode's speed c (mode['c_m_s'], first_mode's), lsw_tau = L/c to 0.1 s, with lsw_mode_speed = c to 1 mm/s;
+    L is the site's footprint (footprint_m) unless the case states it, or the case states the time and L follows as
+    time times c. The lid lsw_top is the GCM's convection top at the site and the lowest base lsw_base its lowest
+    level, each to 0.1 m, unless the case states them; lsw_table_heat is 1 where the table heats below the base alone
+    ('below-base'). Refused: a mode without a positive speed, a length and a time both stated, a length or time of
+    zero or less, and a lid and base outside 0 <= base < lid <= the box's top."""
+    if mode is None or not float(mode.get('c_m_s', float('nan'))) > 0.0:
+        raise ValueError("the damped gravity wave takes the first baroclinic mode's speed: "
+                         'mode=first_mode(run, years), or a dict with a positive c_m_s')
+    c = float(mode['c_m_s'])
+    if length_m is not None and time_s is not None:
+        raise ValueError("a case states the coupling's length or its time, where it states both")
+    if time_s is not None:
+        if not float(time_s) > 0.0:
+            raise ValueError(f"the coupling's time is positive, where it is {time_s}")
+        tau, length, length_from = float(time_s), float(time_s) * c, 'the stated time times the speed'
+    else:
+        stated = length_m is not None
+        length = float(length_m) if stated else footprint_m(forcing['site'], forcing['gcm']['radius_m'])
+        if not length > 0.0:
+            raise ValueError(f"the coupling's length is positive, where it is {length}")
+        tau, length_from = length / c, 'stated' if stated else "the footprint of the GCM's site"
+    lowest_m = float(np.asarray(forcing['profile']['z_m'], float)[-1])
+    top = round(float(forcing['convection']['top_m']), 1) if top_m is None else float(top_m)
+    base = round(lowest_m, 1) if base_m is None else float(base_m)
+    if not 0.0 <= base < top <= float(np.asarray(zw, float)[-1]):
+        raise ValueError(f"the coupled layer's base and lid lie at 0 <= base < lid <= the box's top, where they are "
+                         f'{base} and {top} m')
+    entries = dict(lsw_coupling=1, lsw_tau=round(tau, 1), lsw_mode_speed=round(c, 3), lsw_top=top, lsw_base=base,
+                   lsw_table_heat=1 if table_heat == 'below-base' else 0)
+    record = dict(
+        kind='dgw', method='the damped gravity wave (Kuang 2008; Blossey, Bretherton and Wyant 2009), k2/eps = 1/(L c)',
+        entries=dict(entries), length_m=length, length_from=length_from, time_s=tau, time_h=tau / 3600.0,
+        mode={k: v for k, v in mode.items() if k not in ('z_m', 'theta_k')},
+        top_m=top, top_from="the GCM's convection top at the site" if top_m is None else 'stated',
+        base_m=base, base_from="the GCM's lowest level" if base_m is None else 'stated', table_heat=table_heat,
+        record_file=LSW_RECORD_FILE)
+    return entries, record
+
+
 def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour_deg: float, solar_day_s: float,
                 length_s: float, damping_base_m: float, nudge_tau_s: float, wind_nudge_tau_s: float = WIND_NUDGE_TAU_S,
-                wind_from_m: float | None = None, inflow: bool = INFLOW) -> dict:
+                wind_from_m: float | None = None, inflow: bool = INFLOW, coupling: str = COUPLING, reference=None,
+                reference_vapour: str = 'auto', start: str | None = None, mode: dict | None = None,
+                coupling_length_m: float | None = None, coupling_time_s: float | None = None,
+                coupling_top_m: float | None = None, coupling_base_m: float | None = None,
+                table_heat: str | None = None) -> dict:
     """What a CM1 case takes from the forcing: its files (terluna_wls.txt, terluna_lsadv.txt and the nudging windows
-    lsnudge_0001.dat on, as text), its namelist entries by section and the record its case keeps. The box starts at the
-    local hour angle start_hour_deg and runs length_s seconds of a solar day of solar_day_s, and its Rayleigh layer
-    begins at damping_base_m. The case is refused where that layer begins below the GCM's convection's top plus one
-    layer (proposed), where the box's top stands below the held air's first level, and where its windows outnumber the
-    hundred files CM1 reads. Every window holds the GCM's mean air; its wind is the GCM's at the window's middle hour.
-    &param8 sets the table (var11), the mean vertical wind (var13), the held air's heights (var14, var15) and the
-    hour angle and solar day that core patch 17 reads the table by (var18, var19), which the case's Sun shares;
-    &param19 nudges the wind, temperature and vapour toward the windows on nudge_tau_s, from the first step and with
-    no ramp, since CM1 restarts a ramp at each window's start. &param3 holds the three entries of patch 09 of the
-    lab's CM1 series: the wind's own nudging time (wind_nudge_tau, wind_nudge_tau_s, 2 hours by default), the height
-    from which CM1 pulls the wind (wind_nudge_zmin, wind_from_m, by default the GCM's lowest level to 0.1 m, and 0 for
-    every level) and the inflow of the windows' air where the mean wind converges (inflow_ref_air, inflow, on by
-    default). The case is refused on a wind's time of zero or less and on a height outside the box."""
+    lsnudge_0001.dat on, as text), its namelist entries by section, the air it starts from and the record its case
+    keeps. The box starts at the local hour angle start_hour_deg and runs length_s seconds of a solar day of
+    solar_day_s, and its Rayleigh layer begins at damping_base_m. The case is refused where that layer begins below the
+    GCM's convection's top plus one layer (proposed), where the box's top stands below the held air's first level, and
+    where its windows outnumber the hundred files CM1 reads. Each window's wind is the GCM's at the window's middle
+    hour, and its air the reference's at that hour (reference_column). &param8 sets the table (var11), the large-scale
+    vertical wind (var13), the held air's heights (var14, var15) and the hour angle and solar day that core patch 17
+    reads the table by (var18, var19), which the case's Sun shares; &param19 nudges the wind, temperature and vapour
+    toward the windows on nudge_tau_s, from the first step and with no ramp, since CM1 restarts a ramp at each
+    window's start. &param3 holds the three entries of patch 09 of the lab's CM1 series: the wind's own nudging time
+    (wind_nudge_tau, wind_nudge_tau_s, 2 hours by default), the height from which CM1 pulls the wind (wind_nudge_zmin,
+    wind_from_m, by default the GCM's lowest level to 0.1 m, and 0 for every level) and the inflow of the windows' air
+    where the large-scale wind converges (inflow_ref_air, inflow, on by default). The case is refused on a wind's time
+    of zero or less and on a height outside the box.
+
+    The coupling sets the box's large-scale vertical wind. 'imposed', the default, imposes the GCM's mean vertical
+    wind through terluna_wls.txt, lays the circulation's heating and moistening by local time in the table with the
+    mean wind's advection of the starting air added back (to_cm1), fills the windows with the GCM's mean air and
+    starts the box from it. 'dgw' lets the box make its own wind by the damped gravity wave (patch 10 of the lab's
+    CM1 series, &param3's lsw_ entries from coupling_entries): terluna_wls.txt holds nil, which keeps CM1's
+    large-scale vertical advection on (var13) to carry the wave's wind; the table holds the circulation's horizontal
+    part alone, the circulation less the advection by the GCM's own vertical wind by local time, heating by default
+    below the coupled layer's base alone (table_heat 'below-base', lsw_table_heat 1); the windows hold the GCM's air
+    by local time ('gcm-by-hour'); and the box starts from its first window's air, so that the wave starts from rest.
+    A case states its own reference (reference_column: 'gcm-mean', 'gcm-by-hour' or a column series such as a box's
+    domain mean by local time) and its vapour rule, its start ('mean' or 'reference'), and for the wave the first
+    baroclinic mode (mode, first_mode's result), the length it stands for or the time, its lid and its lowest base
+    (coupling_entries); the record holds each with its source. A coupling's settings with the imposed wind are
+    refused, as is a coupling other than 'imposed' and 'dgw': the weak temperature gradient joins with a later
+    patch."""
     zw = _w_levels(zw)
     if not (length_s > 0.0 and solar_day_s > 0.0 and nudge_tau_s > 0.0):
         raise ValueError('a case runs a positive length under a positive solar day and nudging time')
     if not wind_nudge_tau_s > 0.0:
         raise ValueError("the wind's own nudging time is positive; nudge_tau_s states the held air's")
+    if coupling not in COUPLINGS:
+        later = ' (the weak temperature gradient joins with a later patch)' if coupling == 'wtg' else ''
+        raise ValueError(f'the coupling is one of {COUPLINGS}, where it is {coupling!r}{later}')
+    coupled = coupling != 'imposed'
+    table_heat = table_heat or ('below-base' if coupled else 'every-level')
+    start = start or ('reference' if coupled else 'mean')
+    if table_heat not in TABLE_HEATS or start not in STARTS:
+        raise ValueError(f'the table heats {TABLE_HEATS} and a box starts from {STARTS}, where they are '
+                         f'{table_heat!r} and {start!r}')
+    stated = dict(mode=mode, coupling_length_m=coupling_length_m, coupling_time_s=coupling_time_s,
+                  coupling_top_m=coupling_top_m, coupling_base_m=coupling_base_m)
+    if not coupled and (table_heat != 'every-level' or any(v is not None for v in stated.values())):
+        raise ValueError(f"the imposed wind takes none of a coupling's settings, where the case states "
+                         f"{sorted(k for k, v in stated.items() if v is not None) or ['table_heat']}")
     lowest_m = float(np.asarray(forcing['profile']['z_m'], float)[-1])     # the GCM's lowest level (top first)
     pulled_from_m = round(lowest_m, 1) if wind_from_m is None else float(wind_from_m)
     if not 0.0 <= pulled_from_m < zw[-1]:
@@ -835,21 +1105,36 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
     convection = forcing['convection']
     clearance = check_damping(convection, damping_base_m)
     held = held_heights(convection, zw[-1])
-    cm1 = to_cm1(forcing, zw, air, gravity_m_s2)
+    lsw, coupled_record = {}, dict(kind='imposed', vertical_wind="the GCM's mean, imposed (terluna_wls.txt)")
+    if coupled:
+        lsw, coupled_record = coupling_entries(forcing, zw, mode=mode, length_m=coupling_length_m,
+                                               time_s=coupling_time_s, top_m=coupling_top_m, base_m=coupling_base_m,
+                                               table_heat=table_heat)
+    ref = reference_column(forcing, air, reference if reference is not None else
+                           ('gcm-by-hour' if coupled else 'gcm-mean'), vapour=reference_vapour)
     zh = 0.5 * (zw[1:] + zw[:-1])
     heights = np.r_[0.0, zh, zw[-1]]
     windows = wind_windows(forcing, heights, start_hour_deg, solar_day_s, length_s)
     if len(windows) > CM1_NUDGE_FILES:
         raise ValueError(f'{len(windows)} nudging windows; CM1 reads at most {CM1_NUDGE_FILES}')
-    theta, qv = air['theta_at'](heights), air['qv_at'](heights)
+    first_hour = windows[0]['hour_angle_deg']
+    start_air = air if start == 'mean' else dict(air, theta_at=lambda z: ref['theta'](z, first_hour),
+                                                 qv_at=lambda z: ref['qv'](z, first_hour))
+    laid = forcing
+    if coupled:                     # the table holds the circulation's horizontal part, and the GCM's wind is nil
+        laid = dict(forcing, circulation=forcing['horizontal'],
+                    vertical_wind_m_s=[0.0] * len(forcing['vertical_wind_m_s']))
+    cm1 = to_cm1(laid, zw, start_air, gravity_m_s2)
     files = {WLS_FILE: wls_text(zw, cm1['w_m_s']), LSADV_FILE: lsadv_text(cm1['table'])}
     for i, window in enumerate(windows, 1):
         t1, t2 = window['time_s']
-        files[f'lsnudge_{i:04d}.dat'] = nudging_text(t1, 1.0e30 if i == len(windows) else t2, heights, theta, qv,
+        hour = window['hour_angle_deg']
+        files[f'lsnudge_{i:04d}.dat'] = nudging_text(t1, 1.0e30 if i == len(windows) else t2, heights,
+                                                      ref['theta'](heights, hour), ref['qv'](heights, hour),
                                                       window['u_m_s'], window['v_m_s'])
     namelist = dict(
         param3=dict(wind_nudge_tau=float(wind_nudge_tau_s), wind_nudge_zmin=pulled_from_m,
-                    inflow_ref_air=1 if inflow else 0),
+                    inflow_ref_air=1 if inflow else 0, **lsw),
         param8=dict(var11=1.0, var13=1.0, var14=held['var14'], var15=held['var15'], var18=float(start_hour_deg),
                     var19=round(float(solar_day_s), 1)),
         param19=dict(do_lsnudge=True, do_lsnudge_u=True, do_lsnudge_v=True, do_lsnudge_th=True, do_lsnudge_qv=True,
@@ -860,6 +1145,11 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
                                    max=float(a[:, low].mean(axis=1).max() * scale))
     speeds = [float(np.hypot(w['u_m_s'][1], w['v_m_s'][1])) for w in windows]
     window_s = windows[0]['time_s'][1] - windows[0]['time_s'][0]
+    if coupled:
+        coupled_record.update(
+            vertical_wind="the box's own; terluna_wls.txt holds nil",
+            table="the circulation's horizontal part: its tendencies less the advection by the GCM's own vertical wind "
+                  "by local time", gcm_column_vapour_mm_day=forcing['horizontal']['column_vapour_mm_day'])
     record = dict(
         {k: forcing[k] for k in ('run', 'years', 'site', 'cells', 'cell_heights_m', 'records', 'phases', 'harmonics',
                                  'bins', 'window_deg', 'humidity_filter', 'truncation', 'gcm', 'surface', 'budget',
@@ -874,9 +1164,13 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
                   nudge_tau_s=float(wind_nudge_tau_s), nudge_tau_share_of_window=float(wind_nudge_tau_s / window_s),
                   pulled_from_m=pulled_from_m,
                   pulled_from="the GCM's lowest level" if wind_from_m is None else 'stated'),
-        inflow=dict(on=bool(inflow), reference="the windows' air, the GCM's mean air at the site",
-                    rate="max(d(rho0 w)/dz, 0)/rho0, the mean vertical wind's convergence over CM1's base-state "
-                         "density",
+        inflow=dict(on=bool(inflow), reference="the windows' air, the reference's at each window's hour",
+                    rate="max(d(rho0 w)/dz, 0)/rho0, the large-scale vertical wind's convergence over CM1's "
+                         "base-state density",
                     rates_file=INFLOW_RATES_FILE),
+        coupling=coupled_record, reference=ref['record'],
+        start=dict(source=start, hour_angle_deg=float(first_hour) if start == 'reference' else None,
+                   air="the reference's air in the first window" if start == 'reference' else
+                       "the GCM's mean air at the site"),
         vapour="CM1's mixing ratio, from the GCM's specific humidity: r = q / (1 - q), the moistening times (1 + r)")
-    return dict(files=files, namelist=namelist, record=record, cm1=cm1, windows=windows)
+    return dict(files=files, namelist=namelist, record=record, cm1=cm1, windows=windows, start=start_air)

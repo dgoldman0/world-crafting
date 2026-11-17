@@ -70,8 +70,8 @@ def single(x):
 
 # The patch's texts.
 
-def test_the_nudging_patch_ends_the_labs_series(cm1_series):
-    assert cm1_series.names[-1] == PATCH_09 and cm1_series.before(PATCH_09) == PATCH_08
+def test_the_nudging_patch_follows_patch_08(cm1_series):
+    assert PATCH_09 in cm1_series.names and cm1_series.before(PATCH_09) == PATCH_08
     text = (cm1_series.folder / PATCH_09).read_text(encoding='latin-1')
     assert re.findall(r'^\+\+\+ b/src/(\S+)', text, flags=re.M) == ['cm1.F', 'input.F', 'param.F', 'solve1.F',
                                                                  'solve3.F']

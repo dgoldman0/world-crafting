@@ -62,6 +62,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | `ipbl2_per_mass` (0): the lab's series, patch 01, from Terluna's build `moon_omp_rain_law_pbl` | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | A10 | ExoPlaSim, low-I/O output | `hus` in the mean output is the humidity held from the last output step, where every other field is a mean; the held field is absent from the restart, so each year file's first record holds about 2% of the vapour | 10-27, Terluna `domain/climate` 984606a5 | None in the model; a reader's rule (Terluna's `climate/gcm/year_files.py`, the lab's `python/climate/gcm/year_files.py` since 11-16) | Read as means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as humid | Open in the model; read by rule in Terluna and in the lab; the true mean as a further output still to port | R, P |
 | A11 | CM1 r22.0 | The MM5 surface layer (`sfcmodel = 2`) sets its roughness lengths for heat and moisture over water alone and copies them to the output at every point, so `z0t` and `z0q` over land hold unset memory | 11-11, `lab` 3174a0e | None; a reader takes both over water alone | Output and domain averages alone: NaN or 9.5 × 10²² m over land in the lab's test builds; the model reads neither back, and no analysis of Terluna's or the lab's reads either | Open | L |
+| A12 | CM1 r22.0 | After a restart the large-scale nudging counts its windows again from the first, one a step, since the restart files keep no count (`lsnudge.F`, `solve1.F`) | 11-17, the lab's port of the damped gravity wave | None | Each one-day segment of Terluna's boxes after the first nudged its wind and held air toward earlier windows for as many steps as windows had passed: 35 steps, 47 minutes of model time, at the sea box's thirtieth; under the damped gravity wave the box's own ascent answers those windows too | Open | L, R |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant, which the namelist's `world_g` replaces in the lab's series (patch 06, default the build's value); fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`, still compiled in beside the lab's patch 06; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
@@ -104,6 +105,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | B40 | CM1 r22.0 | CAPE, CIN, LCL and LFC in the output are those of a parcel mixed over the lowest 500 m at every gravity | 11-11, `lab` 3174a0e | None | Terluna's box analyses read CM1's CAPE and inhibition; at the Moon's gravity 500 m is about a hundredth of the scale height, and a sounding whose second level stands above it gives the lowest level alone | Open | L |
 | B41 | PlaSim | Roughness lengths set for Earth: Charnock's 0.018 with a floor of 1.5 × 10⁻⁵ m over the sea, 10⁻³ m over sea ice, 2 m over land | 11-16, the lab's port of the wind at 10 m | None; over ice-free water with `NSIMW` 1 (the lab's patch 13) the similarity's own roughness, which patch 17's wind at 10 m takes too | Unmeasured; they set PlaSim's neutral transfer coefficient and the log of the wind at 10 m, and at 2 m/s in neutral air over the sea PlaSim's roughness stands at 0.4–0.5 of the similarity's | Open | L |
 | B42 | PlaSim, `NPRC` 2 | The simplified Betts–Miller scheme's reference humidity 0.7 and the depth test's 200 hPa, Frierson's and the IFS's values for Earth's convection | 11-17, the lab's port of the scheme | `RH_BM` (0.7); `DSIGDEEP_BM` (0), which the writer sets to 200/1013.25 of each column's surface pressure | Unmeasured as such; on CM1's sea column the scheme rained only at a reference humidity of 0.6 or less (Terluna) | Open | L |
+| B43 | CM1 r22.0, `ipbl = 2` | The boundary layer's depth by the bulk Richardson number against a critical 0.125 (`sfcphys.F`, `gethpbl2`), a value fitted to Earth's layers | 11-17, the lab's port of the damped gravity wave; Terluna's audit of its wave's boxes | None | Unmeasured; the wave's base and the table's cut take this depth, which on Terluna's land box swung from 0.06 to 8.4 km over the lunar day | Open | L, R |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
 | C2 | CM1–GCM check | GCM's missing sunlight booked as reflection | 09-29, be50d8b retracts 36e29c4 | Each model's own arriving sunlight | A false "reflects too much" finding | Fixed | R |
 | C3 | Twilight ledger | Sky model's channels overstate absorbed energy by 58%; ledger's first channels put near-IR sunlight too high | 10-14, 2ac4359 and 55e5020 | 10,697 channels keeping heights | First two 20-year GCM tests used the old terms | Fixed | R |
@@ -129,6 +131,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | C23 | CM1 forcing from the GCM (`gcm_site`) | The fit by local time undoes a true mean's damping, sin(x)/x, on the humidity's means read by A10's rule, an average of each interval's two ends, which damps the n-th daily harmonic by cos(x) | 11-16, the lab's port of `gcm_site` | The lab's `gcm_site` undoes cos(x); Terluna's treatment kept as `humidity_filter` `'mean'` | Near-side Sea, design years: the humidity's third harmonic at the ground two thirds of its size, its fourth under half; the storage by local time up to 0.2 g/kg/day short of a 0.5–0.8 swing; the moistening by local time moves by up to 8% | Fixed in the lab's forcing; open in Terluna | L |
 | C24 | CM1 forcing from the GCM (`gcm_site`, `cm1_run`) | The GCM's specific humidity written as CM1's mixing ratio in the box's air, its nudging and its moistening | 11-16, the lab's port of `gcm_site` | The lab converts, r = q/(1 − q), and the moistening by (1 + r) | Near-side Sea, design years: 14.12 g/kg at the ground where the mixing ratio is 14.32; the moistening 1.4% weak | Fixed in the lab's forcing; open in Terluna | L |
 | C25 | CM1 build (`WIND_TAU_PATCH`) | The wind's own nudging time reaches the domain-mean wind's tendency alone; the base-state and geostrophic wind, from which the large-scale pressure gradient follows, keep relaxing on `lsnudge_tau` | 11-16, the lab's port of the patch | `wind_nudge_tau` (0) relaxes both on the wind's time: the lab's series, patch 09 | By estimate on the sea box's windows: the base-state wind lags its target 1.5 m/s on average, which at the site's f of 4.6 × 10⁻⁷ s⁻¹ turns the mean wind 0.005 m/s; at Earth's 45°, 0.9 m/s | Fixed in the lab's series; open in Terluna, where it is negligible | L |
+| C26 | CM1 build (`DGW_PATCHES`) | The damped gravity wave's record loses the interval that ends each run segment and closes the others a step late; the first step of each restarted segment takes the wave's base at its floor; the wave stands silent without the inflow; and its base averages one process's columns | 11-17, the lab's port of the wave; the lost interval in Terluna's record (3d42c797) | `lsw_coupling` (0) and its entries: the lab's series, patch 10, writes every interval at the step that ends it and the run's last, reads the base from the depths a restart keeps, over every rank, and stops on settings it cannot take | 1 interval in 8 of Terluna's wave boxes' record, which its budget estimated from the neighbours (at most 0.05 mm/day of the boxes' own import); one step in each segment with the base at 316 m in place of 1.3–4.5 km at sea | Fixed in the lab's series; open in Terluna | L, R |
 
 ## (a) Upstream defects exposed by the adaptation
 
@@ -354,6 +357,28 @@ as a seventh is an open item of `PLAN.md`.
   and land boxes over land; no analysis of Terluna's or the lab's reads either field.
 - **Status.** Open. A reader takes `z0t` and `z0q` over water alone. A fix sets the two locals over land, or writes
   a fill value there; `notes/cm1.md` lists a report to CM1's developer among its improvements.
+
+### A12. CM1 r22.0: the nudging counts its windows from the first after each restart (L; R)
+
+- **Defect.** CM1's large-scale nudging reads its windows (`lsnudge_NNNN.dat`) as a run starts and sets its count of
+  them to one (`lsnudge.F`, after its reading loop); `solve1.F` then moves the count on by one window at a step whose
+  time has passed the end of the window it holds. The restart files keep no count, so a restarted run starts again at
+  the first window and climbs one window a step until it reaches the window of its time.
+- **Found** on 2026-11-17 in the lab's port of the damped gravity wave, by reading the pinned source, and seen in
+  Terluna's runs: the log of the thirtieth one-day segment of `box_near_side_sea_dgw` (research drive, `crm-runs/`,
+  `cm1_segment_030.log`), which starts at 2,505,600 s, moves the count on 35 times in its first 35 steps of 80 s.
+- **Effect.** For those steps the box's mean wind relaxes toward earlier windows' wind, on 2 hours in Terluna's later
+  boxes, and its held air and the inflow's reference are those windows'. The count reaches its window in as many
+  steps as windows have passed, at most 71 on a box of two lunar days in 72 windows, an hour and a half of model time
+  at 80 s a step. Under the damped gravity wave the box's own ascent answers the earlier windows' air too, a tenth of a
+  kelvin of which makes about 3 cm/s by Terluna's estimate. By the code, a box run in one-day segments on windows
+  counted from its start meets the climb at each segment's start, as the sea box's log shows; Terluna's set-up wrote
+  the windows of its run-on cases from their restart's time, which spares those cases the climb at their first
+  segment.
+- **Status.** Open. A fix moves the count on until the window holds the step's time, or keeps the count in the restart
+  files; either changes a restarted run's path at the default, so it belongs in a patch of its own with an entry.
+  The lab's wave and nudging read the window CM1 holds (`models/cm1/README.md`, "The box's own large-scale vertical
+  wind", Limits).
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
@@ -1121,6 +1146,19 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
 - **Status.** Open. Both values are the scheme's settings; a fit on cloud-resolving boxes of the world would replace
   them, as Terluna intended for the humidity.
 
+### B43. CM1, the simple boundary layer: the depth by Earth's critical Richardson number (L; R; open)
+
+- **Value.** Under `ipbl = 2` CM1 finds the boundary layer's depth `hpbl` by the bulk Richardson number against a
+  critical value of 0.125 (`sfcphys.F`, `gethpbl2`, `bric`), a value fitted to Earth's boundary layers. Terluna's
+  audit of its damped-gravity-wave boxes lists it among the Earth-calibrated values the wave meets
+  (`session-tools/agents/gap_boxes/yardstick/audit.md` on Terluna's research drive).
+- **Where it acts.** The lab's patch 10 takes the coupled layer's base from the domain mean of this depth, and with
+  `lsw_table_heat` = 1 the table heats below it alone. On Terluna's land box the depth swung from 0.06 to 8.4 km over
+  the lunar day, and at sea from 1.3 to 4.5 km.
+- **Effect.** Unmeasured. The Richardson number carries gravity in its buoyancy, so the critical value stands as a
+  similarity constant; whether air of another gravity, pressure or composition keeps Earth's value is untested.
+- **Status.** Open; the wave's floor, `lsw_base`, bounds the base from below.
+
 ## (c) Defects in Terluna's own work
 
 ### C1. GCM runner: the solar spectrum's tail (R; evidence V)
@@ -1469,6 +1507,26 @@ reader checks every wet node's depth against the atlas (`climate/waves/audit.md:
   `wind_nudge_tau` when it is positive, at every level, since the large-scale pressure gradient below the GCM's lowest
   level is that level's (`models/cm1/README.md`, "The wind's own nudging and the inflow"). Open in Terluna, where the
   Moon's slow rotation makes it negligible.
+
+### C26. CM1 build: the damped gravity wave's record, its base after a restart and its silent state (L; fixed in the lab)
+
+- **Defects.** Terluna's `DGW_PATCHES` (`climate/crm/cm1_run.py` at `29af5c16`, from c3898a7c) write the wave's
+  means over each interval of the domain diagnostics at the first step whose start lies past the interval's end, so
+  each run segment, which stops at an interval's end, loses its last interval, and the others close a step after the
+  domain diagnostics, the table's heating of that step falling into the next interval. The base's mean depth comes from
+  `turb.F` as the surface layer runs, which a restarted run skips at its first step, so each segment's first step takes
+  the base at its floor and the restarted run parts from the run it continues. The wave runs only with the inflow,
+  lsnudge's θ and vapour and moisture, and otherwise leaves the imposed wind in place unannounced. And the base
+  averages one process's columns, so the wave serves OpenMP builds alone.
+- **Effect.** Terluna recorded the lost interval, 1 in 8 with one-day segments and 3-hour intervals, and its budget
+  estimated each from its neighbours, which moves the boxes' own moisture import by at most 0.05 mm/day
+  (3d42c797). At sea the first step of each segment set the base at 316 m where the boundary layer stood 1.3–4.5 km
+  deep, unmeasured in its effect.
+- **Fix and status.** Patch 10 of the lab's CM1 series writes every interval at the step that ends it and the run's
+  last at its last step, with each interval's start; reads the base from the depths a restart file keeps, summed over
+  every rank, just before `solve1`; runs the wave with the inflow on or off; and stops on settings it cannot take
+  (`models/cm1/README.md`, "The box's own large-scale vertical wind"). A restarted wave box in the lab's scratch runs
+  returned the outputs, restart files and record of the box run whole, byte for byte. Open in Terluna.
 
 ## (d) Record inconsistencies found in this pass, not yet corrected in Terluna (V)
 

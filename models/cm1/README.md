@@ -104,7 +104,9 @@ lab's own, read the world from the namelist, so that one build serves every worl
 Terluna's builds compile in, the slab soil's top layer and the Sun's declination. Each entry's default is the
 present build's value. The ninth puts Terluna's three changes to the nudging of its site boxes behind entries of
 `&param3`, which its build read from CM1's spare reals (the same file at `39c5ee04`); at their defaults the nudging
-stands as CM1 has it.
+stands as CM1 has it. The tenth puts Terluna's damped gravity wave, by which a forced box makes its own large-scale
+vertical wind, behind entries of `&param3` (the same file at `29af5c16`); at their defaults CM1 imposes the wind as
+before.
 
 | # | Files | Switch | Change | Kind |
 |---|---|---|---|---|
@@ -117,13 +119,15 @@ stands as CM1 has it.
 | 07 | init_surface.F; input.F, cm1.F, param.F | `soil_dz1` (0.05 m by default, core patch 08's) | The slab soil's top layer from the namelist; each of the four layers below is twice the one above, as in CM1. A world's layer is CM1's 1 cm times the square root of its solar day in Earth days (the lab's own patch) | General repair of a unit of time (`cm1-soil-day`, B10) |
 | 08 | radiation_driver.F; input.F, cm1.F, param.F | `sun_decl` (0° by default, the equinox of core patch 05) | The Sun's declination, in degrees north, under core patch 05's solar day: the zenith cosine sin(lat) sin(δ) + cos(lat) cos(δ) cos(hour angle) at each column's latitude, set by a loop that follows the equinox's where `sun_decl` differs from 0 (the lab's own patch) | General repair of a geometry (`cm1-equinox-sun`, B10) |
 | 09 | solve1.F, solve3.F; input.F, cm1.F, param.F | `wind_nudge_tau` > 0; `wind_nudge_zmin` > 0; `inflow_ref_air` = 1 | CM1's large-scale nudging (`lsnudge`) relaxes the wind on its own time, `wind_nudge_tau` seconds, where θ and vapour keep `lsnudge_tau`: the domain-mean wind in `solve1.F` and the base-state and geostrophic wind in `solve3.F`; it pulls the domain-mean wind only at the levels from `wind_nudge_zmin` m up; and with `inflow_ref_air` = 1 the large-scale vertical wind's convergence draws the nudging reference's θ and vapour in, at max(d(ρ₀w)/dz, 0)/ρ₀ (Terluna's `WIND_TAU_PATCH`, `WIND_ALOFT_PATCH` and `INFLOW_PATCH`; the base-state and geostrophic wind's time the lab's) | Coupling: the forcing of a site box ("The wind's own nudging and the inflow", below) |
+| 10 | solve1.F, cm1.F; input.F, param.F | `lsw_coupling` = 1, with `lsw_tau`, `lsw_mode_speed`, `lsw_top`, `lsw_base`; `lsw_table_heat` = 1 | The box's large-scale vertical wind its own, by the damped gravity wave: each step `solve1.F` solves d²ω/dp² = R_d T_v′/(τ c² p) for the domain-mean ω, nil at the ground and from the lid `lsw_top` up, T_v′ the domain-mean virtual temperature less the nudging window's between the coupled layer's base, the domain-mean boundary layer's depth no lower than `lsw_base`, and the lid, and sets `wprof` = −ω/(ρ₀g); with `lsw_table_heat` = 1 the table heats below the base alone; the means over each interval of the domain diagnostics go to `lab_lsw_means.txt`, the run's last interval included (Terluna's `DGW_PATCHES`; the record's timing, the base's mean, its own entries and the stops the lab's) | Coupling: a site box's own ascent ("The box's own large-scale vertical wind", below) |
 
-Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the nine patches give the sources
+Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the ten patches give the sources
 `expected-series.sha256` records (`models/check_patches.sh`). The sources of the first two compiled with gfortran and
 OpenMP on 8 November 2026, those of the first four on 11 November under CM1's flags and under `-O3 -march=native`,
 those of the first five the same day under CM1's flags (gfortran 13.3.0, at CM1's own gravity and air), those
 of the first eight the same day under both flag sets, at CM1's own gravity and air and with the Moon's compiled in,
-and those of all nine on 16 November under both flag sets, at CM1's own gravity and air. Where
+those of the first nine on 16 November under both flag sets, at CM1's own gravity and air, and those of all ten on
+17 November under both flag sets, at CM1's own gravity and air. Where
 the rows of patches 02 to 04, their names and their comments say the build's gravity, they mean CM1's `g`, which
 since patch 06 is the run's. Stage 3's CM1
 builds will test the identity at the defaults of a compiled case on the lab's own builds and measure each fix's
@@ -596,6 +600,169 @@ with their logs in `tmp/port09/logs/`), on the sources of `expected-series.sha25
   large-scale vertical wind over terrain, so the inflow runs on flat ground alone.
 - Each rank of an MPI build takes the three entries by broadcast, lines the OpenMP builds leave uncompiled, and the
   domain's means the inflow reads are CM1's own across the ranks.
+
+### The box's own large-scale vertical wind (patch 10)
+
+**Why.** A box forced through the whole column (`python/climate/crm/gcm_site.py`) takes the GCM's mean vertical wind
+as given, so much of its free troposphere's temperature comes from motion the GCM supplied, and the moisture its
+storms draw in follows the GCM's ascent. On 5 November 2026 Terluna let its site boxes make their own large-scale vertical
+wind by the damped gravity wave (Kuang 2008; Blossey, Bretherton and Wyant 2009), in its build
+`moon_omp_rain_law_pbl_wind_gust_aloft_inflow_dgw`, which read the wave's settings from CM1's spare reals
+(`DGW_PATCHES`, `var9` and `var4` to `var8`; `climate/crm/cm1_run.py` at `29af5c16`, from c3898a7c). Making its own
+ascent, Terluna's sea box rained 1.6–1.7 mm/day after midnight where under the imposed ascent it rained about 0.2,
+against the GCM's 1.21, so the night gap on which Terluna's redesigns of the convection rested depends on the coupling; the next test of
+the yardstick runs three sea boxes, the wave against another box's own domain mean by local time (the test of
+self-consistency of Edman and Romps 2015), a weak-temperature-gradient coupling, and the wave at the planet's scale
+(`PLAN.md`, "Decisions", 17 November 2026). Patch 10 reads the wave's settings from named entries of `&param3`, whose
+defaults keep the wind CM1 imposes.
+
+**The entries.**
+
+| Entry | Unit | Default | With a value | A coupled box (`gcm_site.case_inputs`, coupling `'dgw'`) |
+|---|---|---|---|---|
+| `lsw_coupling` | 0 or 1 | 0: CM1's own `wprof`, from `terluna_wls.txt` (`var13` = 1) or a test case | 1: the damped gravity wave sets `wprof` each step | 1 |
+| `lsw_tau` | s | 0 | τ, the first baroclinic mode's adjustment time, the length the box stands for over the mode's speed, so that k²/ε = 1/(τc²); `dtl` or more | The site's footprint over the mode's speed, to 0.1 s: 10,303.0 s at the Near-side Sea on Terluna's design years with Terluna's constants (418 km at 40.53 m/s), 10,243.5 s on the run's own |
+| `lsw_mode_speed` | m/s | 0 | c, the first baroclinic mode's speed | `first_mode`'s over the run's tropics, to 1 mm/s: 40.534 m/s, 40.771 on the run's own constants |
+| `lsw_top` | m | 0 | The lid: ω is nil from the first w level at or above it | The GCM's convection top at the site, to 0.1 m: 73,084.5 m, 73,422.4 on the run's own constants |
+| `lsw_base` | m | 0 | The lowest height of the coupled layer's base, which is the domain-mean boundary layer's depth held between it and the lid | The GCM's lowest level, to 0.1 m: 316.1 m, 317.6 on the run's own constants |
+| `lsw_table_heat` | 0 or 1 | 0: the table (`var11`) heats every level | 1: the table heats below the base alone, and moistens every level | 1 |
+
+**What the patch does.** Just before `solve1`, `cm1.F` averages CM1's boundary-layer depth `hpbl` over the domain's
+columns, summing every rank's under MPI, and `solve1.F` takes the mean, held between `lsw_base` and `lsw_top`, as the
+coupled layer's base. Inside CM1's large-scale nudging, after the domain's means and the nudging of vapour and before
+patch 09's inflow, a block forms T_v′ = π₀ (θ̄ (1 + 0.608 q̄) − θ_r (1 + 0.608 q_r)) at the scalar levels between the
+base and the lid's w level, the reference r being the nudging window CM1 holds, and solves d²ω/dp² = R_d T_v′/(τ c² p)
+on the w levels between the ground and the lid by a tridiagonal sweep, on the base state's pressures (at w levels the
+geometric means of the scalar levels', at the ground and the top extrapolated in log pressure), T_v′ averaged onto the
+w levels; at the w levels below the base the source is nil and ω falls linearly in pressure to the ground. `wprof` =
+−ω/(ρ₀ g), which `solve1.F` now takes as `intent(inout)`, carries the wave's wind through CM1's large-scale vertical
+advection and patch 09's inflow. With `lsw_table_heat` = 1 core patch 17's table heats below the base alone. The model
+prints `Lab: the damped gravity wave; its lid (k, z) =` as the wave first runs, and writes `lab_lsw_means.txt`: for
+each interval of CM1's domain diagnostics, at the step that ends it, and for the interval that the run's last step
+ends, a line of the interval's start and end (s), its steps, the base's mean height (m) and the level count, then at
+each level zh and zf (m), the wind at zf (m/s), the inflow's θ (K/s) and vapour (kg/kg/s) tendencies and the table's
+heating (K/s) and moistening (kg/kg/s) as applied, each the mean over the interval's steps. A run that starts afresh
+replaces the file, and a restarted run adds to it.
+
+**With patch 09.** The wave sets `wprof` before patch 09's inflow reads it, so the inflow's rate,
+max(d(ρ₀w)/dz, 0)/ρ₀, follows the box's own convergence step by step and draws the window's air in where the wave
+gathers air; with the wave's ω nil at the ground and the lid, the air drawn in equals the air sent out. CM1's
+large-scale vertical advection carries the box's mean wind as it carries θ and vapour, so the wave's ascent and
+descent move the wind between levels, and the wind's own nudging, on 2 hours from the GCM's lowest level up in a box
+as `gcm_site` writes it, pulls it back toward the window's wind. The held air above the GCM's convection, nudged on 3
+days from the GCM's first level above that top, lies above the wave's lid, which `gcm_site` sets at the convection's top.
+
+**The lab's form.** The wave's arithmetic is Terluna's statement for statement, and in the suite's driver the lab's
+block returns every tendency, stepped mean and wind of Terluna's deployed block bit for bit where the settings coincide
+(below). The form departs from Terluna's in five places.
+
+- The record writes each interval at the step that ends it, and the run's last at its last step. Terluna's build wrote
+  an interval at the first step past its end, so each run segment lost its last interval (1 in 8 with one-day segments
+  and 3-hour intervals, which Terluna's `box_budget` estimated from their neighbours, 3d42c797), its intervals ended one
+  step after the domain diagnostics', and the table's heating of the step that wrote an interval fell into the next.
+  The lab's record also states each interval's start, so a segment's partial intervals show, and holds the table's
+  moistening as applied.
+- The base reads the boundary layer's depth from the array CM1 keeps in its restart files, just before `solve1`.
+  Terluna's build averaged it in `turb.F` as the surface layer ran, which a restarted run skips at its first step, so
+  the first step of each segment took the base at its floor, 316 m where the sea box's boundary layer stood 1.3–4.5 km
+  deep, and a restarted run parted from the run it continued. With the lab's form a wave box restarted after an hour
+  writes the outputs, restart files and record of the box run whole, byte for byte (below). Under MPI the lab's mean
+  sums every rank's columns, where Terluna's took one process's.
+- The wave runs with the inflow on or off. Terluna's ran only with its inflow (`var7` = 1), lsnudge's θ and vapour and
+  moisture, and otherwise left the imposed wind in place unannounced; the lab's model stops as it starts on settings it
+  cannot take: a coupling other than 0 and 1; the wave's entries set with the coupling at 0; a time below `dtl`, a
+  speed of zero or less, or a lowest base below the ground or at or above the lid; an `lsw_table_heat` other than 0
+  and 1, or 1 without the table; and a wave without lsnudge's θ and vapour, without `imoist` = 1 or without one
+  profile of large-scale vertical wind (`var13` = 1 or one of CM1's test cases 3 to 7). The block itself stops on a lid
+  at or below the first w level above the ground. Each stop prints a line that begins `Lab coupling:`.
+- The entries are the wave's own. Terluna's `var8` served both the wind's pull from the GCM's lowest level and the
+  wave's floor; the lab's `wind_nudge_zmin` and `lsw_base` are two entries, which `gcm_site` sets alike by default.
+  The table's cut is an entry too, so a case can apply the table's heating at every level, as a test of self-consistency
+  may need.
+- The identifiers, the comments and the record's name are the lab's, and no number of a world is compiled in.
+
+**How the weak temperature gradient joins.** The entries name the coupling, its time, its lid and its base, and the
+base's depth, the record, the table's cut, the reference and the stops serve any coupling of a box's wind to its
+departure from the reference. A later patch adds the weak temperature gradient as `lsw_coupling` = 2: a branch beside
+the wave's, inside the same block and after the departure is formed, sets ω from the departure over τ and the
+reference's stability between the base and the lid, falling linearly below the base; `param.F` accepts 2, with
+`lsw_mode_speed` unread; and `gcm_site.case_inputs` takes coupling `'wtg'` with the same reference, time, lid, base,
+table and start, which it refuses until then.
+
+**Checks in the suite** (`make check`; `python/climate/tests/test_cm1_coupling.py`, with the forcing in
+`python/climate/tests/test_gcm_site.py`). The part of `solve1.F` from CM1's large-scale nudging through core patch 17's
+table and the wave's record, taken from the series before patch 10 and after it, compiles in one program that steps it
+on a domain's means without dynamics, under CM1's OpenMP flags and under `-O3 -march=native`.
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The series on the pinned archive | The sources of `expected-series.sha256`, with every Terluna build still reproduced (`models/check_patches.sh`) | The patches apply |
+| The patch's texts | The six entries are declared, given their defaults ahead of the namelist's reading, listed in `&param3`, broadcast, checked and printed; `cm1.F` averages the depth over every rank just before `solve1`; the wave stands after the nudging of vapour and before the inflow, the table's cut and sums before its heating is added, and the record after the table; the patch removes one line, `wprof`'s `intent(in)`; no added line holds a world's number or a Terluna name | Each line the patch changes is found |
+| The coupled part at the defaults | Every tendency, every mean stepped by them and the wind keep their bits after the patch, on three domains, one step on tendencies already set and twenty from nil, with the inflow and the table on and off, the wind's nudging off and the large-scale wind off, under both flag sets; no record is written | Identity at the default |
+| The boundary-value problem | With the base at the ground the wave's wind is −ω/(ρ₀g) of the discrete problem solved apart by numpy in double precision, to 1 part in 10⁴ of its largest value, under both flag sets; for ω = A sin(π(p_s − p)/(p_s − p_lid)), whose T_v′ the case sets, it returns that sine within 1% of A on 66 stretched levels | The Fortran solves the problem; the discretisation's error |
+| No departure, no wind | The box's mean air at its reference leaves the wind nil bit for bit under CM1's flags; under `-O3 -march=native` gfortran fuses one of the two products θ(1 + 0.608 q) of the departure and rounds the other, and the wind stays below 10⁻⁶ m/s (2.9 × 10⁻⁷ on the test's column, where 0.1 K makes 8.5 × 10⁻³) | Effect; the fused products' residual |
+| The first mode's rate | A departure of the operator's first mode, 0.5 K at its peak, rises where warm and sinks where cool, and the wind relaxes it at 1/τ within 5% when `lsw_mode_speed` is that mode's speed, on a lunar column and an Earth column, under both flag sets (Terluna's test, on the compiled block) | Effect, against the eigenproblem |
+| Below the base, the ground and the lid | ω is nil at the ground and from the lid's w level up, bit for bit, and linear in pressure at the w levels below the base to 2 parts in 10⁴, with the base at the boundary layer's 2 km and at the floor where the boundary layer lies lower | Effect |
+| With the inflow | The column gains the reference's θ and vapour where the wave's wind converges and loses its own where it diverges, under CM1's advection by that wind, to 1 part in 10⁵, and the air drawn in equals the air sent out; the inflow is nil where the wind diverges | The inflow reads the wave's wind; heat, water and air kept |
+| The record | Ten steps from 3,600 s with the domain diagnostics at the ends of steps 3 and 7 and the run's end at step 10 give three intervals, 3,600–3,720, 3,720–3,880 and 3,880–4,000 s, of 3, 4 and 3 steps, each the mean over its steps of the wind, the inflow's and the table's tendencies to 1 part in 10⁵, the heating cut above the base; a run ending on an interval's end writes it once, a segment that stops short of an interval's end writes nothing past its last, a fresh run replaces the file and a restart adds to it | The record holds every interval, the run's last included |
+| The stops | `param.F`'s seven checks, compiled alone: twenty-one settings stop the model with their message and five run, a box as `gcm_site` writes it and the defaults among them; the block stops on a lid at the first w level and takes the top for a lid above it | The model stops on the values it cannot take |
+| The forcing | `site_forcing`'s air, vertical wind and horizontal part by local time, `first_mode` and `footprint_m` by hand on synthetic runs; `case_inputs`' entries, files, start and record for the wave, a case's stated length, time, lid, base, table, reference (a box's domain mean among them) and start, and its refusals; and, where Terluna's research drive is at hand, Terluna's three damped-gravity-wave boxes (below) | The forcing writes the entries |
+
+**On Terluna's design run,** read in place (the tests skip without the drive): with Terluna's constants `first_mode` gives
+the speed of Terluna's three boxes, 40.53382926508821 m/s, and `footprint_m` their lengths, 417,621, 418,418 and
+353,976 m, to the last bit; the sea box's case takes the values Terluna's set-up gave its slots `var4`, `var5`, `var6`
+and `var8` (73,084.5 m, 10,303.0 s, 40.534 m/s and 316.1 m); its 72 windows and its sounding hold Terluna's air to their
+printed digits, the vapour once carried into a mixing ratio; and its record holds Terluna's split of the GCM's column
+moistening, −2.188 mm/day, −0.220 of it horizontal and −1.968 by the GCM's own vertical wind. Laid on the GCM's mean
+air, as Terluna laid it, the table is Terluna's to 1 part in 10⁴ of its largest value; the lab lays it on the box's
+starting air, the base state CM1 runs on, which moves it by up to 1.0% of the heating's largest value and 1.5% of the
+moistening's, near 650 m. Terluna's rule for the vapour by local time gives its three choices: the sea's lowest level
+swings by 4.3% of its mean through the day, under the rule's tenth, and the two land sites' by more. On the run's own
+constants the speed comes to 40.77 m/s, 0.58% faster, with the heights 0.47% higher and the potential temperature in the
+run's own ratio of gas constant to heat capacity.
+
+**Checks run once,** on 17 November 2026, with gfortran 13.3.0 on an Intel i9-11980HK, one thread to a run. Each is a
+single run from scratch scripts and builds on the project drive, removed after the runs, on the sources of
+`expected-series.sha256`.
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The whole model | Four builds compiled and linked without macros, the series before patch 10 and after it, each under CM1's OpenMP flags and under `-O3 -march=native` | The sources compile |
+| CM1's released cases at the defaults | CM1's released supercell (125 steps of 12 s) and the world case of patches 06 to 08, between the series before patch 10 and after it: the supercell's 10 files agree byte for byte under both flag sets, and the world case's 10 byte for byte under `-O3 -march=native` and bit for bit under CM1's flags in every field but `z0t`, which CM1's surface layer leaves unset over land; the model prints the six entries at their defaults | Identity at the default, of compiled cases of CM1's own |
+| A lunar box at the defaults | Patch 09's box, three hours of 8 × 8 columns of 6 km forced through `gcm_site` from Terluna's design run `A28R_301k_design_l15_snow_s934`, years 10–19, read in place, on the run's own constants, with patch 09's entries as `gcm_site` writes them: its 28 output and restart files agree byte for byte between the series before patch 10 and after it, the new entries silent and stated at their defaults, under both flag sets | Identity at the default, of a compiled forced box |
+| The wave in that box | The case as `gcm_site` writes it with the wave, on the run's own constants, starting from the first window's air: the record holds three intervals, 0–1, 1–2 and 2–3 h, of 50, 48 and 48 steps, the last at the run's end, with the base at 2.8–3.2 km; the box's band of 20–60 km falls 0.014 to 0.024 K below its reference and the box sinks, at up to 5.2 mm/s in the interval's mean at 47–49 km by the third hour; at each output the wind CM1 wrote matches the problem solved apart on the box's own mean air, the base state taken from the first output, within 1.0%, 0.5% and 0.3% of its largest value. Both flag sets give these to the digits shown | Effect in a compiled box; three model hours, read as a test of the code |
+| A restart | Two hours of the wave box run whole, and one hour run and then restarted for the second: the three outputs, the three domain diagnostics, the two restart files and the record agree byte for byte, under both flag sets; the statistics differ in two words, CM1's step and largest Courant number at the restart's time, alike with the wave off | The wave keeps a restarted run on the path of the run it continues |
+| The stops in the compiled model | Under CM1's flags, seven settings each end the run as it starts with its `Lab coupling:` line: a coupling of 2, a time below the step, the entries with the coupling at 0, the table's cut without the table, the wave without the vapour nudged, the wave without the large-scale wind (`var13` = 0) and a lid of 50 m; the box as `gcm_site` writes it runs | The model stops on the values it cannot take |
+| Terluna's deployed block | The part of `solve1.F` from the large-scale nudging through the table, from Terluna's build `moon_omp_rain_law_pbl_wind_gust_aloft_inflow_dgw` (research drive, `cm1/build/`, `solve1.F` sha256 `c723f391d1107582…`), its slots given the lab's values and its record left unwritten, and the lab's, each in the suite's driver: every tendency, stepped mean and wind agree bit for bit in 72 runs, 36 under each flag set, on six domains with the inflow and the table on and off, one step and twenty, and the base at the boundary layer's depth and at its floor | The lab's code is Terluna's where the forms agree |
+| Wrong statements | 43, put one at a time into a copy of the patch (30, each a line replaced so that the patch still applies) and of `gcm_site.py` (13): each fails the suite's tests, 41 of them with the tests of the patch's text left out; the other two, a wrong divisor and a wrong condition of `cm1.F`'s mean depth, which the compiled tests take as an input, fail the test of the text | The suite's tests find each fault put in |
+
+**Limits.**
+
+- The checks test the code. The wave box ran three model hours on 64 columns, and no lab run has read a coupled box as
+  a study; that waits for the case writer of `PLAN.md`'s block 2 and the author's word. Terluna's measured effects are
+  Terluna's runs, read on its lunar days 3 and 4: its sea box rained 2.85 mm/day against the GCM's 1.42, 69% of it in
+  the afternoon; its land box's own large-scale motion brought it +17.1 mm/day of vapour in the afternoon, against the
+  +11.25 that the GCM's vertical advection brought in the design years; and its dry box dried to 2% of the GCM's rain
+  under steady descent
+  (`session-tools/agents/gap_boxes/yardstick/reading_wtg.md` on Terluna's research drive).
+- The mode's speed is the WKB estimate. On Terluna's column the operator's own discrete first mode runs at 43.3 m/s,
+  so with the WKB speed the first mode relaxes in 0.875 τ (Terluna's `report_wtg.md`, its calculation, which waits to be
+  repeated on a lab box's base state).
+- The base takes CM1's boundary-layer depth, which the simple boundary layer finds by the bulk Richardson number
+  against a critical 0.125 (defect log B43); on Terluna's land box it swung from 0.06 to 8.4 km over the lunar day.
+  Where the base reaches the lid, the scalar levels between `lsw_top` and the lid's w level still feel the departure,
+  as in Terluna's block.
+- The departure takes the base state's Exner function and pressures and no condensate's weight (Terluna's form, after
+  Kuang 2008). Under `-O3 -march=native` the fused products leave a box at its reference a wind below 10⁻⁶ m/s.
+- The reference is the window CM1 holds. After a restart CM1 counts its windows again from the first, one a step
+  (defect log A12), so a restarted wave box measures itself against earlier windows for as many steps as windows have
+  passed: 35 steps, 47 minutes of model time, at the start of Terluna's sea box's thirtieth one-day segment. The fix
+  belongs to CM1's nudging and waits for a patch of its own.
+- Under the wave, patch 09's `lab_inflow_rate.txt` holds the rates of the run's first step, nil at a start from rest,
+  and the record holds the inflow's means. A run that CM1 stops on its Courant number leaves its last interval
+  unrecorded. CM1 refuses the large-scale vertical wind over terrain, so the wave runs on flat ground alone.
+- Each rank of an MPI build takes the six entries by broadcast and the depth's sum over the ranks, lines that the
+  OpenMP builds leave uncompiled.
 
 ## Settings of the lunar cases
 

@@ -315,9 +315,11 @@ def layer_mass(world):
     return P_HPA * 100.0 * np.diff(gs.edges(HALF5)) / world['gravity']
 
 
-def write_run(folder, world, years=2, *, still=False, drop=None, lev=None, true_mean=()):
+def write_run(folder, world, years=2, *, still=False, drop=None, lev=None, true_mean=(), spread=None):
     """A synthetic run's model folder: its namelists, its surface geopotential and its year files; the years in
-    true_mean also write the humidity's true mean, hus_mean."""
+    true_mean also write the humidity's true mean, hus_mean. With spread, a meridional wind spread (level) sin(2
+    latitude) (1 + cos(h)) away from the equator's low levels, written as means over the windows, gives the run a
+    vertical wind that swings through the day."""
     netCDF4 = pytest.importorskip('netCDF4')
     folder.mkdir(parents=True, exist_ok=True)
     (folder / 'planet_namelist').write_text(
@@ -367,7 +369,8 @@ def write_run(folder, world, years=2, *, still=False, drop=None, lev=None, true_
             if year in true_mean:
                 field('hus_mean', Q_K[None, :, None, None] + B_K[None, :, None, None] * mean_cos)
             field('ua', (U_K[None, :, None, None] + U1 * mean_cos) * cos_lat)
-            field('va', 0.0)
+            field('va', 0.0 if spread is None else np.asarray(spread)[None, :, None, None]
+                  * np.sin(2.0 * np.radians(lat))[None, None, :, None] * (1.0 + mean_cos))
             field('dt_diab', D_K[None, :, None, None] * end_cos
                   + 1e-5 * np.cos(np.radians(8.0 * lon))[None, None, None, :])
             field('dq_dyn', 0.0)
@@ -638,6 +641,291 @@ def test_the_case_takes_its_files_and_entries_as_cm1_reads_them(tmp_path):
             gs.case_inputs(f, zw, air, wind_from_m=z, **same)
 
 
+# The box that makes its own large-scale vertical wind (patch 10 of the lab's CM1 series).
+
+V_K = np.array([0.0, -0.3, -0.1, 0.2, 0.4])                    # m/s: out from the equator low, in high
+
+
+@pytest.mark.parametrize('world', [MOON, EARTH], ids=['moon', 'earth'])
+def test_the_extraction_gives_the_air_and_the_horizontal_part_by_local_time(tmp_path, world):
+    """By local time the extraction gives the GCM's air, its fits undamped: theta (T_k + A_k cos(h) + S_k sin(h)) /
+    exner and the humidity Q_k + B_k cos(h), whose lowest level swings by 2 B/Q through the day; the vertical wind
+    from continuity on the fits of omega, which a spreading flow written as means over the windows makes W_k (1 +
+    cos(h)) at each level, whose mean over the records is the mean vertical wind; and the circulation's horizontal
+    part, the circulation less the advection by that wind,
+    -w d/dz of the air by local time. Where the flow only turns with the globe, the horizontal part is the
+    circulation."""
+    f = gs.site_forcing(write_run(tmp_path / 'still', world), (0, 1), SEA5)
+    hours = gs.bin_hours(36)
+    h = np.radians(hours)[:, None]
+    exner = (gs.full_levels(HALF5) * P_HPA * 100.0 / 1e5)**gs.CM1_KAPPA
+    by = f['air_by_hour']
+    assert by['hour_angle_deg'] == hours.tolist() and by['z_m'] == f['profile']['z_m']
+    assert np.allclose(by['theta_k'], (T_K + A_K * np.cos(h) + S_K * np.sin(h)) / exner, rtol=1e-12)
+    assert np.allclose(by['specific_humidity_kg_kg'], Q_K + B_K * np.cos(h), rtol=1e-9)
+    assert by['lowest_level_vapour_swing'] == pytest.approx(2.0 * B_K[-1] * math.cos(math.radians(0.5)) / Q_K[-1],
+                                                            rel=1e-9)
+    assert np.abs(f['vertical_wind_by_hour']['w_m_s']).max() < 1e-12
+    for key in ('theta_k_s', 'specific_humidity_kg_kg_s'):
+        circ = np.asarray(f['circulation'][key])
+        assert np.allclose(f['horizontal'][key], circ, rtol=0, atol=1e-9 * np.abs(circ).max())
+    # A flow that spreads from the equator low and gathers high: the GCM's vertical wind by local time.
+    f = gs.site_forcing(write_run(tmp_path / 'spread', world, spread=V_K), (0, 1), SEA5)
+    w_h = np.asarray(f['vertical_wind_by_hour']['w_m_s'])
+    shape = 1.0 + np.cos(h)
+    at_noon = w_h[np.argmin(np.abs(hours)), :] / shape[np.argmin(np.abs(hours))]
+    assert np.abs(at_noon).max() > 1e-6
+    assert np.allclose(w_h, at_noon[None, :] * shape, rtol=1e-6, atol=1e-6 * np.abs(at_noon).max())
+    # Its mean over the records, the mean vertical wind, by the means' damping of the cosine over the kept records.
+    half = math.radians(f['window_deg'] / 2.0)
+    swing = math.sin(half) / half * np.cos(np.radians(kept_centres(f['window_deg']))).mean()
+    assert np.allclose(f['vertical_wind_m_s'], at_noon * (1.0 + swing), rtol=1e-6, atol=1e-6 * np.abs(at_noon).max())
+    z = np.asarray(f['profile']['z_m'])
+    for key, air in (('theta_k_s', 'theta_k'), ('specific_humidity_kg_kg_s', 'specific_humidity_kg_kg')):
+        circ, horizontal = np.asarray(f['circulation'][key]), np.asarray(f['horizontal'][key])
+        advection = w_h * np.gradient(np.asarray(f['air_by_hour'][air]), z, axis=-1)
+        assert np.allclose(horizontal, circ + advection, rtol=1e-12, atol=1e-12 * np.abs(circ).max())
+        assert np.abs(horizontal - circ).max() > 1e-3 * np.abs(circ).max()
+    mass = layer_mass(world)
+    column = f['horizontal']['column_vapour_mm_day']
+    moist = np.asarray(f['circulation']['specific_humidity_kg_kg_s'])
+    horizontal = np.asarray(f['horizontal']['specific_humidity_kg_kg_s'])
+    assert column['circulation']['by_hour'] == [round(float(x), 4) for x in moist @ mass * 86400.0]
+    assert column['horizontal']['mean'] == pytest.approx(float((horizontal @ mass).mean() * 86400.0), rel=1e-12)
+    assert column['vertical_advection']['mean'] == pytest.approx(
+        column['circulation']['mean'] - column['horizontal']['mean'], rel=1e-9, abs=1e-12)
+
+
+def write_tropics(folder, *, t0, t1, years=2, records=5, gravity=1.6242, lat_limit=30.0):
+    """Year files of an atmosphere at rest, isothermal at t0 within lat_limit of the equator and at t1 beyond, dry,
+    under a uniform surface pressure, its convection heating the lowest three levels; with the record a run's
+    first_mode reads."""
+    netCDF4 = pytest.importorskip('netCDF4')
+    folder.mkdir(parents=True, exist_ok=True)
+    lat, lon, _ = grid(NLAT5, NLON5)
+    ta = np.where(np.abs(lat) <= lat_limit, t0, t1)[None, None, :, None] * np.ones((records, 5, NLAT5, NLON5))
+    for year in range(years):
+        with netCDF4.Dataset(folder / f'MOST.{year:05d}.nc', 'w') as d:
+            for name, size in (('time', None), ('lev', 5), ('lat', NLAT5), ('lon', NLON5)):
+                d.createDimension(name, size)
+            d.createVariable('lat', 'f8', ('lat',))[:] = lat
+            d.createVariable('lon', 'f8', ('lon',))[:] = lon
+            d.createVariable('lev', 'f4', ('lev',))[:] = gs.full_levels(HALF5)
+            d.createVariable('time', 'f8', ('time',))[:] = np.arange(records) + 1.0
+            d.createVariable('ta', 'f8', ('time', 'lev', 'lat', 'lon'))[:] = ta
+            d.createVariable('hus', 'f8', ('time', 'lev', 'lat', 'lon'))[:] = np.zeros(ta.shape)
+            d.createVariable('dt_conv', 'f8', ('time', 'lev', 'lat', 'lon'))[:] = np.broadcast_to(
+                CONV[None, :, None, None], ta.shape)
+            d.createVariable('ps', 'f8', ('time', 'lat', 'lon'))[:] = np.full((records, NLAT5, NLON5), P_HPA)
+    return dict(name='tropics', folder=str(folder), gravity_m_s2=gravity, gas_constant_j_kg_k=288.38,
+                heat_capacity_j_kg_k=288.38 / 0.286, vapour_gas_constant_j_kg_k=461.51, latent_heat_j_kg=2.5008e6,
+                half_levels=HALF5)
+
+
+def test_the_first_mode_of_an_isothermal_tropics_is_its_buoyancy_frequency_times_its_depth_over_pi(tmp_path):
+    """Over an isothermal tropics at T the buoyancy frequency is g / (cp T)^(1/2) at every height, in the run's own
+    heat capacity, so the first mode's speed is that frequency times the height of the convection's top over pi, and
+    times the top level's height beside it; the extratropics, at another temperature, stay out, and the records are
+    those the rule of A10 keeps."""
+    run = write_tropics(tmp_path / 'model', t0=280.0, t1=230.0)
+    mode = gs.first_mode(run, (0, 1))
+    g, gas, cp = run['gravity_m_s2'], run['gas_constant_j_kg_k'], run['heat_capacity_j_kg_k']
+    n = g / math.sqrt(cp * 280.0)
+    z = gas * 280.0 / g * np.log(1.0 / gs.full_levels(HALF5))                   # top first
+    assert mode['records'] == 2 * (5 - 2) and mode['lat_limit_deg'] == 30.0
+    assert mode['convection_top_m'] == pytest.approx(z[2], rel=1e-12)
+    assert mode['c_m_s'] == pytest.approx(n * z[2] / math.pi, rel=1e-9)
+    assert mode['c_to_model_top_m_s'] == pytest.approx(n * z[0] / math.pi, rel=1e-9)
+    assert mode['z_m'] == pytest.approx(z[::-1].tolist(), rel=1e-12)
+    wide = gs.first_mode(run, (0, 1), lat_limit_deg=89.0)                      # the extratropics' cold air enters
+    assert abs(wide['c_m_s'] / mode['c_m_s'] - 1.0) > 0.01
+    with pytest.raises(ValueError, match='from the first to the last'):
+        gs.first_mode(run, (1, 0))
+    with pytest.raises(ValueError, match='between 0 and 90'):
+        gs.first_mode(run, (0, 1), lat_limit_deg=0.0)
+    with pytest.raises(ValueError, match='lie off the full levels'):
+        gs.first_mode(dict(run, half_levels=[0.1, 0.4, 0.7, 0.9, 1.0]), (0, 1))
+
+
+def test_the_footprint_is_the_square_root_of_the_sites_area():
+    radius = 1.7374e6
+    side = lambda half, lat=0.0: 2.0 * math.radians(half) * radius
+    assert gs.footprint_m(SEA5, radius) == pytest.approx(
+        math.sqrt(side(25.0) * side(25.0) * math.cos(math.radians(-10.0))), rel=1e-14)
+    north = dict(SEA5, lat_deg=60.0)
+    assert gs.footprint_m(north, radius) / gs.footprint_m(dict(SEA5, lat_deg=0.0), radius) == pytest.approx(
+        math.sqrt(0.5), rel=1e-12)
+    sea = gs.TERLUNA_OPEN_MOON_SITES['near_side_sea']
+    assert 417e3 < gs.footprint_m(sea, 1737400.0) < 418e3                    # 5.6 by 8.5 degrees on the Moon
+
+
+def coupled(f, run, zw, air, **settings):
+    held_from = f['convection']['held_from_m']
+    return gs.case_inputs(f, zw, air, gravity_m_s2=run['gravity_m_s2'], start_hour_deg=-90.0,
+                          solar_day_s=run['solar_day_s'], length_s=2.0 * run['solar_day_s'],
+                          damping_base_m=held_from + 1.0, nudge_tau_s=259200.0, **settings)
+
+
+def test_a_coupled_case_makes_its_own_wind_against_the_gcms_air_by_local_time(tmp_path):
+    """With the damped gravity wave, the case states patch 10's entries: the time the site's footprint over the
+    mode's speed, to 0.1 s, the speed to 1 mm/s, the lid at the GCM's convection top and the lowest base at its lowest
+    level, each to 0.1 m, and the table's heating below the base; terluna_wls.txt holds nil; the table holds the
+    circulation's horizontal part with nothing added back; each window holds the GCM's air at its hour, the vapour by
+    the hour where the lowest level swings by more than a tenth; and the box starts from the first window's air. The
+    imposed case keeps its files and entries, and records its coupling."""
+    run = write_run(tmp_path / 'model', MOON)
+    f = gs.site_forcing(run, (0, 1), SEA5)
+    zw = np.r_[0.0, np.cumsum(np.full(60, 2500.0))]
+    air = gs.reference_air(f, run['gravity_m_s2'], zw[-1])
+    imposed = coupled(f, run, zw, air)
+    case = coupled(f, run, zw, air, coupling='dgw', mode=dict(c_m_s=40.0, source='stated'))
+    lowest, top = f['profile']['z_m'][-1], f['convection']['top_m']
+    footprint = gs.footprint_m(SEA5, run['radius_m'])
+    assert case['namelist']['param3'] == dict(
+        wind_nudge_tau=7200.0, wind_nudge_zmin=round(lowest, 1), inflow_ref_air=1, lsw_coupling=1,
+        lsw_tau=round(footprint / 40.0, 1), lsw_mode_speed=40.0, lsw_top=round(top, 1), lsw_base=round(lowest, 1),
+        lsw_table_heat=1)
+    assert case['namelist']['param8'] == imposed['namelist']['param8']
+    assert case['namelist']['param19'] == imposed['namelist']['param19']
+    wls = np.loadtxt(io.StringIO(case['files']['terluna_wls.txt']), skiprows=1)
+    assert np.allclose(wls[:, 0], zw) and np.all(wls[:, 1] == 0.0)
+    # The table: the horizontal part laid on the box's levels, nothing added back (the flow here turns with the globe,
+    # so the horizontal part is the circulation); laid on the mean air's pressures, it is the imposed case's table.
+    table, laid = case['cm1']['table'], case['cm1']['circulation']
+    assert np.array_equal(table['theta_k_s'], laid['theta_k_s'])
+    zh = 0.5 * (zw[1:] + zw[:-1])
+    r0 = np.asarray(case['start']['qv_at'](zh))
+    assert np.allclose(table['qv_kg_kg_s'], laid['specific_humidity_kg_kg_s'] * (1.0 + r0)[None, :], rtol=1e-12)
+    on_mean = coupled(f, run, zw, air, coupling='dgw', mode=dict(c_m_s=40.0), start='mean')
+    for key in ('theta_k_s', 'qv_kg_kg_s'):
+        mine, theirs = on_mean['cm1']['table'][key], imposed['cm1']['table'][key]
+        assert np.allclose(mine, theirs, rtol=1e-9, atol=1e-9 * np.abs(theirs).max())
+    # The windows: the GCM's air with its swing by local time, by hand, the vapour by the hour.
+    heights = np.r_[0.0, zh, zw[-1]]
+    zg = np.asarray(f['profile']['z_m'])[::-1]
+    exner = (gs.full_levels(HALF5) * P_HPA * 100.0 / 1e5)**gs.CM1_KAPPA
+    hours = gs.bin_hours(36)
+    r_h = gs.mixing_ratio(Q_K[None, :] + B_K[None, :] * np.cos(np.radians(hours))[:, None])
+    for i in (1, 18, 72):
+        window = case['windows'][i - 1]
+        b = int(np.argmin(np.abs((hours - window['hour_angle_deg'] + 180.0) % 360.0 - 180.0)))
+        a = math.radians(hours[b])
+        dev = ((A_K * math.cos(a) + S_K * math.sin(a)) / exner)[::-1]
+        ratio = (r_h[b] / r_h.mean(axis=0))[::-1]
+        rows = read_nudging(case['files'][f'lsnudge_{i:04d}.dat'])[2]
+        assert np.allclose(rows[:, 1], air['theta_at'](heights) + np.interp(heights, zg, dev), atol=1e-4)
+        assert np.allclose(rows[:, 2], air['qv_at'](heights) * np.interp(heights, zg, ratio) * 1000.0, rtol=1e-5,
+                           atol=1e-6)
+    first = read_nudging(case['files']['lsnudge_0001.dat'])[2]
+    assert np.allclose(case['start']['theta_at'](heights), first[:, 1], atol=1e-4)
+    assert np.allclose(case['start']['qv_at'](heights) * 1000.0, first[:, 2], atol=1e-6)
+    record = case['record']
+    assert record['coupling']['kind'] == 'dgw' and record['coupling']['entries'] == {
+        k: v for k, v in case['namelist']['param3'].items() if k.startswith('lsw_')}
+    assert record['coupling']['length_m'] == footprint and record['coupling']['time_s'] == footprint / 40.0
+    assert record['coupling']['mode'] == dict(c_m_s=40.0, source='stated')
+    assert record['coupling']['length_from'] == "the footprint of the GCM's site"
+    assert record['reference']['vapour'] == 'by-hour' and record['reference']['lowest_level_vapour_swing'] > 0.1
+    assert record['start'] == dict(source='reference', hour_angle_deg=-85.0,
+                                   air="the reference's air in the first window")
+    json.dumps(record)
+    # The imposed case: no entry of patch 10, the GCM's mean air in every window and at the start.
+    assert set(imposed['namelist']['param3']) == {'wind_nudge_tau', 'wind_nudge_zmin', 'inflow_ref_air'}
+    assert imposed['record']['coupling']['kind'] == 'imposed' and imposed['record']['start']['source'] == 'mean'
+    assert imposed['record']['reference']['source'] == 'gcm-mean' and imposed['start'] is air
+    # Where the GCM's flow spreads and gathers, the table holds its horizontal part, apart from the circulation.
+    f = gs.site_forcing(write_run(tmp_path / 'spread', MOON, spread=V_K), (0, 1), SEA5)
+    air = gs.reference_air(f, run['gravity_m_s2'], zw[-1])
+    case = coupled(f, run, zw, air, coupling='dgw', mode=dict(c_m_s=40.0))
+    nil = [0.0] * len(f['vertical_wind_m_s'])
+    laid = lambda part: gs.to_cm1(dict(f, circulation=f[part], vertical_wind_m_s=nil), zw, case['start'],
+                                  run['gravity_m_s2'])['circulation']['theta_k_s']
+    assert np.array_equal(case['cm1']['circulation']['theta_k_s'], laid('horizontal'))
+    assert np.abs(laid('horizontal') - laid('circulation')).max() > 1e-3 * np.abs(laid('circulation')).max()
+
+
+def test_a_coupled_case_states_its_length_or_time_lid_base_reference_and_start(tmp_path):
+    """A case states the length its box stands for or the wave's time, its lid and its lowest base, the table's
+    heating at every level, its reference (the GCM's mean air, its air by local time with its mean vapour, or a
+    column series such as a box's own domain mean by local time) and its start; the record says which it stated."""
+    run = write_run(tmp_path / 'model', MOON)
+    f = gs.site_forcing(run, (0, 1), SEA5)
+    zw = np.r_[0.0, np.cumsum(np.full(60, 2500.0))]
+    air = gs.reference_air(f, run['gravity_m_s2'], zw[-1])
+    zh = 0.5 * (zw[1:] + zw[:-1])
+    heights = np.r_[0.0, zh, zw[-1]]
+    mode = dict(c_m_s=40.5)
+    planet = coupled(f, run, zw, air, coupling='dgw', mode=mode, coupling_length_m=1.7374e6)
+    assert planet['namelist']['param3']['lsw_tau'] == round(1.7374e6 / 40.5, 1)
+    assert planet['record']['coupling']['length_from'] == 'stated'
+    timed = coupled(f, run, zw, air, coupling='dgw', mode=mode, coupling_time_s=42840.0, coupling_top_m=60000.0,
+                    coupling_base_m=500.0, table_heat='every-level', reference='gcm-mean', start='mean')
+    p3 = timed['namelist']['param3']
+    assert (p3['lsw_tau'], p3['lsw_top'], p3['lsw_base'], p3['lsw_table_heat']) == (42840.0, 60000.0, 500.0, 0)
+    assert timed['record']['coupling']['length_m'] == 42840.0 * 40.5
+    assert timed['record']['coupling']['top_from'] == 'stated' == timed['record']['coupling']['base_from']
+    for i in (1, 40):
+        rows = read_nudging(timed['files'][f'lsnudge_{i:04d}.dat'])[2]
+        assert np.allclose(rows[:, 1], air['theta_at'](heights), atol=1e-4)
+    mean_vapour = coupled(f, run, zw, air, coupling='dgw', mode=mode, reference_vapour='mean')
+    assert mean_vapour['record']['reference']['vapour'] == 'mean'
+    rows = read_nudging(mean_vapour['files']['lsnudge_0010.dat'])[2]
+    assert np.allclose(rows[:, 2], air['qv_at'](heights) * 1000.0, atol=1e-6)
+    # A column series: a box's own domain mean at two hours of the day, each window taking the nearer.
+    series = dict(hour_angle_deg=[-85.0, 95.0], z_m=zh.tolist(), source="a box's domain mean by local time",
+                  theta_k=np.vstack([air['theta_at'](zh) - 1.0, air['theta_at'](zh) + 2.0]).tolist(),
+                  qv_kg_kg=np.vstack([air['qv_at'](zh) * 0.9, air['qv_at'](zh) * 1.1]).tolist())
+    boxed = coupled(f, run, zw, air, coupling='dgw', mode=mode, reference=series)
+    assert boxed['record']['reference']['source'] == "a box's domain mean by local time"
+    for i, row, offset in ((1, 0, -1.0), (19, 1, 2.0), (37, 0, -1.0)):
+        window = boxed['windows'][i - 1]
+        assert abs((window['hour_angle_deg'] - series['hour_angle_deg'][row] + 180.0) % 360.0 - 180.0) <= 90.0
+        rows = read_nudging(boxed['files'][f'lsnudge_{i:04d}.dat'])[2]
+        assert np.allclose(rows[1:-1, 1], air['theta_at'](zh) + offset, atol=1e-4)
+        assert rows[0, 1] == pytest.approx(rows[1, 1], abs=1e-4) and rows[-1, 1] == pytest.approx(rows[-2, 1], abs=1e-4)
+    assert np.allclose(boxed['start']['theta_at'](zh), air['theta_at'](zh) - 1.0, atol=1e-9)
+    # The imposed wind can take a reference by local time too.
+    by_hour = coupled(f, run, zw, air, reference='gcm-by-hour')
+    assert by_hour['record']['coupling']['kind'] == 'imposed' and by_hour['record']['start']['source'] == 'mean'
+    assert by_hour['files']['lsnudge_0001.dat'] != coupled(f, run, zw, air)['files']['lsnudge_0001.dat']
+
+
+def test_a_coupled_case_refuses_what_it_cannot_state(tmp_path):
+    run = write_run(tmp_path / 'model', MOON)
+    f = gs.site_forcing(run, (0, 1), SEA5)
+    zw = np.r_[0.0, np.cumsum(np.full(60, 2500.0))]
+    air = gs.reference_air(f, run['gravity_m_s2'], zw[-1])
+    mode = dict(c_m_s=40.0)
+    zh = 0.5 * (zw[1:] + zw[:-1])
+    good = dict(hour_angle_deg=[0.0], z_m=zh.tolist(), theta_k=[air['theta_at'](zh).tolist()],
+                qv_kg_kg=[air['qv_at'](zh).tolist()])
+    refused = [(dict(coupling='wtg'), 'weak temperature gradient joins with a later patch'),
+               (dict(coupling='relaxed'), "one of \\('imposed', 'dgw'\\)"),
+               (dict(coupling='dgw'), "first baroclinic mode's speed"),
+               (dict(coupling='dgw', mode=dict(c_m_s=0.0)), "first baroclinic mode's speed"),
+               (dict(coupling='dgw', mode=mode, coupling_length_m=4e5, coupling_time_s=1e4), 'where it states both'),
+               (dict(coupling='dgw', mode=mode, coupling_time_s=0.0), "coupling's time is positive"),
+               (dict(coupling='dgw', mode=mode, coupling_length_m=-1.0), "coupling's length is positive"),
+               (dict(coupling='dgw', mode=mode, coupling_top_m=300.0, coupling_base_m=300.0), 'base < lid'),
+               (dict(coupling='dgw', mode=mode, coupling_top_m=2e5), 'base < lid'),
+               (dict(coupling='dgw', mode=mode, coupling_base_m=-1.0), 'base < lid'),
+               (dict(coupling='dgw', mode=mode, table_heat='aloft'), 'the table heats'),
+               (dict(coupling='dgw', mode=mode, start='noon'), 'a box starts from'),
+               (dict(coupling='dgw', mode=mode, reference='tropics'), 'a reference is one of'),
+               (dict(coupling='dgw', mode=mode, reference_vapour='hourly'), "reference's vapour is one of"),
+               (dict(coupling='dgw', mode=mode, reference=dict(good, z_m=zh[::-1].tolist())), 'column series'),
+               (dict(coupling='dgw', mode=mode, reference=dict(good, theta_k=[[300.0] * 3])), 'column series'),
+               (dict(coupling='dgw', mode=mode, reference=dict(good, qv_kg_kg=[[-1e-3] * zh.size])), 'column series'),
+               (dict(coupling='dgw', mode=mode, reference=dict(good, hour_angle_deg=[270.0])), 'column series'),
+               (dict(mode=mode), "imposed wind takes none of a coupling's settings"),
+               (dict(coupling_time_s=1e4), "imposed wind takes none"),
+               (dict(table_heat='below-base'), "imposed wind takes none")]
+    for settings, message in refused:
+        with pytest.raises(ValueError, match=message):
+            coupled(f, run, zw, air, **settings)
+    assert coupled(f, run, zw, air, coupling='dgw', mode=mode, reference=good)['record']['reference']['hours'] == 1
+
+
 # Terluna's sea box on its design years, from the same GCM run read in place (research drive).
 
 def _drive():
@@ -794,3 +1082,128 @@ def test_on_the_runs_own_constants_the_extraction_departs_from_terlunas_by_their
     # The vapour in CM1's variable: near the sea about 14 g/kg of specific humidity, 0.2 g/kg more as a mixing ratio.
     q0, r0 = f['profile']['specific_humidity_kg_kg'][-1], float(terluna_box['own']['air']['qv_at'](0.0))
     assert 0.0135 < q0 < 0.0145 and r0 - q0 == pytest.approx(q0 * q0 / (1.0 - q0), rel=1e-12)
+
+
+# Terluna's damped-gravity-wave boxes on its design years (research drive): box_near_side_sea_dgw, box_0e_dgw and
+# box_se_dry_dgw, set up on 5 November 2026 by Terluna's dgw_inputs (climate/crm/cm1_run.py at 29af5c16).
+
+DGW_BOXES = (('box_near_side_sea_dgw', 'near_side_sea', False), ('box_0e_dgw', '0e', True),
+             ('box_se_dry_dgw', 'se_dry', True))
+
+
+@pytest.fixture(scope='module')
+def terluna_wave(terluna_box):
+    """The first mode over the design years with Terluna's choices and on the run's own constants, the sea box's case
+    with the wave from each, and Terluna's three recorded boxes."""
+    run_folder, _ = _drive()
+    drive = run_folder.parents[1]
+    own = gs.run_record(run_folder / 'model', run_folder / 'inputs' / 'moon_topography.sra',
+                        solar_day_s=29.53059 * 86400.0)
+    runs = dict(terluna=dict(own, **terluna_choices(run_folder)), own=own)
+    out = dict(runs=runs, boxes={})
+    for name, site, _ in DGW_BOXES:
+        folder = drive / 'crm-runs' / name
+        if not (folder / 'case.json').exists():
+            pytest.skip(f"Terluna's {name} is absent from the drive")
+        out['boxes'][name] = dict(folder=folder, record=json.loads((folder / 'case.json').read_text()))
+    zw = terluna_box['zw']
+    for label in ('terluna', 'own'):
+        mode = gs.first_mode(runs[label], (10, 19))
+        f, air = terluna_box[label]['forcing'], terluna_box[label]['air']
+        run = runs[label]
+        case = lambda **settings: gs.case_inputs(
+            f, zw, air, gravity_m_s2=run['gravity_m_s2'], start_hour_deg=-90.0, solar_day_s=run['solar_day_s'],
+            length_s=118 * 43200.0, damping_base_m=0.77 * zw[-1], nudge_tau_s=259200.0, coupling='dgw', mode=mode,
+            **settings)
+        out[label] = dict(mode=mode, case=case(), on_mean=case(start='mean'))
+    return out
+
+
+def test_the_first_mode_and_the_footprints_are_terlunas(terluna_wave):
+    """With Terluna's choices first_mode gives the first mode's speed of Terluna's three boxes to the last bit,
+    40.53382926508821 m/s over the design years' tropics (and 82.447 m/s to the model's top), and footprint_m their
+    lengths, 418 km at the sea and the land and 354 km at the dry box, so the times 10,303, 10,323 and 8,733 s. On the
+    run's own constants the heights stand 0.47% higher, and the potential temperature takes the run's own ratio of gas
+    constant to heat capacity, so the speed comes to 40.77 m/s, 0.58% faster."""
+    mode, own = terluna_wave['terluna']['mode'], terluna_wave['own']['mode']
+    for name, site, _ in DGW_BOXES:
+        dgw = terluna_wave['boxes'][name]['record']['dgw']
+        assert mode['c_m_s'] == dgw['c_m_s'] == 40.53382926508821
+        assert mode['c_to_model_top_m_s'] == dgw['c_to_model_top_m_s']
+        assert mode['convection_top_m'] == dgw['tropical_convection_top_m']
+        footprint = gs.footprint_m(gs.TERLUNA_OPEN_MOON_SITES[site], terluna_wave['runs']['terluna']['radius_m'])
+        assert footprint == dgw['scale_m'] and footprint / mode['c_m_s'] == dgw['tau_s']
+    assert mode['records'] == 1180
+    assert own['c_m_s'] / mode['c_m_s'] == pytest.approx(1.0058, abs=2e-4)
+    assert own['convection_top_m'] / mode['convection_top_m'] == pytest.approx(288.377 / 287.04, abs=3e-4)
+
+
+def test_with_terlunas_choices_the_wave_case_gives_terlunas_sea_box(terluna_wave):
+    """With Terluna's choices the sea box's case with the wave takes the values Terluna's set-up gave its generic
+    slots, the lid var4, the time var5, the speed var6 and the floor var8; its windows hold Terluna's air by local time
+    to their printed digits, the vapour its mean at sea once carried into a mixing ratio; terluna_wls.txt holds nil; the
+    box starts from the first window's air, Terluna's sounding; and the record's column of the circulation, its
+    horizontal part and its vertical advection is Terluna's. The table, laid on the GCM's mean air as Terluna laid it,
+    is Terluna's to 1 part in 10^4 of its largest value; the lab lays it on the box's own starting air, the base state
+    CM1 runs on, which moves it by up to 1.0% of the heating's largest value and 1.5% of the moistening's, near
+    650 m."""
+    name = 'box_near_side_sea_dgw'
+    folder, record = terluna_wave['boxes'][name]['folder'], terluna_wave['boxes'][name]['record']
+    case, on_mean = terluna_wave['terluna']['case'], terluna_wave['terluna']['on_mean']
+    text = (folder / 'namelist.input').read_text()
+    slot = lambda key: float(re.search(rf'^\s*{key}\s*=\s*([^,\n]+),', text, flags=re.M).group(1))
+    p3 = case['namelist']['param3']
+    assert (p3['lsw_top'], p3['lsw_tau'], p3['lsw_mode_speed'], p3['lsw_base']) == \
+        (slot('var4'), slot('var5'), slot('var6'), slot('var8')) == (73084.5, 10303.0, 40.534, 316.1)
+    assert p3['lsw_coupling'] == int(slot('var9')) == 1 and p3['inflow_ref_air'] == int(slot('var7'))
+    assert case['record']['reference']['vapour'] == 'mean' and not record['dgw']['qv_by_hour']
+    wls = np.loadtxt(io.StringIO(case['files']['terluna_wls.txt']), skiprows=1)
+    assert np.all(wls[:, 1] == 0.0) and np.all(np.loadtxt(folder / 'terluna_wls.txt', skiprows=1)[:, 1] == 0.0)
+    assert len(list(folder.glob('lsnudge_0*.dat'))) == 72
+    for i in range(1, 73):
+        t1, t2, theirs = read_nudging((folder / f'lsnudge_{i:04d}.dat').read_text())
+        s1, s2, mine = read_nudging(case['files'][f'lsnudge_{i:04d}.dat'])
+        assert (t1, t2) == (s1, s2)
+        assert np.abs(mine[:, [1, 3, 4]] - theirs[:, [1, 3, 4]]).max() <= 1.0001e-4
+        q = theirs[:, 2] / 1000.0
+        assert np.allclose(mine[:, 2], q / (1.0 - q) * 1000.0, rtol=1e-3, atol=2e-6)
+    sounding = np.loadtxt(folder / 'input_sounding', skiprows=1)
+    zh, q = sounding[:, 0], sounding[:, 2] / 1000.0
+    assert np.abs(case['start']['theta_at'](zh) - sounding[:, 1]).max() <= 1e-4
+    assert np.allclose(case['start']['qv_at'](zh), q / (1.0 - q), rtol=1e-3, atol=1.0001e-8)   # 5 decimals of g/kg
+    assert record['initial']['hour_deg'] == case['record']['start']['hour_angle_deg'] == -85.0
+    mine = case['record']['coupling']['gcm_column_vapour_mm_day']
+    for key in ('circulation', 'horizontal', 'vertical_advection'):
+        assert mine[key]['mean'] == pytest.approx(record['dgw']['gcm_column_vapour_mm_day'][key]['mean'], rel=1e-9)
+        assert mine[key]['by_hour'] == record['dgw']['gcm_column_vapour_mm_day'][key]['by_hour']
+    _, th, qv = read_lsadv((folder / 'terluna_lsadv.txt').read_text())
+    assert _rel(on_mean['cm1']['circulation']['theta_k_s'], th) < 1e-4
+    assert _rel(on_mean['cm1']['circulation']['specific_humidity_kg_kg_s'], qv) < 1e-4
+    theta, moist = (_rel(case['cm1']['circulation'][k], v) for k, v in (('theta_k_s', th),
+                                                                        ('specific_humidity_kg_kg_s', qv)))
+    assert 0.005 < theta < 0.012 and 0.01 < moist < 0.02
+
+
+def test_terlunas_rule_for_the_vapour_by_local_time_gives_its_three_choices(terluna_wave, terluna_box):
+    """By Terluna's rule the reference takes the GCM's vapour by local time where its lowest level swings by more than
+    a tenth of its mean through the day: at the sea its lowest level swings by 4.3%, and Terluna's sea box took the
+    mean, while its land and dry boxes took the vapour by the hour, where the lowest level swings by more."""
+    swing = terluna_box['terluna']['forcing']['air_by_hour']['lowest_level_vapour_swing']
+    assert swing == pytest.approx(0.0433, abs=5e-4)
+    run = terluna_wave['runs']['terluna']
+    for name, site, by_hour in DGW_BOXES[1:]:
+        f = gs.site_forcing(run, (10, 19), gs.TERLUNA_OPEN_MOON_SITES[site], humidity_filter='mean')
+        assert f['air_by_hour']['lowest_level_vapour_swing'] > gs.VAPOUR_SWING
+        assert terluna_wave['boxes'][name]['record']['dgw']['qv_by_hour'] is by_hour is True
+
+
+def test_on_the_runs_own_constants_the_wave_case_departs_from_terlunas_by_its_causes(terluna_wave):
+    """On the run's own constants the wave's entries move by the stated causes: the speed 0.58% faster, the lid and
+    the floor 0.47% higher with the GCM's heights, and the time 0.58% shorter, the footprint's length unchanged but
+    for the run's radius."""
+    own, terluna = (terluna_wave[k]['case']['namelist']['param3'] for k in ('own', 'terluna'))
+    assert own['lsw_mode_speed'] / terluna['lsw_mode_speed'] == pytest.approx(1.0058, abs=2e-4)
+    assert own['lsw_top'] / terluna['lsw_top'] == pytest.approx(288.377 / 287.04, abs=3e-4)
+    assert own['lsw_base'] == 317.6 and terluna['lsw_base'] == 316.1
+    assert own['lsw_tau'] / terluna['lsw_tau'] == pytest.approx(terluna['lsw_mode_speed'] / own['lsw_mode_speed']
+                                                                * 1.7374e6 / 1737400.0, rel=2e-4)

@@ -23,8 +23,9 @@ Terluna's runners to pristine upstream sources and recording each group's unifie
 | `models/exoplasim/patches/15-twilight-clear-share.patch`, `16-twilight-counted-once.patch` (written 2026-11-16, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/exoplasim_run.py`: `TWILIGHT_CLEAR_EDITS`, `TWILIGHT_ZERO_EDITS` | 8c326baeb689ee06 |
 | `models/exoplasim/patches/17-wind-at-10-m.patch` (written 2026-11-16, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/exoplasim_run.py`: `WIND10_PATCHES` (`WIND10_MOD_EDITS`, `WIND10_FLUX_EDITS`, `WIND10_OUT_EDITS`) | 8c326baeb689ee06 |
 | `models/exoplasim/patches/18-betts-miller-convection.patch`, `19-betts-miller-depth-test.patch`, `20-betts-miller-shallow-cap.patch` (written 2026-11-17, from Terluna `39c5ee04`, branch `domain/climate`) | `climate/gcm/exoplasim_run.py`: `SBM_EDITS` with `SBM_CODE`, `SBM_DEPTH_EDITS`, `SBM_CAP_EDITS`; one line of `climate/gcm/pbl_fortran.py`'s `DIAGNOSTIC_PATCHES` | 8c326baeb689ee06, 66a8edb841195d7e |
+| `models/cm1/patches/lab/10-the-boxs-own-large-scale-vertical-wind-by-the-damped-gravity-wave.patch` (written 2026-11-17, from Terluna `39c5ee04`, unchanged at `29af5c16`, branch `domain/climate`) | `climate/crm/cm1_run.py`: `DGW_PATCHES` (`DGW_DECLARATIONS`, `DGW_BLOCK`, `DGW_INFLOW_SUMS`, `DGW_FLUSH`, `DGW_TABLE`, `DGW_HPBL`) | ba507fc66d1ea4fd |
 
-The last eight rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
+The last nine rows differ. Patches 01 and 02 of `models/cm1/patches/lab/` were written by hand on 2026-11-08 from
 Terluna's edits at `bdda5a07`, with namelist switches added. ExoPlaSim's patches 12 and 13 were written on
 2026-11-11 from Terluna's edit lists at `39c5ee04`, applied to the pinned `fluxmod.f90` without Terluna's
 free-convection and nonlocal boundary-layer patches, which they follow there, and with the air's viscosity derived
@@ -91,7 +92,21 @@ CAPE trigger and night switch that Terluna's design build compiled at their idle
 (`models/exoplasim/README.md`). The statements of `mksbm` and `mkshallow` equal those of the design build's
 `rainmod.f90` (research drive, `gcm-runs/A28R_301k_design_l15_snow_s934_weather_test/build/plasim/src/`, sha256
 `b55e297f48e3a268…`, the source the design run's record names, read on 2026-11-17) but for those departures, and
-`python/climate/tests/test_betts_miller.py` compiles both into one program and finds every digit the same.
+`python/climate/tests/test_betts_miller.py` compiles both into one program and finds every digit the same. CM1's patch 10 was written on 2026-11-17 from Terluna's edit
+lists of its damped gravity wave at `39c5ee04` (commit `c3898a7c`, the lists unchanged at `29af5c16`), applied after
+the lab's patch 09, with entries of `&param3` under the lab's names where Terluna's build read `var9`, `var4`, `var5`,
+`var6` and `var8`. The wave's statements are Terluna's, the comments, identifiers and record's name the lab's. The code
+differs from the lists in four ways: the record writes each interval of the domain diagnostics at the step that ends
+it and the run's last at its last step, with each interval's start and the table's moistening, where the lists wrote
+an interval a step after its end and lost each segment's last (defect log C26); the boundary layer's mean depth is
+taken in `cm1.F` from the depths a restart file keeps, summed over every rank, where the lists took it in `turb.F` as
+the surface layer ran, over one process's columns; the wave runs with the inflow on or off, under its own floor
+`lsw_base` and its own switch for the table's cut, `lsw_table_heat`, where the lists tied it to the inflow and read
+the floor from the wind's `var8`; and `param.F` and the block stop the model on settings it cannot take. In a single
+scratch run on 2026-11-17 the part of the lab's `solve1.F` from the large-scale nudging through the table returned the
+bits of that of Terluna's deployed build `moon_omp_rain_law_pbl_wind_gust_aloft_inflow_dgw` (research drive,
+`cm1/build/`, `solve1.F` sha256 `c723f391d1107582…`) in 72 runs on test domains, 36 under each of CM1's flags and
+`-O3 -march=native`, its slots given the lab's values and its record left unwritten.
 
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).
@@ -200,10 +215,22 @@ and the set-up's lines), and the entries a site box sets (`case_settings`). The 
 the refusal of a file of fewer than three records. The forcing reads a run's record where Terluna's module reads its
 planet record and constants, undoes the humidity's own filter in its fits, carries the vapour into CM1's mixing
 ratio, and leaves out the capped forcing of
-Terluna's first boxes, the GCM's weather at a site (`af42e928`) and the damped gravity wave's inputs (`c3898a7c`).
+Terluna's first boxes and the GCM's weather at a site (`af42e928`).
 On the same day `case_inputs` gained the entries of the lab's CM1 patch 09 at the values of Terluna's `corrected_wind`
 and `corrected_inflow` (`cm1_run.py` at `39c5ee04`), the inflow's reckoning in a box budget (`box_budget`, `4f63c439`)
 waiting for the lab's box budget; with Terluna's constants the entries take the values its set-up gave the sea box.
+On 2026-11-17 the module gained the damped gravity wave's inputs, from Terluna's `dgw_forcing` and `first_mode`
+(`gcm_site.py` at `39c5ee04`, unchanged at `29af5c16`, from `c3898a7c`) and `footprint_m`, `dgw_settings` and
+`dgw_inputs` (`cm1_run.py`, the same): `first_mode` and `footprint_m` keep Terluna's arithmetic on the run's own
+constants; `site_forcing` returns the air, the vertical wind and the circulation's horizontal part by local time that
+`dgw_forcing` computed; `reference_column` builds the reference by local time with Terluna's vapour rule (its
+yardstick's rule F3, a swing of a tenth) or from a column series a case supplies; and `case_inputs` writes patch 10's
+entries, the nil vertical wind, the horizontal table laid on the box's starting air and the start from the first
+window, as settings a case states. With Terluna's constants and choices `first_mode` gave the speed Terluna's three
+damped-gravity-wave boxes record (research drive, `crm-runs/box_near_side_sea_dgw`, `box_0e_dgw` and `box_se_dry_dgw`,
+`case.json` sha256 `c495bdd94c25ae3e…`, `86018e99dd36468c…` and `74afd349be021518…`) and `footprint_m` their lengths,
+to the last bit, and the sea box's case gave its entries, windows, sounding and column split to their printed digits
+and its table, laid on the GCM's mean air, within 1 part in 10⁴.
 Run with Terluna's constants and choices stated as values, its undoing of the humidity's means as true means among
 them, the lab's extraction gave the forcing that Terluna's
 three site boxes on its design years record (research drive, `crm-runs/box_near_side_sea_design_years`,

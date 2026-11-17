@@ -97,6 +97,22 @@ wind_pulled_from = "gcm-lowest-level"          # a forced box's wind is nudged f
 inflow = "gcm-air"                             # where the mean vertical wind converges it draws in the GCM's mean air
                                                # (inflow_ref_air = 1, patch 09); "box-air" keeps CM1's advection of the
                                                # box's own air, the patch's default
+vertical_wind = "imposed"                      # a forced box's large-scale vertical wind: the GCM's mean, imposed
+                                               # (lsw_coupling = 0, the default of patch 10); "dgw" makes it the box's
+                                               # own by the damped gravity wave (lsw_coupling = 1), on the time L/c from
+                                               # first_mode's speed c; the weak temperature gradient, "wtg", joins with a
+                                               # later patch (gcm_site.case_inputs, coupling)
+coupling_length = "footprint"                  # the length L a coupled box stands for: its site's footprint, Terluna's;
+                                               # a study states metres, the planet's radius among them, or the time
+coupled_reference = "gcm-by-hour"              # the air a coupled box is measured against and holds above the GCM's
+                                               # convection: the GCM's at the site by local time; "gcm-mean", or a
+                                               # column series a study supplies, such as a box's own domain mean
+coupled_vapour = "auto"                        # that reference's vapour by local time where the GCM's lowest level swings
+                                               # by more than a tenth of its mean through the day, its mean otherwise
+coupled_start = "reference"                    # a coupled box starts from its first window's air, so that the wave
+                                               # starts from rest; "mean" starts it from the GCM's mean air
+coupled_table_heat = "below-base"              # the table heats a coupled box below its boundary layer's top alone
+                                               # (lsw_table_heat = 1); "every-level" keeps the table whole
 
 [physics]
 microphysics = "morrison"                      # ptype 5; its cloud droplets per cm3 come from the scenario's air

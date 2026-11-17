@@ -1,0 +1,310 @@
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -428,6 +428,12 @@
+       wind_nudge_tau = 0.0      ! Lab: the wind's nudging time (s); lsnudge_tau unless the namelist gives one
+       wind_nudge_zmin = 0.0     ! Lab: the wind is nudged from this height (m) up; from the ground by default
+       inflow_ref_air = 0        ! Lab: the inflow carries the domain's own air unless the namelist sets 1
++      lsw_coupling = 0          ! Lab: CM1's imposed large-scale vertical wind unless the namelist sets 1
++      lsw_tau = 0.0             ! Lab: the coupling's adjustment time (s), read with lsw_coupling 1
++      lsw_mode_speed = 0.0      ! Lab: the first baroclinic mode's speed (m/s), read with lsw_coupling 1
++      lsw_top = 0.0             ! Lab: the coupled layer's lid (m), read with lsw_coupling 1
++      lsw_base = 0.0            ! Lab: the lowest height of the coupled layer's base (m), read with lsw_coupling 1
++      lsw_table_heat = 0        ! Lab: the table heats every level unless the namelist sets 1
+       solconrce = 0.0
+       zenanglrce = 0.0
+       trn_swirl = 0.0
+@@ -3649,6 +3655,23 @@
+         if(timestats.ge.1) time_misc=time_misc+mytime()
+ 
+ 
++        ! Lab: the domain-mean depth of the boundary layer (m), from the depths that the surface layer and the
++        ! boundary layer last set, over every rank's columns, from which the coupled large-scale vertical wind
++        ! (lsw_coupling, param3) takes its base in solve1.F. A restart file holds the depths, so a restarted run
++        ! takes the mean that the run it continues took.
++        IF( lsw_coupling.ge.1 )THEN
++          lab_lsw_hpbl = 0.0
++          do j=1,nj
++          do i=1,ni
++            lab_lsw_hpbl = lab_lsw_hpbl + hpbl(i,j)
++          enddo
++          enddo
++#ifdef MPI
++          call MPI_ALLREDUCE(mpi_in_place,lab_lsw_hpbl,1,MPI_REAL,MPI_SUM,MPI_COMM_WORLD,ierr)
++#endif
++          lab_lsw_hpbl = lab_lsw_hpbl/real(nx*ny)
++        ENDIF
++
+         ! solve1: pre-RK terms
+         ! (tendencies held fixed during Runge-Kutta integration and acoustic sub-stepping)
+         call     solve1(nstep,num_soil_layers,                       &
+--- a/src/input.F
++++ b/src/input.F
+@@ -303,6 +303,12 @@
+       real :: wind_nudge_tau   ! Lab: the time (s) on which lsnudge relaxes the wind; 0 takes lsnudge_tau
+       real :: wind_nudge_zmin   ! Lab: the height (m) from which lsnudge pulls the domain-mean wind
+       integer :: inflow_ref_air   ! Lab: 1 draws the nudging reference's air in where the mean wind converges
++      integer :: lsw_coupling   ! Lab: the large-scale vertical wind: 0 CM1's imposed wprof, 1 the damped gravity wave
++      real :: lsw_tau   ! Lab: the coupling's adjustment time (s), the first baroclinic mode's
++      real :: lsw_mode_speed   ! Lab: the first baroclinic mode's speed (m/s)
++      real :: lsw_top,lsw_base   ! Lab: the coupled layer's lid (m), and the lowest height (m) of its base
++      integer :: lsw_table_heat   ! Lab: 1 applies the table's heating (var11) below the coupled layer's base alone
++      real :: lab_lsw_hpbl = 0.0   ! Lab: the domain-mean depth of the boundary layer (m), set by cm1.F each step
+ !  Begin namelists:
+ 
+       namelist /param0/ nx,ny,nz,ppnode,                                &
+@@ -328,6 +334,7 @@
+                         rain_autoconv_fac,rain_accr_fac, &
+                         world_g,world_co2,world_o2,soil_dz1,sun_decl, &
+                         wind_nudge_tau,wind_nudge_zmin,inflow_ref_air, &
++                        lsw_coupling,lsw_tau,lsw_mode_speed,lsw_top,lsw_base,lsw_table_heat, &
+                         csound,cstar,solconrce,zenanglrce
+       namelist /param4/ stretch_x,dx_inner,dx_outer,nos_x_len,tot_x_len
+       namelist /param5/ stretch_y,dy_inner,dy_outer,nos_y_len,tot_y_len
+--- a/src/param.F
++++ b/src/param.F
+@@ -431,6 +431,12 @@
+       call MPI_BCAST(wind_nudge_tau,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)      ! Lab
+       call MPI_BCAST(wind_nudge_zmin,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)     ! Lab
+       call MPI_BCAST(inflow_ref_air,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)   ! Lab
++      call MPI_BCAST(lsw_coupling,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)     ! Lab
++      call MPI_BCAST(lsw_tau,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)             ! Lab
++      call MPI_BCAST(lsw_mode_speed,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)      ! Lab
++      call MPI_BCAST(lsw_top,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)             ! Lab
++      call MPI_BCAST(lsw_base,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)            ! Lab
++      call MPI_BCAST(lsw_table_heat,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)   ! Lab
+       call MPI_BCAST(ndcnst ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(nt_c   ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+       call MPI_BCAST(csound ,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)
+@@ -812,6 +818,44 @@
+       IF( inflow_ref_air.eq.1 .and. .not.( (var13.gt.0.5 .and. var13.lt.1.5) .or.   &
+                                          (var13.lt.0.5 .and. testcase.ge.3 .and. testcase.le.7) ) )THEN
+         if(myid.eq.0) print *,'  Lab nudging: inflow_ref_air reads one profile of large-scale vertical wind (var13 = 1)'
++        call stopcm1
++      ENDIF
++      ! Lab: the coupled large-scale vertical wind of param3. lsw_coupling 0, the default, keeps the wind that CM1
++      ! imposes (wprof, from var13 = 1 or a test case); 1 makes it the box's own by the damped gravity wave
++      ! (solve1.F), on the first baroclinic mode's adjustment time lsw_tau (s) and speed lsw_mode_speed (m/s),
++      ! between a base no lower than lsw_base (m) and the lid lsw_top (m); and lsw_table_heat 1 applies the
++      ! table's heating (var11 = 1) below that base alone. The departure the wave answers relaxes through CM1's
++      ! large-scale advection on lsw_tau, so that time spans a step at least. The wave reads the domain-mean
++      ! theta and vapour and their nudging reference, and sets one profile of large-scale vertical wind.
++      IF( lsw_coupling.ne.0 .and. lsw_coupling.ne.1 )THEN
++        if(myid.eq.0) print *,'  Lab coupling: lsw_coupling must be 0 (imposed) or 1 (the damped gravity wave)'
++        call stopcm1
++      ENDIF
++      IF( lsw_coupling.eq.0 .and. .not.(lsw_tau.eq.0.0 .and. lsw_mode_speed.eq.0.0 .and. lsw_top.eq.0.0 .and.   &
++                                        lsw_base.eq.0.0 .and. lsw_table_heat.eq.0) )THEN
++        if(myid.eq.0) print *,'  Lab coupling: the lsw_ entries besides lsw_coupling act with lsw_coupling 1'
++        call stopcm1
++      ENDIF
++      IF( lsw_coupling.eq.1 .and. .not.(lsw_tau.ge.dtl .and. lsw_mode_speed.gt.0.0 .and. lsw_base.ge.0.0 .and.   &
++                                        lsw_top.gt.lsw_base) )THEN
++        if(myid.eq.0) print *,'  Lab coupling: lsw_tau >= dtl, lsw_mode_speed > 0, lsw_top > lsw_base >= 0 (the wave)'
++        call stopcm1
++      ENDIF
++      IF( lsw_table_heat.ne.0 .and. lsw_table_heat.ne.1 )THEN
++        if(myid.eq.0) print *,'  Lab coupling: lsw_table_heat must be 0 or 1'
++        call stopcm1
++      ENDIF
++      IF( lsw_table_heat.eq.1 .and. var11.lt.0.5 )THEN
++        if(myid.eq.0) print *,'  Lab coupling: lsw_table_heat acts on the table of var11 = 1'
++        call stopcm1
++      ENDIF
++      IF( lsw_coupling.eq.1 .and. .not.(do_lsnudge .and. do_lsnudge_th .and. do_lsnudge_qv .and. imoist.eq.1) )THEN
++        if(myid.eq.0) print *,'  Lab coupling: the wave reads the theta and vapour that lsnudge nudges toward'
++        call stopcm1
++      ENDIF
++      IF( lsw_coupling.eq.1 .and. .not.( (var13.gt.0.5 .and. var13.lt.1.5) .or.   &
++                                       (var13.lt.0.5 .and. testcase.ge.3 .and. testcase.le.7) ) )THEN
++        if(myid.eq.0) print *,'  Lab coupling: the wave sets one profile of large-scale vertical wind (var13 = 1)'
+         call stopcm1
+       ENDIF
+ 
+@@ -3257,6 +3301,12 @@
+       if(dowr) write(outfile,*) 'wind_nudge_tau =',wind_nudge_tau  ! Lab
+       if(dowr) write(outfile,*) 'wind_nudge_zmin =',wind_nudge_zmin  ! Lab
+       if(dowr) write(outfile,*) 'inflow_ref_air =',inflow_ref_air  ! Lab
++      if(dowr) write(outfile,*) 'lsw_coupling =',lsw_coupling  ! Lab
++      if(dowr) write(outfile,*) 'lsw_tau =',lsw_tau  ! Lab
++      if(dowr) write(outfile,*) 'lsw_mode_speed =',lsw_mode_speed  ! Lab
++      if(dowr) write(outfile,*) 'lsw_top =',lsw_top  ! Lab
++      if(dowr) write(outfile,*) 'lsw_base =',lsw_base  ! Lab
++      if(dowr) write(outfile,*) 'lsw_table_heat =',lsw_table_heat  ! Lab
+       if(dowr) write(outfile,*) 'ndcnst    =',ndcnst
+       if(dowr) write(outfile,*) 'nt_c      =',nt_c
+       if(dowr) write(outfile,*) 'csound    =',csound
+--- a/src/solve1.F
++++ b/src/solve1.F
+@@ -156,7 +156,7 @@
+       real, intent(in), dimension(kb:ke+1) :: rdsf,sigmaf
+       real, intent(in), dimension(ib:ie,jb:je,kb:ke) :: tauh,taus,zh,mh,rmh,c1,c2
+       real, intent(in), dimension(ib:ie,jb:je,kb:ke+1) :: tauf,zf,mf,rmf
+-      real, intent(in),    dimension(kb:ke) :: wprof
++      real, intent(inout), dimension(kb:ke) :: wprof   ! Lab: the coupled wind sets it (lsw_coupling, param3)
+       real, intent(inout), dimension(kb:ke) :: ufrc,vfrc,thfrc,qvfrc,ug,vg,dvdr,  &
+                                                uavg,vavg,thavg,pavg,ulspg,vlspg
+       real, intent(inout), dimension(kb:ke,numq) :: qavg
+@@ -234,6 +234,15 @@
+       real :: dttmp,rtime,rdt,tem,tem0,tem1,tem2,thrad,prad,terluna_w
+       real :: lab_tau_uv   ! Lab: the time (s) on which lsnudge relaxes the wind
+       logical, save :: lab_inflow_out = .true.   ! Lab: the inflow's rates, written as each run starts
++      ! Lab: the coupled large-scale vertical wind (lsw_coupling, param3): its pressures and lid, its operator and
++      ! column, its base, and the record's sums over each interval of CM1's domain diagnostics
++      real, dimension(:), allocatable, save :: lab_lsw_pf,lab_lsw_a,lab_lsw_b,lab_lsw_c,lab_lsw_d,lab_lsw_om
++      real, dimension(:), allocatable, save :: lab_lsw_tv,lab_lsw_sw,lab_lsw_sth,lab_lsw_sqv,lab_lsw_stt,lab_lsw_stq
++      real, save :: lab_lsw_n = 0.0, lab_lsw_szb = 0.0
++      double precision, save :: lab_lsw_t0 = 0.0d0
++      integer, save :: lab_lsw_klid = 0
++      logical, save :: lab_lsw_new = .true.
++      real :: lab_lsw_zb,lab_lsw_k2e
+       integer, save :: terluna_nb = 0, terluna_nl = 0   ! Terluna: large-scale horizontal advection by local time
+       real, dimension(:), allocatable, save :: terluna_az
+       real, dimension(:,:), allocatable, save :: terluna_ath,terluna_aqv
+@@ -1901,6 +1910,81 @@
+           endif
+         enddo
+       endif
++      ! Lab: the box's own large-scale vertical wind (lsw_coupling = 1, param3), by the damped gravity wave (Kuang
++      ! 2008; Blossey, Bretherton and Wyant 2009). Each step it solves d2(omega)/dp2 = Rd Tv'/(lsw_tau c**2 p) for
++      ! the domain-mean omega, c the first baroclinic mode's speed lsw_mode_speed, with omega nil at the ground and
++      ! from the first w level at or above the lid lsw_top up. Tv' is the domain-mean virtual temperature less the
++      ! nudging reference's between the coupled layer's base and the lid, and nil outside them, so that below the
++      ! base omega falls linearly in pressure to the ground. The base is the domain-mean boundary layer's depth
++      ! (cm1.F), held between lsw_base and the lid. On the first mode of speed c the wave relaxes Tv' in lsw_tau
++      ! seconds. The pressures are the base state's: on w levels the geometric means of the scalar levels', at the
++      ! ground and the top extrapolated in log pressure. The wind -omega/(rho0 g) replaces wprof, which CM1's
++      ! large-scale vertical advection carries and the inflow below reads.
++      IF( lsw_coupling.ge.1 .and. dolsw )THEN
++        if( .not. allocated(lab_lsw_om) )then
++          allocate( lab_lsw_pf(nk+1) , lab_lsw_a(nk+1) , lab_lsw_b(nk+1) , lab_lsw_c(nk+1) , lab_lsw_d(nk+1) ,   &
++                    lab_lsw_om(nk+1) , lab_lsw_tv(nk) , lab_lsw_sw(nk+1) , lab_lsw_sth(nk) , lab_lsw_sqv(nk) ,   &
++                    lab_lsw_stt(nk) , lab_lsw_stq(nk) )
++          lab_lsw_sw = 0.0
++          lab_lsw_sth = 0.0
++          lab_lsw_sqv = 0.0
++          lab_lsw_stt = 0.0
++          lab_lsw_stq = 0.0
++          lab_lsw_pf(1) = prs0(1,1,1)*(prs0(1,1,1)/prs0(1,1,2))**((zh(1,1,1)-zf(1,1,1))/(zh(1,1,2)-zh(1,1,1)))
++          do k=2,nk
++            lab_lsw_pf(k) = sqrt( prs0(1,1,k-1)*prs0(1,1,k) )
++          enddo
++          lab_lsw_pf(nk+1) = prs0(1,1,nk)*(prs0(1,1,nk)/prs0(1,1,nk-1))                                         &
++                             **((zf(1,1,nk+1)-zh(1,1,nk))/(zh(1,1,nk)-zh(1,1,nk-1)))
++          lab_lsw_klid = nk+1
++          do k=nk+1,2,-1
++            if( zf(1,1,k).ge.lsw_top ) lab_lsw_klid = k
++          enddo
++          if( lab_lsw_klid.le.2 )then
++            if( myid.eq.0 ) print *,'  Lab coupling: lsw_top lies at or below the first w level above the ground'
++            call stopcm1
++          endif
++          lab_lsw_t0 = mtime
++          if( myid.eq.0 ) print *,'  Lab: the damped gravity wave; its lid (k, z) = ',lab_lsw_klid,zf(1,1,lab_lsw_klid)
++        endif
++        lab_lsw_zb = max( lsw_base , min( lab_lsw_hpbl , lsw_top ) )
++        do k=1,nk
++          lab_lsw_tv(k) = 0.0
++          if( zh(1,1,k).gt.lab_lsw_zb .and. zh(1,1,k).lt.zf(1,1,lab_lsw_klid) )                                 &
++            lab_lsw_tv(k) = pi0(1,1,k)*( thavg(k)*(1.0+(rv/rd-1.0)*qavg(k,nqv))                                 &
++                          - lsnudge_th(k,lsnudge_count)*(1.0+(rv/rd-1.0)*lsnudge_qv(k,lsnudge_count)) )
++        enddo
++        do k=1,nk+1
++          lab_lsw_om(k) = 0.0
++        enddo
++        IF( lsw_coupling.eq.1 )THEN
++          ! the damped gravity wave: a tridiagonal system on the w levels between the ground and the lid
++          lab_lsw_k2e = 1.0/( lsw_tau*lsw_mode_speed*lsw_mode_speed )
++          do k=2,lab_lsw_klid-1
++            tem1 = lab_lsw_pf(k)-lab_lsw_pf(k-1)
++            tem2 = lab_lsw_pf(k+1)-lab_lsw_pf(k)
++            lab_lsw_a(k) = 2.0/(tem1*(tem1+tem2))
++            lab_lsw_c(k) = 2.0/(tem2*(tem1+tem2))
++            lab_lsw_b(k) = -( lab_lsw_a(k) + lab_lsw_c(k) )
++            lab_lsw_d(k) = lab_lsw_k2e*rd*0.5*( lab_lsw_tv(k-1) + lab_lsw_tv(k) )/lab_lsw_pf(k)
++          enddo
++          do k=3,lab_lsw_klid-1
++            tem = lab_lsw_a(k)/lab_lsw_b(k-1)
++            lab_lsw_b(k) = lab_lsw_b(k) - tem*lab_lsw_c(k-1)
++            lab_lsw_d(k) = lab_lsw_d(k) - tem*lab_lsw_d(k-1)
++          enddo
++          lab_lsw_om(lab_lsw_klid-1) = lab_lsw_d(lab_lsw_klid-1)/lab_lsw_b(lab_lsw_klid-1)
++          do k=lab_lsw_klid-2,2,-1
++            lab_lsw_om(k) = ( lab_lsw_d(k) - lab_lsw_c(k)*lab_lsw_om(k+1) )/lab_lsw_b(k)
++          enddo
++        ENDIF
++        do k=1,nk+1
++          wprof(k) = -lab_lsw_om(k)/( rf0(1,1,k)*g )
++          lab_lsw_sw(k) = lab_lsw_sw(k) + wprof(k)
++        enddo
++        lab_lsw_n = lab_lsw_n + 1.0
++        lab_lsw_szb = lab_lsw_szb + lab_lsw_zb
++      ENDIF
+       ! Lab: the inflow of the reference's air (inflow_ref_air = 1, param3). CM1's large-scale vertical advection
+       ! (wsub) is the flux form less the scalar times the mean wind's mass convergence, d(rho0 w)/dz, so the air that
+       ! the convergence draws in carries the domain's own mean. Where the convergence is positive this term gives
+@@ -1919,6 +2003,10 @@
+           if( lab_inflow_out .and. myid.eq.0 ) write(95,*) zh(1,1,k),tem
+           tem1 = tem*( lsnudge_th(k,lsnudge_count)-thavg(k) )
+           tem2 = tem*( lsnudge_qv(k,lsnudge_count)-qavg(k,nqv) )
++          if( lsw_coupling.ge.1 .and. allocated(lab_lsw_sth) )then   ! Lab: the coupled wind's record
++            lab_lsw_sth(k) = lab_lsw_sth(k) + tem1
++            lab_lsw_sqv(k) = lab_lsw_sqv(k) + tem2
++          endif
+           do j=1,nj
+           do i=1,ni
+             thten1(i,j,k) = thten1(i,j,k) + tem1
+@@ -1976,6 +2064,12 @@
+           terluna_qv = (1.0-terluna_f)*((1.0-tem)*terluna_aqv(terluna_l,terluna_b0)+tem*terluna_aqv(terluna_l+1,terluna_b0))  &
+                       +terluna_f*((1.0-tem)*terluna_aqv(terluna_l,terluna_b1)+tem*terluna_aqv(terluna_l+1,terluna_b1))
+         endif
++        ! Lab: with lsw_table_heat = 1 (param3) the table heats below the coupled layer's base alone
++        if( lsw_table_heat.eq.1 .and. zh(1,1,k).gt.max( lsw_base , min( lab_lsw_hpbl , lsw_top ) ) ) terluna_th = 0.0
++        if( lsw_coupling.ge.1 .and. allocated(lab_lsw_stt) )then   ! Lab: the table as applied, for the record
++          lab_lsw_stt(k) = lab_lsw_stt(k) + terluna_th
++          lab_lsw_stq(k) = lab_lsw_stq(k) + terluna_qv
++        endif
+         do j=1,nj
+         do i=1,ni
+           thten1(i,j,k) = thten1(i,j,k) + terluna_th
+@@ -1989,6 +2083,41 @@
+           enddo
+         endif
+       enddo
++    ENDIF
++
++!--------------------------------------------------------------------
++!  Lab: the coupled wind's record (lsw_coupling = 1, param3), lab_lsw_means.txt. For each interval of CM1's domain
++!  diagnostics, written at the step that ends it, and for the interval that the run's last step ends, one line holds
++!  the interval's start and end (s), its steps, the base's mean height (m) and the level count; one line for each
++!  level then holds zh and zf (m), the wind at zf (m/s), the inflow's theta (K/s) and vapour (kg/kg/s) tendencies,
++!  and the table's heating (K/s) and moistening (kg/kg/s) as applied, each the mean over the interval's steps. A run
++!  that starts afresh replaces the file, and a restarted run adds to it.
++
++    IF( lsw_coupling.ge.1 .and. allocated(lab_lsw_sw) )THEN
++      if( lab_lsw_n.gt.0.5 .and. ( dotdwrite .or. (mtime+dbldt).ge.dble(timax) ) )then
++        if( myid.eq.0 )then
++          if( lab_lsw_new .and. irst.ne.1 )then
++            open(unit=94,file='lab_lsw_means.txt',status='replace',action='write')
++          else
++            open(unit=94,file='lab_lsw_means.txt',status='unknown',position='append',action='write')
++          endif
++          write(94,*) lab_lsw_t0,mtime+dbldt,lab_lsw_n,lab_lsw_szb/lab_lsw_n,nk
++          do k=1,nk
++            write(94,*) zh(1,1,k),zf(1,1,k),lab_lsw_sw(k)/lab_lsw_n,lab_lsw_sth(k)/lab_lsw_n,   &
++                        lab_lsw_sqv(k)/lab_lsw_n,lab_lsw_stt(k)/lab_lsw_n,lab_lsw_stq(k)/lab_lsw_n
++          enddo
++          close(unit=94)
++        endif
++        lab_lsw_new = .false.
++        lab_lsw_sw = 0.0
++        lab_lsw_sth = 0.0
++        lab_lsw_sqv = 0.0
++        lab_lsw_stt = 0.0
++        lab_lsw_stq = 0.0
++        lab_lsw_n = 0.0
++        lab_lsw_szb = 0.0
++        lab_lsw_t0 = mtime+dbldt
++      endif
+     ENDIF
+ 
+ !-------------------------------------------------------------------
