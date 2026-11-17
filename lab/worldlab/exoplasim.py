@@ -94,6 +94,19 @@ PATCH_15, PATCH_16 = (patch for patch, _ in TWILIGHT_QUALIFIERS.values())
 # from the drag of the surface transfer, and the output writes its mean as codes 165 and 166, which ExoPlaSim's
 # postprocessor names uas and vas (patch 17, NWIND10). The model's state stays as it was.
 PATCH_17 = '17-wind-at-10-m.patch'
+# Deep convection: PlaSim's own Kuo scheme, or Frierson's (2007) simplified Betts-Miller scheme in its place (rainmod's
+# NPRC). The scheme's settings by the patch that reads each, its namelist entry and the patch's default, at which the
+# patch leaves the scheme of the patch before it: the relaxation, the reference humidity, the parcel's mixing and its
+# inhibition limit (patch 18), the depth test as a share of the column's surface pressure with the mixing within layers
+# (patch 19), and the shallow cap (patch 20). The relaxation time is seconds, or "similarity" for the time of
+# [betts_miller.reference] scaled to the world by rule 9 (world_spec.md).
+CONVECTION = {'kuo': 1, 'betts_miller': 2}
+PATCH_18, PATCH_19, PATCH_20 = ('18-betts-miller-convection.patch', '19-betts-miller-depth-test.patch',
+                                '20-betts-miller-shallow-cap.patch')
+BETTS_MILLER = {'relaxation_s': (PATCH_18, 'TAU_BM', 7200.0), 'reference_humidity': (PATCH_18, 'RH_BM', 0.7),
+                'parcel_mixing': (PATCH_18, 'EPS_BM', 0.0), 'inhibition_limit_j_kg': (PATCH_18, 'CIN_BM', 0.0),
+                'depth_share': (PATCH_19, 'DSIGDEEP_BM', 0.0), 'mixing_steps': (PATCH_19, 'NSUB_BM', 1),
+                'shallow_cap': (PATCH_20, 'NSHCAP_BM', False)}
 # PlaSim presets parts of rainmod for pairs of truncation and level count (rainmod.f90, rainini): at T42 its ten levels
 # evaporate falling rain with a gamma of 0.007, where every other count keeps 0.01, and at T21 five levels switch its
 # shallow convection off. A generated set that would run on another such preset than the released ten at its
@@ -147,7 +160,8 @@ ADDITIONS = {
                         'NTWILW', 'ZMLUNAR', 'NGASBANDS', 'ZGASQ', 'ZGASW', 'ZMAIRLUNAR', 'NLWCORR', 'NICEOPT',
                         'TICEOPT', 'ZICEW', 'NTWLCLEAR', 'NTWLZERO'),
     'rainmod_namelist': ('CWGREF', 'CWSCALE', 'CONVDAY', 'RCRIT', 'NEVAPPREC', 'NRDROP_JOIN', 'RDROP_WARM',
-                         'RDROP_MELT', 'RDROP_KSC', 'RDROP_RHOEXP', 'RDROP_STEP'),
+                         'RDROP_MELT', 'RDROP_KSC', 'RDROP_RHOEXP', 'RDROP_STEP', 'NPRC', 'TAU_BM', 'RH_BM', 'EPS_BM',
+                         'CIN_BM', 'DSIGDEEP_BM', 'NSUB_BM', 'NSHCAP_BM'),
     'fluxmod_namelist': ('NGUST', 'NSIMW', 'NWIND10'),
 }
 
@@ -431,7 +445,8 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     run's among them. On, the clear share is refused on a series that lacks patch 15, and the single count, on by
     default, takes patch 07's passes on a series that stops before patch 16, as the ice weights take patch 10's. The
     wind at 10 m, a diagnostic on by default, holds in a first run as in any other, and a series that stops before
-    patch 17 writes none."""
+    patch 17 writes none. The simplified Betts-Miller scheme is refused on a series without patch 18, and its own
+    settings on a series without the patch that reads them (`betts_miller`)."""
     switches = dict(run['switches'])
     if world is not None and locked(world):
         switches['sun_clock'] = 'plasim'
@@ -464,7 +479,57 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     switches['wind_10m'] = bool(_switch(switches.get('wind_10m'), 'switches.wind_10m'))
     if switches['wind_10m'] and PATCH_17 not in series(run):
         switches['wind_10m'] = False                     # the build writes no wind at 10 m
+    if switches.get('convection') not in CONVECTION:
+        raise SpecError(f'switches.convection is one of {tuple(CONVECTION)}, where the run states '
+                        f'{switches.get("convection")!r}')
+    if switches['convection'] == 'betts_miller' and PATCH_18 not in series(run):
+        raise SpecError(f"switches.convection 'betts_miller' takes {PATCH_18}, which the run's series lacks")
     return switches
+
+
+def betts_miller(run: dict, world: dict, scenario: dict) -> dict:
+    """The simplified Betts-Miller scheme's settings as the run states them in [betts_miller], checked, with its
+    relaxation time in seconds: as stated, or with "similarity" the reference's time times (H/c)/(H/c)_ref at the
+    scenario's reference temperature (`derive.similarity`; world_spec.md, rule 9), its basis and factor recorded beside
+    it. A setting away from its patch's default is refused on a series that lacks the patch, and the mixing within
+    layers needs the parcel to mix and the shallow cap the depth test, as the patches require."""
+    given = run.get('betts_miller')
+    if not isinstance(given, dict) or set(BETTS_MILLER) - set(given):
+        raise SpecError(f'[betts_miller] states {sorted(BETTS_MILLER)}, where the run gives {given!r}')
+    out = {}
+    tau = given['relaxation_s']
+    if tau == 'similarity':
+        reference = given['reference']
+        factor = derive.similarity(world, scenario, reference, label='exoplasim/defaults [betts_miller.reference]')
+        base = _positive(reference['relaxation_s'], 'betts_miller.reference.relaxation_s')
+        out['relaxation_s'] = base * factor['time']
+        out['relaxation'] = dict(basis='similarity', factor=factor['time'], reference_s=base)
+    else:
+        out['relaxation_s'] = _positive(tau, 'betts_miller.relaxation_s (seconds, or "similarity")')
+        out['relaxation'] = dict(basis='stated')
+    rh = given['reference_humidity']
+    if isinstance(rh, bool) or not isinstance(rh, (int, float)) or not 0.0 < rh <= 1.0:
+        raise SpecError(f'betts_miller.reference_humidity lies above 0 and at most 1, where it is {rh!r}')
+    out['reference_humidity'] = float(rh)
+    out['parcel_mixing'] = _nonnegative(given['parcel_mixing'], 'betts_miller.parcel_mixing')
+    out['inhibition_limit_j_kg'] = _nonnegative(given['inhibition_limit_j_kg'], 'betts_miller.inhibition_limit_j_kg')
+    share = _nonnegative(given['depth_share'], 'betts_miller.depth_share')
+    if share >= 1.0:
+        raise SpecError(f'betts_miller.depth_share is a share of the surface pressure below 1, where it is {share!r}')
+    out['depth_share'] = share
+    steps = _integer(given['mixing_steps'], 'betts_miller.mixing_steps')
+    if steps < 1 or (steps > 1 and out['parcel_mixing'] == 0.0):
+        raise SpecError(f'betts_miller.mixing_steps is 1, or more with the parcel mixing, where it is {steps!r}')
+    out['mixing_steps'] = steps
+    out['shallow_cap'] = bool(_switch(given['shallow_cap'], 'betts_miller.shallow_cap'))
+    if out['shallow_cap'] and share == 0.0:
+        raise SpecError("betts_miller.shallow_cap holds a shallow top within the depth test's share, which needs a "
+                        'depth_share above 0')
+    patches = series(run)
+    for name, (patch, _, default) in BETTS_MILLER.items():
+        if out[name] != default and patch not in patches:
+            raise SpecError(f"betts_miller.{name} {out[name]!r} takes {patch}, which the run's series lacks")
+    return out
 
 
 def locked(world: dict) -> bool:
@@ -572,6 +637,15 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
     # sizes the six entries the patch reads, from the scenario's air and the calibration of the births.
     if PATCH_14 in patches:
         rainmod.update(_rain_entries(switches, calibrations, where))
+
+    # The deep convection, written where the run's series holds patch 18: PlaSim's own switch, and with the simplified
+    # Betts-Miller scheme its settings, each where the series holds the patch that reads it.
+    if PATCH_18 in patches:
+        rainmod['NPRC'] = CONVECTION[switches['convection']]
+        if switches['convection'] == 'betts_miller':
+            settings = betts_miller(run, world, scenario)
+            rainmod.update({entry: int(settings[name]) if isinstance(default, (bool, int)) else settings[name]
+                            for name, (patch, entry, default) in BETTS_MILLER.items() if patch in patches})
 
     # The surface transfer's switches and the wind at 10 m, each written where the run's series holds its patch
     # (patches 12, 13 and 17).
@@ -936,7 +1010,8 @@ def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrati
     start; a world of the model's own surface keeps ExoPlaSim's files. Every file is made before any is written, and
     they reach `folder` together.
     Returns the run's record: each file's sha256, the switches as resolved, the sunlight at the top with its scale
-    and basis, the level set with its half levels (`derive.levels`), and the surface's kind and land shares."""
+    and basis, the level set with its half levels (`derive.levels`), the surface's kind and land shares, and with the
+    simplified Betts-Miller scheme its settings (`betts_miller`)."""
     folder = Path(folder)
     if folder.exists() and (not folder.is_dir() or any(folder.iterdir())):
         raise SpecError(f'{folder}: a run is written into a new or empty folder')
@@ -975,6 +1050,8 @@ def write_run(folder: Path, world: dict, scenario: dict, run: dict, *, calibrati
         texts[RAIN_TABLE] = rain_table(calibrations.rain_drops, derive.gravity(world))
     record = dict(files={}, switches=resolve(run, calibrations, world), first_run=calibrations.first_run,
                   sunlight=dict(top_w_m2=top.w_m2, scale=top.scale, basis=top.basis), levels=level_set)
+    if record['switches']['convection'] == 'betts_miller':
+        record['betts_miller'] = betts_miller(run, world, scenario)
     data = {}
     if geometry == 'model-default':
         data = model_surfaces(run['resolution'], albedo_map=scenario['land']['albedo'] == 'model-default',

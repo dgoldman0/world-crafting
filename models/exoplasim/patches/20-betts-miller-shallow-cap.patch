@@ -1,0 +1,59 @@
+--- a/plasim/src/rainmod.f90
++++ b/plasim/src/rainmod.f90
+@@ -48,6 +48,7 @@
+       real :: dsigdeep_bm = 0. ! Lab: its cloud-depth test: deep convection only in a cloud deeper than this share of
+ !                                  the column's surface pressure (0: no test)
+       integer :: nsub_bm = 1  ! its parcel's mixing steps within each layer (1: one a layer)
++      integer :: nshcap_bm = 0 ! Lab: 1 holds its shallow tops within the depth test's share above the cloud's base
+ 
+       real :: rcritmod = 1.0   ! Modifier for cloud critical relative humidity
+       real :: rcritslope = 0.0 !By-level modifier for changing cloud height bias
+@@ -127,6 +128,7 @@
+       namelist/rainmod_nl/nrdrop_join,rdrop_warm,rdrop_melt,rdrop_ksc,rdrop_rhoexp,rdrop_step   ! Lab: rain from its drops
+       namelist/rainmod_nl/tau_bm,rh_bm,eps_bm,cin_bm   ! Lab: the simplified Betts-Miller scheme
+       namelist/rainmod_nl/dsigdeep_bm,nsub_bm   ! Lab: its cloud-depth test and its mixing within layers
++      namelist/rainmod_nl/nshcap_bm   ! Lab: its shallow cap
+ !
+ !     reset defaults (according to general setup... tuning)
+ !
+@@ -189,12 +191,14 @@
+       call mpbcr(cin_bm)
+       call mpbcr(dsigdeep_bm)   ! Lab: its cloud-depth test and its mixing within layers
+       call mpbci(nsub_bm)
++      call mpbci(nshcap_bm)   ! Lab: its shallow cap
+       if(nprc == 2) then
+        if(tau_bm <= 0.) call mpabort('nprc 2: tau_bm is positive')
+        if(rh_bm <= 0. .or. rh_bm > 1.) call mpabort('nprc 2: rh_bm lies above 0 and at most 1')
+        if(eps_bm < 0. .or. cin_bm < 0.) call mpabort('nprc 2: eps_bm and cin_bm are zero or more')
+        if(dsigdeep_bm < 0. .or. dsigdeep_bm >= 1.) call mpabort('nprc 2: dsigdeep_bm lies in [0, 1)')
+        if(nsub_bm < 1) call mpabort('nprc 2: nsub_bm is 1 or more')
++       if(nshcap_bm == 1 .and. dsigdeep_bm <= 0.) call mpabort('nprc 2: nshcap_bm 1 takes dsigdeep_bm > 0')
+       endif
+       call mpbcr(cwgref)
+       call mpbcr(cwscale)
+@@ -1677,6 +1681,14 @@
+          ishallow(jhor)=1
+          ilift(jhor)=NLEP
+          itop(jhor)=jtop
++!        Lab: the shallow cap: the top no higher than the depth test's share of the surface pressure above the
++!        cloud's base, at the highest level at or below the parcel's top that lies within it
++         if(nshcap_bm == 1 .and. dsigdeep_bm > 0.) then
++          do jlev=jtop,NLEV
++           if(zp(jlev) >= zpbase-zpdeep) exit
++          enddo
++          itop(jhor)=min(jlev,NLEV)
++         endif
+         endif
+         cycle
+        endif
+@@ -1850,7 +1862,9 @@
+         kktop(:)=jlev
+        endwhere
+       enddo
+-      ktop(:)=MAX(ktop(:),kktop(:))
++!     Lab: under the simplified Betts-Miller scheme's shallow cap (nprc 2, nshcap_bm 1) the cap's top takes the
++!     place of pdeepth's
++      if(nprc /= 2 .or. nshcap_bm /= 1 .or. dsigdeep_bm <= 0.) ktop(:)=MAX(ktop(:),kktop(:))
+ !
+ !     0) modified diffusion coefficents
+ !

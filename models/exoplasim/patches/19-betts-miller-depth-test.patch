@@ -1,0 +1,146 @@
+--- a/plasim/src/rainmod.f90
++++ b/plasim/src/rainmod.f90
+@@ -45,6 +45,9 @@
+       real :: rh_bm   = 0.7   ! its reference relative humidity
+       real :: eps_bm  = 0.    ! its parcel's mixing per e-folding of pressure (0: undiluted)
+       real :: cin_bm  = 0.    ! its limit on the parcel's inhibition (J/kg; 0: none)
++      real :: dsigdeep_bm = 0. ! Lab: its cloud-depth test: deep convection only in a cloud deeper than this share of
++!                                  the column's surface pressure (0: no test)
++      integer :: nsub_bm = 1  ! its parcel's mixing steps within each layer (1: one a layer)
+ 
+       real :: rcritmod = 1.0   ! Modifier for cloud critical relative humidity
+       real :: rcritslope = 0.0 !By-level modifier for changing cloud height bias
+@@ -123,6 +126,7 @@
+      &       ,nclouds,pdeepth,nevapprec,nbeta,rhbeta,rbeta,rcritmod,rcritslope,cwgref,cwscale,convday      
+       namelist/rainmod_nl/nrdrop_join,rdrop_warm,rdrop_melt,rdrop_ksc,rdrop_rhoexp,rdrop_step   ! Lab: rain from its drops
+       namelist/rainmod_nl/tau_bm,rh_bm,eps_bm,cin_bm   ! Lab: the simplified Betts-Miller scheme
++      namelist/rainmod_nl/dsigdeep_bm,nsub_bm   ! Lab: its cloud-depth test and its mixing within layers
+ !
+ !     reset defaults (according to general setup... tuning)
+ !
+@@ -183,10 +187,14 @@
+       call mpbcr(rh_bm)
+       call mpbcr(eps_bm)
+       call mpbcr(cin_bm)
++      call mpbcr(dsigdeep_bm)   ! Lab: its cloud-depth test and its mixing within layers
++      call mpbci(nsub_bm)
+       if(nprc == 2) then
+        if(tau_bm <= 0.) call mpabort('nprc 2: tau_bm is positive')
+        if(rh_bm <= 0. .or. rh_bm > 1.) call mpabort('nprc 2: rh_bm lies above 0 and at most 1')
+        if(eps_bm < 0. .or. cin_bm < 0.) call mpabort('nprc 2: eps_bm and cin_bm are zero or more')
++       if(dsigdeep_bm < 0. .or. dsigdeep_bm >= 1.) call mpabort('nprc 2: dsigdeep_bm lies in [0, 1)')
++       if(nsub_bm < 1) call mpabort('nprc 2: nsub_bm is 1 or more')
+       endif
+       call mpbcr(cwgref)
+       call mpbcr(cwscale)
+@@ -1552,6 +1560,8 @@
+       real :: zte(NHOR,NLEV), zqe(NHOR,NLEV), zdtdts(NHOR,NLEV), zdqdts(NHOR,NLEV), zdtc(NHOR,NLEV)
+       real :: ztp(NLEV), zdtr(NLEV), zdqr(NLEV), zm(NLEV), zcp(NLEV), zp(NLEV)
+       real :: ztnew, zqnew, zmix, zcin, zpq, zpt, zcpm, zcorr, zcond, ztau
++      real :: zsub, zstep, zlift, zsig0, zsig1, zw, zpbase, zpdeep   ! Lab: the depth test and the mixing
++      integer :: jsub
+ !
+       ztau=max(tau_bm,deltsec2)
+       ishallow(:)=0
+@@ -1583,13 +1593,37 @@
+        call sbmsat(ztnew,zqnew,zp(NLEV))
+        ztp(NLEV)=ztnew
+        do jlev=NLEM,1,-1
+-        ztnew=ztnew*(sigma(jlev)/sigma(jlev+1))**akap
+-        if(eps_bm > 0.) then
+-         zmix=1.-exp(-eps_bm*log(sigma(jlev+1)/sigma(jlev)))
+-         ztnew=(1.-zmix)*ztnew+zmix*zte(jhor,jlev)
+-         zqnew=(1.-zmix)*zqnew+zmix*zqe(jhor,jlev)
++        if(eps_bm > 0. .and. nsub_bm > 1) then
++!        Lab: the mixing within layers: nsub_bm equal steps of log pressure, each lifting the parcel dry
++!        adiabatically, mixing in its share of the air interpolated there in log pressure and condensing the mixture
++         zsub=log(sigma(jlev+1)/sigma(jlev))/real(nsub_bm)
++         zmix=1.-exp(-eps_bm*zsub)
++         zstep=exp(-zsub)
++         zlift=exp(-akap*zsub)
++         zsig0=sigma(jlev+1)
++         do jsub=1,nsub_bm
++          if(jsub < nsub_bm) then
++           zsig1=zsig0*zstep
++           ztnew=ztnew*zlift
++          else
++           zsig1=sigma(jlev)
++           ztnew=ztnew*(zsig1/zsig0)**akap
++          endif
++          zw=real(jsub)/real(nsub_bm)
++          ztnew=(1.-zmix)*ztnew+zmix*((1.-zw)*zte(jhor,jlev+1)+zw*zte(jhor,jlev))
++          zqnew=(1.-zmix)*zqnew+zmix*((1.-zw)*zqe(jhor,jlev+1)+zw*zqe(jhor,jlev))
++          call sbmsat(ztnew,zqnew,dp(jhor)*zsig1)
++          zsig0=zsig1
++         enddo
++        else
++         ztnew=ztnew*(sigma(jlev)/sigma(jlev+1))**akap
++         if(eps_bm > 0.) then
++          zmix=1.-exp(-eps_bm*log(sigma(jlev+1)/sigma(jlev)))
++          ztnew=(1.-zmix)*ztnew+zmix*zte(jhor,jlev)
++          zqnew=(1.-zmix)*zqnew+zmix*zqe(jhor,jlev)
++         endif
++         call sbmsat(ztnew,zqnew,zp(jlev))
+         endif
+-        call sbmsat(ztnew,zqnew,zp(jlev))
+         ztp(jlev)=ztnew
+        enddo
+ !      its level of free convection, the lowest above its start where it is buoyant, and its top, the last level
+@@ -1612,6 +1646,21 @@
+        do jlev=jlfc+1,NLEV
+         zcin=zcin+gascon*max(0.,zte(jhor,jlev)-ztp(jlev))*dsigma(jlev)/sigma(jlev)
+        enddo
++!      Lab: the cloud-depth test: deep convection only where the parcel's cloud, from the condensation level of the
++!      lowest level's air up to the top, spans more than the share dsigdeep_bm of the column's surface pressure; a
++!      thinner cloud takes the shallow scheme
++       zpdeep=dsigdeep_bm*dp(jhor)
++       if(dsigdeep_bm > 0.) then
++        zpbase=sbmlcl(zte(jhor,NLEV),zqe(jhor,NLEV),zp(NLEV),zp(jtop))
++        if(zpbase-zp(jtop) <= zpdeep) then
++         if(nshallow == 1) then
++          ishallow(jhor)=1
++          ilift(jhor)=NLEP
++          itop(jhor)=jtop
++         endif
++         cycle
++        endif
++       endif
+ !      the relaxation toward the references, from the lowest level to the top
+        zpq=0.
+        zpt=0.
+@@ -1678,6 +1727,35 @@
+       sbmqs=zqs/(1.-(1./rdbrv-1.)*zqs)
+       end function sbmqs
+ !
++      real function sbmlcl(pt,pq,pp,ptop)
++!     Lab: the pressure at which air of temperature pt and vapour pq at pp, lifted dry adiabatically with its vapour
++!     kept, reaches saturation: pp where it is saturated there, ptop where it is still unsaturated at ptop, and
++!     between the two by 24 halvings of the interval in log pressure
++      real, intent(in) :: pt,pq,pp,ptop
++      real :: zlo,zhi,zmid,zpm
++      integer :: jit
++      if(pq >= sbmqs(pt,pp)) then
++       sbmlcl=pp
++       return
++      endif
++      if(pq < sbmqs(pt*(ptop/pp)**akap,ptop)) then
++       sbmlcl=ptop
++       return
++      endif
++      zlo=log(ptop)
++      zhi=log(pp)
++      do jit=1,24
++       zmid=0.5*(zlo+zhi)
++       zpm=exp(zmid)
++       if(pq >= sbmqs(pt*(zpm/pp)**akap,zpm)) then
++        zlo=zmid
++       else
++        zhi=zmid
++       endif
++      enddo
++      sbmlcl=exp(0.5*(zlo+zhi))
++      end function sbmlcl
++!
+       subroutine sbmsat(pt,pq,pp)
+ !     a supersaturated parcel condensed to saturation in two steps, as Kuo's parcel is, with the latent heat of
+ !     sublimation below freezing

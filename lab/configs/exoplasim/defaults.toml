@@ -6,10 +6,11 @@
 schema = "worldlab.defaults.exoplasim/0"
 id = "exoplasim/defaults"
 upstream = "exoplasim-3.4.2"                   # models/pins.sha256
-patches = "models/exoplasim/patches/series"    # all seventeen applied: Terluna's ten, the lab's patch 11, and
-                                               # patches 12 to 17, written here from Terluna's gust, similarity, rain
-                                               # from its drops, two corrections of the twilight and its wind at 10 m;
-                                               # each switch below, at its default when omitted
+patches = "models/exoplasim/patches/series"    # all twenty applied: Terluna's ten, the lab's patch 11, and
+                                               # patches 12 to 20, written here from Terluna's gust, similarity, rain
+                                               # from its drops, two corrections of the twilight, its wind at 10 m and
+                                               # its simplified Betts-Miller convection; each switch below, at its
+                                               # default when omitted
 
 resolution = "T21"
 levels = 10                                    # the released model's own ten sigma levels, which PlaSim computes from
@@ -97,6 +98,42 @@ wind_10m = true                                # 17: NWIND10. true writes the wi
                                                # released model does. On by default, since a diagnostic that changes no
                                                # state leaves the Earth control's test nothing to gate; a run on a
                                                # build before patch 17 writes none (PLAN.md, "Decisions", 2026-11-16)
+convection = "kuo"                             # 18-20: NPRC. "kuo" keeps PlaSim's own deep convection, Kuo's scheme
+                                               # (NPRC 1); "betts_miller" takes Frierson's (2007) simplified
+                                               # Betts-Miller scheme in its place (NPRC 2), by the settings of
+                                               # [betts_miller]. Kuo's stays the default under the opt-in rule for each
+                                               # port (PLAN.md); which scheme the Open Moon's runs take is block 3's
+                                               # decision
+
+[betts_miller]                                 # 18-20: read with switches.convection = "betts_miller". The defaults
+                                               # are the design scheme of Terluna's design runs, the depth test carried
+                                               # as a share of the surface pressure (models/exoplasim/README.md)
+relaxation_s = 7200.0                          # 18: TAU_BM, the time over which the column relaxes toward the
+                                               # references: Frierson's 2 h, set for Earth (registry B39). "similarity"
+                                               # takes the reference's time below times (H/c)/(H/c)_ref at the
+                                               # scenario's reference temperature (world_spec.md, rule 9): 12.25 h for
+                                               # the Open Moon at 295 K, and 2 h for the Earth control
+reference_humidity = 0.7                       # 18: RH_BM, the reference vapour's share of saturation: Frierson's
+parcel_mixing = 0.0                            # 18: EPS_BM, the parcel's mixing per e-folding of pressure; 0 undiluted
+inhibition_limit_j_kg = 0.0                    # 18: CIN_BM, the parcel's largest inhibition for deep convection; 0 none
+depth_share = 0.19738465334320257              # 19: DSIGDEEP_BM, the least depth of a deep cloud, from the condensation
+                                               # level to the top, as a share of the column's surface pressure: the
+                                               # IFS's 200 hPa over Earth's 1013.25 hPa. 0 takes no test, the patch's
+                                               # default. Terluna's runs state 200 hPa itself, 16% of the Open Moon's
+                                               # 1,216 hPa (lab/design/terluna_fixes.md, row 12)
+mixing_steps = 1                               # 19: NSUB_BM, the parcel's mixing steps within each layer, more than one
+                                               # with parcel_mixing above 0
+shallow_cap = true                             # 20: NSHCAP_BM. true holds the tops of the clouds the scheme hands the
+                                               # shallow scheme within depth_share of their base, in place of PlaSim's
+                                               # 700 hPa (defect log B34); it needs the depth test
+
+[betts_miller.reference]                       # the state at which the reference's time holds, from which
+                                               # "similarity" scales it: Earth's gravity and the Earth control's air at
+                                               # 288 K, so that the Earth control keeps 7,200 s
+relaxation_s = 7200.0                          # Frierson's 2 h (J. Atmos. Sci. 64, 1959-1976)
+gravity_m_s2 = 9.80665
+temperature_k = 288.0
+air = { surface_pressure_pa = 101325.0, o2_mole_fraction = 0.2095, co2_ppm = 400.0, ar_mole_fraction = 0.00934, balance = "N2" }
 
 [calibration]                                  # the stages whose products, fitted to the study's scenario, a run reads
                                                # where its switches use them

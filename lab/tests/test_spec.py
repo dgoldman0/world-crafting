@@ -43,10 +43,10 @@ def test_every_seed_loads():
     study = LIB.study('open-moon')
     assert set(study.gcm) == {'design', 'design_lw_ice'}
     assert set(study.crm) == {'ring_45n', 'ring_45n_twilight', 'box_jura'}
-    assert {'A1', 'B1', 'B28', 'B30', 'B31', 'cm1-rain-limits-range', 'cm1-soil-day', 'cm1-equinox-sun',
+    assert {'A1', 'B1', 'B28', 'B30', 'B31', 'B34', 'B39', 'cm1-rain-limits-range', 'cm1-soil-day', 'cm1-equinox-sun',
             'exoplasim-ice-weights', 'exoplasim-rain-births', 'exoplasim-longwave-fit', 'cm1-damping-below-convection'} <= \
         {e['id'] for e in LIB.registry()}
-    assert len(LIB.registry()) == 21
+    assert len(LIB.registry()) == 23
 
 
 def test_a_moon_takes_its_hosts_orbit():
@@ -207,6 +207,37 @@ def test_plasims_rain_constant_warns_off_earths_gravity_and_the_births_keep_thei
     gravity = lambda world, scenario: derive.planet(LIB.world(world), LIB.scenario(scenario))['gravity_m_s2']
     assert abs(gravity('moon', 'moon/open-moon') / 9.80665 - 1.0) > 1e-3
     assert abs(gravity('earth', 'earth/control') / 9.80665 - 1.0) <= 1e-3
+
+
+def test_the_betts_miller_schemes_earth_values_warn_off_earth():
+    """B39 warns where a run of the simplified Betts-Miller scheme keeps Frierson's 2 h off Earth's gravity, as B30
+    warns for gamma, and names the similarity as its repair, a setting of patch 18; it stays open, the scaling being
+    untested on the scheme. B34 warns where a run of the scheme leaves PlaSim's 700 hPa top for its shallow clouds off
+    Earth's surface pressure, a proposed threshold, and names patch 20's cap. The defaults keep Kuo's scheme, so neither
+    entry reaches a default run, and with the scheme the Open Moon draws B39 alone."""
+    entries = {e['id']: e for e in LIB.registry()}
+    b39, b34 = entries['B39'], entries['B34']
+    assert (b39['state'], b39['action']) == ('open', 'warn')
+    assert b39['when'] == [{'q': 'gravity_m_s2', 'ne': 9.80665, 'rel_tolerance': 1e-3},
+                           {'config': 'exoplasim.switches.convection', 'eq': 'betts_miller'},
+                           {'config': 'exoplasim.betts_miller.relaxation_s', 'eq': 7200.0}]
+    assert (b39['repair']['namelist'], b39['repair']['default'], b39['repair']['value']) == (['TAU_BM'], 7200.0,
+                                                                                            'similarity')
+    assert (b34['state'], b34['action']) == ('repaired', 'warn')
+    assert b34['when'] == [{'field': 'air.surface_pressure_pa', 'outside': [91192.5, 111457.5]},
+                           {'config': 'exoplasim.switches.convection', 'eq': 'betts_miller'},
+                           {'config': 'exoplasim.betts_miller.shallow_cap', 'eq': False}]
+    assert (b34['repair']['switch'], b34['repair']['value'], b34['repair']['default']) == ('NSHCAP_BM', 1, 0)
+    for entry in (b39, b34):
+        assert (LAB.parent / 'models' / 'exoplasim' / 'patches' / (entry['repair']['patch'] + '.patch')).exists()
+    line = next(x for x in (LAB / 'registry' / 'earth_assumptions.toml').read_text().splitlines()
+                if 'air.surface_pressure_pa' in x)
+    assert '# proposed' in line
+    defaults = LIB.defaults('exoplasim/defaults')
+    assert defaults['switches']['convection'] == 'kuo'
+    assert defaults['betts_miller']['relaxation_s'] == 7200.0 and defaults['betts_miller']['shallow_cap'] is True
+    assert 91192.5 <= LIB.scenario('earth/control')['air']['surface_pressure_pa'] <= 111457.5
+    assert not 91192.5 <= LIB.scenario('moon/open-moon')['air']['surface_pressure_pa'] <= 111457.5
 
 
 def test_plasims_levels_warn_where_the_lowest_stands_high_and_the_longwave_fit_keeps_its_level_set():

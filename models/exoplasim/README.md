@@ -1,12 +1,12 @@
 # ExoPlaSim 3.4.2 for a breathable Moon
 
-Seventeen patches to PlaSim's radiation, cloud, surface-transfer, rain and output code inside ExoPlaSim 3.4.2,
-the settings that carry the Moon's orbit and calendar, the level set generated for a world, which takes no patch,
-and the design case's namelists and input tables. The first
-ten patches are Terluna's and the eleventh the world-crafting lab's; the lab wrote the twelfth to the seventeenth
+Twenty patches to PlaSim's radiation, cloud, surface-transfer, rain, convection and output code inside ExoPlaSim
+3.4.2, the settings that carry the Moon's orbit and calendar, the level set generated for a world, which takes no
+patch, and the design case's namelists and input tables. The first
+ten patches are Terluna's and the eleventh the world-crafting lab's; the lab wrote the twelfth to the twentieth
 from Terluna's later code. Each patch adds a namelist switch, patch 14 a third value of PlaSim's own
-`NEVAPPREC`, whose default reproduces ExoPlaSim as released, and each of patches 11 to 17 at its default
-reproduces the build of the patches before it. Correctness, limits and room for improvement are in
+`NEVAPPREC` and patch 18 a second value of its own `NPRC`, whose defaults reproduce ExoPlaSim as released, and each
+of patches 11 to 20 at its default reproduces the build of the patches before it. Correctness, limits and room for improvement are in
 [../../notes/exoplasim.md](../../notes/exoplasim.md).
 
 ## Upstream pin
@@ -34,9 +34,9 @@ rm -f plasim/run/most_plasim_*.x      # ExoPlaSim recompiles PlaSim at the next 
 Terluna applied patches 01–06 to its shared installation and 07–10 to a separate copy that every run
 imports first since 2026-10-14, so earlier runs kept their source. Applied in order to a pristine
 3.4.2, patches 01–10 give `radmod.f90` sha256 `a49791572fa8f5b2…` and `rainmod.f90` `44c0668de3e8f7db…`,
-the copy deployed on 2026-10-17 byte for byte (`expected.sha256`); patches 11 to 17 follow them, and the
-whole series gives `radmod.f90` `3a90be4f7e3a4132…`, as patch 16 leaves it, `rainmod.f90` `7e83a5b6b2caef9f…`, as
-patch 14 left it, and `fluxmod.f90` `8534f22f7d10a423…`, `plasimmod.f90` `811f37ee4d72cbfd…` and `outmod.f90`
+the copy deployed on 2026-10-17 byte for byte (`expected.sha256`); patches 11 to 20 follow them, and the
+whole series gives `radmod.f90` `3a90be4f7e3a4132…`, as patch 16 leaves it, `rainmod.f90` `f8462e2938c40275…`, as
+patch 20 leaves it, and `fluxmod.f90` `8534f22f7d10a423…`, `plasimmod.f90` `811f37ee4d72cbfd…` and `outmod.f90`
 `14a440b6dcf11b38…`, as patch 17 leaves them (`expected-series.sha256`). The lab compiles each point of the series as
 a build of its own (`lab/worldlab/builds.py`).
 
@@ -61,6 +61,9 @@ a build of its own (`lab/worldlab/builds.py`).
 | 15 | `twilight-clear-share` | `NTWLCLEAR` (radmod) | 0 | 1: takes patch 07's sunlight in each layer in the share of the sky clear of cloud above it, and lets each layer's and the ground's extra infrared through the cloud above at each layer's longwave transmissivity | Repair of patch 07's method, whose terms are clear-sky values; written by the lab from Terluna's code |
 | 16 | `twilight-counted-once` | `NTWLZERO` (radmod) | 0 | 1: starts each pass of `swr` from zero where the Sun is down, so that with the clear-sky diagnostic on the twilight below the horizon is counted once | Repair of a defect in patch 07 (defect log C21); written by the lab from Terluna's code |
 | 17 | `wind-at-10-m` | `NWIND10` (fluxmod) | 0 | 1: brings the lowest level's wind down to 10 m on Geleyn's profile through the lowest layer, from the drag `surflx` computes, and writes its means since the last output as codes 165 and 166 (`uas`, `vas`) | Diagnostic: the model's state stays as it was; written by the lab from Terluna's code |
+| 18 | `betts-miller-convection` | `NPRC` 2, a second value of PlaSim's switch; `TAU_BM`, `RH_BM`, `EPS_BM`, `CIN_BM` (rainmod) | 1, Kuo's; 7,200 s, 0.7, 0, 0 J/kg | 2: Frierson's simplified Betts–Miller scheme in place of Kuo's: where a parcel lifted from the lowest level is buoyant, temperature and vapour relax over `TAU_BM` toward the parcel's temperature and `RH_BM` of its saturation, the rain is the vapour the column loses and one heating through the layers keeps the moist enthalpy; a column too dry to rain or held back by `CIN_BM` takes PlaSim's shallow scheme | Capability: a second deep convection, whose relaxation time and humidity are Earth's values (defect log B39, B42); written by the lab from Terluna's code |
+| 19 | `betts-miller-depth-test` | `DSIGDEEP_BM`, `NSUB_BM` (rainmod) | 0, 1 | The cloud-depth test: deep convection only where the parcel's cloud, from the condensation level to the top, spans more than the share `DSIGDEEP_BM` of the column's surface pressure; and the parcel's mixing taken in `NSUB_BM` steps within each layer | Capability, its depth a share of the surface pressure where Terluna's is 200 hPa; written by the lab from Terluna's code |
+| 20 | `betts-miller-shallow-cap` | `NSHCAP_BM` (rainmod) | 0 | 1, with the depth test: a column the scheme hands to the shallow scheme takes a top within the depth test's share above its condensation level, which `mkshallow` keeps in place of PlaSim's 700 hPa | General repair of an Earth value (B34) for the Betts–Miller scheme; written by the lab from Terluna's code |
 
 ## The surface gust and the similarity over water (patches 12 and 13)
 
@@ -532,8 +535,8 @@ and with it the restart, stays as it was.
   (`lab/tests/test_builds.py`), and the patched `plasimmod.f90` and `fluxmod.f90` compile with PlaSim's module on
   fifteen levels (`python/climate/tests/test_wind_10m.py`).
 - **Identity at the default, and a diagnostic with the switch on.** On Earth's control over 96 steps on four ranks,
-  the folder written for the build of patches 01–16 gives the same output and restart under the whole series' build,
-  and so does the folder written for the whole series with `NWIND10` 0. With `NWIND10` 1 the run ends in the same
+  the folder written for the build of patches 01–16 gives the same output and restart under the build of patches
+  01–17, and so does the folder written for that build with `NWIND10` 0. With `NWIND10` 1 the run ends in the same
   restart byte for byte, under PlaSim's own transfer and under the gust with the similarity over water, and its
   output holds every record of the run without the switch, byte for byte and in order, with codes 165 and 166 after
   each 2 m temperature at the same output time (`lab/tests/test_builds.py`). In a harness of `surflx` taken from the
@@ -605,6 +608,210 @@ and with it the restart, stays as it was.
   16 November 2026 on the same columns). Terluna's runs whose commands its README lists with `--wind10` and
   `--surface-gust beljaars_similarity` took the wind on PlaSim's roughness;
 - the setting on by default, since the patch changes no state; a run on a build before patch 17 writes none.
+
+## Simplified Betts–Miller convection (patches 18 to 20)
+
+Patches 18 to 20 add to `rainmod.f90` the simplified Betts–Miller scheme of Frierson (2007, J. Atmos. Sci. 64,
+1959–1976) that Terluna wrote from 21 October 2026, in the form its design runs compiled and set: the scheme itself
+(`SBM_EDITS`, `SBM_CODE`), its cloud-depth test with the mixing within layers (`SBM_DEPTH_EDITS`) and its shallow cap
+(`SBM_CAP_EDITS`), all in `climate/gcm/exoplasim_run.py` on `domain/climate` at `39c5ee04`, unchanged since. Terluna's
+runner applies them as edit lists to its twilight copy of ExoPlaSim; the lab wrote them as three unified patches, one
+for each list, behind PlaSim's own switch `NPRC`, whose released default, 1, keeps Kuo's scheme. Terluna's design run
+`A28R_301k_design_l15_snow_s934` sets `NPRC` 2, `TAU_BM` 7,200 s, `RH_BM` 0.7, `EPS_BM` and `CIN_BM` 0, `DPDEEP_BM`
+20,000 Pa and `NSHCAP_BM` 1 in its `rainmod_namelist`, beside rain evaporated from its drops (`NEVAPPREC` 2). The lab's
+writer sets the scheme through `switches.convection` (`lab/configs/exoplasim/defaults.toml`): `kuo`, the default under
+the opt-in rule for each port (`PLAN.md`), and `betts_miller`, with the settings of `[betts_miller]`, whose defaults
+are the design scheme's. It writes `NPRC` where the run's series holds patch 18 and each of the scheme's entries where
+the series holds the patch that reads it, refuses the scheme on a series without patch 18, and refuses a setting away
+from its patch's default on a series without that patch. Which scheme the Open Moon's runs take is block 3's decision
+(`PLAN.md`).
+
+**What Terluna's design build compiled.** The design run's record names its `rainmod.f90` by the hash
+`b55e297f48e3a268`, the source of a test build of the same run that Terluna's research drive keeps
+(`gcm-runs/A28R_301k_design_l15_snow_s934_weather_test/build/plasim/src/rainmod.f90`), and the design executable
+carries that source's namelist entries. Beside the three edit lists, its `mksbm` holds the CAPE trigger (`cape_bm`,
+`epst_bm`) and the night switch (`ndiagnight_bm`), both compiled in at their defaults of 0, which the design run leaves
+unset and which keep them off; Terluna's `DIAGNOSTIC_PATCHES` line that completes PlaSim's diagnostic 16; and a call of
+`mkdqtgp` for every `NPRC` from 1. The trigger, the night switch and the closures (closure (c), the two redesigns and
+route L), none of which passed Terluna's agreement test, stay in Terluna; the design build compiled no closure. The
+same source holds Terluna's mass-flux scheme (`NPRC` 3), which the design run leaves unused and which stays in
+Terluna.
+
+**PlaSim's own Betts–Miller scheme.** The pinned archive also ships `rainmod_bm.f90`, PlaSim's rainmod of 2002, with
+the full Betts–Miller scheme in Betts's saturation-point form (`mkbm`): a deep threshold at 700 hPa, saturation-point
+differences in Pa, and relaxation times of 2 h for deep and 4 h for shallow convection, Earth's values. ExoPlaSim
+compiles `rainmod.f90` (`RAINMOD=rainmod` in `make_plasim`), and `rainmod_bm.f90` predates the parts of that file on
+which ExoPlaSim and this series build, so the patches add Frierson's scheme to the rainmod that ExoPlaSim compiles.
+
+**What changes.** With `NPRC` 2, `rainstep` calls `mksbm` in place of `kuo`, on each column's state after the step's
+tendencies so far.
+
+- **The reference.** A parcel from the lowest level, lifted dry adiabatically across each layer and condensed to
+  PlaSim's saturation in two Newton steps, as Kuo's parcel is, with the latent heat of sublimation below freezing,
+  gives the reference temperature T_ref from the lowest level up. With `EPS_BM` above 0 it mixes in the share
+  1 − exp(−ε ln(p_below/p)) of each layer's air. The reference vapour q_ref is `RH_BM` of saturation at T_ref.
+- **Where the column convects.** The parcel's level of free convection is the lowest level above its start at which
+  it is warmer than the air, and its top the last level above that through which it stays warmer. Its inhibition is
+  R Σ max(0, T − T_ref) Δσ/σ over the levels below its level of free convection.
+- **The relaxation.** From the top to the lowest level, dT/dt = (T_ref − T)/τ + ΔT and dq/dt = (q_ref − q)/τ, with τ
+  `TAU_BM` and at least `deltsec2`. The rain P is the vapour the column loses, −Σ (dq/dt) m, over the layers' masses
+  m = p_s Δσ/g, and the one heating ΔT added at every convecting level releases its latent heat, Σ c_p (dT/dt) m = L P,
+  so that the column keeps its moist enthalpy Σ (c_p T + L q) m. The rain forms at each level in proportion to the
+  vapour removed there (`dprcl`), and the levels that lose vapour become the convective cloud layers (`icclev`,
+  `icctot`), the top one an anvil's where it stands above σ 0.4, as under Kuo's scheme.
+- **The shallow scheme.** A column whose relaxation would remove no vapour (P ≤ 0), whose parcel's inhibition exceeds
+  `CIN_BM` J/kg where that limit is set, or whose top's pressure exceeds PlaSim's `pdeep` takes PlaSim's shallow
+  scheme (`mkshallow`) from the lowest level to the parcel's top; it mixes temperature and vapour through those layers
+  and forms no rain, as under Kuo's scheme.
+- **The depth test** (patch 19, `DSIGDEEP_BM` above 0). A column convects deep only where the parcel's cloud, from the
+  condensation level of the lowest level's air, found by 24 halvings of the interval in log pressure, to the top, spans
+  more than the share `DSIGDEEP_BM` of the column's surface pressure; a thinner cloud takes the shallow scheme. The rule
+  is the IFS's, which separates deep from shallow convection at 200 hPa on Earth (documentation Cy36r1, Part IV,
+  section 6.4).
+- **The mixing within layers** (patch 19, `NSUB_BM` above 1 with `EPS_BM` above 0). The parcel crosses each layer in
+  `NSUB_BM` equal steps of log pressure, each lifting it dry adiabatically, mixing in its share of the air interpolated
+  linearly in log pressure, and condensing the mixture.
+- **The shallow cap** (patch 20, `NSHCAP_BM` 1, with the depth test). A column the scheme hands to the shallow scheme
+  after the depth test, too dry to rain or held back, takes as its top the highest level at or below the parcel's top
+  whose pressure is at least its condensation level's less the depth test's share of the surface pressure, and
+  `mkshallow` keeps that top in place of its own, the lowest level above `pdeepth`, 700 hPa (defect log B34). A cloud the depth
+  test hands over already lies within the share and keeps its parcel's top, so the cap lowers every top it sets.
+
+**How the rain and the cloud reach the rest of PlaSim.** `mksbm` writes the rain by level and the convective cloud
+layers into the variables Kuo's scheme writes, and `mkrain` and `mkclouds` take them unchanged. `mkrain` adds each
+level's rain to the convective rain falling there and turns it to snow where the air is at or below freezing; with
+patch 14 (`NEVAPPREC` 2) each level's rain enters the falling rain at that level as new drops by the run's birth rule
+and evaporates from its drops below it, the configuration of Terluna's design run. `mkclouds`, the same routine in
+the lab's series as in Terluna's design build, draws the convective cover from the convective rain at the ground over
+the layers in `icclev`. The scheme also sets Kuo's diagnostics 8, 16 and 18, the heating and the vapour by layer that
+the convection adds and the dynamics' vapour, read with `NDIAGGP` 1, and `rainstep` calls `mkdqtgp` for `NPRC` 2 as
+for 1, so that diagnostic 18 holds the step's own tendency.
+
+**The world's values and Earth's.**
+
+| Quantity | Its value in the patched code |
+|---|---|
+| Gravity, the levels, each column's surface pressure, the gas constant, κ, the heat capacities, the latent heats and the saturation curve | The model's own: `ga`, `sigma`, `dsigma`, `dp`, `gascon`, `akap`, `acpd`, `ADV`, `ALV`, `ALS`, `ra1`, `ra2`, `ra4`, `TMELT` and `rdbrv` |
+| The relaxation time, `TAU_BM` | 7,200 s by default, Frierson's 2 h for Earth (defect log B39). The lab's writer keeps it, or with `relaxation_s = "similarity"` takes 7,200 s times (H/c)/(H/c)_ref at the scenario's reference temperature from Earth's gravity and the Earth control's air at 288 K (`[betts_miller.reference]`; `lab/design/world_spec.md`, rule 9): 12.25 h for the Open Moon at 295 K, 10.4 h for the waterworld seed and 2 h for the Earth control. Registry B39 warns where a run of the scheme keeps 7,200 s off Earth's gravity |
+| The reference humidity, `RH_BM` | 0.7, Frierson's for Earth's tropics (defect log B42) |
+| The depth test, `DSIGDEEP_BM` | A share of the column's surface pressure, 0 by default; the writer's default is the IFS's 200 hPa over Earth's 1013.25 hPa, 0.1974, 240 hPa at the Open Moon's 1,216 hPa, where Terluna's 200 hPa holds 16% of the column (defect log B42) |
+| The shallow cap's depth | The depth test's share |
+| PlaSim's `pdeep` | 999,999 Pa, an absolute pressure, idle at its default, as under Kuo's scheme |
+| PlaSim's shallow scheme: its diffusivity `rkshallow`, 10 m²/s, and without the cap its top at `pdeepth`, 700 hPa | Earth's, as under Kuo's scheme; the top is defect log B34, which registry B34 warns of where a run of the scheme leaves the cap off away from Earth's surface pressure |
+| The anvil's σ 0.4 | Kuo's, a share of the surface pressure |
+| The condensation level's 24 halvings | Numerical: the base to 2⁻²⁴ of the interval in log pressure |
+
+**Stops.** With `NPRC` 2 the run stops at its start, with PlaSim's abort message, on a `TAU_BM` of zero or less, an
+`RH_BM` outside the range above 0 to 1, a negative `EPS_BM` or `CIN_BM`, a `DSIGDEEP_BM` outside 0 to below 1, an
+`NSUB_BM` below 1, and `NSHCAP_BM` 1 without the depth test. Under `NPRC` 1 or 0 the scheme's settings are left
+unread. The scheme stores nothing from one step to the next, so the restart file needs nothing from it.
+
+**Verification.** The evidence states are those of the notes: none of them validates a climate.
+
+- **The patches apply.** `models/check_patches.sh` applies the series of twenty to the pinned archive and finds the
+  sources of `expected-series.sha256`.
+- **They compile.** The lab's builds of patches 01–18, 01–19 and the whole series compile PlaSim at T21 on ten levels
+  (`lab/tests/test_builds.py`), and the patched `rainmod.f90` compiles with PlaSim's module on fifteen levels
+  (`python/climate/tests/test_betts_miller.py`).
+- **Identity at the defaults.** On Earth's control over 96 steps on four ranks, the folder written for the build of
+  patches 01–17, whose namelist names no `NPRC`, gives the same output and restart under the whole series' build, and
+  so does the folder written for the whole series, which states `NPRC` 1. Under the scheme without its depth test and
+  cap, the folder written for the build of patches 01–18 gives the same output and restart under the builds of
+  patches 01–19 and 01–20, and with the depth test the folder written for the build of patches 01–19 gives the same
+  under the whole series (`lab/tests/test_builds.py`). In a harness of `mksbm` and `mkshallow` alone, each patch at
+  its defaults prints every digit the routine before it prints, under ExoPlaSim's flags and under `-O3
+  -march=native`, and patch 20's `mkshallow` prints the released routine's digits under Kuo's scheme, under the
+  scheme without the cap and with the cap but no depth test.
+- **The scheme's effect, in the whole model.** In that control the scheme changes the output and the restart against
+  Kuo's, and the depth test changes them again. At the writer's settings, the design scheme with its depth test and
+  cap, the whole series runs two days from a cold start under the floating-point traps ExoPlaSim compiles with, with
+  PlaSim's `gamma` and with the rain's drops: in both runs the convective rain at the ground (code 143) is finite and
+  positive in every output mean, the drops change it and the state, and the cap changes the state.
+- **Agreement with the Python copy.** `mksbm` from the patched source, compiled with ExoPlaSim's flags against a stub
+  of PlaSim's module, gives the tendencies, the rain by level, the cloud layers and the tops handed to the shallow
+  scheme of a Python copy of Frierson's scheme written in the test, to 10⁻¹⁰, on Earth-like columns on PlaSim's ten
+  levels and lunar columns on Terluna's fifteen and on forty, at 1.2 and 0.5 bar: deep, thin, too dry to rain, held
+  back and buoyant nowhere, with the parcel undiluted and mixing, at 2 h and at 12 h. Its diagnostics 8, 16 and 18
+  hold the scheme's heating, its vapour in m/s of water and the dynamics' vapour, and a deep cloud topped above σ 0.4
+  takes an anvil where one topped between σ 0.4 and 0.5 takes none.
+- **Against arithmetic.** On deep columns at both gravities the vapour relaxes toward `RH_BM` of saturation at the
+  copy's reference temperature over τ to 10⁻¹², the temperature toward the reference shifted by one heating at every
+  convecting level, twice the time halves every tendency and the rain, and a time below `deltsec2` takes `deltsec2`.
+  The rain equals the vapour the column loses to 10⁻¹², forms where the vapour is removed, and the column's moist
+  enthalpy changes by under 10⁻¹² of the rain's latent heat. Each deep cloud turns shallow as the share passes its
+  depth over its surface pressure, at 1.2 and 0.5 bar and at Earth's 1 atm, and a column whose parcel crosses colder
+  air turns shallow as the inhibition limit falls below its inhibition, counted as the copy counts it. On clouds too dry to rain or held back the
+  cap hands `mkshallow` the highest level within the share of the base, which `mkshallow` keeps, where without the cap
+  it takes the parcel's top lowered to the lowest level above 700 hPa; a thin cloud keeps its parcel's top.
+- **The scheme's rain through the drops.** `mksbm` and patch 14's `mkrain`, compiled into one program and called as
+  `rainstep` calls them, on Earth's air and the Open Moon's: with `NEVAPPREC` 2 mkrain's tendencies and the
+  precipitation at the ground are those of patch 14's Python copy given the scheme's rain by level, to 10⁻¹⁰; rain
+  formed aloft evaporates below its levels, the column keeps its water to 10⁻¹⁰, and the drops evaporate another
+  amount of the scheme's rain than `gamma` does.
+- **Agreement with Terluna's code.** The statements of `mksbm` and `mkshallow` equal those of the design build's
+  source, comments aside, but for the CAPE trigger and the night switch, which the lab leaves out, the depth's share,
+  and the condition in `mkshallow` (choices below). Compiled into one program with the design build's two routines,
+  read from Terluna's research drive under their pinned hash, the lab's routines print every digit Terluna's print in
+  every tendency, rain, diagnostic, cloud layer and shallow top, at Earth's gravity and the Moon's and at four surface
+  pressures, on deep, thin, dry, held-back and stable columns, under the design scheme, with the inhibition limit, with
+  the mixing within layers, without the cap and without the depth test, the lab's share set so that it comes to
+  20,000 Pa exactly at the column's surface pressure (`python/climate/tests/test_betts_miller.py`, which skips where the
+  drive is absent).
+- **Wrong code at fifteen places.** In single scratch runs on 17 November 2026, fourteen wrong statements put one at
+  a time into the patches each failed the tests of `python/climate/tests/test_betts_miller.py`: the reference
+  humidity left out, the closure's heating of the wrong sign, the rain without its Δσ, the depth taken on Earth's
+  surface pressure in place of the column's, the condensation level taken from the level above the lowest, the cap at
+  half the share, PlaSim's top dropped without the depth test, the mixing within layers weighted a step behind, the
+  anvil below σ 0.5, diagnostic 16 left at minus the tendency, the inhibition without its weight, the relaxation time
+  let below `deltsec2`, the depth taken to the level below the top, and the stop on the cap without the depth test
+  dropped. The anvil's and the diagnostic's were caught at first by the comparison with Terluna's build alone; the
+  tests added for them catch both with the research drive absent. A fifteenth, the inhibition counted from the level
+  of free convection, changes nothing, since the parcel is warmer than the air there.
+- **Terluna's runs**, made with its own edits on its runs' configurations (Terluna's `climate/gcm/README.md` at
+  `39c5ee04`). On ten levels at the design climate's sunlight, the scheme at Frierson's settings settled at 299.6 K
+  against Kuo's 298.4 K and rained 2.32 mm/day against 2.19; at the Near-side Sea it rained 1.45 mm/day from midnight
+  to sunrise against Kuo's 2.93 and CM1's box's 0.17. Over two years the depth test at 200 hPa cut the sea's rain after
+  midnight by a quarter, to 1.55 mm/day, and on fourteen levels the cap moved the global ground by under 0.05 K. On
+  fifteen levels, with the gust, the similarity over water and the rain's drops, the scheme is the design climate's,
+  301.0 K over years 10–49 of the turned design case (`PLAN.md`). No setting of the scheme matched CM1's rain by time
+  of day at both of Terluna's sites. The lab has run none of these.
+- **Physical validation** remains to be done. The lab's runs with the scheme are the tests' own, of two days on
+  Earth's control.
+
+**Limits.**
+
+- The scheme relaxes the whole column, from the lowest level to the top, toward an undiluted parcel's temperature at
+  the design settings; CM1's mixing updrafts hold the Moon's upper air 3.0–6.3 K below that adiabat (defect log B29),
+  and Terluna's closures, which change the reference, passed none of its tests.
+- One relaxation time, one reference humidity and one depth serve every column, each Earth's value at the defaults
+  (defect log B39, B42); the similarity that scales the time is untested on the scheme.
+- The parcel starts at the lowest level, whose height follows the level set, and the condensation level and the cap's
+  top fall on the model's levels.
+- The rain forms where the relaxation removes vapour and the heating spreads by one amount through the convecting
+  levels, so the scheme has no plumes, downdrafts, cold pools or organization, and its rain follows the instability
+  after a fixed delay (Terluna's record).
+- Untested anywhere: a run past the tests' 96 steps; a restart with the scheme on, though it keeps nothing between
+  steps; the mixing within layers and the inhibition limit in the whole model; a generated level set with the scheme in
+  the whole model; ranks other than four; T42; and PlaSim compiled in single precision.
+
+**Choices made in the port,** where the lab's form differs from Terluna's or the design left it open:
+
+- three patches, one for each of Terluna's edit lists, so that each point of the series adds one capability with its
+  own identity test;
+- the depth test as a share of each column's surface pressure, the new entry `DSIGDEEP_BM`, in place of Terluna's
+  `DPDEEP_BM` in Pa, as `PLAN.md` sets: 200 hPa is 16% of the Open Moon's 1,216 hPa and 40% at 0.5 bar
+  (`lab/design/terluna_fixes.md`, row 12); the shallow cap holds to the same share. Where the share times the
+  surface pressure equals Terluna's depth, the arithmetic is Terluna's;
+- PlaSim's 700 hPa top kept wherever the scheme's cap has no depth to hold to, where Terluna's `mkshallow` drops it
+  whenever `NPRC` is 2 and `NSHCAP_BM` 1, which with no depth test would leave the shallow tops at the parcel's top,
+  unbounded; Terluna's runner refuses that combination, and the lab's patch stops on it as well;
+- stops on settings out of range, where Terluna's patch checks none and its runner refuses them;
+- `mkdqtgp` called for `NPRC` 1 and 2, where Terluna's patch calls it for any value from 1;
+- diagnostic 16 completed as the design build completes it, by Terluna's `DIAGNOSTIC_PATCHES` line, so that it holds
+  the vapour the convection adds, where Terluna's scheme patch alone leaves it at minus the tendency before the scheme;
+- the CAPE trigger, the night switch and the closures left in Terluna;
+- in the lab's writer, one setting of two values and a table of the seven settings at the design scheme's values,
+  the relaxation time Frierson's 7,200 s by default, with the world's value by similarity as a stated option.
 
 ## Level sets (no source change)
 

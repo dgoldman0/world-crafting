@@ -179,8 +179,8 @@ def test_the_templates_come_from_the_pinned_archive_alone(tmp_path):
 
 def test_the_switches_resolve_to_what_the_build_does():
     assert ex.series(DESIGN)[10:] == ('11-ice-weights.patch', ex.PATCH_12, ex.PATCH_13, ex.PATCH_14, ex.PATCH_15,
-                                      ex.PATCH_16, ex.PATCH_17)
-    assert len(ex.series(DESIGN)) == 17
+                                      ex.PATCH_16, ex.PATCH_17, ex.PATCH_18, ex.PATCH_19, ex.PATCH_20)
+    assert len(ex.series(DESIGN)) == 20
     first, later = ex.resolve(DESIGN, ex.Calibrations.identity()), ex.resolve(LW_ICE, _given())
     assert (first['twilight'], first['gas_bands'], first['ice_weights']) == ('none', False, 'from-spectrum')
     assert (later['twilight'], later['gas_bands'], later['ice_weights'], later['ice_optics']) == \
@@ -247,6 +247,18 @@ def test_the_switches_resolve_to_what_the_build_does():
     for value in (1, 'yes', None):
         with pytest.raises(SpecError, match='switches.wind_10m is true or false'):
             ex.resolve(_with(DESIGN, switches={'wind_10m': value}), _given())
+    # The deep convection: Kuo's by default, in a first run as in any other; the simplified Betts-Miller scheme as the
+    # run states it, refused on a series that lacks patch 18, where Kuo's resolves as before.
+    assert first['convection'] == later['convection'] == 'kuo'
+    scheme = _with(DESIGN, switches={'convection': 'betts_miller'})
+    assert ex.resolve(scheme, ex.Calibrations.identity())['convection'] == 'betts_miller'
+    assert ex.resolve({**DESIGN, 'patches': list(ex.series(DESIGN))[:17]}, _given())['convection'] == 'kuo'
+    with pytest.raises(SpecError, match=f"switches.convection 'betts_miller' takes {re.escape(ex.PATCH_18)}, which "
+                                        "the run's series lacks"):
+        ex.resolve({**scheme, 'patches': list(ex.series(DESIGN))[:17]}, _given())
+    for value in ('mass_flux', None, 2):
+        with pytest.raises(SpecError, match='switches.convection is one of'):
+            ex.resolve(_with(DESIGN, switches={'convection': value}), _given())
 
 
 # The rules each entry follows.
@@ -307,7 +319,7 @@ def test_the_switches_set_their_patches_entries():
     lit = ex.TopOfAir(1199.0, 0.97, 'calibration', {'ice_weights': (0.6, 0.2, 0.15, 0.05)})
     entries = ex.namelists(MOON, OPEN_MOON, switched, top=lit, calibrations=calibrations)
     rain, radmod, plasim = entries['rainmod_namelist'], entries['radmod_namelist'], entries['plasim_namelist']
-    assert rain == {'CWGREF': 9.80665, 'CWSCALE': 1.0, 'CONVDAY': 0.0, 'RCRIT(10)': 0.9, 'NEVAPPREC': 1}
+    assert rain == {'CWGREF': 9.80665, 'CWSCALE': 1.0, 'CONVDAY': 0.0, 'RCRIT(10)': 0.9, 'NEVAPPREC': 1, 'NPRC': 1}
     assert (radmod['NSUNCLOCK'], radmod['NLWCORR'], radmod['NICEOPT'], radmod['TICEOPT']) == (0, 1, 1, 235.15)
     assert [radmod[f'ZICEW({i})'] for i in (1, 2, 3, 4)] == [0.6, 0.2, 0.15, 0.05]     # patch 11's weights
     with pytest.raises(SpecError, match='ice weights of the sunlight'):
@@ -391,6 +403,87 @@ def test_the_wind_at_10_m_sets_its_entry_where_the_series_holds_patch_17():
     assert 'NWIND10' in ex.ADDITIONS['fluxmod_namelist']
 
 
+def test_the_convection_sets_its_entries_where_the_series_holds_patches_18_to_20():
+    """Patches 18 to 20: NPRC in rainmod's namelist where the run's series holds patch 18, Kuo's 1 by default, and
+    with the simplified Betts-Miller scheme NPRC 2 with the design scheme's settings, each entry where the series holds
+    the patch that reads it. A series that stops before patch 18 writes no NPRC, so that PlaSim keeps its own 1, and
+    the Open Moon's study keeps Kuo's scheme."""
+    rainmod = lambda run, cal=None, top=LATER: ex.namelists(MOON, OPEN_MOON, run, top=top,
+                                                            calibrations=cal or _given())['rainmod_namelist']
+    names = ('NPRC', 'TAU_BM', 'RH_BM', 'EPS_BM', 'CIN_BM', 'DSIGDEEP_BM', 'NSUB_BM', 'NSHCAP_BM')
+    convection = lambda entries: {name: entries[name] for name in names if name in entries}
+    assert DEFAULTS['switches']['convection'] == 'kuo' and DESIGN['switches']['convection'] == 'kuo'
+    assert convection(rainmod(DESIGN)) == {'NPRC': 1}
+    assert convection(rainmod({**DESIGN, 'patches': list(ex.series(DESIGN))[:17]})) == {}
+    scheme = _with(DESIGN, switches={'convection': 'betts_miller'})
+    design = dict(NPRC=2, TAU_BM=7200.0, RH_BM=0.7, EPS_BM=0.0, CIN_BM=0.0, DSIGDEEP_BM=200.0 / 1013.25, NSUB_BM=1,
+                  NSHCAP_BM=1)
+    assert convection(rainmod(scheme)) == design
+    assert convection(rainmod(scheme, ex.Calibrations.identity(), FIRST)) == design      # a first run takes it too
+    assert set(names) <= set(ex.ADDITIONS['rainmod_namelist'])
+    # The design scheme's depth test is Terluna's 200 hPa as a share of Earth's surface pressure: at the Open Moon's
+    # 121,590 Pa it holds 240 hPa, and at Earth's 101,325 Pa the 200 hPa itself
+    assert design['DSIGDEEP_BM'] * OPEN_MOON['air']['surface_pressure_pa'] == pytest.approx(24000.0, rel=1e-12)
+    assert design['DSIGDEEP_BM'] * CONTROL['air']['surface_pressure_pa'] == pytest.approx(20000.0, rel=1e-15)
+    # On a series of patches 01-18 or 01-19, each entry where the patch that reads it is held; the settings those
+    # patches would read are refused away from the patches' defaults, and taken at them.
+    eighteen, nineteen = (list(ex.series(DESIGN))[:n] for n in (18, 19))
+    with pytest.raises(SpecError, match=f"betts_miller.depth_share .* takes {re.escape(ex.PATCH_19)}"):
+        rainmod({**scheme, 'patches': eighteen})
+    with pytest.raises(SpecError, match=f"betts_miller.shallow_cap True takes {re.escape(ex.PATCH_20)}"):
+        rainmod({**scheme, 'patches': nineteen})
+    bare = _with(scheme, betts_miller={'depth_share': 0.0, 'shallow_cap': False})
+    assert convection(rainmod({**bare, 'patches': eighteen})) == {k: design[k] for k in names[:5]}
+    assert convection(rainmod({**_with(scheme, betts_miller={'shallow_cap': False}), 'patches': nineteen})) == \
+        dict({k: design[k] for k in names[:7]})
+    # The study's own settings reach the entries.
+    stated = _with(scheme, betts_miller={'relaxation_s': 43200.0, 'reference_humidity': 0.6, 'parcel_mixing': 2.4,
+                                         'inhibition_limit_j_kg': 15.0, 'depth_share': 0.3, 'mixing_steps': 16})
+    assert convection(rainmod(stated)) == dict(design, TAU_BM=43200.0, RH_BM=0.6, EPS_BM=2.4, CIN_BM=15.0,
+                                               DSIGDEEP_BM=0.3, NSUB_BM=16)
+
+
+def test_the_relaxation_time_takes_the_worlds_similarity_as_a_stated_option():
+    """With "similarity" the relaxation time is the reference's 7,200 s times (H/c)/(H/c)_ref at the scenario's
+    reference temperature, from Earth's gravity and air at 288 K: the Earth control keeps 7,200 s, and the Open Moon
+    at 295 K takes 12.25 h, about the 12 h that defect log B39 gives by gravity alone. Frierson's 2 h stays the
+    default, and the run's record carries the time with its basis."""
+    scheme = _with(DESIGN, switches={'convection': 'betts_miller'})
+    similar = _with(scheme, betts_miller={'relaxation_s': 'similarity'})
+    reference = DEFAULTS['betts_miller']['reference']
+    assert DEFAULTS['betts_miller']['relaxation_s'] == reference['relaxation_s'] == 7200.0
+    assert ex.betts_miller(scheme, MOON, OPEN_MOON)['relaxation'] == {'basis': 'stated'}
+    earth = ex.betts_miller(similar, EARTH, CONTROL)
+    assert earth['relaxation_s'] == 7200.0 and earth['relaxation']['factor'] == 1.0
+    moon = ex.betts_miller(similar, MOON, OPEN_MOON)
+    g, t = derive.gravity(MOON), OPEN_MOON['air']['reference_temperature_k']
+    m, m_ref = (derive.molar_mass_g_mol(derive.mole_fractions(s)) for s in (OPEN_MOON, CONTROL))
+    by_hand = 7200.0 * (9.80665 / g) * math.sqrt((t / m) / (288.0 / m_ref))
+    assert moon['relaxation_s'] == pytest.approx(by_hand, rel=1e-12)
+    assert moon['relaxation_s'] / 3600.0 == pytest.approx(12.25, abs=0.005)
+    assert 7200.0 * 9.80665 / g / 3600.0 == pytest.approx(12.08, abs=0.005)            # B39's 12 h, gravity alone
+    entries = ex.namelists(MOON, OPEN_MOON, similar, top=LATER, calibrations=_given())['rainmod_namelist']
+    assert entries['TAU_BM'] == moon['relaxation_s']
+    with pytest.raises(SpecError, match='fixpoint'):          # a scenario whose temperature the fixpoint finds
+        ex.betts_miller(similar, MOON, _with(OPEN_MOON, air={'reference_temperature_k': 'settled'}))
+
+
+@pytest.mark.parametrize('settings, match', [
+    (dict(relaxation_s=0.0), 'relaxation_s'), (dict(relaxation_s='frierson'), 'relaxation_s'),
+    (dict(reference_humidity=0.0), 'reference_humidity'), (dict(reference_humidity=1.1), 'reference_humidity'),
+    (dict(parcel_mixing=-1.0), 'parcel_mixing'), (dict(inhibition_limit_j_kg=-5.0), 'inhibition_limit_j_kg'),
+    (dict(depth_share=1.0), 'depth_share'), (dict(depth_share=-0.1), 'depth_share'),
+    (dict(mixing_steps=0), 'mixing_steps'), (dict(mixing_steps=4), 'mixing_steps'), (dict(mixing_steps=2.0), 'mixing_steps'),
+    (dict(shallow_cap=1), 'shallow_cap'), (dict(depth_share=0.0), 'needs a depth_share above 0'),
+])
+def test_the_schemes_settings_out_of_range_are_refused(settings, match):
+    run = _with(_with(DESIGN, switches={'convection': 'betts_miller'}), betts_miller=settings)
+    with pytest.raises(SpecError, match=match):
+        ex.namelists(MOON, OPEN_MOON, run, top=LATER, calibrations=_given())
+    # The same settings are left unread under Kuo's scheme.
+    ex.namelists(MOON, OPEN_MOON, _with(DESIGN, betts_miller=settings), top=LATER, calibrations=_given())
+
+
 def test_the_rains_evaporation_sets_its_entries_where_the_series_holds_patch_14():
     """Patch 14: NEVAPPREC in rainmod's namelist where the run's series holds the patch, PlaSim's own 1 by default, so
     that a build at an earlier point reads a namelist of the names it knows. With the drops' sizes it is 2, beside the
@@ -464,8 +557,8 @@ def test_a_run_with_the_drops_sizes_holds_its_entries_and_the_rains_table(tmp_pa
     assert record['switches']['rain_evaporation'] == 'drop_sizes' and ex.RAIN_TABLE in record['files']
     assert (tmp_path / 'sized' / ex.RAIN_TABLE).read_text() == fall_law.table_text(_rain().table)
     lines = (tmp_path / 'sized' / 'rainmod_namelist').read_text().splitlines()
-    assert lines[-8:] == [' NEVAPPREC = 2', ' NRDROP_JOIN = 2', ' RDROP_WARM = 0.000439', ' RDROP_MELT = 0.00295',
-                          ' RDROP_KSC = 2.919', ' RDROP_RHOEXP = 0.687', ' RDROP_STEP = 1000.0', ' /END']
+    assert lines[-9:] == [' NEVAPPREC = 2', ' NRDROP_JOIN = 2', ' RDROP_WARM = 0.000439', ' RDROP_MELT = 0.00295',
+                          ' RDROP_KSC = 2.919', ' RDROP_RHOEXP = 0.687', ' RDROP_STEP = 1000.0', ' NPRC = 1', ' /END']
     record = ex.write_run(tmp_path / 'gamma', EARTH, CONTROL, plain, calibrations=ex.Calibrations(**released),
                           store=STORE)
     assert record['switches']['rain_evaporation'] == 'gamma' and not (tmp_path / 'gamma' / ex.RAIN_TABLE).exists()
@@ -760,11 +853,13 @@ def test_the_design_runs_namelists_are_terlunas_but_for_five_entries_each_with_i
         lab_only.update({(path.name, k): v for k, v in mine.items()})
     # The entries the lab adds hold the values PlaSim and the patches take without them, but for NTWLZERO: the design
     # run took the twilight with the clear-sky diagnostic on and both of patch 07's passes (defect log C21), and the
-    # lab's writer counts the night's twilight once by default (PLAN.md, "Decisions", 2026-11-16).
+    # lab's writer counts the night's twilight once by default (PLAN.md, "Decisions", 2026-11-16). NPRC 1 is Kuo's
+    # scheme, PlaSim's own, which this design run of 14 October took.
     assert lab_only == {('plasim_namelist', 'NDIAGGP'): '0', ('radmod_namelist', 'IRTOPDAY'): '0.0',
                         ('radmod_namelist', 'IRTOPNIGHT'): '0.0', ('radmod_namelist', 'NICEOPT'): '0',
                         ('radmod_namelist', 'NLWCORR'): '0', ('rainmod_namelist', 'NEVAPPREC'): '1',
-                        ('radmod_namelist', 'NTWLCLEAR'): '0', ('radmod_namelist', 'NTWLZERO'): '1'}
+                        ('radmod_namelist', 'NTWLCLEAR'): '0', ('radmod_namelist', 'NTWLZERO'): '1',
+                        ('rainmod_namelist', 'NPRC'): '1'}
     assert set(found) == {('planet_namelist', k) for k in ('GA', 'PLARAD', 'ECCEN', 'GSOL0')} | \
         {('rainmod_namelist', 'CWSCALE')}
     lab, terluna = ({key: float(pair[i]) for key, pair in found.items()} for i in (0, 1))

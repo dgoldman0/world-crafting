@@ -90,19 +90,20 @@ corrected there. The companion note `verification_record.md` describes the check
 | B26 | SWAN | INIT 2-s period; ST6 and exact-XNL paths at Earth's g; Earth radius default | 10-02, 8785f7e | Bypassed or set by input | None in the selected configuration | Avoided | R |
 | B27 | SWAN, SWASH | Earth-calibrated laws: Wu drag, Komen, AGROW coefficient, breaker index 0.73, SWASH breaking 0.6/0.3 | 10-02 to 10-03 | Retained | Not quantified | Open | R |
 | B28 | CM1 Morrison | Rain's mean diameter capped at 2.8 mm and breakup begun at 0.3 mm, Earth's values | 10-17 | `brkup_gscale` (0), with `brkup_rhor` and `brkup_rhoexp`: the lab's series, patch 03, from Terluna's `RAIN_LIMITS_PATCHES` (dd89cef, 8b55847); patch 04 adds the solver's fall law and the world's self-collection rate (`rain_fall_law`, `rain_selfcoll`; 5a44e5e) | Lunar limits: rain at the ground 33 → 63 mm a lunar day, evaporated share 86% → 48%, air at 2 m +1.47 K | Scaled in the lab's series, off by default, before any lab run; scaled in Terluna's builds | S, V; R |
-| B29 | PlaSim | Kuo-type deep convection rains a column's moisture supply wherever an undiluted surface parcel is buoyant | 10-21, Terluna `domain/climate` f07ad8d | In Terluna: simplified Betts–Miller (`nprc` 2) and mass-flux (`nprc` 3) schemes, Kuo kept at `nprc` 1 | Near-side Sea rains 2.9 mm/day after midnight against CM1's 0.14–0.17; upper air within 1.3 K of the undiluted adiabat, where CM1's mixing updrafts hold theirs 3.0–6.3 K below | Open; replacements under test in Terluna | R |
+| B29 | PlaSim | Kuo-type deep convection rains a column's moisture supply wherever an undiluted surface parcel is buoyant | 10-21, Terluna `domain/climate` f07ad8d | `NPRC` (1): the lab's series, patches 18 to 20, the simplified Betts–Miller scheme of Terluna's design runs at 2 (`switches.convection`). In Terluna also the mass-flux scheme (`nprc` 3) | Near-side Sea rains 2.9 mm/day after midnight against CM1's 0.14–0.17; upper air within 1.3 K of the undiluted adiabat, where CM1's mixing updrafts hold theirs 3.0–6.3 K below | Open: the Betts–Miller scheme an option in the lab's series, Kuo's the default; no setting of either scheme has matched CM1 at both sites | R |
 | B30 | PlaSim | Falling rain evaporates by one constant (`gamma` 0.01 in `rainmod.f90`), with no drop size or fall speed | 10-21, 05b1384 | `NEVAPPREC` 2 (PlaSim's own 1 the default), with the six `RDROP` entries and the table `lab_rain_law.txt`: the lab's series, patch 14, rain evaporated from its drops' sizes and fall speeds (Terluna's `rain_drops.py`, 8e805f60, f5f767fa). In Terluna also `--rain-evaporation`, which sets the constant | PlaSim evaporates 29% of its rain against 61% in CM1's boxes; matching takes 0.027 over the sea and about 0.046 over land. With the drops' sizes Terluna's column gives 0.96–1.05 of CM1's column evaporation on three boxes | Replaced in the lab's series, off by default until the Earth control's test; replaced in Terluna's design runs | R |
 | B31 | PlaSim | Ten σ levels set for Earth: on the Moon the lowest layer spans 0–1.73 km and one layer 6.4–13.7 km | 10-26, 697ac36, a75fd47 | `levels` (10, the released model's own): a table of a scale height, the released half levels kept and the heights of those below generates a world's set, written as `NEQSIG` −1, `SIGH` and `TFRC`, with a conservative restart remap; no patch (`python/climate/gcm/levels.py`, from Terluna's `levels.py`). In Terluna: 14- and 15-level sets (`--levels`) | The lowest layer averages away 1.4–2.3 kJ/kg of surface-layer moist static energy; CM1's 6 km night boundary layer and 7–8 km cloud tops fall inside one layer | A set generated for the world in the lab, the released ten by default, before any lab run on one; fifteen levels in Terluna's design runs | R |
 | B32 | PlaSim | Vertical diffusion's mixing lengths (160 m for momentum, 438 m for heat and vapour) and 1 m/s wind floor | 10-26, b182515; compared 10-27, 21d98fc | The lengths: none yet; a nonlocal scheme with the stretched length, tested in single columns, misses the sea night's stop rule (6d0c707). The floor in the surface transfer: `NGUST` (0), the lab's series, patch 12, Beljaars's gust with a least wind of 0.1 m/s | Over the sea after midnight CM1 mixes to 6.5 km and the GCM to 4.3 km; through the day CM1 carries 28–112 W/m² of vapour through 5.2 km where PlaSim's median diffusivity is 0.1–0.3 m²/s | The lengths open; the floor in the surface transfer replaced by the gust in the lab's series and in Terluna's design runs, and kept in the vertical diffusion's wind shear | R |
 | B33 | PlaSim | Free-convection constant over water, 0.0016 m s⁻¹ K⁻¹ᐟ³, from a tank law that scales as (g/p_s)^⅓ | 10-26, b182515 | `NGUST`, `NSIMW` (0, 0): the lab's series, patches 12 and 13, Beljaars's gust with similarity over ice-free water, which drop the term (Terluna's `surface_gust.py`, `surface_similarity.py`). In Terluna also `cfree`, `--free-convection lunar` (0.00083), which has no patch here | Near-side Sea's evaporation 3.82 → 3.62 mm/day at the lunar constant (CM1 2.98), global evaporation and rain 3% lower; with the gust the site's transfer coefficient for vapour falls to 0.67 of the baseline's | Replaced in the lab's series, off by default until the Earth control's test; replaced in Terluna's design runs | R |
-| B34 | PlaSim | Shallow convection's tops capped at 700 hPa | 10-25, 1d05c3d | In Terluna: `--sbm-shallow-cap`, tied to the depth test (ea1b62f) | Near 28 km in the Moon's air; binds in 1–1.4% of cells | Open here; switch in Terluna | R |
+| B34 | PlaSim | Shallow convection's tops capped at 700 hPa | 10-25, 1d05c3d | `NSHCAP_BM` (0): the lab's series, patch 20, the top within the simplified Betts–Miller scheme's depth test, a share of the surface pressure, above the cloud's base (Terluna's `--sbm-shallow-cap`, ea1b62f) | Near 28 km in the Moon's air, to which a column too dry to rain mixes; below 700 hPa of surface pressure every shallow top at the second-lowest level; in Terluna's two fourteen-level years the cap moved the global ground under 0.05 K | Repaired for the Betts–Miller scheme in the lab's series, on with it by default; Kuo's scheme keeps 700 hPa | R, L |
 | B35 | CM1 r22.0 | The MM5 surface layer's gust over water, √Δθv m/s, has no gravity in it; over land the same scheme takes Beljaars's gust from the build's gravity | 10-28, Terluna `domain/climate` 238638f | `gust_over_water` (0): the lab's series, patch 02, from Terluna's `GUST_PATCH` | Raised the sea box's surface wind 1.6–1.8 times, where Beljaars's gust, computed from the box's own fluxes, raises it 1.1–1.2 times; every CM1 run over the seas behind the paper's first released draft | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | B36 | PlaSim | Horizontal diffusion's damping times at the truncation scale, 0.2–5.6 Earth days, Earth's for T21 | 11-09 | None | Unmeasured; the Moon's smallest wave is 3.7 times shorter than Earth's and damped as slowly | Open | P |
 | B37 | PlaSim; CM1 set-up | A slab sea 50 m deep, Earth's seasonal mixed layer; CM1's sea boxes hold its mean temperature | 11-09 | `MLDEPTH` (50 m) | The sea site's surface swings 0.63 K through the lunar day; 2.5 to 5 times that in a layer of 10–20 m, by estimate; Terluna's calm column reaches 37.1 °C where the slab shows 30.9 °C | Open | P, R |
 | B38 | CM1 Morrison | Cloud turns into rain at Earth's rates: Khairoutdinov and Kogan's autoconversion and accretion carry no gravity | Limit noted 10-17; sized 11-09 | `rain_autoconv_fac`, `rain_accr_fac` (1 each): the lab's series, patch 05, the lab's own | Unmeasured; by scaling, rain forms about 6 and 3 times too readily in each passage through a lunar cloud | A switch in the lab's series, off by default; its effect unmeasured | V, P |
-| B39 | PlaSim, Terluna's `nprc` 2 | The simplified Betts–Miller scheme relaxes over 2 h, Frierson's value for Earth | 11-09, `lab/design/gap_series.md` | `tau_bm` (7,200 s) | Unmeasured; 12 h by similarity | Open | P |
+| B39 | PlaSim, `NPRC` 2 | The simplified Betts–Miller scheme relaxes over 2 h, Frierson's value for Earth | 11-09, `lab/design/gap_series.md` | `TAU_BM` (7,200 s): the lab's series, patch 18; the writer's `relaxation_s` takes "similarity", the time scaled by rule 9 | Unmeasured; 12.25 h for the Open Moon at 295 K by similarity | Open: the similarity an option, 7,200 s by default; registry B39 warns | P, L |
 | B40 | CM1 r22.0 | CAPE, CIN, LCL and LFC in the output are those of a parcel mixed over the lowest 500 m at every gravity | 11-11, `lab` 3174a0e | None | Terluna's box analyses read CM1's CAPE and inhibition; at the Moon's gravity 500 m is about a hundredth of the scale height, and a sounding whose second level stands above it gives the lowest level alone | Open | L |
 | B41 | PlaSim | Roughness lengths set for Earth: Charnock's 0.018 with a floor of 1.5 × 10⁻⁵ m over the sea, 10⁻³ m over sea ice, 2 m over land | 11-16, the lab's port of the wind at 10 m | None; over ice-free water with `NSIMW` 1 (the lab's patch 13) the similarity's own roughness, which patch 17's wind at 10 m takes too | Unmeasured; they set PlaSim's neutral transfer coefficient and the log of the wind at 10 m, and at 2 m/s in neutral air over the sea PlaSim's roughness stands at 0.4–0.5 of the similarity's | Open | L |
+| B42 | PlaSim, `NPRC` 2 | The simplified Betts–Miller scheme's reference humidity 0.7 and the depth test's 200 hPa, Frierson's and the IFS's values for Earth's convection | 11-17, the lab's port of the scheme | `RH_BM` (0.7); `DSIGDEEP_BM` (0), which the writer sets to 200/1013.25 of each column's surface pressure | Unmeasured as such; on CM1's sea column the scheme rained only at a reference humidity of 0.6 or less (Terluna) | Open | L |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
 | C2 | CM1–GCM check | GCM's missing sunlight booked as reflection | 09-29, be50d8b retracts 36e29c4 | Each model's own arriving sunlight | A false "reflects too much" finding | Fixed | R |
 | C3 | Twilight ledger | Sky model's channels overstate absorbed energy by 58%; ledger's first channels put near-IR sunlight too high | 10-14, 2ac4359 and 55e5020 | 10,697 channels keeping heights | First two 20-year GCM tests used the old terms | Fixed | R |
@@ -810,6 +811,12 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   the mass-flux scheme goes deep on every step of the sea's night, its tops at 57–58 km where CM1's night cloud stops
   at 7–8 km, and the column loses CM1's night layer under that convection whichever boundary layer it has (6d0c707;
   B32).
+- **In the lab.** Patches 18 to 20 of `models/exoplasim/patches/series` add the simplified Betts–Miller scheme as
+  Terluna's design runs compiled and set it, behind `NPRC` 2 with Kuo's 1 the default, its depth test carried as a
+  share of each column's surface pressure (`models/exoplasim/README.md`, "Simplified Betts–Miller convection"). The
+  lab's writer sets it through `switches.convection`, Kuo's by default under the opt-in rule (`PLAN.md`); which
+  scheme the Open Moon's runs take is block 3's decision. The mass-flux scheme, the CAPE trigger, the night switch and
+  the closures stay in Terluna.
 
 ### B30. PlaSim: one constant for the evaporation of falling rain (R; replaced in the lab's series, off by default)
 
@@ -939,14 +946,27 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   (`lab/tests/test_builds.py`). Terluna's namelist variable for the constant (`fluxmod`'s `cfree`,
   `--free-convection lunar`) has no patch here.
 
-### B34. PlaSim: shallow convection's tops at 700 hPa (R; open here)
+### B34. PlaSim: shallow convection's tops at 700 hPa (R; repaired for the simplified Betts–Miller scheme)
 
-- **Defect.** PlaSim's shallow convection caps its clouds' tops at 700 hPa, an Earth height in pressure, near
-  28 km in the Moon's air (Terluna `domain/climate` 1d05c3d, ea1b62f).
-- **Effect.** In Terluna's two-year tests of the Betts–Miller scheme's depth test the cap binds in 1–1.4% of cells
-  (1d05c3d).
-- **Status.** Terluna's `--sbm-shallow-cap`, off by default, ties the cap to the depth test's threshold above each
-  column's condensation level (ea1b62f).
+- **Defect.** PlaSim's shallow convection (`mkshallow`) holds each cloud's top at or below the lowest level above
+  `pdeepth`, 700 hPa, an Earth height in pressure, near 28 km in the Moon's air (Terluna `domain/climate` 1d05c3d,
+  ea1b62f). Where the surface pressure lies below 700 hPa, as at 0.5 bar, every level stands above it, so that every
+  shallow top is held at the second-lowest level (`mkshallow`'s loop over levels 2 to NLEM; the lab's port, 17
+  November 2026).
+- **Effect.** A column too dry to rain whose parcel is buoyant to tens of kilometres mixes as shallow convection up to
+  that level. Terluna's record of its depth test (1d05c3d) bounds where a cloud the depth test hands over could meet
+  the cap: only with its base above 900 hPa, and the lowest air of 1.0–1.4% of the cell means was still unsaturated
+  there; the cap Terluna then built acts on the columns too dry to rain or held back. In Terluna's two fourteen-level
+  years with that cap and without it the global ground differed by under 0.05 K and the upper air by under 0.15 K, and
+  in year 1 the cap took the Near-side Sea's evening rain from 1.15 to 0.52 mm/day and the land's afternoon at 0° E
+  from 16.9 to 13.1 mm/day (Terluna's `climate/gcm/README.md` at `39c5ee04`).
+- **Fix.** Patch 20 of the lab's series (`NSHCAP_BM`, 0 by default) gives a column the simplified Betts–Miller scheme
+  hands to the shallow scheme after its depth test a top within the test's share of the column's surface pressure
+  above its condensation level, which `mkshallow` keeps in place of PlaSim's; the lab's writer turns it on with the
+  scheme and refuses it without the depth test. Registry B34 warns where a run of the scheme leaves the cap off
+  away from Earth's surface pressure (a proposed threshold of 10%).
+- **Status.** Repaired for the Betts–Miller scheme; Kuo's scheme, the lab's default, keeps 700 hPa, which B29's
+  registry entry is to cover in stage 6.
 
 ### B35. CM1 r22.0: the MM5 surface layer's gust over water (R)
 
@@ -1044,8 +1064,13 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   (`lab/design/world_spec.md`, rule 9), 2 h becomes 12 h on the Moon, within the 11–27 h over which CM1's boxes
   remove lunar instability (`lab/design/gap_series.md`).
 - **Effect.** Unmeasured for the time alone, since the closures changed their reference profiles with it.
-- **Status.** Open. One GCM run of the design scheme at 43,200 s would size it; `lab/design/terluna_fixes.md`, row 12, holds the scheme
-  for assessment before its port.
+- **In the lab.** Patch 18 of the lab's series reads the time as `TAU_BM`, 7,200 s by default. The lab's writer keeps
+  that default and offers the world's value as a stated option, `relaxation_s = "similarity"`: the reference's
+  7,200 s times (H/c)/(H/c)_ref at the scenario's reference temperature, from Earth's gravity and the Earth control's
+  air at 288 K, which gives 12.25 h for the Open Moon at 295 K, 12.4 h at 301 K and 10.4 h for the waterworld seed,
+  and keeps 7,200 s for the Earth control (`lab/tests/test_exoplasim_files.py`). Registry B39 warns where a run of
+  the scheme keeps 7,200 s off Earth's gravity.
+- **Status.** Open. One GCM run of the design scheme at 43,200 s would size it (`PLAN.md`, block 4, step 3).
 
 ### B40. CM1 r22.0: the CAPE diagnostic's mixed layer of 500 m (L; open)
 
@@ -1080,6 +1105,21 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   stronger (`python/climate/tests/test_wind_10m.py`; the roughnesses from a scratch calculation of 16 November 2026).
 - **Status.** Open. The sea's roughness from the ensemble's wave model at the world's gravity, which the notes list
   for the similarity (`notes/exoplasim.md`), would serve PlaSim's own transfer as well.
+
+### B42. PlaSim, the simplified Betts–Miller scheme: Earth's reference humidity and depth (L; open)
+
+- **Earth values.** Frierson (2007) relaxes the vapour toward 0.7 of saturation at the reference temperature, a
+  value set for Earth's tropical convection, which `RH_BM` holds by default in the lab's patch 18 and Terluna's
+  design runs kept. The depth test separates deep from shallow convection at the IFS's 200 hPa (documentation
+  Cy36r1, Part IV, section 6.4), set for Earth's air; Terluna's runs state it in Pa, 16% of the Open Moon's 1,216 hPa
+  and 40% at 0.5 bar, and the lab's patch 19 reads it as a share of each column's surface pressure, which the
+  writer sets to 200/1013.25 by default, 240 hPa on the Open Moon.
+- **Effect.** Unmeasured as such. On the Near-side Sea's mean column from the GCM the scheme rained only with a
+  reference humidity of 0.6 or less, and Terluna's branch at 0.6 settled 0.5 K warmer than the one at 0.7
+  (Terluna's `climate/gcm/README.md` at `39c5ee04`). The share keeps the test's place in the column at any surface
+  pressure; it still assumes that a cloud deep enough to rain spans a fifth of the column, as on Earth.
+- **Status.** Open. Both values are the scheme's settings; a fit on cloud-resolving boxes of the world would replace
+  them, as Terluna intended for the humidity.
 
 ## (c) Defects in Terluna's own work
 

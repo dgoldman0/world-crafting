@@ -79,6 +79,12 @@ or the tools they skip. The lab's environment then collected 377. The wind at 10
 lab's own that day: three in Python alone, on the profile by hand arithmetic and on the Python copies of the surface
 transfer, and five that apply the ExoPlaSim series to the pinned archive, four of which compile `surflx` or the
 patched modules with gfortran; without the archive or the tools they skip. The lab's environment then collected 385.
+The simplified Betts–Miller scheme, patches 18 to 20, brought seventeen of the lab's own on 2026-11-17, which apply the
+ExoPlaSim series to the pinned archive with `patch` and compile parts of the patched `rainmod.f90` with gfortran:
+`mksbm` and `mkshallow` against a stub of PlaSim's module, once with patch 14's `mkrain` beside them, the checks of
+`rainini`, and the whole file with PlaSim's modules. One of them reads the routines of Terluna's design build from its
+research drive through the lab's `worldlab.roots` and skips where the drive is absent; without the archive or the
+tools they skip. The lab's environment then collected 402.
 
 ## What still needs Terluna
 
@@ -144,6 +150,12 @@ its clear-sky terms. `climate/tests/test_wind_10m.py` is the lab's own too: it c
 before patch 17 and with it, against the stub of PlaSim's module that the gust's test builds, and checks the wind at
 10 m against a copy of Geleyn's profile written in the test on the transfer of `climate/gcm/surface_gust.py` and
 `surface_similarity.py`, where Terluna's test of its edit list compiles the profile's lines alone on a stand-in.
+`climate/tests/test_betts_miller.py` is the lab's own as well: it compiles `mksbm` and `mkshallow` from the series at
+patches 18, 19 and 20 and checks them against a Python copy of Frierson's scheme written in the test, against
+arithmetic on the relaxation, the rain and the moist enthalpy, against patch 14's Python copy of `mkrain` through
+which the scheme's rain falls, and against the routines of Terluna's design build read from its research drive,
+where Terluna's tests compile the routine from its runner's strings against its own copy, `climate/gcm/sbm.py`, which
+stays in Terluna with the closures', the CAPE trigger's and the diluted parcel's code that it holds.
 
 `climate/gcm/rain_drops.py` and its test came from Terluna at `39c5ee04` on 2026-11-11. The Fortran is in
 `models/exoplasim/patches/14-rain-from-drop-sizes.patch`, where Terluna's module keeps it as an edit list with the

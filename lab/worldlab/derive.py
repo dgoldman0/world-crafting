@@ -428,26 +428,33 @@ SCALED_TABLES = {'scaled_length': 'length', 'scaled_time': 'time', 'scaled_rate'
                  'capillary': 'capillary', 'diurnal': 'soil'}
 
 
-def cm1_factors(world: dict, scenario: dict, defaults: dict, *, temperature_k: float | None = None) -> dict:
-    """The factors on CM1's scaled values (world_spec.md, rule 9): lengths by H/H_ref, times by (H/c)/(H/c)_ref
-    and rates by its inverse, with H = RT/(Mg) and c = (RT/M)^½ at the scenario's reference temperature, or at
-    `temperature_k`, the fixpoint's, where given; raindrop limits by the capillary factor, soil layers by the
-    soil factor. The reference state is derived from the defaults' [reference] as a scenario's is, so that a
-    case at that state scales by 1."""
-    ref = defaults['reference']
-    m_ref = molar_mass_g_mol(mole_fractions({'id': 'cm1/defaults [reference]', 'air': ref['air']}))
-    h_ref = scale_height_m(ref['temperature_k'], m_ref, ref['gravity_m_s2'])
-    c_ref = math.sqrt(R_GAS * ref['temperature_k'] / (m_ref / 1000))
-    g = gravity(world)
+def similarity(world: dict, scenario: dict, reference: dict, *, temperature_k: float | None = None,
+               label: str = 'the reference state') -> dict:
+    """The factors of rule 9 (world_spec.md) from a reference state to the world and scenario: lengths by H/H_ref,
+    times by (H/c)/(H/c)_ref and rates by its inverse, with H = RT/(Mg) and c = (RT/M)^½ at the scenario's reference
+    temperature, or at `temperature_k`, the fixpoint's, where given. The reference states its gravity, temperature
+    and air, from which H_ref and c_ref are derived as a scenario's are, so that a world at that state scales by 1."""
+    m_ref = molar_mass_g_mol(mole_fractions({'id': label, 'air': reference['air']}))
+    h_ref = scale_height_m(reference['temperature_k'], m_ref, reference['gravity_m_s2'])
+    c_ref = math.sqrt(R_GAS * reference['temperature_k'] / (m_ref / 1000))
     t = reference_temperature_k(scenario) if temperature_k is None else temperature_k
     m = molar_mass_g_mol(mole_fractions(scenario))
-    h, c = scale_height_m(t, m, g), math.sqrt(R_GAS * t / (m / 1000))
+    h, c = scale_height_m(t, m, gravity(world)), math.sqrt(R_GAS * t / (m / 1000))
     time = (h / c) / (h_ref / c_ref)
+    return dict(length=h / h_ref, time=time, rate=1.0 / time)
+
+
+def cm1_factors(world: dict, scenario: dict, defaults: dict, *, temperature_k: float | None = None) -> dict:
+    """The factors on CM1's scaled values (world_spec.md, rule 9): lengths, times and rates by `similarity` from the
+    defaults' [reference], the state at which they were given, so that a case at that state scales by 1; raindrop
+    limits by the capillary factor, soil layers by the soil factor."""
+    factors = similarity(world, scenario, defaults['reference'], temperature_k=temperature_k,
+                         label='cm1/defaults [reference]')
     day = solar_day_days(world)
     if day is None:
         raise SpecError(f'{world["id"]}: a world locked to its star has no solar day for CM1\'s soil layers; its '
                         'fixed-star patch comes with plan stage 12')
-    return dict(length=h / h_ref, time=time, rate=1.0 / time, capillary=capillary_factor(g), soil=soil_factor(day))
+    return dict(**factors, capillary=capillary_factor(gravity(world)), soil=soil_factor(day))
 
 
 def cm1_values(settings: dict, factors: dict, *, set_paths: frozenset = frozenset()) -> dict:

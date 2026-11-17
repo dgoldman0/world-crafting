@@ -328,7 +328,14 @@ on them (`notes/geography.md`):
   them, and either is refused on a series without its patch. `wind_10m` becomes `NWIND10` in fluxmod's namelist
   through patch 17, written where the run's series holds it: the wind at 10 m, codes 165 and 166, brought down from
   the lowest level on the drag of the run's own surface transfer. A diagnostic on by default, it holds in a first
-  run, and a series without the patch writes none.
+  run, and a series without the patch writes none. `convection` becomes PlaSim's `NPRC` in rainmod's namelist
+  through patch 18, written where the run's series holds it: `kuo`, the default, 1, and `betts_miller` 2, the
+  simplified Betts–Miller scheme, whose settings come from the run's `[betts_miller]` table through patches 18 to
+  20, each entry where the series holds the patch that reads it: the relaxation time (`TAU_BM`) in seconds, or
+  "similarity" for the table's reference time scaled by rule 9 from the reference state it states, the reference
+  humidity, the parcel's mixing, its inhibition limit, the depth test as a share of each column's surface pressure
+  (`DSIGDEEP_BM`), the mixing steps within each layer and the shallow cap. The scheme is refused on a series without
+  patch 18, and a setting away from its patch's default on a series without that patch.
 - **The levels.** A run's `levels` is the released model's count, 10 by default, or the table of a set generated
   for the world: `scale_height_m`, a number of metres or "scenario" for the scenario's own at its reference
   temperature, `upper`, the count of the released model's highest half levels kept, and `interfaces_m`, the heights

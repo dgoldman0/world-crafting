@@ -125,6 +125,29 @@ def sixteen_point():
 
 
 @pytest.fixture(scope='module')
+def seventeen_point():
+    """The build at the series' first seventeen patches, through the wind at 10 m, before the simplified Betts-Miller
+    scheme."""
+    run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:17]}
+    return run, builds.build(run, store=STORE, env=ENV)
+
+
+@pytest.fixture(scope='module')
+def eighteen_point():
+    """The build at the series' first eighteen patches, through the simplified Betts-Miller scheme, before its depth
+    test."""
+    run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:18]}
+    return run, builds.build(run, store=STORE, env=ENV)
+
+
+@pytest.fixture(scope='module')
+def nineteen_point():
+    """The build at the series' first nineteen patches, through the scheme's depth test, before its shallow cap."""
+    run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:19]}
+    return run, builds.build(run, store=STORE, env=ENV)
+
+
+@pytest.fixture(scope='module')
 def whole_point():
     """The build of the whole series, as the defaults name it."""
     return DEFAULTS, builds.build(DEFAULTS, store=STORE, env=ENV)
@@ -525,23 +548,20 @@ def _switched(run: dict, **switches) -> dict:
 
 
 @needs_build
-def test_patch_17_at_its_default_runs_byte_for_byte_and_on_adds_the_wind_at_10_m_alone(sixteen_point, whole_point,
+def test_patch_17_at_its_default_runs_byte_for_byte_and_on_adds_the_wind_at_10_m_alone(sixteen_point, seventeen_point,
                                                                                      tmp_path):
     """Earth's control over two days. The folder the adapter writes for the build of patches 01-16, whose fluxmod
-    namelist names no NWIND10, gives the same output and restart under the whole series' build, where NWIND10 takes
-    the patch's default, 0, and so does the folder written for the whole series with the wind stated off. With the
+    namelist names no NWIND10, gives the same output and restart under the build of patches 01-17, where NWIND10 takes
+    the patch's default, 0, and so does the folder written for that build with the wind stated off. With the
     wind at 10 m on, the lab's default, the run
     ends in the same state byte for byte, under PlaSim's own surface transfer and under Beljaars's gust with the
     similarity over water; its output holds every record of the run without it, byte for byte and in order, and after
     each 2 m temperature (167) the two components of the wind at 10 m (165 and 166) at the same output time, finite,
     below 30 m/s and somewhere nonzero. The gust with the similarity changes the run, and with it the wind at 10 m.
     Each run's files are removed once their hashes and records are taken."""
-    (sixteen, b16), (whole, b17) = sixteen_point, whole_point
+    (sixteen, b16), (whole, b17) = sixteen_point, seventeen_point
     patches = list(ex.series(whole))
     assert patches[16:] == [ex.PATCH_17] and sixteen['patches'] == patches[:16]
-    # The whole series' build compiled the sources that models/check_patches.sh pins.
-    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
-    assert json.loads((b17 / 'build.json').read_text())['sources'] == pinned
     executables = {'16': _executable(b16, sixteen), '17': _executable(b17, whole)}
     similarity = 'beljaars_similarity'
     written = {'sixteen': sixteen, 'quiet': _switched(whole, wind_10m=False), 'wind': whole,
@@ -582,6 +602,101 @@ def test_patch_17_at_its_default_runs_byte_for_byte_and_on_adds_the_wind_at_10_m
         assert np.isfinite(fields).all() and np.abs(fields).max() < 30.0 and np.abs(fields).max() > 0.0
         winds[on] = fields
     assert not np.array_equal(winds['wind'], winds['gust_wind'])
+
+
+# The simplified Betts-Miller convection.
+
+SCHEME_ENTRIES = ('NPRC', 'TAU_BM', 'RH_BM', 'EPS_BM', 'CIN_BM', 'DSIGDEEP_BM', 'NSUB_BM', 'NSHCAP_BM')
+
+
+def _scheme(run: dict, **settings) -> dict:
+    """The run with the simplified Betts-Miller scheme in place of Kuo's, its [betts_miller] changed by `settings`."""
+    return {**run, 'switches': {**run['switches'], 'convection': 'betts_miller'},
+            'betts_miller': {**run['betts_miller'], **settings}}
+
+
+def _convection(folder) -> list:
+    return [line for line in (folder / 'rainmod_namelist').read_text().splitlines()
+            if line.split()[0] in SCHEME_ENTRIES]
+
+
+@needs_build
+def test_patches_18_to_20_at_their_defaults_run_byte_for_byte_as_the_builds_before_them(seventeen_point, eighteen_point,
+                                                                                      nineteen_point, whole_point,
+                                                                                      tmp_path):
+    """Earth's control over two days. Under Kuo's scheme, the folder the adapter writes for the build of patches 01-17,
+    whose rainmod namelist names no NPRC, gives the same output and restart under the whole series' build, and so does
+    the folder written for the whole series, which states NPRC 1. Under the simplified Betts-Miller scheme without its
+    depth test and cap, the folder written for the build of patches 01-18 gives the same output and restart under the
+    builds of patches 01-19 and of the whole series, where the depth test and the cap take their defaults; with the
+    depth test, the folder written for the build of patches 01-19 gives the same under the whole series. The scheme
+    changes the run from Kuo's, and the depth test changes it again. Each run's files are removed once their hashes
+    are taken."""
+    (r17, b17), (r18, b18), (r19, b19), (r20, b20) = seventeen_point, eighteen_point, nineteen_point, whole_point
+    patches = list(ex.series(r20))
+    assert patches[17:] == [ex.PATCH_18, ex.PATCH_19, ex.PATCH_20] and r17['patches'] == patches[:17]
+    # The whole series' build compiled the sources that models/check_patches.sh pins.
+    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
+    assert json.loads((b20 / 'build.json').read_text())['sources'] == pinned
+    executables = {17: _executable(b17, r17), 18: _executable(b18, r18), 19: _executable(b19, r19),
+                   20: _executable(b20, r20)}
+    written = {'seventeen': r17, 'kuo': r20, 'scheme18': _scheme(r18, depth_share=0.0, shallow_cap=False),
+               'scheme19': _scheme(r19, shallow_cap=False)}
+    for name, run in written.items():
+        record = ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=ex.Calibrations.identity(),
+                              store=STORE)
+        assert record['switches']['convection'] == ('kuo' if name in ('seventeen', 'kuo') else 'betts_miller')
+    # The folders differ in rainmod's namelist alone, in the scheme's entries.
+    design = [' NPRC = 2', ' TAU_BM = 7200.0', ' RH_BM = 0.7', ' EPS_BM = 0.0', ' CIN_BM = 0.0']
+    assert _convection(tmp_path / 'seventeen') == [] and _convection(tmp_path / 'kuo') == [' NPRC = 1']
+    assert _convection(tmp_path / 'scheme18') == design
+    assert _convection(tmp_path / 'scheme19') == design + [f' DSIGDEEP_BM = {200.0 / 1013.25!r}', ' NSUB_BM = 1']
+    for name in ('kuo', 'scheme18', 'scheme19'):
+        assert _differing(tmp_path / 'seventeen', tmp_path / name) == {'rainmod_namelist'}
+    out = {(name, build): _hashes(tmp_path / name, executables[build], 96)
+           for name, build in (('seventeen', 17), ('seventeen', 20), ('kuo', 20), ('scheme18', 18), ('scheme18', 19),
+                               ('scheme18', 20), ('scheme19', 19), ('scheme19', 20))}
+    assert set(out['seventeen', 17]) == {'plasim_output', 'plasim_status'}
+    assert out['seventeen', 20] == out['seventeen', 17] == out['kuo', 20]
+    assert out['scheme18', 19] == out['scheme18', 18] == out['scheme18', 20]
+    assert out['scheme19', 20] == out['scheme19', 19]
+    for key in ('plasim_output', 'plasim_status'):
+        assert out['scheme18', 18][key] != out['kuo', 20][key] and out['scheme19', 19][key] != out['scheme18', 18][key]
+
+
+@needs_build
+def test_the_design_scheme_rains_and_its_rain_takes_the_drops_evaporation(whole_point, tmp_path):
+    """Earth's control with the simplified Betts-Miller scheme at the writer's settings, the design scheme with its
+    depth test and cap, over two days from a cold start, with PlaSim's gamma and with the rain evaporated from its drops
+    (patch 14, by the fall law of Earth's air and births made up for the test). Each run completes under the
+    floating-point traps ExoPlaSim compiles with; its convective rain at the ground (code 143) is finite, never negative
+    and positive in each of the run's output means; the drops change the convective rain and the state; and the cap
+    changes the run from the one without it. The runs test the code's path and no climate; each run's files are
+    removed once its records are read."""
+    whole, build = whole_point
+    air = drops.Column(gravity_m_s2=derive.gravity(EARTH), surface_pressure_pa=CONTROL['air']['surface_pressure_pa'],
+                       air=DryAir(CONTROL['air']['surface_pressure_pa']), **EARTH_RAIN)
+    rain = ex.RainDrops.from_settings(rain_drops.settings(air, MADE_UP_BIRTHS))
+    runs = {'gamma': (_plain(_scheme(whole), 'gamma'), ex.Calibrations(**RELEASED)),
+            'drops': (_plain(_scheme(whole), 'drop_sizes'), ex.Calibrations(**RELEASED, rain_drops=rain)),
+            'uncapped': (_plain(_scheme(whole, shallow_cap=False), 'gamma'), ex.Calibrations(**RELEASED))}
+    found, rains = {}, {}
+    for name, (run, calibrations) in runs.items():
+        record = ex.write_run(tmp_path / name, EARTH, CONTROL, run, calibrations=calibrations, store=STORE)
+        assert record['betts_miller']['relaxation_s'] == 7200.0 and record['betts_miller']['relaxation'] == \
+            {'basis': 'stated'}
+        assert record['betts_miller']['shallow_cap'] is (name != 'uncapped')
+        found[name], records = _run_records(tmp_path / name, _executable(build, whole), 96)
+        rains[name] = np.array([np.frombuffer(record[1], '<f4') for record in records if _header(record)[0] == 143])
+    assert _convection(tmp_path / 'gamma') == [' NPRC = 2', ' TAU_BM = 7200.0', ' RH_BM = 0.7', ' EPS_BM = 0.0',
+                                                ' CIN_BM = 0.0', f' DSIGDEEP_BM = {200.0 / 1013.25!r}', ' NSUB_BM = 1',
+                                                ' NSHCAP_BM = 1']
+    for name, field in rains.items():
+        assert field.size and np.isfinite(field).all() and field.min() >= 0.0, name
+        assert (field.max(axis=1) > 0.0).all(), name
+    assert not np.array_equal(rains['drops'], rains['gamma'])
+    assert found['drops']['plasim_status'] != found['gamma']['plasim_status']
+    assert found['uncapped']['plasim_status'] != found['gamma']['plasim_status']
 
 
 # The level set.

@@ -328,9 +328,21 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   stays as it was. The adapter writes `NWIND10` from `switches.wind_10m` where the run's series holds the patch, in
   a first run as in any other, and a series that stops before the patch writes none. The default writes the wind,
   since a diagnostic that changes no state leaves the Earth control's test nothing to gate (`PLAN.md`,
-  "Decisions"). With the switch at 0 the whole series' build runs Earth's control, over two days, byte for byte as
+  "Decisions"). With the switch at 0 the build of patches 01–17 runs Earth's control, over two days, byte for byte as
   the build of patches 01–16; with the switch on, the run ends in the same restart byte for byte and
   its output gains the two codes, every other record byte for byte (`lab/tests/test_builds.py`).
+- **The deep convection.** Patches 18 to 20 add Frierson's simplified Betts–Miller scheme beside Kuo's, behind
+  PlaSim's own `NPRC` (`models/exoplasim/README.md`): the relaxation toward a lifted parcel's temperature and a
+  share of its saturation (patch 18), the depth test as a share of each column's surface pressure with the mixing
+  within layers (patch 19), and the shallow cap (patch 20). The adapter writes `NPRC` from `switches.convection`
+  where the run's series holds patch 18, Kuo's 1 by default under the opt-in rule (`PLAN.md`), and with
+  `betts_miller` the scheme's entries from `[betts_miller]`, each where the series holds the patch that reads it;
+  its relaxation time is seconds, Frierson's 7,200 by default, or the world's by the similarity of rule 9
+  (`world_spec.md`), and the run's record carries the time with its basis. The scheme is refused on a series
+  without patch 18, and each setting away from its patch's default on a series without that patch. At Kuo's
+  setting the whole series' build runs Earth's control, over two days, byte for byte as the build of patches
+  01–17, and each of patches 19 and 20 at its default runs the scheme byte for byte as the build before it
+  (`lab/tests/test_builds.py`).
 - **The levels.** A run's `levels` is the released model's count, 10 by default, or the table of a set generated
   for the world from the scale height and the heights its study states (`python/climate/gcm/levels.py`;
   `models/exoplasim/README.md`, "Level sets"). The set takes no patch: PlaSim reads its half levels from the

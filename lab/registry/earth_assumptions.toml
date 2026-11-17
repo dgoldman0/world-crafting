@@ -149,6 +149,36 @@ note = "the lab has one calibration, Terluna's for the Open Moon on its fifteen 
 evidence = ["lab/design/terluna_fixes.md, row 8", "models/exoplasim/README.md, Rain from drop sizes (patch 14)"]
 
 [[entry]]
+id = "B39"
+model = "exoplasim"
+where = "plasim/src/rainmod.f90, mksbm (patch 18): tau_bm, 7200 s by default"
+form = "constant"
+assumes = "Frierson's relaxation time of 2 h, set for Earth's convection"
+when = [{ q = "gravity_m_s2", ne = 9.80665, rel_tolerance = 1e-3 }, { config = "exoplasim.switches.convection", eq = "betts_miller" },
+        { config = "exoplasim.betts_miller.relaxation_s", eq = 7200.0 }]
+effect = "unmeasured: the column relaxes toward its references in 2 h whatever the world; by the similarity of rule 9 the time is 12.25 h for the Open Moon at 295 K, inside the 11-27 h over which Terluna's CM1 boxes remove lunar instability, where Terluna's design runs kept 2 h"
+state = "open"
+repair = { patch = "18-betts-miller-convection", namelist = ["TAU_BM"], default = 7200.0, value = "similarity", scaling = "(H/c)/(H/c)_ref at the scenario's reference temperature, from Earth's gravity and air at 288 K (exoplasim/defaults, [betts_miller.reference])", setting = "exoplasim.betts_miller.relaxation_s" }
+action = "warn"
+note = "the scaling is the similarity under which CM1's times follow the scale height (lab/design/world_spec.md, rule 9), untested on the scheme: Terluna's closures ran 12 h and 18 h only with reference profiles of their own, and one GCM run of the design scheme at 12 h would size the time's effect (PLAN.md, block 4, step 3); the action is a warning, since each fix enters the lab opt-in (PLAN.md), and the writer keeps 7,200 s by default; a run that states another number of seconds draws no warning; Kuo's scheme, the default, takes no relaxation time"
+evidence = ["notes/defect_log.md B39", "models/exoplasim/README.md, Simplified Betts-Miller convection (patches 18 to 20)", "lab/design/gap_series.md"]
+
+[[entry]]
+id = "B34"
+model = "exoplasim"
+where = "plasim/src/rainmod.f90, mkshallow (pdeepth = 70000 Pa)"
+form = "constant"
+assumes = "Earth's surface pressure: the shallow clouds' tops held at the lowest level above 700 hPa, Earth's lower troposphere"
+when = [{ field = "air.surface_pressure_pa", outside = [91192.5, 111457.5] },   # proposed: 10% either side of 1013.25 hPa
+        { config = "exoplasim.switches.convection", eq = "betts_miller" }, { config = "exoplasim.betts_miller.shallow_cap", eq = false }]
+effect = "the top stands at another share of the column: near 28 km in the Open Moon's air at 1,216 hPa, sigma 0.58 against Earth's 0.69, so that a column too dry to rain mixes as shallow convection up to 28 km; below 700 hPa of surface pressure, as at 0.5 bar, every shallow top is held at the second-lowest level. In Terluna's two fourteen-level years with the cap and without it, the global ground differed by under 0.05 K, and in year 1 the cap took the Near-side Sea's evening rain from 1.15 to 0.52 mm/day and the land's afternoon at 0 deg E from 16.9 to 13.1 mm/day"
+state = "repaired"
+repair = { patch = "20-betts-miller-shallow-cap", switch = "NSHCAP_BM", value = 1, default = 0, setting = "exoplasim.betts_miller.shallow_cap" }
+action = "warn"
+note = "the repair serves the simplified Betts-Miller scheme alone: with its depth test, a column the scheme hands to the shallow scheme takes a top within the test's share of its surface pressure above its condensation level, and mkshallow keeps it; the writer turns the cap on with the scheme by default, and refuses it without the depth test; Kuo's scheme, the default, keeps PlaSim's 700 hPa, which the entry for Kuo's convection (B29) will cover when stage 6 takes it in; the threshold of 10% is proposed"
+evidence = ["notes/defect_log.md B34", "models/exoplasim/README.md, Simplified Betts-Miller convection (patches 18 to 20)", "python/climate/tests/test_betts_miller.py"]
+
+[[entry]]
 id = "B31"
 model = "exoplasim"
 where = "plasim/src/plasim.f90, initpm (the ten half levels of its formula, NEQSIG 0)"

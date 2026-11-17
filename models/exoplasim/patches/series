@@ -15,3 +15,6 @@
 15-twilight-clear-share.patch
 16-twilight-counted-once.patch
 17-wind-at-10-m.patch
+18-betts-miller-convection.patch
+19-betts-miller-depth-test.patch
+20-betts-miller-shallow-cap.patch
