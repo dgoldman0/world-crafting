@@ -116,6 +116,18 @@ ExoPlaSim's output and five open entries to the defect log on the lab's branch (
   the tuning of the model's physics on them. The lifting condensation level of the scenario's surface air, which
   gives about 6 km for the Open Moon as Terluna's CM1 boxes do, is noted as an estimate of the depth for the rule's
   design, in which Terluna's fifteen levels put the lowest level at about 5% of it.
+- The yardstick of the gap is tested before either model's convection changes again (17 November 2026). A review of
+  that day by reading (`agents/gap_alternatives/` on the lab's research drive, with the lead's corrections) found the
+  two ways of coupling a CM1 box to the GCM further apart than the two models: under the GCM's imposed ascent Terluna's
+  sea box rains about 0.2 mm/day after midnight, and making its own ascent by the damped gravity wave it rains
+  1.6–1.7, against the GCM's 1.21, so the night gap on which Terluna's redesigns of the convection rested depends on
+  the coupling. Two steps follow at once. Four offline readings of Terluna's existing output run beside the ports
+  (`agents/gap_readings/`; under 4.5 four-thread hours, no model runs): rain conditioned on the column's saturation
+  and its lower-tropospheric buoyancy across every coupling, the sub-cloud layer's budget in both couplings, the
+  relaxation time's bound from the grid with a check for grid-point storms, and the ratio of the air's radiative
+  cooling aloft and below. And CM1's port 5, the damped gravity wave, comes next, ahead of ExoPlaSim's ports 7 to 10,
+  built so that a case states its reference column and coupling length and so that a weak-temperature-gradient
+  coupling can join it, for three sea boxes that test the couplings' consistency once the lab's stage 3 runs them.
 
 ## Each fix: general or the Moon's
 
@@ -202,7 +214,7 @@ tests, and its compute is the tests' short runs.
 | 2 | Factors on autoconversion and accretion (B38) | — | Done (`lab` ade4116) |
 | 3 | Gravity, CO2 and O2 read from the namelist, with the soil's layers and the Sun's declination, so that one build serves every world (planned in the lab's stage 3) | — | Done (`lab` 3174a0e) as patches 06 to 08, each entry the build's value by default. The lab's adapter still compiles the world in until stage 3's one-day ring segments and timing are run, and the electrified series' NSSL reads the build's gravity until a companion patch |
 | 4 | The whole-column forcing with the wind by local time and the inflow, and the extraction that writes it (`python/climate/crm/gcm_site.py`), which reads the GCM's humidity by the rule of A10 | — | Done (`lab` 5731fc5, 48603e3): the extraction, the forcing through the whole column and the wind by local time in Python, and patch 09 of the lab's CM1 series for the wind's own nudging time, its pull from the GCM's lowest level up and the inflow; a forced box's defaults follow Terluna's latest boxes |
-| 5 | The damped gravity wave, by which a box makes its own ascent | — | To start, for block 4 |
+| 5 | The damped gravity wave, by which a box makes its own ascent | — | In progress (17 November 2026), ahead of ExoPlaSim's ports 7 to 10, for the test of the box couplings ("Decisions") |
 | 6 | The sea's temperature by local time (B37) | — | To start |
 
 The slab sea's depth and the diffusion's damping times are namelist values of the released model, so they need no
