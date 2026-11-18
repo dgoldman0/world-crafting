@@ -1095,7 +1095,8 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   air at 288 K, which gives 12.25 h for the Open Moon at 295 K, 12.4 h at 301 K and 10.4 h for the waterworld seed,
   and keeps 7,200 s for the Earth control (`lab/tests/test_exoplasim_files.py`). Registry B39 warns where a run of
   the scheme keeps 7,200 s off Earth's gravity.
-- **Status.** Open. One GCM run of the design scheme at 43,200 s would size it (`PLAN.md`, block 4, step 3).
+- **Status.** Open. One GCM run of the design scheme at 36,000 s, 10 h, inside the grid's bound of about 11 h at T21
+  (`lab/design/gap_series.md`, section 3), would size it (`PLAN.md`, block 4, step 3).
 
 ### B40. CM1 r22.0: the CAPE diagnostic's mixed layer of 500 m (L; open)
 

@@ -75,7 +75,8 @@ eight-thread budget [calc].
 what the series would compare (`notes/defect_log.md`, B36–B39 and C22): the horizontal diffusion's Earth times, the
 slab sea's 50 m, Morrison's warm rain at Earth's rates, the relaxation time of 2 h, and the Moon's monthly swing in
 sunlight. One GCM run or one sea box of two lunar days sizes each of the first four: the mixed layer at 15 m, the
-warm-rain factors at 0.166 and 0.34, the design scheme's relaxation time at 12 h, which Terluna's closures ran only
+warm-rain factors at 0.166 and 0.34, the design scheme's relaxation time at 10 h, inside the grid's bound of about
+11 h at T21 (section 3) and near the 12 h that gravity's similarity gives, a time Terluna ran only beside closures
 with reference profiles of their own, and the diffusion times multiplied by 0.27. The
 sea's rain by time of day depends most directly on the mixed layer and the warm rain, so those two come first.
 Terluna's records of 10 November add two facts about the sea's exchange [read: Terluna `research/decisions.md` at `59dcda1c`, lines
@@ -176,7 +177,8 @@ boundary layer's mixing [prop].
 - **Grid-point storms** behind the redesigns' large-scale condensation: the isolated cells ascend no faster than their
   neighbours.
 - **The relaxation time:** the grid bounds it near 11 h at T21 (10.7 h from the year written every 6.5 hours), so the
-  12 h of B39's planned run lies just past the bound.
+  12 h that gravity's similarity gives lies just past the bound, and B39's run takes 10 h (`PLAN.md`, block 4,
+  step 3).
 - **The domain:** the radiative conditions under which small domains turn episodic (Seeley and Wordsworth 2021; Song,
   Abbot and Yang 2024, read in abstract) hold in the sea boxes, so a box of 192 km may be small for the night's rain,
   and a larger sea box comes before any verdict on the night [lit; prop].
