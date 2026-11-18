@@ -110,6 +110,15 @@ wave starts from rest. A case states its own reference, such as another box's do
 self-consistency test of Edman and Romps (2015), its start and each of the wave's settings, and the record holds each
 with its source. The table is laid on the pressures of the box's own starting air, its base state.
 
+With coupling 'wtg' the box makes its wind by the weak temperature gradient (patch 11): from the first w level
+above the same base to the last below the same lid, w = thv'/(tau max(floor, dthv_r/dz)), the departure of its
+virtual potential temperature from the windows' air over the time and the windows' own stability (Edman and Romps
+2015, after Raymond and Zeng 2005), omega falling linearly in pressure below the base. Its time is the wave's,
+L/c, as Edman and Romps set theirs, or a time the case states, and it reads no mode speed. Its floor, lsw_stab_min,
+is Edman and Romps's 0.01 K/km at Earth's gravity times the world's gravity over Earth's, 1.66e-6 K/m on the Moon,
+unless the case states it; the record holds the floor with its source and the least stability of the first window's
+air between the lowest base and the lid. The files, the windows, the table and the start are the wave's.
+
 What a world and a run supply. Nothing of a world is built in. The run's record (run_record) holds its gravity,
 radius, gas constant and heat capacity as the GCM ran with them, its half levels, its truncation, its output interval
 and its surface heights, and the world's solar day; CM1's constants (CM1_RD, CM1_CP, CM1_RV, constants.F) set the
@@ -118,7 +127,8 @@ harmonics, the bins of local time and the convection's share are settings, Terlu
 TERLUNA_OPEN_MOON_SITES records the sites Terluna's boxes took, as values a study of the Open Moon states.
 
 Evidence. A runnable calculation with its tests (climate/tests/test_gcm_site.py; the wave's Fortran in
-climate/tests/test_cm1_coupling.py). On Terluna's design run read in
+climate/tests/test_cm1_coupling.py, the weak temperature gradient's in climate/tests/test_cm1_wtg.py). No lab run has
+read a box under either coupling as a study. On Terluna's design run read in
 place, with Terluna's constants and choices stated as values, the extraction gives the forcing that Terluna's box over
 the Near-side Sea records, bit for bit at the GCM's levels and to the printed digits in its files; on the run's own
 constants it departs from it by the causes that test states, each within its tolerance. Terluna's measured effects
@@ -145,12 +155,13 @@ Terluna's dgw_forcing, first_mode, footprint_m, dgw_settings and dgw_inputs (gcm
 c3898a7c): first_mode and footprint_m keep Terluna's arithmetic, with the run's own constants; dgw_forcing's air,
 vertical wind and horizontal part by local time are site_forcing's own outputs; the reference by local time, its
 vapour rule and the choice of start are reference_column and case_inputs, which also take a case's own column series;
-and the table is laid on the box's starting air, where Terluna's took the GCM's mean air.
+and the table is laid on the box's starting air, where Terluna's took the GCM's mean air. The weak temperature
+gradient's entries are the lab's own; Terluna has no code for it.
 
 Left for later changes: the reckoning of the inflow against the nudging window CM1 holds at each output, which a box
 budget needs once the windows carry the GCM's weather (Terluna's box_budget, 4f63c439), with the lab's box budget and
 its reading of the wave's record (lab_lsw_means.txt); the GCM's own weather at a site (Terluna's site_sequence and its
-readers, af42e928); and the weak temperature gradient, which joins the wave as coupling 'wtg' with a later patch.
+readers, af42e928).
 """
 from __future__ import annotations
 
@@ -184,8 +195,12 @@ INFLOW = True                              # the windows' air drawn in where the
 INFLOW_RATES_FILE = 'lab_inflow_rate.txt'  # where patch 09 of the lab's CM1 series writes the inflow's rates
 COUPLING = 'imposed'                       # a box's large-scale vertical wind: the GCM's mean, imposed through CM1's
                                            # own wprof; 'dgw' makes it the box's own by the damped gravity wave
-                                           # (lsw_coupling = 1, patch 10 of the lab's CM1 series)
-COUPLINGS = ('imposed', 'dgw')
+                                           # (lsw_coupling = 1, patch 10 of the lab's CM1 series), 'wtg' by the weak
+                                           # temperature gradient (lsw_coupling = 2, patch 11)
+COUPLINGS = ('imposed', 'dgw', 'wtg')
+WTG_FLOOR_K_M = 1.0e-5                     # the weak temperature gradient's least static stability: Edman and Romps's
+WTG_FLOOR_GRAVITY_M_S2 = 9.81              # 0.01 K/km (2015), set in Earth's tropics at 9.81 m/s2; a world's
+                                           # floor takes it times the world's gravity over Earth's
 REFERENCES = ('gcm-mean', 'gcm-by-hour')   # the air of a box's windows, beside a column series a case supplies
 VAPOURS = ('auto', 'by-hour', 'mean')      # the GCM's vapour in a reference by local time
 VAPOUR_SWING = 0.10                        # 'auto' takes the vapour by local time where the GCM's lowest level swings
@@ -997,25 +1012,42 @@ def reference_column(forcing: dict, air: dict, reference=None, *, vapour: str = 
 
 
 def coupling_entries(forcing: dict, zw, *, mode: dict | None, length_m: float | None, time_s: float | None,
-                     top_m: float | None, base_m: float | None, table_heat: str) -> tuple:
-    """The &param3 entries of patch 10 of the lab's CM1 series for a box that makes its own large-scale vertical wind
-    by the damped gravity wave, and their record. The wave's time is the length L the box stands for over the first
-    baroclinic mode's speed c (mode['c_m_s'], first_mode's), lsw_tau = L/c to 0.1 s, with lsw_mode_speed = c to 1 mm/s;
-    L is the site's footprint (footprint_m) unless the case states it, or the case states the time and L follows as
-    time times c. The lid lsw_top is the GCM's convection top at the site and the lowest base lsw_base its lowest
-    level, each to 0.1 m, unless the case states them; lsw_table_heat is 1 where the table heats below the base alone
-    ('below-base'). Refused: a mode without a positive speed, a length and a time both stated, a length or time of
-    zero or less, and a lid and base outside 0 <= base < lid <= the box's top."""
-    if mode is None or not float(mode.get('c_m_s', float('nan'))) > 0.0:
+                     top_m: float | None, base_m: float | None, table_heat: str, kind: str = 'dgw',
+                     gravity_m_s2: float | None = None, stability_min_k_m: float | None = None) -> tuple:
+    """The &param3 entries of patches 10 and 11 of the lab's CM1 series for a box that makes its own large-scale
+    vertical wind, by the damped gravity wave (kind 'dgw', lsw_coupling = 1) or the weak temperature gradient ('wtg',
+    lsw_coupling = 2), and their record. Each takes its time as the length L the box stands for over the first
+    baroclinic mode's speed c (mode['c_m_s'], first_mode's), lsw_tau = L/c to 0.1 s: L is the site's footprint
+    (footprint_m) unless the case states it, or the case states the time and L follows as time times c. The wave
+    writes lsw_mode_speed = c to 1 mm/s, so it takes a mode always. The weak temperature gradient reads no speed: with
+    its time stated it needs no mode, and Edman and Romps (2015) set its time as the wave's, L/c. Its own entry,
+    lsw_stab_min, is the least static stability (K/m) by which it divides: unless the case states it, Edman and
+    Romps's 0.01 K/km times the world's gravity over Earth's 9.81 m/s2, to three figures, since heights stretch as
+    1/g at a given temperature and a stability dtheta/dz as g (on the Moon 1.66e-6 K/m). The lid lsw_top is the GCM's
+    convection top at the site and the lowest base lsw_base its lowest level, each to 0.1 m, unless the case states
+    them; lsw_table_heat is 1 where the table heats below the base alone ('below-base'). Refused: a wave without a
+    mode of positive speed, a weak temperature gradient with neither a mode nor a time, a length and a time both
+    stated, a length or time of zero or less, a lid and base outside 0 <= base < lid <= the box's top, a floor of zero
+    or less, and a floor stated for the wave."""
+    if kind not in ('dgw', 'wtg'):
+        raise ValueError(f"a coupled box's wind is 'dgw' or 'wtg', where it is {kind!r}")
+    has_mode = mode is not None and float(mode.get('c_m_s', float('nan'))) > 0.0
+    if kind == 'dgw' and not has_mode:
         raise ValueError("the damped gravity wave takes the first baroclinic mode's speed: "
                          'mode=first_mode(run, years), or a dict with a positive c_m_s')
-    c = float(mode['c_m_s'])
+    if kind == 'wtg' and not has_mode and (time_s is None or mode is not None):
+        raise ValueError("the weak temperature gradient takes its time, or a length over the first baroclinic mode's "
+                         'speed: coupling_time_s, or mode=first_mode(run, years) or a dict with a positive c_m_s')
+    if kind == 'dgw' and stability_min_k_m is not None:
+        raise ValueError('the damped gravity wave reads no least stability; the weak temperature gradient takes it')
+    c = float(mode['c_m_s']) if has_mode else None
     if length_m is not None and time_s is not None:
         raise ValueError("a case states the coupling's length or its time, where it states both")
     if time_s is not None:
         if not float(time_s) > 0.0:
             raise ValueError(f"the coupling's time is positive, where it is {time_s}")
-        tau, length, length_from = float(time_s), float(time_s) * c, 'the stated time times the speed'
+        tau = float(time_s)
+        length, length_from = (tau * c, 'the stated time times the speed') if has_mode else (None, None)
     else:
         stated = length_m is not None
         length = float(length_m) if stated else footprint_m(forcing['site'], forcing['gcm']['radius_m'])
@@ -1028,16 +1060,36 @@ def coupling_entries(forcing: dict, zw, *, mode: dict | None, length_m: float | 
     if not 0.0 <= base < top <= float(np.asarray(zw, float)[-1]):
         raise ValueError(f"the coupled layer's base and lid lie at 0 <= base < lid <= the box's top, where they are "
                          f'{base} and {top} m')
-    entries = dict(lsw_coupling=1, lsw_tau=round(tau, 1), lsw_mode_speed=round(c, 3), lsw_top=top, lsw_base=base,
-                   lsw_table_heat=1 if table_heat == 'below-base' else 0)
-    record = dict(
-        kind='dgw', method='the damped gravity wave (Kuang 2008; Blossey, Bretherton and Wyant 2009), k2/eps = 1/(L c)',
-        entries=dict(entries), length_m=length, length_from=length_from, time_s=tau, time_h=tau / 3600.0,
-        mode={k: v for k, v in mode.items() if k not in ('z_m', 'theta_k')},
-        top_m=top, top_from="the GCM's convection top at the site" if top_m is None else 'stated',
-        base_m=base, base_from="the GCM's lowest level" if base_m is None else 'stated', table_heat=table_heat,
-        record_file=LSW_RECORD_FILE)
-    return entries, record
+    heat = 1 if table_heat == 'below-base' else 0
+    common = dict(length_m=length, length_from=length_from, time_s=tau, time_h=tau / 3600.0,
+                  mode={k: v for k, v in mode.items() if k not in ('z_m', 'theta_k')} if mode is not None else None,
+                  top_m=top, top_from="the GCM's convection top at the site" if top_m is None else 'stated',
+                  base_m=base, base_from="the GCM's lowest level" if base_m is None else 'stated',
+                  table_heat=table_heat, record_file=LSW_RECORD_FILE)
+    if kind == 'dgw':
+        entries = dict(lsw_coupling=1, lsw_tau=round(tau, 1), lsw_mode_speed=round(c, 3), lsw_top=top, lsw_base=base,
+                       lsw_table_heat=heat)
+        return entries, dict(kind='dgw', method='the damped gravity wave (Kuang 2008; Blossey, Bretherton and Wyant '
+                                                '2009), k2/eps = 1/(L c)', entries=dict(entries), **common)
+    if stability_min_k_m is None:
+        if not (gravity_m_s2 is not None and float(gravity_m_s2) > 0.0):
+            raise ValueError("the weak temperature gradient's floor scales with the world's gravity, which is positive")
+        floor = float(f'{WTG_FLOOR_K_M * float(gravity_m_s2) / WTG_FLOOR_GRAVITY_M_S2:.3g}')
+        floor_from = (f"Edman and Romps's {WTG_FLOOR_K_M * 1e3:g} K/km at Earth's {WTG_FLOOR_GRAVITY_M_S2} "
+                      "m/s2, times the world's gravity over Earth's")
+    else:
+        floor, floor_from = float(stability_min_k_m), 'stated'
+    if not (math.isfinite(floor) and floor > 0.0):
+        raise ValueError(f"the weak temperature gradient's least stability is positive, where it is {floor}")
+    entries = dict(lsw_coupling=2, lsw_tau=round(tau, 1), lsw_top=top, lsw_base=base, lsw_table_heat=heat,
+                   lsw_stab_min=floor)
+    return entries, dict(
+        kind='wtg', method=("the weak temperature gradient, relaxed (Raymond and Zeng 2005), in the form of Edman and "
+                            "Romps (2015; eq. 3.4 of Edman 2017): w = thv'/(tau max(floor, dthv_r/dz)) from the "
+                            "first w level above the base to the last below the lid"),
+        stability="the reference's virtual potential temperature between the scalar levels about each w level",
+        below_base='omega linear in pressure to nil at the ground (Daleu et al. 2015)', entries=dict(entries),
+        stability_min_k_m=floor, stability_min_from=floor_from, **common)
 
 
 def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour_deg: float, solar_day_s: float,
@@ -1046,7 +1098,7 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
                 reference_vapour: str = 'auto', start: str | None = None, mode: dict | None = None,
                 coupling_length_m: float | None = None, coupling_time_s: float | None = None,
                 coupling_top_m: float | None = None, coupling_base_m: float | None = None,
-                table_heat: str | None = None) -> dict:
+                table_heat: str | None = None, coupling_stability_min_k_m: float | None = None) -> dict:
     """What a CM1 case takes from the forcing: its files (terluna_wls.txt, terluna_lsadv.txt and the nudging windows
     lsnudge_0001.dat on, as text), its namelist entries by section, the air it starts from and the record its case
     keeps. The box starts at the local hour angle start_hour_deg and runs length_s seconds of a solar day of
@@ -1067,25 +1119,27 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
     wind through terluna_wls.txt, lays the circulation's heating and moistening by local time in the table with the
     mean wind's advection of the starting air added back (to_cm1), fills the windows with the GCM's mean air and
     starts the box from it. 'dgw' lets the box make its own wind by the damped gravity wave (patch 10 of the lab's
-    CM1 series, &param3's lsw_ entries from coupling_entries): terluna_wls.txt holds nil, which keeps CM1's
+    CM1 series), and 'wtg' by the weak temperature gradient (patch 11), each through &param3's lsw_ entries from
+    coupling_entries; under either coupling terluna_wls.txt holds nil, which keeps CM1's
     large-scale vertical advection on (var13) to carry the wave's wind; the table holds the circulation's horizontal
     part alone, the circulation less the advection by the GCM's own vertical wind by local time, heating by default
     below the coupled layer's base alone (table_heat 'below-base', lsw_table_heat 1); the windows hold the GCM's air
-    by local time ('gcm-by-hour'); and the box starts from its first window's air, so that the wave starts from rest.
-    A case states its own reference (reference_column: 'gcm-mean', 'gcm-by-hour' or a column series such as a box's
-    domain mean by local time) and its vapour rule, its start ('mean' or 'reference'), and for the wave the first
-    baroclinic mode (mode, first_mode's result), the length it stands for or the time, its lid and its lowest base
-    (coupling_entries); the record holds each with its source. A coupling's settings with the imposed wind are
-    refused, as is a coupling other than 'imposed' and 'dgw': the weak temperature gradient joins with a later
-    patch."""
+    by local time ('gcm-by-hour'); and the box starts from its first window's air, so that the coupled wind starts
+    from rest. A case states its own reference (reference_column: 'gcm-mean', 'gcm-by-hour' or a column series such
+    as a box's domain mean by local time) and its vapour rule, its start ('mean' or 'reference'), and through
+    coupling_entries the first baroclinic mode (mode, first_mode's result), the length the box stands for or the
+    time, its lid and its lowest base, and for the weak temperature gradient its least stability,
+    coupling_stability_min_k_m; the record holds each with its source, and for the weak temperature gradient the least
+    stability of the first window's air between the lowest base and the lid, with the count of levels at which the
+    floor binds. A coupling's settings with the imposed wind are refused, as is a coupling other than 'imposed',
+    'dgw' and 'wtg'."""
     zw = _w_levels(zw)
     if not (length_s > 0.0 and solar_day_s > 0.0 and nudge_tau_s > 0.0):
         raise ValueError('a case runs a positive length under a positive solar day and nudging time')
     if not wind_nudge_tau_s > 0.0:
         raise ValueError("the wind's own nudging time is positive; nudge_tau_s states the held air's")
     if coupling not in COUPLINGS:
-        later = ' (the weak temperature gradient joins with a later patch)' if coupling == 'wtg' else ''
-        raise ValueError(f'the coupling is one of {COUPLINGS}, where it is {coupling!r}{later}')
+        raise ValueError(f'the coupling is one of {COUPLINGS}, where it is {coupling!r}')
     coupled = coupling != 'imposed'
     table_heat = table_heat or ('below-base' if coupled else 'every-level')
     start = start or ('reference' if coupled else 'mean')
@@ -1093,7 +1147,8 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
         raise ValueError(f'the table heats {TABLE_HEATS} and a box starts from {STARTS}, where they are '
                          f'{table_heat!r} and {start!r}')
     stated = dict(mode=mode, coupling_length_m=coupling_length_m, coupling_time_s=coupling_time_s,
-                  coupling_top_m=coupling_top_m, coupling_base_m=coupling_base_m)
+                  coupling_top_m=coupling_top_m, coupling_base_m=coupling_base_m,
+                  coupling_stability_min_k_m=coupling_stability_min_k_m)
     if not coupled and (table_heat != 'every-level' or any(v is not None for v in stated.values())):
         raise ValueError(f"the imposed wind takes none of a coupling's settings, where the case states "
                          f"{sorted(k for k, v in stated.items() if v is not None) or ['table_heat']}")
@@ -1109,7 +1164,8 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
     if coupled:
         lsw, coupled_record = coupling_entries(forcing, zw, mode=mode, length_m=coupling_length_m,
                                                time_s=coupling_time_s, top_m=coupling_top_m, base_m=coupling_base_m,
-                                               table_heat=table_heat)
+                                               table_heat=table_heat, kind=coupling, gravity_m_s2=gravity_m_s2,
+                                               stability_min_k_m=coupling_stability_min_k_m)
     ref = reference_column(forcing, air, reference if reference is not None else
                            ('gcm-by-hour' if coupled else 'gcm-mean'), vapour=reference_vapour)
     zh = 0.5 * (zw[1:] + zw[:-1])
@@ -1145,6 +1201,14 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
                                    max=float(a[:, low].mean(axis=1).max() * scale))
     speeds = [float(np.hypot(w['u_m_s'][1], w['v_m_s'][1])) for w in windows]
     window_s = windows[0]['time_s'][1] - windows[0]['time_s'][0]
+    if coupling == 'wtg':           # the first window's stability, as the block forms it, where the gradient acts
+        thv = ref['theta'](zh, first_hour) * (1.0 + (CM1_RV / CM1_RD - 1.0) * ref['qv'](zh, first_hour))
+        between = (zw[1:-1] > lsw['lsw_base']) & (zw[1:-1] < lsw['lsw_top'])
+        s = (np.diff(thv) / np.diff(zh))[between]
+        coupled_record['first_window_stability'] = dict(
+            least_k_m=float(s.min()) if s.size else None, levels=int(s.size),
+            floored_levels=int((s < lsw['lsw_stab_min']).sum()),
+            levels_between="the box's w levels between the lowest base and the lid")
     if coupled:
         coupled_record.update(
             vertical_wind="the box's own; terluna_wls.txt holds nil",

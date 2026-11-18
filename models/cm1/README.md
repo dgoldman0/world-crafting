@@ -106,7 +106,8 @@ present build's value. The ninth puts Terluna's three changes to the nudging of 
 `&param3`, which its build read from CM1's spare reals (the same file at `39c5ee04`); at their defaults the nudging
 stands as CM1 has it. The tenth puts Terluna's damped gravity wave, by which a forced box makes its own large-scale
 vertical wind, behind entries of `&param3` (the same file at `29af5c16`); at their defaults CM1 imposes the wind as
-before.
+before. The eleventh, the lab's own, adds the weak temperature gradient as a second way for the box to make that wind,
+with one entry of its own; at its defaults too CM1 imposes the wind.
 
 | # | Files | Switch | Change | Kind |
 |---|---|---|---|---|
@@ -120,14 +121,15 @@ before.
 | 08 | radiation_driver.F; input.F, cm1.F, param.F | `sun_decl` (0° by default, the equinox of core patch 05) | The Sun's declination, in degrees north, under core patch 05's solar day: the zenith cosine sin(lat) sin(δ) + cos(lat) cos(δ) cos(hour angle) at each column's latitude, set by a loop that follows the equinox's where `sun_decl` differs from 0 (the lab's own patch) | General repair of a geometry (`cm1-equinox-sun`, B10) |
 | 09 | solve1.F, solve3.F; input.F, cm1.F, param.F | `wind_nudge_tau` > 0; `wind_nudge_zmin` > 0; `inflow_ref_air` = 1 | CM1's large-scale nudging (`lsnudge`) relaxes the wind on its own time, `wind_nudge_tau` seconds, where θ and vapour keep `lsnudge_tau`: the domain-mean wind in `solve1.F` and the base-state and geostrophic wind in `solve3.F`; it pulls the domain-mean wind only at the levels from `wind_nudge_zmin` m up; and with `inflow_ref_air` = 1 the large-scale vertical wind's convergence draws the nudging reference's θ and vapour in, at max(d(ρ₀w)/dz, 0)/ρ₀ (Terluna's `WIND_TAU_PATCH`, `WIND_ALOFT_PATCH` and `INFLOW_PATCH`; the base-state and geostrophic wind's time the lab's) | Coupling: the forcing of a site box ("The wind's own nudging and the inflow", below) |
 | 10 | solve1.F, cm1.F; input.F, param.F | `lsw_coupling` = 1, with `lsw_tau`, `lsw_mode_speed`, `lsw_top`, `lsw_base`; `lsw_table_heat` = 1 | The box's large-scale vertical wind its own, by the damped gravity wave: each step `solve1.F` solves d²ω/dp² = R_d T_v′/(τ c² p) for the domain-mean ω, nil at the ground and from the lid `lsw_top` up, T_v′ the domain-mean virtual temperature less the nudging window's between the coupled layer's base, the domain-mean boundary layer's depth no lower than `lsw_base`, and the lid, and sets `wprof` = −ω/(ρ₀g); with `lsw_table_heat` = 1 the table heats below the base alone; the means over each interval of the domain diagnostics go to `lab_lsw_means.txt`, the run's last interval included (Terluna's `DGW_PATCHES`; the record's timing, the base's mean, its own entries and the stops the lab's) | Coupling: a site box's own ascent ("The box's own large-scale vertical wind", below) |
+| 11 | solve1.F, cm1.F, input.F, param.F | `lsw_coupling` = 2, with `lsw_tau`, `lsw_top`, `lsw_base`, `lsw_stab_min`; `lsw_table_heat` = 1 | The box's large-scale vertical wind its own, by the weak temperature gradient: in patch 10's block `solve1.F` sets w = θ_v′/(τ max(γ, ∂θ_v,r/∂z)) at the w levels from the first above the base to the last below the lid, θ_v′ the domain-mean virtual potential temperature less the nudging window's and ∂θ_v,r/∂z the window's own stability, γ = `lsw_stab_min`, with ω linear in pressure below the base, and sets `wprof` = −ω/(ρ₀g); the record, the table's cut and the base are patch 10's (Edman and Romps 2015, after Raymond and Zeng 2005; the lab's own patch) | Coupling: a site box's own ascent ("The box's own large-scale vertical wind by the weak temperature gradient", below) |
 
-Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the ten patches give the sources
+Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the eleven patches give the sources
 `expected-series.sha256` records (`models/check_patches.sh`). The sources of the first two compiled with gfortran and
 OpenMP on 8 November 2026, those of the first four on 11 November under CM1's flags and under `-O3 -march=native`,
 those of the first five the same day under CM1's flags (gfortran 13.3.0, at CM1's own gravity and air), those
 of the first eight the same day under both flag sets, at CM1's own gravity and air and with the Moon's compiled in,
-those of the first nine on 16 November under both flag sets, at CM1's own gravity and air, and those of all ten on
-17 November under both flag sets, at CM1's own gravity and air. Where
+those of the first nine on 16 November under both flag sets, at CM1's own gravity and air, those of the first ten on
+17 November and those of all eleven on 18 November, each under both flag sets, at CM1's own gravity and air. Where
 the rows of patches 02 to 04, their names and their comments say the build's gravity, they mean CM1's `g`, which
 since patch 06 is the run's. Stage 3's CM1
 builds will test the identity at the defaults of a compiled case on the lab's own builds and measure each fix's
@@ -683,11 +685,9 @@ block returns every tendency, stepped mean and wind of Terluna's deployed block 
 
 **How the weak temperature gradient joins.** The entries name the coupling, its time, its lid and its base, and the
 base's depth, the record, the table's cut, the reference and the stops serve any coupling of a box's wind to its
-departure from the reference. A later patch adds the weak temperature gradient as `lsw_coupling` = 2: a branch beside
-the wave's, inside the same block and after the departure is formed, sets ω from the departure over τ and the
-reference's stability between the base and the lid, falling linearly below the base; `param.F` accepts 2, with
-`lsw_mode_speed` unread; and `gcm_site.case_inputs` takes coupling `'wtg'` with the same reference, time, lid, base,
-table and start, which it refuses until then.
+departure from the reference. Patch 11 adds the weak temperature gradient as `lsw_coupling` = 2 in a branch beside the
+wave's, with one entry of its own, and `gcm_site.case_inputs` writes it for coupling `'wtg'` ("The box's own
+large-scale vertical wind by the weak temperature gradient", below).
 
 **Checks in the suite** (`make check`; `python/climate/tests/test_cm1_coupling.py`, with the forcing in
 `python/climate/tests/test_gcm_site.py`). The part of `solve1.F` from CM1's large-scale nudging through core patch 17's
@@ -763,6 +763,138 @@ single run from scratch scripts and builds on the project drive, removed after t
   unrecorded. CM1 refuses the large-scale vertical wind over terrain, so the wave runs on flat ground alone.
 - Each rank of an MPI build takes the six entries by broadcast and the depth's sum over the ranks, lines that the
   OpenMP builds leave uncompiled.
+
+### The box's own large-scale vertical wind by the weak temperature gradient (patch 11)
+
+**Why.** Under the damped gravity wave Terluna's sea box rained eight times as much after midnight as under the imposed
+ascent, and a review of the gap found the two couplings further apart than the two models (`lab/design/gap_series.md`,
+section 3). The next test of that yardstick runs sea boxes coupled three ways: the wave against another box's own
+domain mean, a weak-temperature-gradient coupling, and the wave at the planet's scale (`PLAN.md`, "Decisions", 17 and
+18 November 2026). Edman and Romps (2015) tested both families against a cloud-resolving model's own benchmark. In
+radiative–convective equilibrium the weak temperature gradient held the domain's mean motion under 1 mm/s, against a
+clear-sky descent near 4 mm/s, at each time they tried, 0.725, 7.25 and 72.5 h, where their damped-wave schemes sank
+about 2 mm/s at a length of 1,280 km; under the forcing of ARM's Southern Great Plains it followed the benchmark's rain
+more closely than either damped-wave scheme, which over-predicted almost every event, while over TWP-ICE their new
+damped-wave scheme followed it best (R² 0.78 against 0.59). Patch 11 adds the weak temperature gradient as
+`lsw_coupling` = 2 beside the wave, on the same reference, time, lid, base, table's cut, record and stops. It is the
+lab's own: Terluna has no code for it.
+
+**The entries.** One entry is new; the others keep their meaning under the second coupling.
+
+| Entry | Unit | Default | Under the weak temperature gradient | A coupled box (`gcm_site.case_inputs`, coupling `'wtg'`) |
+|---|---|---|---|---|
+| `lsw_coupling` | 0, 1 or 2 | 0: CM1's own `wprof` | 2: the weak temperature gradient sets `wprof` each step | 2 |
+| `lsw_tau` | s | 0 | τ, the time on which the wind relaxes the departure; `dtl` or more | The wave's: the site's footprint over the first mode's speed, 10,243.5 s at the Near-side Sea on the run's own constants, or a time or length the case states |
+| `lsw_mode_speed` | m/s | 0 | Unread; any other value stops the run | Left out |
+| `lsw_top`, `lsw_base`, `lsw_table_heat` | m, m, 0 or 1 | 0 | As for the wave: the lid, the lowest base, and the table's heating below the base alone | As for the wave: 73,422.4 m, 317.6 m and 1 |
+| `lsw_stab_min` | K/m | 0 | γ, the least static stability by which the departure is divided; more than 0. With coupling 0 or 1 any other value stops the run | Edman and Romps's 0.01 K/km times the world's gravity over 9.81 m/s², to three figures: 1.66 × 10⁻⁶ K/m on the Moon, or a value the case states |
+
+**What the patch does.** Inside patch 10's block, after the departure and the wave's branch, the branch for
+`lsw_coupling` = 2 finds the first w level above the base, the domain-mean boundary layer's depth held between
+`lsw_base` and the lid, and at each w level from there to the last below the lid's w level sets
+
+w = θ_v′ / (τ max(γ, ∂θ_v,r/∂z)),
+
+θ_v′ the domain-mean virtual potential temperature less the nudging window's, the mean of its values at the scalar
+levels on either side, and ∂θ_v,r/∂z the window's own virtual stability between those levels. Each θ_v′ is
+(θ̄ − θ_r)(1 + ε q̄) + ε θ_r (q̄ − q_r), with ε = R_v/R_d − 1: the wave's departure θ̄(1 + ε q̄) − θ_r(1 + ε q_r) over
+π₀, written so that it is nil wherever the box's air equals its reference, fused products or none, where the wave's
+form keeps a residual below 10⁻⁶ m/s under `-O3 -march=native`. The stability is formed the same way. There
+ω = −ρ₀ g w; below the first level ω falls linearly in the base state's pressure, on the wave's pressures, to nil at
+the ground; from the lid's w level up it is nil. `wprof` = −ω/(ρ₀ g) as for the wave, so CM1's large-scale vertical
+advection and patch 09's inflow read it, and the record and the table's cut serve it unchanged. The model prints
+`Lab: the weak temperature gradient; its lid (k, z) =` as the branch first runs. `param.F` accepts 2 and stops as the
+run starts on settings it cannot take: a coupling other than 0, 1 and 2; `lsw_stab_min` set with the imposed wind or
+the wave; under the gradient a time below `dtl`, a floor of nil or less, a lowest base below the ground or at or above
+the lid, any of them NaN, or a mode speed stated; and, as for the wave, a table's rule other than 0 and 1 or without
+the table, and a coupling without lsnudge's θ and vapour, moisture or one profile of large-scale vertical wind. The
+block's stop on a lid at the first w level serves both couplings. Each stop prints a line that begins
+`Lab coupling:`.
+
+**The form and its sources.** Edman and Romps (2015) give the form they found self-consistent, the
+relaxed weak temperature gradient after Raymond and Zeng (2005), read here as eq. 3.4 of chapter 3 of Edman's thesis
+(2017), which reprints the paper (sections 3.1–3.4, the text extracted from the thesis's PDF); Daleu et al. (2015) give
+the protocol of an intercomparison of single-column and cloud-resolving models (section 3, read in the published
+version). Raymond and Zeng (2005) is cited as those two papers report it, unread here.
+
+| Choice | The lab's | Edman and Romps (2015) | Daleu et al. (2015) |
+|---|---|---|---|
+| Variable | θ_v, the domain mean less the window's, as in the wave's departure | θ_v | θ_v |
+| Stability | The reference's ∂θ_v/∂z | The reference's ∂θ_v/∂z | The reference's ∂θ_v/∂p |
+| Floor | `lsw_stab_min`; by default 0.01 K/km times g/9.81 | 0.01 K/km | 1 K/km |
+| Time | `lsw_tau`: L/c, or stated | L/c with c ≈ 50 m/s: 0.725, 7.25, 72.5 h | 3 h, uniform in height |
+| Base | The domain-mean boundary layer's depth, no lower than `lsw_base` (patch 10's) | 1 km | 850 hPa |
+| Below the base | ω linear in pressure to nil at the ground | w linear in height to nil at the surface | ω linear in pressure to nil at the surface |
+| Top | Nil from the lid's w level, `lsw_top`, by default the GCM's convection top | None stated, in a domain to 32 km | 100 hPa |
+| Heat and vapour | CM1's large-scale vertical advection by the wind; with patch 09 the window's θ and vapour drawn in where the wind converges | A mass source with the column's and the reference's θ and vapour averaged into the flow, converging or diverging | Vertical advection; the reference's vapour drawn in where the wind converges |
+
+Besides the transport of heat and vapour (below), the lab's form differs from Edman and Romps's in four places. The
+base follows the box's boundary layer, as the wave's does, where both papers fixed an Earth height: a fixed 1 km would
+lie inside the lunar sea box's boundary layer of 1.3–4.5 km, and the land box's swung from 0.06 to 8.4 km (defect log
+B43). The taper below the base runs linearly in pressure, as for the wave and in Daleu et al.; with the base at 3 km
+and a scale height near 50 km it parts from a taper linear in height by 1.5% midway. The floor stretches with gravity
+(defect log B44): at a given temperature heights stretch as 1/g and a stability as g, so the floor keeps the share of
+the world's stability that 0.01 K/km is of Earth's. And above the lid the wind is nil, so the GCM's held air above its
+convection stays under the nudging alone.
+
+**With patch 09.** As under the wave, the wind is set before patch 09's inflow reads it, and with ω nil at the ground
+and the lid the air drawn in equals the air sent out. Edman and Romps let both the column's and the reference's air
+enter the flow, half of each, whether it converges or diverges; Daleu et al. draw in the reference's vapour alone,
+where the wind converges, and patch 09 draws in the reference's θ and vapour there.
+
+**Checks in the suite** (`make check`; `python/climate/tests/test_cm1_wtg.py`, with the forcing in
+`python/climate/tests/test_gcm_site.py`). The part of `solve1.F` from CM1's large-scale nudging through the table and
+the record, taken from the series before patch 11 and after it, compiles in patch 10's driver under CM1's OpenMP
+flags and under `-O3 -march=native`.
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The series on the pinned archive | The sources of `expected-series.sha256`, with every Terluna build still reproduced (`models/check_patches.sh`) | The patches apply |
+| The patch's texts | It follows patch 10 in the same four files and removes only lines of patch 10's: comments that named one coupling, and the checks and messages the second joins, the wave's statements kept; `lsw_stab_min` is declared, given its default ahead of the namelist's reading, listed in `&param3`, broadcast and printed; ten stops; the branch stands after the wave's and before `wprof` is written; no added line holds a world's number, a Terluna name or anything cpp reads | Each line the patch changes is found |
+| Identity with the imposed wind and the wave | Every tendency, stepped mean and wind, every printed line and the record keep their bits after the patch, on three domains: the imposed wind one step and twenty, with the inflow and the table on and off, the wind's nudging off and the large-scale wind off; the wave one step and twenty, with the inflow, the table's cut, the record and a base at the lid; under both flag sets | Identity at coupling 0 and 1 |
+| The wind against a Python copy | With a departure of θ and of vapour, the base at the boundary layer's 3 km and at its 400 m floor, the wind is the Python copy's to 1 part in 10⁵ of its largest value; nil at the ground and from the lid's w level up, bit for bit; ω linear in pressure below the base to 2 parts in 10⁴; under both flag sets | The Fortran computes the form |
+| No departure, no wind | The box's mean air at its reference leaves the wind nil at every level, bit for bit, under both flag sets, from any wind held before | Effect |
+| The sign | A warm departure lifts the air at every w level up to the lid and a cool one sinks it, by opposite winds | Effect |
+| The rate | A half sine of 0.2 K in θ between the base and the lid, stepped fifty times over τ by CM1's large-scale advection of θ by the branch's wind alone, the vapour at the reference's, falls to e⁻¹ of itself in τ within 5% at its peak and through the column, on a lunar column (base 3 km, lid 60 km) and an Earth column (base 1 km, lid 15 km), under both flag sets | Effect: the wind's advection of the reference's own stability returns the departure on τ |
+| The floor | In a reference with a neutral layer, the branch divides by `lsw_stab_min` there and by the reference's stability elsewhere, as the copy does; a floor ten times higher divides the layer's wind by ten and leaves every other level's bits; a floor above every level's stability gives the departure over τ γ throughout | The floor acts as stated |
+| The record and the inflow | Patch 10's record holds three intervals of 3, 4 and 3 steps, each the mean wind over its steps; the column draws in as much air as it sends out, the inflow nil where the wind diverges | The record and the inflow serve the gradient |
+| The stops | `param.F`'s checks, compiled alone: twenty-nine settings stop the model with their message and six run, the boxes as `gcm_site` writes them under either coupling among them; the block stops on a lid at the first w level, takes the top for a lid above it, gives the gradient the last level alone with the base just under it, and leaves the wind nil with the base at the lid | The model stops on the values it cannot take |
+| The forcing | `case_inputs` with coupling `'wtg'`: patch 11's entries, the wave's files, windows, start and other entries, the floor and its source, the first window's least stability by hand from the window's printed air and its count of floored levels, none at the default and all under a floor above every level's stability, a time stated without a mode, a stated floor and Earth's gravity's floor; and its refusals | The forcing writes the entries |
+
+**Checks run once,** on 18 November 2026, with gfortran 13.3.0 on an Intel i9-11980HK, one thread to a run. Each is a
+single run from scratch scripts and builds on the project drive, removed after the runs, on the sources of
+`expected-series.sha256`.
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The whole model | Four builds compiled and linked without macros, the series before patch 11 and after it, each under CM1's OpenMP flags and under `-O3 -march=native` | The sources compile |
+| CM1's released cases at the defaults | CM1's released supercell and the world case of patches 06 to 08, between the series before patch 11 and after it: the supercell's 10 files agree byte for byte under both flag sets, and the world case's 10 byte for byte under `-O3 -march=native` and bit for bit under CM1's flags in every field but `z0t`, which CM1's surface layer leaves unset over land; the model prints `lsw_stab_min` at its default | Identity at the default, of compiled cases of CM1's own |
+| Patch 10's lunar box, imposed and under the wave | The box of patches 09 and 10, three hours of 8 × 8 columns of 6 km forced through `gcm_site` from Terluna's design run `A28R_301k_design_l15_snow_s934`, years 10–19, read in place, on the run's own constants: with the imposed wind, the new entry silent and stated at its default, and under the wave as `gcm_site` writes it, its 28 output and restart files agree byte for byte between the series before patch 11 and after it, the wave's record and the inflow's rates too, under both flag sets | Identity at coupling 0 and 1, of a compiled forced box |
+| The gradient in that box | The case as `gcm_site` writes it for coupling `'wtg'` (τ 10,243.5 s, γ 1.66 × 10⁻⁶ K/m, lid 73,422.4 m, lowest base 317.6 m), starting from the first window's air: the record holds three intervals, 0–1, 1–2 and 2–3 h, of 50, 48 and 48 steps, the base at 2.8–3.2 km; at each output the wind CM1 wrote, nil at the ground and from the lid, matches the form applied apart to that output's own mean air and the window's from 3.3–3.9 km to the lid within 1.0%, 0.6% and 0.3% of its largest value, the difference of one step; the box sinks most at 59 km, 12.6 mm/s at the first output and 18.4 at the third, where the window's stability falls to 0.28 K/km, and by the third hour its band of 20–60 km stands 0.009–0.061 K below its reference; under the wave it sank at most 5.2 mm/s, at 47–49 km. Both flag sets give these to the digits shown | Effect in a compiled box; three model hours, read as a test of the code |
+| A restart | Two hours of the gradient's box run whole, and one hour run and then restarted for the second: the three outputs, the domain diagnostics, the first restart file and the record agree byte for byte, under both flag sets; the statistics differ in CM1's step and largest Courant number at the restart's time, and the second restart file in one double of CM1's output schedule, 10⁹ + 3,600 against 10⁶⁰, alike with the imposed wind | The gradient keeps a restarted run on the path of the run it continues |
+| The stops in the compiled model | Under CM1's flags, six settings each end the run as it starts with its `Lab coupling:` line: a coupling of 3, a floor of nil, a mode speed with the gradient, a floor with the wave, a floor with the imposed wind and a time below the step | The model stops on the values it cannot take |
+| Wrong statements | 31, put one at a time into a copy of the patch (23, each a line replaced so that the patch still applies) and of `gcm_site.py` (8): each fails the suite's tests, 30 of them with the tests of the patch's text left out; the other, `lsw_stab_min`'s default in `cm1.F`, which the compiled tests take as an input, fails the test of the text. Two, a search for the base that starts a level low and a count of floored levels held at nil, passed the first tests and are caught by cases added for them | The suite's tests find each fault put in |
+
+**Limits.**
+
+- The checks test the code. No lab run has read a box under the weak temperature gradient as a study; the test of the
+  couplings' consistency, the gradient's included, waits for stage 3's case writer and the author's word.
+- Edman and Romps's tests ran a cloud-resolving model of Earth's tropics with prescribed radiative cooling, on domains
+  of 64 and 128 km at 2 km spacing; the lunar boxes run interactive radiation on 192 km at 6 km. Daleu et al. found
+  the weak temperature gradient's equilibria in some models dry or raining by their start, more often over warmer
+  seas (their abstract), and their introduction reports its profiles of ascent more top-heavy than the wave's (after
+  Raymond and Zeng 2005, Daleu et al. 2012 and Romps 2012); the lunar box above sank most at 59 km.
+- Where the box's boundary layer stands below the reference's near-neutral air, the gradient divides by it. On the
+  Near-side Sea's first window the GCM's air holds 0.013–0.072 K/km from 0.4 to 2.35 km, where a departure of 0.1 K
+  makes 0.14–0.72 m/s; above 2.56 km it holds 0.28–0.91 K/km (defect log B44). Under the wave the sea box's base held
+  2.8–3.2 km. CM1's explicit advection carries the gradient's wind into the column, so where the floor binds under
+  air more stable than the floor the departure relaxes faster than 1/τ, by the box's stability over the floor; whether
+  the step stays stable there is untested.
+- The gradient's wind runs up to the last w level below the lid and is nil from the lid's level up, with no taper
+  between. A base at or above that last level leaves the gradient no level, and the wind is nil throughout.
+- The reference is the window CM1 holds, so after a restart the gradient, as the wave, measures the box against
+  earlier windows for as many steps as windows have passed (defect log A12).
+- Each rank of an MPI build takes `lsw_stab_min` by broadcast, a line the OpenMP builds leave uncompiled.
 
 ## Settings of the lunar cases
 

@@ -331,13 +331,35 @@ the taper below the base, the inflow's conservation and the record; in single sc
 its files byte for byte at the defaults, sank 5 mm/s aloft with the wave on, its wind within 1% of the problem solved on
 its own mean air, and restarted byte for byte; and the lab's block returned the bits of Terluna's deployed one
 (`models/cm1/README.md`, "The box's own large-scale vertical wind"). The case's settings let the gap's next test state a
-reference from another box's domain mean by local time and a length of the planet's radius, 11.9 h; a
-weak-temperature-gradient coupling joins as `lsw_coupling` = 2 with a later patch. Terluna's measured effects are its
+reference from another box's domain mean by local time and a length of the planet's radius, 11.9 h, and patch 11 adds
+the weak temperature gradient for the test's second box (below). Terluna's measured effects are its
 runs: under the wave its sea box rained 2.85 mm/day against the GCM's 1.42 and 1.6–1.7 after midnight, where under the
 imposed ascent it rained about 0.2, and its dry box dried out under steady descent; so the boxes' couplings disagree by
 more than the two models do (`PLAN.md`, "Decisions", 17 November 2026). After every restart CM1 counts its nudging
 windows up again from the first, one a step (defect log A12), which sets a restarted wave box against earlier windows
 for up to an hour and a half of model time in a box of two lunar days.
+
+**The weak temperature gradient.** Patch 11 of the lab's CM1 series (18 November 2026) gives a forced box a second way
+to make its own large-scale vertical wind, the coupling that Edman and Romps (2015) found self-consistent in
+radiative–convective equilibrium at each time they tried, 0.725, 7.25 and 72.5 h, its mean motion under 1 mm/s against a
+clear-sky descent near 4 mm/s, where their damped-wave schemes sank about 2 mm/s at a length of 1,280 km. On the wave's
+reference, time, lid and base, the branch sets w = θ_v′/(τ max(γ, ∂θ_v,r/∂z)) at the w levels from the first above the
+base to the last below the lid, the box's departure in virtual potential temperature over the time and the reference's
+own stability, and lets ω fall linearly in pressure below the base; `gcm_site.case_inputs` writes it for coupling
+`'wtg'`. The form is Edman and Romps's (eq. 3.4 of Edman's 2017 thesis, after Raymond and Zeng 2005) with three choices
+that suit another world: the base is the box's boundary layer's depth, as for the wave, where they fixed 1 km and Daleu
+et al. (2015) 850 hPa; ω tapers linearly in pressure below it, as for the wave and in Daleu et al., where Edman and
+Romps tapered w linearly in height; and the floor γ is their 0.01 K/km times the world's gravity over Earth's, 1.66 ×
+10⁻⁶ K/m on the Moon (defect log B44). The departure is the wave's over π₀, formed so that it is nil wherever the box's
+air equals its reference, under fused products too. The suite checks the compiled branch against a Python copy, its
+sign, its floor and its relaxation of a departure at 1/τ under CM1's advection by its own wind, and keeps the imposed
+wind's and the wave's bits (`models/cm1/README.md`, "The box's own large-scale vertical wind by the weak temperature
+gradient"). In single scratch runs of 18 November a three-hour lunar box kept patch 10's files byte for byte under the
+imposed wind and the wave, and under the gradient its wind matched the form on its own mean air within 1%, sank most
+at 59 km, up to 18 mm/s where the window's stability falls to 0.28 K/km, and restarted on the path of the box run
+whole. On the Near-side Sea's first window the GCM's lowest layers are near neutral, 0.013–0.072 K/km from 0.4 to
+2.35 km, so a base below 2.4 km would turn a departure of 0.1 K into a wind of up to 0.7 m/s there; the sea box's base
+held 2.8–3.2 km under the wave. No lab run has read a box under the gradient as a study.
 
 **What the forcing revealed.** Without the GCM's sideways transport the 45° N ring drifts warm: its lowest
 1.8 km warm from 20.0 to 26.7 °C over two lunar days. The GCM's circulation carries about 15 W/m² of heat
@@ -470,9 +492,10 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
    lowest level up and the inflow of the reference's air, as Terluna's corrected boxes have them, behind entries with
    identity defaults, the base-state and geostrophic wind relaxed on the wind's time too.
    Done on 17 November 2026 as patch 10: the box's own large-scale vertical wind by the damped gravity wave, behind
-   entries with identity defaults, its record complete over each segment and its base kept through restarts. Still to
-   do: the weak temperature gradient beside it (`lsw_coupling` = 2), and the nudging's count of windows carried
-   through a restart (defect log A12).
+   entries with identity defaults, its record complete over each segment and its base kept through restarts. Done on
+   18 November 2026 as patch 11: the weak temperature gradient beside the wave (`lsw_coupling` = 2), in the form
+   Edman and Romps found self-consistent, its floor scaled with gravity (defect log B44). Still to do: the nudging's
+   count of windows carried through a restart (defect log A12).
 4. Give NSSL's rain the limits, the fall law and the self-collection that Morrison's rain takes since patches 03
    and 04 of the lab's series, and run a box with them on the lab's own builds.
 5. Size the two factors on Morrison's autoconversion and accretion, which patch 05 of the lab's series reads from

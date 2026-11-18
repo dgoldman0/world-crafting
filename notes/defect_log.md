@@ -62,7 +62,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | `ipbl2_per_mass` (0): the lab's series, patch 01, from Terluna's build `moon_omp_rain_law_pbl` | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | A10 | ExoPlaSim, low-I/O output | `hus` in the mean output is the humidity held from the last output step, where every other field is a mean; the held field is absent from the restart, so each year file's first record holds about 2% of the vapour | 10-27, Terluna `domain/climate` 984606a5 | None in the model; a reader's rule (Terluna's `climate/gcm/year_files.py`, the lab's `python/climate/gcm/year_files.py` since 11-16) | Read as means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as humid | Open in the model; read by rule in Terluna and in the lab; the true mean as a further output still to port | R, P |
 | A11 | CM1 r22.0 | The MM5 surface layer (`sfcmodel = 2`) sets its roughness lengths for heat and moisture over water alone and copies them to the output at every point, so `z0t` and `z0q` over land hold unset memory | 11-11, `lab` 3174a0e | None; a reader takes both over water alone | Output and domain averages alone: NaN or 9.5 × 10²² m over land in the lab's test builds; the model reads neither back, and no analysis of Terluna's or the lab's reads either | Open | L |
-| A12 | CM1 r22.0 | After a restart the large-scale nudging counts its windows again from the first, one a step, since the restart files keep no count (`lsnudge.F`, `solve1.F`) | 11-17, the lab's port of the damped gravity wave | None | Each one-day segment of Terluna's boxes after the first nudged its wind and held air toward earlier windows for as many steps as windows had passed: 35 steps, 47 minutes of model time, at the sea box's thirtieth; under the damped gravity wave the box's own ascent answers those windows too | Open | L, R |
+| A12 | CM1 r22.0 | After a restart the large-scale nudging counts its windows again from the first, one a step, since the restart files keep no count (`lsnudge.F`, `solve1.F`) | 11-17, the lab's port of the damped gravity wave | None | Each one-day segment of Terluna's boxes after the first nudged its wind and held air toward earlier windows for as many steps as windows had passed: 35 steps, 47 minutes of model time, at the sea box's thirtieth; under a coupled wind, the damped gravity wave or the weak temperature gradient, the box's own ascent answers those windows too | Open | L, R |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant, which the namelist's `world_g` replaces in the lab's series (patch 06, default the build's value); fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`, still compiled in beside the lab's patch 06; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
@@ -105,7 +105,8 @@ corrected there. The companion note `verification_record.md` describes the check
 | B40 | CM1 r22.0 | CAPE, CIN, LCL and LFC in the output are those of a parcel mixed over the lowest 500 m at every gravity | 11-11, `lab` 3174a0e | None | Terluna's box analyses read CM1's CAPE and inhibition; at the Moon's gravity 500 m is about a hundredth of the scale height, and a sounding whose second level stands above it gives the lowest level alone | Open | L |
 | B41 | PlaSim | Roughness lengths set for Earth: Charnock's 0.018 with a floor of 1.5 × 10⁻⁵ m over the sea, 10⁻³ m over sea ice, 2 m over land | 11-16, the lab's port of the wind at 10 m | None; over ice-free water with `NSIMW` 1 (the lab's patch 13) the similarity's own roughness, which patch 17's wind at 10 m takes too | Unmeasured; they set PlaSim's neutral transfer coefficient and the log of the wind at 10 m, and at 2 m/s in neutral air over the sea PlaSim's roughness stands at 0.4–0.5 of the similarity's | Open | L |
 | B42 | PlaSim, `NPRC` 2 | The simplified Betts–Miller scheme's reference humidity 0.7 and the depth test's 200 hPa, Frierson's and the IFS's values for Earth's convection | 11-17, the lab's port of the scheme | `RH_BM` (0.7); `DSIGDEEP_BM` (0), which the writer sets to 200/1013.25 of each column's surface pressure | Unmeasured as such; on CM1's sea column the scheme rained only at a reference humidity of 0.6 or less (Terluna) | Open | L |
-| B43 | CM1 r22.0, `ipbl = 2` | The boundary layer's depth by the bulk Richardson number against a critical 0.125 (`sfcphys.F`, `gethpbl2`), a value fitted to Earth's layers | 11-17, the lab's port of the damped gravity wave; Terluna's audit of its wave's boxes | None | Unmeasured; the wave's base and the table's cut take this depth, which on Terluna's land box swung from 0.06 to 8.4 km over the lunar day | Open | L, R |
+| B43 | CM1 r22.0, `ipbl = 2` | The boundary layer's depth by the bulk Richardson number against a critical 0.125 (`sfcphys.F`, `gethpbl2`), a value fitted to Earth's layers | 11-17, the lab's port of the damped gravity wave; Terluna's audit of its wave's boxes | None | Unmeasured; the coupled wind's base (the lab's patches 10 and 11) and the table's cut take this depth, which on Terluna's land box swung from 0.06 to 8.4 km over the lunar day | Open | L, R |
+| B44 | CM1 forcing (`gcm_site`), the weak temperature gradient | Its least stability, Edman and Romps's 0.01 K/km, a guard set in Earth's tropics, where the free troposphere holds about 3 K/km; Daleu et al. take 1 K/km, and both apply the coupling above a fixed height of Earth's boundary layer, 1 km or 850 hPa | 11-18, the lab's port of the weak temperature gradient | `lsw_stab_min` (0, read with `lsw_coupling` = 2; the lab's patch 11), which `gcm_site` writes at 0.01 K/km times the world's gravity over 9.81 m/s², 1.66 × 10⁻⁶ K/m on the Moon; the base the boundary layer's depth (B43) | Unmeasured in a run; on the sea box's first window the floor binds at none of 69 levels, and the GCM's near-neutral air at 0.4–2.35 km, 0.013–0.072 K/km, turns a departure of 0.1 K into 0.14–0.72 m/s where the base falls below it | Open: a setting, scaled by gravity by default | L |
 | C1 | GCM runner | Solar spectrum beyond 2.73 µm held at its last value | 09-25, d73482c | Blackbody tail; band-split guard | 86% of sunlight in the near IR; >320 K | Fixed | R, V |
 | C2 | CM1–GCM check | GCM's missing sunlight booked as reflection | 09-29, be50d8b retracts 36e29c4 | Each model's own arriving sunlight | A false "reflects too much" finding | Fixed | R |
 | C3 | Twilight ledger | Sky model's channels overstate absorbed energy by 58%; ledger's first channels put near-IR sunlight too high | 10-14, 2ac4359 and 55e5020 | 10,697 channels keeping heights | First two 20-year GCM tests used the old terms | Fixed | R |
@@ -368,17 +369,18 @@ as a seventh is an open item of `PLAN.md`.
   Terluna's runs: the log of the thirtieth one-day segment of `box_near_side_sea_dgw` (research drive, `crm-runs/`,
   `cm1_segment_030.log`), which starts at 2,505,600 s, moves the count on 35 times in its first 35 steps of 80 s.
 - **Effect.** For those steps the box's mean wind relaxes toward earlier windows' wind, on 2 hours in Terluna's later
-  boxes, and its held air and the inflow's reference are those windows'. The count reaches its window in as many
-  steps as windows have passed, at most 71 on a box of two lunar days in 72 windows, an hour and a half of model time
-  at 80 s a step. Under the damped gravity wave the box's own ascent answers the earlier windows' air too, a tenth of a
-  kelvin of which makes about 3 cm/s by Terluna's estimate. By the code, a box run in one-day segments on windows
-  counted from its start meets the climb at each segment's start, as the sea box's log shows; Terluna's set-up wrote
-  the windows of its run-on cases from their restart's time, which spares those cases the climb at their first
-  segment.
+  boxes, and its held air and the inflow's reference are those windows'. The count reaches its window in as many steps
+  as windows have passed, at most 71 on a box of two lunar days in 72 windows, an hour and a half of model time at 80 s
+  a step. Under the damped gravity wave the box's own ascent answers the earlier windows' air too, a tenth of a kelvin
+  of which makes about 3 cm/s by Terluna's estimate, and under the weak temperature gradient (the lab's patch 11) about
+  2 cm/s where the window's air holds 0.5 K/km at the sea box's time of 2.85 h. By the code, a box run in one-day
+  segments on windows counted from its start meets the climb at each segment's start, as the sea box's log shows;
+  Terluna's set-up wrote the windows of its run-on cases from their restart's time, which spares those cases the climb
+  at their first segment.
 - **Status.** Open. A fix moves the count on until the window holds the step's time, or keeps the count in the restart
   files; either changes a restarted run's path at the default, so it belongs in a patch of its own with an entry.
-  The lab's wave and nudging read the window CM1 holds (`models/cm1/README.md`, "The box's own large-scale vertical
-  wind", Limits).
+  The lab's wave, weak temperature gradient and nudging read the window CM1 holds (`models/cm1/README.md`, "The box's
+  own large-scale vertical wind", Limits).
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
@@ -1153,12 +1155,37 @@ difference in clear-air absorbed sunlight between CM1 and the GCM (`climate/crm/
   critical value of 0.125 (`sfcphys.F`, `gethpbl2`, `bric`), a value fitted to Earth's boundary layers. Terluna's
   audit of its damped-gravity-wave boxes lists it among the Earth-calibrated values the wave meets
   (`session-tools/agents/gap_boxes/yardstick/audit.md` on Terluna's research drive).
-- **Where it acts.** The lab's patch 10 takes the coupled layer's base from the domain mean of this depth, and with
-  `lsw_table_heat` = 1 the table heats below it alone. On Terluna's land box the depth swung from 0.06 to 8.4 km over
-  the lunar day, and at sea from 1.3 to 4.5 km.
+- **Where it acts.** The lab's patches 10 and 11 take the coupled layer's base from the domain mean of this depth, the
+  damped gravity wave's and the weak temperature gradient's alike, and with `lsw_table_heat` = 1 the table heats below
+  it alone. On Terluna's land box the depth swung from 0.06 to 8.4 km over the lunar day, and at sea from 1.3 to
+  4.5 km.
 - **Effect.** Unmeasured. The Richardson number carries gravity in its buoyancy, so the critical value stands as a
   similarity constant; whether air of another gravity, pressure or composition keeps Earth's value is untested.
-- **Status.** Open; the wave's floor, `lsw_base`, bounds the base from below.
+- **Status.** Open; the lowest base, `lsw_base`, bounds the base from below under either coupling.
+
+### B44. CM1 forcing, the weak temperature gradient: Edman and Romps's least stability, set on Earth (L; open)
+
+- **Earth value.** Edman and Romps (2015; eq. 3.4 of Edman's 2017 thesis) divide the weak temperature gradient's
+  departure by the reference's virtual stability held at 0.01 K/km or more, a guard against a neutral layer, set for a
+  cloud-resolving model in Earth's tropics, where the free troposphere holds near 3 K/km; Daleu et al. (2015, section 3)
+  hold it at 1 K/km. Both apply the coupling above a fixed height of Earth's boundary layer, Edman and Romps's 1 km and
+  Daleu et al.'s 850 hPa, and taper it to the ground below.
+- **The lab's form.** Patch 11 of the lab's CM1 series reads the floor as `lsw_stab_min` (K/m), and `gcm_site` writes
+  it at 0.01 K/km times the world's gravity over 9.81 m/s², to three figures, unless a case states it: at a given
+  temperature heights stretch as 1/g and a stability dθ/dz as g, so the floor keeps its share of the world's
+  stability. On the Moon it comes to 1.66 × 10⁻⁶ K/m; the first mode's 40.5–40.8 m/s over the design years' 73 km
+  column gives about 0.6 K/km on average by N = πc/H. The base is the box's boundary layer's depth no lower than
+  `lsw_base`, as for the wave (B43), in place of a fixed height.
+- **Effect.** Unmeasured in a run. On the Near-side Sea's first window, from Terluna's design years on the run's own
+  constants, the reference's virtual stability between the lowest base, 317.6 m, and the lid falls to 1.35 × 10⁻⁵
+  K/m, eight times the floor, which binds at none of its 69 levels. The GCM's air is near neutral in its lowest
+  layers, 0.013–0.072 K/km from 0.4 to 2.35 km, and holds 0.28–0.91 K/km from 2.56 km to the lid. Where the box's
+  boundary layer stands below 2.4 km the gradient divides by that weak layer, and a departure of 0.1 K there makes
+  0.14–0.72 m/s at the sea's τ of 2.85 h, against 2 cm/s at 0.5 K/km; under the wave the sea box's base held
+  2.8–3.2 km over three hours (patch 10's run), and Terluna's land box's boundary layer swung from 0.06 to 8.4 km over
+  the lunar day.
+- **Status.** Open. A case states a floor or a lowest base above the weak layer; a box run under the gradient will
+  show whether its base enters that layer.
 
 ## (c) Defects in Terluna's own work
 

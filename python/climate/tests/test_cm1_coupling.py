@@ -33,8 +33,8 @@ MOON_G = 1.6242188765608128
 
 # The patch's texts.
 
-def test_the_coupling_patch_ends_the_labs_series(cm1_series):
-    assert cm1_series.names[-1] == PATCH_10 and cm1_series.before(PATCH_10) == PATCH_09
+def test_the_coupling_patch_follows_patch_09(cm1_series):
+    assert PATCH_10 in cm1_series.names and cm1_series.before(PATCH_10) == PATCH_09
     text = (cm1_series.folder / PATCH_10).read_text(encoding='latin-1')
     assert re.findall(r'^\+\+\+ b/src/(\S+)', text, flags=re.M) == ['cm1.F', 'input.F', 'param.F', 'solve1.F']
     removed = [line[1:] for line in text.splitlines() if line.startswith('-') and not line.startswith('---')]
@@ -135,8 +135,9 @@ def declarations(text):
 
 DRIVER = """
 program coupling
-  ! The large-scale nudging of solve1.F with the inflow and the wave, the day-night table and the wave's record,
-  ! stepped on a domain's means without dynamics; the settings and the profiles come from standard input.
+  ! The large-scale nudging of solve1.F with the inflow and the coupled wind, the day-night table and the wind's
+  ! record, stepped on a domain's means without dynamics; the settings and the profiles come from standard input.
+  ! lsw_stab_min, the weak temperature gradient's entry (patch 11), lies unread in the series before it.
   implicit none
   integer :: ni, nj, nk, nsteps, pattern, showing, step, i, j, k, ib, ie, jb, je
   integer :: nqv, imoist, myid, timestats, lsnudge_count, ud_nudge, vd_nudge, td_nudge, qd_nudge, inflow_ref_air
@@ -148,7 +149,7 @@ program coupling
   logical :: lab_inflow_out
   real :: timenudge, lsnudge_start, lsnudgefac, lsnudge_tau, umove, vmove, rdt, dt, tem, tem1, tem2, terluna_w
   real :: var11, var14, var15, var18, var19, time_misc, rdz, wind_nudge_tau, wind_nudge_zmin, lab_tau_uv
-  real :: lsw_tau, lsw_mode_speed, lsw_top, lsw_base, lab_lsw_hpbl, timax, g, rd, rv
+  real :: lsw_tau, lsw_mode_speed, lsw_top, lsw_base, lab_lsw_hpbl, lsw_stab_min, timax, g, rd, rv
   real :: terluna_h, terluna_f, terluna_th, terluna_qv
   double precision :: mtime, dbldt, mtime0
   real, dimension(:), allocatable, save :: terluna_az
@@ -169,7 +170,7 @@ program coupling
   read(*,*) switches
   read(*,*) dt, lsnudge_tau, lsnudgefac, umove, vmove, var14, var15, rdz, g
   read(*,*) wind_nudge_tau, wind_nudge_zmin, inflow_ref_air
-  read(*,*) lsw_coupling, lsw_tau, lsw_mode_speed, lsw_top, lsw_base, lsw_table_heat, lab_lsw_hpbl
+  read(*,*) lsw_coupling, lsw_tau, lsw_mode_speed, lsw_top, lsw_base, lsw_table_heat, lab_lsw_hpbl, lsw_stab_min
   read(*,*) var11, var18, var19, mtime0, timax, irst
   allocate(writes(nsteps))
   read(*,*) writes
@@ -376,14 +377,14 @@ ON = (1, 1, 1, 1, 1, 1, 1)           # do_lsnudge, its u, v, theta and vapour, d
 
 def coupling_input(case, *, nsteps=1, pattern=1, show=0, switches=ON, inflow=0, coupling=0, tau=0.0, speed=0.0,
                    top=0.0, base=0.0, heat=0, hpbl=0.0, var11=0.0, mtime0=0.0, timax=1.0e9, irst=0, writes=None,
-                   tau_wind=0.0, zmin=0.0):
-    """The driver's input for a case of profiles."""
+                   tau_wind=0.0, zmin=0.0, stab=0.0):
+    """The driver's input for a case of profiles; stab is lsw_stab_min."""
     rows = [f"{case['ni']} {case['nj']} {case['nk']} {nsteps} {pattern} {show}", ' '.join(str(s) for s in switches),
             ' '.join(repr(float(case[k])) for k in ('dt', 'lsnudge_tau', 'lsnudgefac', 'umove', 'vmove', 'var14',
                                                     'var15', 'rdz', 'g')),
             f'{float(tau_wind)!r} {float(zmin)!r} {int(inflow)}',
             f'{int(coupling)} {float(tau)!r} {float(speed)!r} {float(top)!r} {float(base)!r} {int(heat)} '
-            f'{float(hpbl)!r}',
+            f'{float(hpbl)!r} {float(stab)!r}',
             f'{float(var11)!r} -180.0 {float(4 * case["dt"] * nsteps + 1.0)!r} {float(mtime0)!r} {float(timax)!r} '
             f'{int(irst)}',
             ' '.join(str(int(x)) for x in (writes if writes is not None else [0] * nsteps))]

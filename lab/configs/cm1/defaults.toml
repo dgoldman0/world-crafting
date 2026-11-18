@@ -98,10 +98,11 @@ inflow = "gcm-air"                             # where the mean vertical wind co
                                                # (inflow_ref_air = 1, patch 09); "box-air" keeps CM1's advection of the
                                                # box's own air, the patch's default
 vertical_wind = "imposed"                      # a forced box's large-scale vertical wind: the GCM's mean, imposed
-                                               # (lsw_coupling = 0, the default of patch 10); "dgw" makes it the box's
-                                               # own by the damped gravity wave (lsw_coupling = 1), on the time L/c from
-                                               # first_mode's speed c; the weak temperature gradient, "wtg", joins with a
-                                               # later patch (gcm_site.case_inputs, coupling)
+                                               # (lsw_coupling = 0, the default of patches 10 and 11); "dgw" makes it
+                                               # the box's own by the damped gravity wave (lsw_coupling = 1), on the
+                                               # time L/c from first_mode's speed c; "wtg" by the weak temperature
+                                               # gradient (lsw_coupling = 2), on the same time, lid and base
+                                               # (gcm_site.case_inputs, coupling)
 coupling_length = "footprint"                  # the length L a coupled box stands for: its site's footprint, Terluna's;
                                                # a study states metres, the planet's radius among them, or the time
 coupled_reference = "gcm-by-hour"              # the air a coupled box is measured against and holds above the GCM's
@@ -113,6 +114,10 @@ coupled_start = "reference"                    # a coupled box starts from its f
                                                # starts from rest; "mean" starts it from the GCM's mean air
 coupled_table_heat = "below-base"              # the table heats a coupled box below its boundary layer's top alone
                                                # (lsw_table_heat = 1); "every-level" keeps the table whole
+coupled_stability_floor = "gravity-scaled"     # the weak temperature gradient's least static stability
+                                               # (lsw_stab_min): Edman and Romps's 0.01 K/km times the world's gravity
+                                               # over 9.81 m/s2, 1.66e-6 K/m on the Moon (defect log B44); a study
+                                               # states K/m
 
 [physics]
 microphysics = "morrison"                      # ptype 5; its cloud droplets per cm3 come from the scenario's air

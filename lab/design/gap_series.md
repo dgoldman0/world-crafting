@@ -68,7 +68,8 @@ boxes cost as in the first table.
 | 7. If step 5 departs: anchors at g 1.2 and 2.5 | 2 GCM; 4 boxes | 29 | Whether the departure grows as g falls |
 
 The CM1 steps wait on stage 3, Terluna's DGW ported as patch 10 of the lab's CM1 series (17 November 2026;
-`terluna_fixes.md`, row 13), and steps 2, 4 and 6 on the GCM ports of `PLAN.md` step 2. Steps 1–6 take about 52 four-thread hours, three or four nights at the
+`terluna_fixes.md`, row 13), with the weak temperature gradient beside it as patch 11 (18 November 2026), and steps 2, 4
+and 6 on the GCM ports of `PLAN.md` step 2. Steps 1–6 take about 52 four-thread hours, three or four nights at the
 eight-thread budget [calc].
 
 **Checks ahead of the series** [prop]. A pass over the models on 9 November 2026 logged five entries that bear on
@@ -159,6 +160,9 @@ below the fine undiluted parcel, all come from boxes under imposed ascent; under
 0.15 K above its own parcel [calc; read: the dilution report]. The couplings' own consistency is therefore tested
 before either model's convection changes again, as the review proposed in its path 2: the DGW measured against the
 imposed box's own mean by local time, a weak-temperature-gradient coupling, and the DGW at the planet's scale [prop].
+The second is patch 11 of the lab's CM1 series (18 November 2026), in the form Edman and Romps (2015) found
+self-consistent, on the DGW's reference, time, lid and base [code; lit: Edman and Romps 2015, sections 3.1–3.4 read in
+Edman's 2017 thesis].
 
 **The GCM's convection starts at a buoyancy where neither CM1 nor Earth's tropics rain.** By B_L, the lower
 troposphere's plume buoyancy of Ahmed and Neelin (2018) with its layers taken as shares of the surface pressure, the

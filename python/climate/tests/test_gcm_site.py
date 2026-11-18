@@ -899,8 +899,7 @@ def test_a_coupled_case_refuses_what_it_cannot_state(tmp_path):
     zh = 0.5 * (zw[1:] + zw[:-1])
     good = dict(hour_angle_deg=[0.0], z_m=zh.tolist(), theta_k=[air['theta_at'](zh).tolist()],
                 qv_kg_kg=[air['qv_at'](zh).tolist()])
-    refused = [(dict(coupling='wtg'), 'weak temperature gradient joins with a later patch'),
-               (dict(coupling='relaxed'), "one of \\('imposed', 'dgw'\\)"),
+    refused = [(dict(coupling='relaxed'), "one of \\('imposed', 'dgw', 'wtg'\\)"),
                (dict(coupling='dgw'), "first baroclinic mode's speed"),
                (dict(coupling='dgw', mode=dict(c_m_s=0.0)), "first baroclinic mode's speed"),
                (dict(coupling='dgw', mode=mode, coupling_length_m=4e5, coupling_time_s=1e4), 'where it states both'),
@@ -919,11 +918,79 @@ def test_a_coupled_case_refuses_what_it_cannot_state(tmp_path):
                (dict(coupling='dgw', mode=mode, reference=dict(good, hour_angle_deg=[270.0])), 'column series'),
                (dict(mode=mode), "imposed wind takes none of a coupling's settings"),
                (dict(coupling_time_s=1e4), "imposed wind takes none"),
-               (dict(table_heat='below-base'), "imposed wind takes none")]
+               (dict(table_heat='below-base'), "imposed wind takes none"),
+               (dict(coupling_stability_min_k_m=1e-6), "imposed wind takes none"),
+               (dict(coupling='dgw', mode=mode, coupling_stability_min_k_m=1e-6), 'reads no least stability'),
+               (dict(coupling='wtg'), 'weak temperature gradient takes its time'),
+               (dict(coupling='wtg', mode=dict(c_m_s=0.0)), 'weak temperature gradient takes its time'),
+               (dict(coupling='wtg', mode=dict(c_m_s=0.0), coupling_time_s=1e4), 'takes its time'),
+               (dict(coupling='wtg', mode=mode, coupling_stability_min_k_m=0.0), 'least stability is positive'),
+               (dict(coupling='wtg', mode=mode, coupling_stability_min_k_m=-1e-6), 'least stability is positive'),
+               (dict(coupling='wtg', mode=mode, coupling_stability_min_k_m=float('nan')), 'least stability'),
+               (dict(coupling='wtg', mode=mode, coupling_length_m=4e5, coupling_time_s=1e4), 'where it states both'),
+               (dict(coupling='wtg', coupling_time_s=-1.0), "coupling's time is positive"),
+               (dict(coupling='wtg', mode=mode, coupling_top_m=300.0, coupling_base_m=300.0), 'base < lid'),
+               (dict(coupling='wtg', mode=mode, table_heat='aloft'), 'the table heats')]
     for settings, message in refused:
         with pytest.raises(ValueError, match=message):
             coupled(f, run, zw, air, **settings)
     assert coupled(f, run, zw, air, coupling='dgw', mode=mode, reference=good)['record']['reference']['hours'] == 1
+    with pytest.raises(ValueError, match="'dgw' or 'wtg'"):
+        gs.coupling_entries(f, zw, mode=mode, length_m=None, time_s=None, top_m=None, base_m=None,
+                            table_heat='below-base', kind='imposed')
+
+
+def test_a_wtg_case_writes_patch_11s_entries_beside_the_waves_files(tmp_path):
+    """With the weak temperature gradient the case states patch 11's entries: lsw_coupling 2, the wave's time, the
+    site's footprint over the mode's speed, its lid, lowest base and table's cut, no mode speed, and the floor, Edman
+    and Romps's 0.01 K/km times the world's gravity over Earth's 9.81 m/s2 to three figures, 1.66e-6 K/m at the Moon's.
+    Its files, windows, start and the rest of its namelist are the wave's. The record holds the floor with its source
+    and the least stability of the first window's air between the lowest base and the lid, which the window's printed
+    air gives by hand, with the count of levels at which the floor binds: none here, and all under a floor twice the
+    greatest stability. A case states its time without a mode, and its floor; at Earth's gravity the floor is Edman
+    and Romps's own."""
+    run = write_run(tmp_path / 'model', MOON)
+    f = gs.site_forcing(run, (0, 1), SEA5)
+    zw = np.r_[0.0, np.cumsum(np.full(60, 2500.0))]
+    air = gs.reference_air(f, run['gravity_m_s2'], zw[-1])
+    mode = dict(c_m_s=40.0, source='stated')
+    wave = coupled(f, run, zw, air, coupling='dgw', mode=mode)
+    case = coupled(f, run, zw, air, coupling='wtg', mode=mode)
+    floor = 1.66e-6
+    assert floor == float(f"{1e-5 * run['gravity_m_s2'] / 9.81:.3g}")
+    p3 = {k: v for k, v in wave['namelist']['param3'].items() if k != 'lsw_mode_speed'}
+    assert case['namelist']['param3'] == dict(p3, lsw_coupling=2, lsw_stab_min=floor)
+    assert case['files'] == wave['files']
+    assert all(case['namelist'][k] == wave['namelist'][k] for k in ('param8', 'param19'))
+    zh = 0.5 * (zw[1:] + zw[:-1])
+    for key in ('theta_at', 'qv_at'):
+        assert np.array_equal(case['start'][key](zh), wave['start'][key](zh))
+    record = case['record']['coupling']
+    assert record['kind'] == 'wtg' and record['entries'] == {
+        k: v for k, v in case['namelist']['param3'].items() if k.startswith('lsw_')}
+    assert record['stability_min_k_m'] == floor
+    assert record['stability_min_from'].startswith("Edman and Romps's 0.01 K/km")
+    assert record['time_s'] == wave['record']['coupling']['time_s'] and record['mode'] == mode
+    assert 'Edman and Romps (2015' in record['method'] and 'Daleu' in record['below_base']
+    # The first window's stability, from its printed air at the box's scalar levels.
+    rows = read_nudging(case['files']['lsnudge_0001.dat'])[2][1:-1]
+    thv = rows[:, 1] * (1.0 + (gs.CM1_RV / gs.CM1_RD - 1.0) * rows[:, 2] / 1000.0)
+    between = (zw[1:-1] > p3['lsw_base']) & (zw[1:-1] < p3['lsw_top'])
+    s = (np.diff(thv) / np.diff(zh))[between]
+    found = record['first_window_stability']
+    assert found['levels'] == between.sum() > 10 and found['floored_levels'] == (s < floor).sum()
+    assert found['least_k_m'] == pytest.approx(s.min(), rel=1e-3, abs=1e-7)
+    json.dumps(case['record'])
+    above = coupled(f, run, zw, air, coupling='wtg', mode=mode, coupling_stability_min_k_m=2.0 * float(s.max()))
+    assert above['record']['coupling']['first_window_stability']['floored_levels'] == between.sum()
+    # A time without a mode, a floor stated, and Earth's gravity.
+    timed = coupled(f, run, zw, air, coupling='wtg', coupling_time_s=42840.0, coupling_stability_min_k_m=5e-6)
+    assert (timed['namelist']['param3']['lsw_tau'], timed['namelist']['param3']['lsw_stab_min']) == (42840.0, 5e-6)
+    assert timed['record']['coupling']['mode'] is None and timed['record']['coupling']['length_m'] is None
+    assert timed['record']['coupling']['stability_min_from'] == 'stated'
+    entries = gs.coupling_entries(f, zw, mode=mode, length_m=None, time_s=None, top_m=None, base_m=None,
+                                  table_heat='every-level', kind='wtg', gravity_m_s2=9.81)[0]
+    assert entries['lsw_stab_min'] == 1e-5 and entries['lsw_table_heat'] == 0
 
 
 # Terluna's sea box on its design years, from the same GCM run read in place (research drive).
