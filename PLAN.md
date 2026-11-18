@@ -153,6 +153,15 @@ ExoPlaSim's output and five open entries to the defect log on the lab's branch (
   (defect log B32) can be tested in minutes under the forcing CM1's boxes receive; the replay is checked before any
   test reads it, and the two-year rerun that writes a settled climate's forcing and the mixing tests wait for the
   author's word.
+- The boxes that test the couplings are forced by Terluna's present design climate, the corrected run on the turned
+  geography (`A28R_301k_design_l15_snow_s938_turned_refit_precession`, read in place as test input, its forty settled
+  years 10–49), at the sites carried with the ground when the Moon turned (18 November 2026). The test asks whether the
+  couplings agree with themselves under a given forcing, so the lab's own design run, which block 3 makes, is left for
+  the cases that study the Moon's climate; Terluna's planned run on the atlas round's final surface may take the
+  place of the present one once it exists.
+- CM1's simple boundary layer divides its tendencies by the air's density by default in the lab's CM1 cases
+  (`physics.pbl_per_mass`, patch 01 of the lab's series), since the registry's A9 requires the fix wherever that
+  scheme runs; it departs from the rule that fixes enter opt-in for that reason (18 November 2026).
 
 ## Each fix: general or the Moon's
 
