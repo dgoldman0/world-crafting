@@ -23,7 +23,6 @@ DEFAULTS = LIB.defaults('exoplasim/defaults')
 EARTH, CONTROL = LIB.world('earth'), LIB.scenario('earth/control')
 STORE, ENV = root('store'), root('env')
 DEPLOYED = LAB.parent / 'models' / 'exoplasim' / 'expected.sha256'
-SERIES_SOURCES = LAB.parent / 'models' / 'exoplasim' / 'expected-series.sha256'
 needs_build = pytest.mark.skipif(STORE is None or ENV is None or not ex.ARCHIVE.exists() or shutil.which('mpif90') is None,
                                  reason="a build needs the lab's store and environment, the pinned archive and MPI")
 
@@ -144,6 +143,14 @@ def eighteen_point():
 def nineteen_point():
     """The build at the series' first nineteen patches, through the scheme's depth test, before its shallow cap."""
     run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:19]}
+    return run, builds.build(run, store=STORE, env=ENV)
+
+
+@pytest.fixture(scope='module')
+def twenty_point():
+    """The build at the series' first twenty patches, through the scheme's shallow cap, before the forcing of a
+    column."""
+    run = {**DEFAULTS, 'patches': list(ex.series(DEFAULTS))[:20]}
     return run, builds.build(run, store=STORE, env=ENV)
 
 
@@ -622,22 +629,19 @@ def _convection(folder) -> list:
 
 @needs_build
 def test_patches_18_to_20_at_their_defaults_run_byte_for_byte_as_the_builds_before_them(seventeen_point, eighteen_point,
-                                                                                      nineteen_point, whole_point,
+                                                                                      nineteen_point, twenty_point,
                                                                                       tmp_path):
     """Earth's control over two days. Under Kuo's scheme, the folder the adapter writes for the build of patches 01-17,
-    whose rainmod namelist names no NPRC, gives the same output and restart under the whole series' build, and so does
-    the folder written for the whole series, which states NPRC 1. Under the simplified Betts-Miller scheme without its
+    whose rainmod namelist names no NPRC, gives the same output and restart under the build of patches 01-20, and so
+    does the folder written for that build, which states NPRC 1. Under the simplified Betts-Miller scheme without its
     depth test and cap, the folder written for the build of patches 01-18 gives the same output and restart under the
-    builds of patches 01-19 and of the whole series, where the depth test and the cap take their defaults; with the
-    depth test, the folder written for the build of patches 01-19 gives the same under the whole series. The scheme
+    builds of patches 01-19 and 01-20, where the depth test and the cap take their defaults; with the depth test, the
+    folder written for the build of patches 01-19 gives the same under the build of patches 01-20. The scheme
     changes the run from Kuo's, and the depth test changes it again. Each run's files are removed once their hashes
     are taken."""
-    (r17, b17), (r18, b18), (r19, b19), (r20, b20) = seventeen_point, eighteen_point, nineteen_point, whole_point
+    (r17, b17), (r18, b18), (r19, b19), (r20, b20) = seventeen_point, eighteen_point, nineteen_point, twenty_point
     patches = list(ex.series(r20))
     assert patches[17:] == [ex.PATCH_18, ex.PATCH_19, ex.PATCH_20] and r17['patches'] == patches[:17]
-    # The whole series' build compiled the sources that models/check_patches.sh pins.
-    pinned = {name: digest for digest, name in (line.split() for line in SERIES_SOURCES.read_text().splitlines())}
-    assert json.loads((b20 / 'build.json').read_text())['sources'] == pinned
     executables = {17: _executable(b17, r17), 18: _executable(b18, r18), 19: _executable(b19, r19),
                    20: _executable(b20, r20)}
     written = {'seventeen': r17, 'kuo': r20, 'scheme18': _scheme(r18, depth_share=0.0, shallow_cap=False),

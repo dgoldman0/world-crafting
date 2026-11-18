@@ -150,7 +150,16 @@ each with an identity default equal to the released model:
   Earth control's test (`models/exoplasim/README.md`). Patch 14, of the same day, evaporates the rain from its drops'
   sizes and fall speeds, which Terluna's design runs take in place of the constant; the lab sets it through
   `rain_evaporation`, off by default until that test, with the fall law computed from the scenario's air and the
-  rain's births a calibration that stage 5 fits (registry B30, `exoplasim-rain-births`).
+  rain's births a calibration that stage 5 fits (registry B30, `exoplasim-rain-births`). Since 18 November 2026 a
+  column of PlaSim's own physics tests these settings outside the GCM (path 4 of the gap's review): patch 21 writes
+  the GCM's dynamics as the storage of the state its physics sees less its physics, and
+  `python/climate/gcm/plasim_column.py` compiles the physics from the series for a row of the GCM's grid and steps it
+  under them. Given the GCM's state each step it gives the GCM's physics bit for bit; forced by the GCM's windows it
+  held the Open Moon's frozen first lunar day within the check's rules and left Earth's warm pool after 6–11 days of a
+  test month, so the
+  mixing lengths, the wind floor and the nonlocal scheme wait for a replay of a settled warm climate, short or with
+  its free troposphere held to the GCM's, at the author's word (`models/exoplasim/README.md`, "The forcing of a
+  column and the column of PlaSim's physics"; `lab/validation/column_replay.json`).
 
 The disagreement Terluna finds is largest over its open sea, which covers the whole of each stage 12 anchor, so the
 anchors take the settings that the Open Moon's comparison with CM1 supports.

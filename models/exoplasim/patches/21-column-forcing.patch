@@ -1,0 +1,282 @@
+--- a/plasim/src/plasimmod.f90
++++ b/plasim/src/plasimmod.f90
+@@ -529,6 +529,23 @@
+       real :: dv10(NHOR)  = 0.
+       real :: au10(NHOR)  = 0. ! Lab: its sum since the last output
+       real :: av10(NHOR)  = 0.
++      integer :: ncolforce = 0 ! Lab: 1 writes the forcing of a column at each output, codes 241-250 (plasim_nl)
++      integer :: ncoldump  = 0 ! Lab: the steps from a run's start whose physics inputs and outputs go to plasim_column
++      integer :: ncfacc    = -1 ! Lab: the steps whose physics cfst-cfsv hold; -1 before the first window starts
++      real :: cft0(NHOR,NLEV) = 0. ! Lab: the state the physics sees at the window's first step, temperature (K),
++      real :: cfq0(NHOR,NLEV) = 0. !      specific humidity (kg/kg), winds (m/s) and the surface pressure's log
++      real :: cfu0(NHOR,NLEV) = 0.
++      real :: cfv0(NHOR,NLEV) = 0.
++      real :: cfp0(NHOR)      = 0.
++      real :: cfst(NHOR,NLEV) = 0. ! Lab: the physics' tendencies summed over the window's steps
++      real :: cfsq(NHOR,NLEV) = 0.
++      real :: cfsu(NHOR,NLEV) = 0.
++      real :: cfsv(NHOR,NLEV) = 0.
++      real :: cfdt(NHOR,NLEV) = 0. ! Lab: the dynamics' tendencies over the window that ends at an output
++      real :: cfdq(NHOR,NLEV) = 0.
++      real :: cfdu(NHOR,NLEV) = 0.
++      real :: cfdv(NHOR,NLEV) = 0.
++      real :: cfdp(NHOR)      = 0.
+       real :: atsama(NHOR)= 0. ! maximum surface air temperature
+       real :: atsami(NHOR)= 0. ! minimum surface air temperature
+       real :: ats0(NHOR)  = 0. ! accumulated surface temperature
+--- a/plasim/src/plasim.f90
++++ b/plasim/src/plasim.f90
+@@ -232,6 +232,8 @@
+       call mpbci(nqspec  ) ! 1: spectral q 0: grodpoint q
+       call mpbci(nsela   ) ! 1: semi lagrangian advection enabled
+       call mpbci(l_aero  ) ! 1: aerosols enabled
++      call mpbci(ncolforce) ! Lab: 1 writes the forcing of a column
++      call mpbci(ncoldump ) ! Lab: the steps whose physics go to plasim_column
+ 
+       call mpbci(nstep   ) ! current timestep
+       call mpbci(mstep   ) ! current timestep in month
+@@ -1231,7 +1233,7 @@
+                    , psurf   , ptop    , ptop2   , taucool              &
+                    , restim  , t0      , tfrc    , nstratosponge        &
+                    , sigh    , nenergy , nener3d , nsponge , dampsp     &
+-                   , l_aero
++                   , l_aero  , ncolforce, ncoldump
+ !
+ !     preset namelist parameter according to model set up
+ !
+@@ -3240,6 +3242,14 @@
+       endif
+ 
+ !
++!     Lab: the forcing of a column (ncolforce = 1), from the state the physics sees, and that state written
++!     to plasim_column over the run's first ncoldump steps
++!
++
++      if (ncolforce == 1 .and. nkits == 0) call colwindow
++      if (ncoldump > 0 .and. nkits == 0 .and. nhcstp <= ncoldump) call coldump(1)
++
++!
+ !     PARAMETERIZATION ROUTINES TO BE INCLUDED BELOW
+ !
+ !     a) miscellaneous parameterizations (like q-fixer)
+@@ -3409,6 +3419,13 @@
+       enddo
+ 
+ !
++!     Lab: the physics' tendencies added to the window's sums, and with the inputs written above their outputs
++!
++
++      if (ncolforce == 1 .and. nkits == 0) call colsum
++      if (ncoldump > 0 .and. nkits == 0 .and. nhcstp <= ncoldump) call coldump(2)
++
++!
+ !     transform to spectral space
+ !
+ 
+@@ -3437,6 +3454,153 @@
+       return
+       end
+ 
++!     ====================
++!     SUBROUTINE COLWINDOW
++!     ====================
++
++!     Lab: the forcing of a column (ncolforce = 1). A window runs from one output step to the step before the
++!     next, and from a run's first step to the step before its first output. At the step that ends a window
++!     the dynamics' tendencies over it are the storage of the state the physics sees, from the window's first
++!     step to this step, less the mean of the physics' tendencies over the window's steps, at each grid point;
++!     outgp writes them with this step's state, which starts the next window. A window of no steps, the first
++!     with output at every step, gives tendencies of 0
++
++      subroutine colwindow
++      use pumamod
++      real :: zr                    ! 1 / the window's length (1/s)
++      logical :: lout               ! an output falls at this step
++
++      lout = mod(nhcstp,nafter) == 0
++      if (ncfacc >= 0 .and. .not. lout) return
++      if (ncfacc > 0) then
++       zr = 1.0 / (real(ncfacc) * deltsec)
++       cfdt(:,:) = (dt(:,1:NLEV) - cft0(:,:)) * zr - cfst(:,:) / real(ncfacc)
++       cfdq(:,:) = (dq(:,1:NLEV) - cfq0(:,:)) * zr - cfsq(:,:) / real(ncfacc)
++       cfdu(:,:) = (du(:,1:NLEV) - cfu0(:,:)) * zr - cfsu(:,:) / real(ncfacc)
++       cfdv(:,:) = (dv(:,1:NLEV) - cfv0(:,:)) * zr - cfsv(:,:) / real(ncfacc)
++       cfdp(:)   = (log(dp(:)) - cfp0(:)) * zr
++      elseif (lout) then
++       cfdt(:,:) = 0.0
++       cfdq(:,:) = 0.0
++       cfdu(:,:) = 0.0
++       cfdv(:,:) = 0.0
++       cfdp(:)   = 0.0
++      endif
++      cft0(:,:) = dt(:,1:NLEV)
++      cfq0(:,:) = dq(:,1:NLEV)
++      cfu0(:,:) = du(:,1:NLEV)
++      cfv0(:,:) = dv(:,1:NLEV)
++      cfp0(:)   = log(dp(:))
++      cfst(:,:) = 0.0
++      cfsq(:,:) = 0.0
++      cfsu(:,:) = 0.0
++      cfsv(:,:) = 0.0
++      ncfacc = 0
++      return
++      end subroutine colwindow
++
++!     =================
++!     SUBROUTINE COLSUM
++!     =================
++
++!     Lab: the physics' tendencies of this step added to the window's sums, as gridpointd hands them to the
++!     spectral step: temperature and winds from dtdt, dudt and dvdt, and the vapour from gqdt, which holds the
++!     humidity fixer's part beside dqdt
++
++      subroutine colsum
++      use pumamod
++      cfst(:,:) = cfst(:,:) + dtdt(:,1:NLEV)
++      cfsu(:,:) = cfsu(:,:) + dudt(:,1:NLEV)
++      cfsv(:,:) = cfsv(:,:) + dvdt(:,1:NLEV)
++      do jlev = 1 , NLEV
++       cfsq(:,jlev) = cfsq(:,jlev) + gqdt(:,jlev) * ww * psurf / dp(:)
++      enddo
++      ncfacc = ncfacc + 1
++      return
++      end subroutine colsum
++
++!     ==================
++!     SUBROUTINE COLDUMP
++!     ==================
++
++!     Lab: the physics' inputs (kpart 1) and outputs (kpart 2) at every grid point, in double precision, appended
++!     to plasim_column on unit 48 for the run's first ncoldump steps. Each part is one record of its header,
++!     the step, the part, the grid points, the levels and the record's count of values, followed by one record of
++!     the values. Part 1 holds the state the physics sees: temperature and specific humidity with the surface's
++!     in their last level, the winds and the surface pressure (Pa), then psurf. Part 2 holds the physics'
++!     tendencies of temperature, vapour and the winds (dtdt, dqdt, dudt, dvdt), the dynamics' vapour tendency
++!     that Kuo's scheme read (dqt), the vapour tendency in gqdt's units, the temperature and humidity after the
++!     physics, again with the surface's, the convective, large-scale and snow precipitation, the evaporation,
++!     the sensible and latent heat fluxes, the net solar and thermal radiation at the ground and the cloud cover
++
++      subroutine coldump(kpart)
++      use pumamod
++      integer :: kpart
++      integer :: ihead(6)
++      real, allocatable :: zf(:,:), zall(:)
++      integer :: icount, ioff
++      logical, save :: lopen = .false.
++
++      if (kpart == 1) then
++       icount = 2 * NUGP * NLEP + 2 * NUGP * NLEV + NUGP + 1
++      else
++       icount = 6 * NUGP * NLEV + 2 * NUGP * NLEP + 8 * NUGP + NUGP * NLEV
++      endif
++      allocate(zall(icount))
++      allocate(zf(NUGP,NLEP))
++      ioff = 0
++      if (kpart == 1) then
++       call colput(dt,NLEP)
++       call colput(dq,NLEP)
++       call colput(du,NLEV)
++       call colput(dv,NLEV)
++       call colput(dp,1)
++       zall(ioff+1) = psurf
++       ioff = ioff + 1
++      else
++       call colput(dtdt,NLEV)
++       call colput(dqdt,NLEV)
++       call colput(dudt,NLEV)
++       call colput(dvdt,NLEV)
++       call colput(dqt,NLEV)
++       call colput(gqdt,NLEV)
++       call colput(dt,NLEP)
++       call colput(dq,NLEP)
++       call colput(dprc,1)
++       call colput(dprl,1)
++       call colput(dprs,1)
++       call colput(devap,1)
++       call colput(dshfl,1)
++       call colput(dlhfl,1)
++       call colput(dswfl(:,NLEP),1)
++       call colput(dlwfl(:,NLEP),1)
++       call colput(dcc,NLEV)
++      endif
++      if (mypid == NROOT) then
++       if (.not. lopen) then
++        open(48,file='plasim_column',form='unformatted')
++        lopen = .true.
++       endif
++       ihead(:) = (/ nstep, kpart, NUGP, NLEV, icount, 0 /)
++       write(48) ihead
++       write(48) zall(1:ioff)
++       flush(48)
++      endif
++      deallocate(zf,zall)
++      return
++
++      contains
++
++      subroutine colput(pf,klev)
++      integer :: klev
++      real :: pf(NHOR,klev)
++      call mpgagp(zf,pf,klev)
++      if (mypid == NROOT) zall(ioff+1:ioff+NUGP*klev) = reshape(zf(:,1:klev),(/NUGP*klev/))
++      ioff = ioff + NUGP * klev
++      end subroutine colput
++
++      end subroutine coldump
++
+ !     ==================
+ !     SUBROUTINE PRDBUG1
+ !     ==================
+--- a/plasim/src/outmod.f90
++++ b/plasim/src/outmod.f90
+@@ -412,6 +412,7 @@
+       use carbonmod
+       use radmod
+       use glaciermod
++      real :: zcfps(NHOR)          ! Lab: the surface pressure (Pa) of a column's forcing
+ 
+       if (nlowio .eq. 0) then
+ !       *********************
+@@ -1070,6 +1071,42 @@
+          agpi(:) = agpi(:) / real(naccuout)
+          call writegp(40,agpi,329,0)
+        endif
++
++!     ************************************************************
++!     * Lab: the forcing of a column (ncolforce = 1): the        *
++!     * dynamics' tendencies over the window that ends at this   *
++!     * step, and the state the physics sees at this step        *
++!     ************************************************************
++
++      if (ncolforce == 1) then
++       do jlev = 1 , NLEV
++          call writegp(40,cfdt(1,jlev),241,jlev)
++       enddo
++       do jlev = 1 , NLEV
++          call writegp(40,cfdq(1,jlev),242,jlev)
++       enddo
++       do jlev = 1 , NLEV
++          call writegp(40,cfdu(1,jlev),243,jlev)
++       enddo
++       do jlev = 1 , NLEV
++          call writegp(40,cfdv(1,jlev),244,jlev)
++       enddo
++       call writegp(40,cfdp,245,0)
++       do jlev = 1 , NLEV
++          call writegp(40,cft0(1,jlev),246,jlev)
++       enddo
++       do jlev = 1 , NLEV
++          call writegp(40,cfq0(1,jlev),247,jlev)
++       enddo
++       do jlev = 1 , NLEV
++          call writegp(40,cfu0(1,jlev),248,jlev)
++       enddo
++       do jlev = 1 , NLEV
++          call writegp(40,cfv0(1,jlev),249,jlev)
++       enddo
++       zcfps(:) = exp(cfp0(:))
++       call writegp(40,zcfps,250,0)
++      endif
+             
+       return
+       end

@@ -1,12 +1,13 @@
 # ExoPlaSim 3.4.2 for a breathable Moon
 
-Twenty patches to PlaSim's radiation, cloud, surface-transfer, rain, convection and output code inside ExoPlaSim
-3.4.2, the settings that carry the Moon's orbit and calendar, the level set generated for a world, which takes no
-patch, and the design case's namelists and input tables. The first
+Twenty-one patches to PlaSim's radiation, cloud, surface-transfer, rain, convection, output and time-stepping code
+inside ExoPlaSim 3.4.2, the settings that carry the Moon's orbit and calendar, the level set generated for a world,
+which takes no patch, the design case's namelists and input tables, and a column of PlaSim's own physics that the
+twenty-first patch's forcing drives. The first
 ten patches are Terluna's and the eleventh the world-crafting lab's; the lab wrote the twelfth to the twentieth
-from Terluna's later code. Each patch adds a namelist switch, patch 14 a third value of PlaSim's own
-`NEVAPPREC` and patch 18 a second value of its own `NPRC`, whose defaults reproduce ExoPlaSim as released, and each
-of patches 11 to 20 at its default reproduces the build of the patches before it. Correctness, limits and room for improvement are in
+from Terluna's later code, and the twenty-first is its own. Each patch adds a namelist switch, patch 14 a third value
+of PlaSim's own `NEVAPPREC` and patch 18 a second value of its own `NPRC`, whose defaults reproduce ExoPlaSim as
+released, and each of patches 11 to 21 at its default reproduces the build of the patches before it. Correctness, limits and room for improvement are in
 [../../notes/exoplasim.md](../../notes/exoplasim.md).
 
 ## Upstream pin
@@ -16,7 +17,7 @@ of patches 11 to 20 at its default reproduces the build of the patches before it
 | Source | ExoPlaSim 3.4.2, source distribution from PyPI (`pip download exoplasim==3.4.2 --no-binary :all:`) |
 | sha256 of `exoplasim-3.4.2.tar.gz` | `fae502a92f5997ffd18b0bb85b9f0f0677857c62c5d1293f605c9799026f64c2` |
 | Licence | GNU GPL version 3 (`LICENSE.TXT` in the distribution); these patches are distributed under the same licence |
-| Patched files | `exoplasim/plasim/src/radmod.f90`, `rainmod.f90`, `fluxmod.f90`, `plasimmod.f90` and `outmod.f90` |
+| Patched files | `exoplasim/plasim/src/radmod.f90`, `rainmod.f90`, `fluxmod.f90`, `plasimmod.f90`, `outmod.f90` and `plasim.f90` |
 
 ## Applying the series
 
@@ -34,10 +35,11 @@ rm -f plasim/run/most_plasim_*.x      # ExoPlaSim recompiles PlaSim at the next 
 Terluna applied patches 01–06 to its shared installation and 07–10 to a separate copy that every run
 imports first since 2026-10-14, so earlier runs kept their source. Applied in order to a pristine
 3.4.2, patches 01–10 give `radmod.f90` sha256 `a49791572fa8f5b2…` and `rainmod.f90` `44c0668de3e8f7db…`,
-the copy deployed on 2026-10-17 byte for byte (`expected.sha256`); patches 11 to 20 follow them, and the
+the copy deployed on 2026-10-17 byte for byte (`expected.sha256`); patches 11 to 21 follow them, and the
 whole series gives `radmod.f90` `3a90be4f7e3a4132…`, as patch 16 leaves it, `rainmod.f90` `f8462e2938c40275…`, as
-patch 20 leaves it, and `fluxmod.f90` `8534f22f7d10a423…`, `plasimmod.f90` `811f37ee4d72cbfd…` and `outmod.f90`
-`14a440b6dcf11b38…`, as patch 17 leaves them (`expected-series.sha256`). The lab compiles each point of the series as
+patch 20 leaves it, `fluxmod.f90` `8534f22f7d10a423…`, as patch 17 leaves it, and `plasimmod.f90`
+`cc3e02181afca5bc…`, `outmod.f90` `fb3881f805444df4…` and `plasim.f90` `3f2dff7f5cca3287…`, as patch 21 leaves
+them (`expected-series.sha256`). The lab compiles each point of the series as
 a build of its own (`lab/worldlab/builds.py`).
 
 ## The patches
@@ -64,6 +66,7 @@ a build of its own (`lab/worldlab/builds.py`).
 | 18 | `betts-miller-convection` | `NPRC` 2, a second value of PlaSim's switch; `TAU_BM`, `RH_BM`, `EPS_BM`, `CIN_BM` (rainmod) | 1, Kuo's; 7,200 s, 0.7, 0, 0 J/kg | 2: Frierson's simplified Betts–Miller scheme in place of Kuo's: where a parcel lifted from the lowest level is buoyant, temperature and vapour relax over `TAU_BM` toward the parcel's temperature and `RH_BM` of its saturation, the rain is the vapour the column loses and one heating through the layers keeps the moist enthalpy; a column too dry to rain or held back by `CIN_BM` takes PlaSim's shallow scheme | Capability: a second deep convection, whose relaxation time and humidity are Earth's values (defect log B39, B42); written by the lab from Terluna's code |
 | 19 | `betts-miller-depth-test` | `DSIGDEEP_BM`, `NSUB_BM` (rainmod) | 0, 1 | The cloud-depth test: deep convection only where the parcel's cloud, from the condensation level to the top, spans more than the share `DSIGDEEP_BM` of the column's surface pressure; and the parcel's mixing taken in `NSUB_BM` steps within each layer | Capability, its depth a share of the surface pressure where Terluna's is 200 hPa; written by the lab from Terluna's code |
 | 20 | `betts-miller-shallow-cap` | `NSHCAP_BM` (rainmod) | 0 | 1, with the depth test: a column the scheme hands to the shallow scheme takes a top within the depth test's share above its condensation level, which `mkshallow` keeps in place of PlaSim's 700 hPa | General repair of an Earth value (B34) for the Betts–Miller scheme; written by the lab from Terluna's code |
+| 21 | `column-forcing` | `NCOLFORCE`, `NCOLDUMP` (plasim) | 0, 0 | `NCOLFORCE` 1: at each output, the dynamics' tendencies of temperature, vapour, the winds and the surface pressure's log over the window since the last output, the storage of the state the physics sees less the physics' tendencies, with that state (codes 241–250); `NCOLDUMP` n: the physics' inputs and outputs at every grid point over a run's first n steps, to `plasim_column` | Diagnostic: the model's state stays as it was; the lab's own, the forcing of a column of PlaSim's physics (`python/climate/gcm/plasim_column.py`) |
 
 ## The surface gust and the similarity over water (patches 12 and 13)
 
@@ -812,6 +815,218 @@ unread. The scheme stores nothing from one step to the next, so the restart file
 - the CAPE trigger, the night switch and the closures left in Terluna;
 - in the lab's writer, one setting of two values and a table of the seven settings at the design scheme's values,
   the relaxation time Frierson's 7,200 s by default, with the world's value by similarity as a stated option.
+
+## The forcing of a column and the column of PlaSim's physics (patch 21)
+
+In the lab's offline readings of the gap between the GCM and CM1's boxes, the GCM's share of it lies in the state of
+its boundary layer: in every GCM run read, the lowest level's equivalent potential temperature stands 4–7 K above the
+mean over σ 1.0–0.85 where CM1's layer is well mixed, and PlaSim's vertical diffusion, with Earth's mixing lengths and
+its 1 m/s least wind shear (defect log B32), is the leading suspect (`lab/design/gap_series.md`, section 3). A test of
+a mixing scheme in the whole GCM costs a two-year run, and every feedback of the climate enters its answer. A column
+that runs the GCM's own physics under the GCM's own dynamics tests a scheme in seconds, under the forcing CM1's boxes
+receive. Patch 21 writes that dynamics from the GCM, and `python/climate/gcm/plasim_column.py` compiles PlaSim's
+physics from the lab's series for one row of the GCM's grid and steps it under that forcing. Terluna's single columns
+(`climate/gcm/pbl_column.py` and its modules on `domain/climate`) were Python copies of parts of PlaSim forced by
+CM1's boxes, and they convected unlike the GCM (the paper's claim N05); this column runs PlaSim's own Fortran, and its
+replay of the GCM is checked before anything is read from it.
+
+**What patch 21 writes.** Two entries of `plasim_nl`, both 0 by default, at which the patch leaves the build before it
+byte for byte. With `NCOLFORCE` 1, `gridpointd` keeps at every grid point the state its physics sees at the first step
+of a window, the temperature, specific humidity, winds and the log of the surface pressure after the adiabatic step,
+and sums the physics' tendencies over the window's steps as `gridpointd` hands them to the spectral step: `dtdt`,
+`dudt`, `dvdt`, and for the vapour `gqdt` brought back to kg/kg/s, which holds the humidity fixer's part beside
+`dqdt`. A window runs from one output step to the step before the next, the first from the run's first step; the
+initial short steps of a cold start stand outside every window. At the step that ends a window, the dynamics'
+tendencies over it are the storage of that state, from the window's first step to this one, less the mean of the
+physics' tendencies over the window's steps, formed in double precision; `outgp` writes them with this step's state,
+after every other record of the output:
+
+| Code | Field | Units |
+|---|---|---|
+| 241–244 | The dynamics' tendencies of temperature, specific humidity and the eastward and northward wind, by level | K/s, kg/kg/s, m/s² |
+| 245 | The dynamics' tendency of the log of the surface pressure | 1/s |
+| 246–249 | The temperature, specific humidity and winds the physics sees at the output's step, by level | K, kg/kg, m/s |
+| 250 | The surface pressure the physics sees at that step | Pa |
+
+The standard means of the output run over the steps after one output through the next, so the forcing's windows
+stand one step earlier than those means. With `NCOLDUMP` n, the physics' inputs and outputs at every grid point over a
+run's first n steps go to `plasim_column` in double precision: the state the physics sees with the surface's
+temperature and humidity, the winds, the surface pressure and `psurf`, then the physics' tendencies, the dynamics'
+vapour tendency Kuo's scheme read (`dqt`), the vapour tendency in `gqdt`'s units, the temperature and humidity after
+the physics, the rain, snow, evaporation and heat fluxes, the radiation at the ground and the cloud cover. The lab's
+writer sets the two through `switches.column_forcing` and `switches.column_dump_steps`, off and 0 by default, writes
+them where the run's series holds patch 21, and refuses either on a series without it.
+
+**Why the dynamics' tendencies.** The alternative, the physics' summed tendencies, leaves the storage to be formed from
+the output, which holds means of the temperature and winds over each interval and the humidity held from an
+interval's start (defect log A10); differences of means mix each interval's physics with its neighbours'. Formed in
+the model, the dynamics' tendencies take the storage between the exact states at a window's two ends, and their
+single-precision record carries their own rounding alone. With the state written beside them, a column starts at
+any output, and the replay finds the GCM's own record at each grid point. Each output gains (8L + 2) fields of 2,048
+values in single precision on L levels: 0.68 MB at T21 on ten levels and 1.0 MB on fifteen. Over a month of Earth's
+control with an output every 3 hours the raw output held 379 MB, against 27 MB with the lab's 3-day means.
+
+**The column.** `plasim_column.build` extracts PlaSim's sources from the pinned archive, applies the run's series and
+compiles them with PlaSim's own makefile and the flags ExoPlaSim's `configure` wrote for the machine, in double
+precision, for one latitude a process: `NPRO_ATM` equal to `NLAT_ATM`, so that `NHOR` is one row of the GCM's grid.
+The makefile's `MPIMOD` takes the column's message-passing layer, `plasim_column_mpi.f90`, in place of PlaSim's
+single-process stub: its one process stands for the process of that decomposition that holds the row, so that each
+scatter hands it the row's share of a global field and each gather places its share among zeros. objcopy weakens four
+of PlaSim's routines in their objects and the column's driver, `plasim_column.f90`, takes their place: `master`, the
+time loop; `mkdqtgp`, which brings the dynamics' vapour tendency for Kuo's scheme from spectral space; `makeareas`,
+whose single-process form reads latitudes a process of one row lacks, and which the driver gives the whole grid's
+Gaussian latitudes from `inigau` under `utilities.f90`'s formula; and `oroini`, which gathers the whole grid to route
+the rivers. PlaSim's `plasim_main` and `prolog` start the column as they start the GCM, reading the GCM run's own
+namelists, surface files and restart, and the driver ends the program at the end of its loop, before `epilog`. The
+build lands in the store's `builds/` as `plasim-column-<key>`, read-only, its key over the archive, the patches, the
+compile files, the column's two Fortran files, the grid and the toolchain, written as `lab/worldlab/builds.py` writes
+its builds. It takes about 40 s.
+
+The driver steps every grid point of the row through the physics in `gridpointd`'s order: `miscstep` (the humidity
+fixer), `fluxstep`, `radstep` where `NRAD` is on, `rainstep`, `surfstep`, `carbonstep` and `hurricanestep`, from
+tendencies set to zero as `gridpointd` sets them, and advances the clock as `master` does. In mode 2 each step's
+state is the GCM's own at that step from `plasim_column`, with the `dqt` Kuo's scheme read there. In mode 1 the column
+starts from the GCM's state at its first step and steps on under the windows of patch 21: the state the physics sees
+steps forward by the step times the window's dynamics' tendencies and the column's own physics' tendencies, so that
+over each window the column's storage equals the GCM's wherever its physics equals the GCM's, and Kuo's scheme reads
+the window's vapour tendency plus the vapour times the window's tendency of the surface pressure's log, the form
+`mkdqtgp` gives. A second scheme,
+PlaSim's leapfrog with Robert and Asselin's filter, the window's tendencies in place of the adiabatic step, stays as an
+option (`scheme='leapfrog'`). Every step writes the state the physics saw and what it made of it, at the row's grid
+points a caller names, in `plasim_column`'s layout. `plasim_column.windows` reads a run's forcing at a row from its
+raw output, `start` its first state from the dump, `prepare` writes the column's folder, with entries of the GCM's
+namelists changed where a test asks, `run` runs it under `nice`, and `site_point` finds a site's grid point by the
+site machinery of `climate/crm/gcm_site.py`. A lunar day of 1,429 steps took the column 6–12 s on one thread over a
+row of 64 points on fifteen levels, and a month of Earth's control 1.5–3 s on ten.
+
+**What the physics reads, and where the column takes it.**
+
+| Input | In the column |
+|---|---|
+| Latitude: the sines, weights and cosines of the Gaussian latitudes (`sid`, `gwd`, `csq`, `rcs`, `cola`, `deglat`, `rcsq`) | The row's, as `prolog` scatters them from `inigau`'s global arrays to the process that holds the row, bit for bit; the ice and ocean modules' own copies by the same scatter |
+| Longitude, through the Sun's hour angle in `solang` (`jlon`·2π/`NLON`) | Each grid point of the row at its own longitude |
+| The time: the step, the calendar, the orbit, the Sun's clock of patch 04 | The restart's step, advanced as `master` advances it |
+| The land mask, orography, roughness, albedo, soil and the climatologies of the surface files (`N032_surf_*.sra`) | The GCM run's own files, read whole by `get_surf_array` and the row's share kept |
+| The prognostic state of the land, soil, snow, sea ice and slab sea, the cloud and the accumulated fields (`plasim_restart`) | The GCM's own restart, read whole, the row's share kept; the modules carry them on step by step |
+| The sea's temperature | Carried by the slab sea (`seamod`, `icemod`, `oceanmod`) under the column's own surface fluxes, from the restart's value; never prescribed from the GCM |
+| The air's temperature, vapour, winds and surface pressure | The GCM's at the first step (mode 1) or at each step (mode 2), from `plasim_column`; `psurf` the GCM's |
+| The dynamics' tendencies, and `dqt` for Kuo's scheme | Patch 21's windows (mode 1), or the GCM's `dqt` (mode 2) |
+| The world's values: gravity, gas constant, levels, step, rotation, orbit | The GCM run's own namelists, read by `prolog` |
+| Patches 07–20: `twilight.dat`, `lwcorr.dat`, `lab_rain_law.txt`, the star's files and every switch | The GCM run's own files and namelist entries |
+| Work PlaSim does across processes: the humidity fixer's last, global step; the rivers' routing; the carbon cycle's global means; the check of sea ice given in percent | The row alone. The fixer's global step acts only where a whole latitude lacks the vapour to fill its negative humidity; the rivers keep the speeds the restart holds, exchange no water with other rows and return nothing to the air or the sea |
+| Stochastic large-scale rain (`NSTORAIN`), whose random numbers PlaSim draws for each process; semi-Lagrangian humidity, aerosols, the stratosphere's cooling, glaciers, initial short steps | The column stops on each |
+
+**Verification.** By evidence state; none of these validates a climate.
+
+- **The patch applies.** `models/check_patches.sh` takes `plasim.f90` out of the archive with the five files before
+  it, applies the series of twenty-one and finds the sources of `expected-series.sha256`.
+- **Identity at the defaults, and diagnostics with the switches on.** On Earth's control over 96 steps on two
+  processes, the folder written for the build of patches 01–20 gives the same output and restart under the whole
+  series' build, and so does the folder that states both entries 0. With `NCOLFORCE` 1 the restart stays byte for
+  byte and the output holds every record of the run without it, in order, with codes 241–250 after the last record
+  of each output at its time; with `NCOLDUMP` 3 the restart and output stay byte for byte and `plasim_column` holds
+  the run's first three steps (`lab/tests/test_plasim_column.py`). The patch declares, reads and broadcasts each
+  entry once, calls its three routines behind its switches and writes codes PlaSim writes nowhere else
+  (`python/climate/tests/test_plasim_column.py`).
+- **The forcing is the storage less the physics.** On Earth's control with an output every 12 steps and every step
+  dumped, each output's state equals the dump's at that step in single precision, and each window's dynamics'
+  tendencies equal the dump's storage less its physics' mean within 2 × 10⁻⁶ of their scale; the vapour's physics
+  comes back from `gqdt` by PlaSim's scale `ww`, which the dump's columns untouched by the fixer give as 2π over
+  `readnl`'s sidereal day.
+- **Step for step, bit for bit (the replay check's part a).** On Earth's control under Kuo's scheme, a day from a cold
+  start and three steps from its restart, the column given each step's state gives every field of the GCM's physics
+  bit for bit at every grid point of rows 1, 9, 16, 17 and 32: the tendencies, the humidity after the fixer, the
+  surface's temperature and humidity as the modules carry them, the rain, snow, evaporation and heat fluxes, the
+  radiation at the ground and the cloud. On the Open Moon over its own surface with every switch of the series on,
+  the curved air's terms with Terluna's calibrations, the gust with the similarity, the rain's drops, the simplified
+  Betts–Miller scheme with its depth test and cap, it does the same at rows 1, 17 (the Near-side Sea's), 24 and 32.
+  With Kuo's dynamics' vapour tendency set to zero the comparison sees the column leave the GCM. In scratch runs of
+  18 November 2026 the same held on Earth's control at rows 1, 10, 16 and 32 over four steps and on the Open Moon's
+  fifteen levels under the design scheme at rows 1, 17, 18 and 32.
+- **With windows of one step the column retraces the GCM.** On Earth's control under the design scheme with an output
+  at every step, the forward column started from the GCM's state keeps every grid point of its row within 10⁻⁵ K and
+  10⁻⁸ kg/kg of the GCM over eleven steps (`lab/tests/test_plasim_column.py`); over 47 steps from the end of a
+  month's test run it stayed within 1.4 × 10⁻⁷ K and 2.4 × 10⁻¹⁰ kg/kg, its convective rain the GCM's (a scratch run).
+  On PlaSim's leapfrog the same column leaves the GCM by 1.9 K within one step, since the leapfrog applies each
+  window's tendency to states two steps apart.
+
+**The replay check's part b, a lunar day and a month.** The rules were fixed before each run, at 11:56 and 12:02 EST
+on 18 November 2026, and stand whole in `lab/validation/column_replay.json` with the results. Quarters of the day
+follow the point's hour angle from the subsolar longitude of each output's mean solar height; the quantities are the
+rain at the ground, and from the state the physics sees at each output the lowest level's temperature, vapour and θe,
+θe_B over σ 1.0–0.85, the lowest level's excess over θe_B and the vapour's fall to the level nearest σ 0.85, by the
+gap readings' definitions. Each quarter's mean at the site's grid point holds within its tolerance: the rain within
+the larger of 25% and 0.5 mm/day, the lowest level within 1.0 K, 1.0 g/kg and 2.0 K of θe, θe_B within 1.5 K, the
+excess within 1.0 K and the vapour's fall within 1.0 g/kg. Both checks ran on test runs from cold starts, on two
+processes, under the simplified Betts–Miller scheme with the gust and the similarity:
+
+| Check | GCM test runs | Site and grid point | Windows | Verdict | Largest quarter differences |
+|---|---|---|---|---|---|
+| The Open Moon, fifteen levels | One model day (1,430 steps) from the cold start, then one with the forcing | The Near-side Sea; row 17, point 57 (2.8° S, 315° E) | 2.5 h | PASS | Rain 0.004 mm/day; lowest level 0.15 K, 0.01 g/kg, 0.16 K of θe; θe_B 0.04 K; excess 0.19 K |
+| Earth's control, ten levels | 30 days from the cold start, then 30 with the forcing | The west Pacific's warm pool; row 16, point 29 (2.8° N, 157.5° E) | 3 h | FAIL | Rain 1.4–1.7 mm/day below the GCM's 3.6–5.4 in every quarter; lowest level +0.45 K, +1.8 g/kg, +6.0 K of θe; θe_B +6.4 K; excess 0.5 K; fall 0.45 g/kg |
+
+The Moon's test runs start from ExoPlaSim's cold state, and after one model day the Near-side Sea's lowest level stood
+at 240–258 K with 0.2–0.4 g/kg of vapour, a column below freezing that rained 2.6 mm/day in the afternoon and almost
+nothing else; its pass says little of the 301 K design climate whose boundary layer the mixing tests address. Earth's
+warm pool convects within days of a cold start, and there the column kept the lowest level's vapour within 0.5 g/kg of
+the GCM's for 6–11 days under windows of 30 min to 6 h, and then left it. Its lower free troposphere cooled until its
+saturation θe stood 7 K below the GCM's, its boundary layer's θe rose 6 K, the simplified Betts–Miller scheme gave way
+to large-scale condensation, and the column rained a third less than the GCM from a moister layer that evaporated less.
+What limits the replay is the coupling the forcing leaves out: the GCM's dynamics answer its convection within hours,
+and a forcing written from one trajectory stays as written whatever the column does. The window's length sets how soon
+the column leaves the GCM:
+
+| Windows at the Earth site | First day the lowest level's vapour stands 0.1 g/kg off | 0.5 g/kg off | The row's sea points that pass the rules |
+|---|---|---|---|
+| 30 min | 9.2 | 9.25 | 44 of 50 |
+| 1 h | 3.7 | 9.25 | |
+| 3 h | 3.6 | 10.6 | 28 of 50 |
+| 6 h | 0.5 | 5.9 | |
+| 24 h | 0.25 | 1.9 | |
+
+Over the day after the month's test run, with a window at every step, the dynamics' tendencies at the site varied within
+each 3 h by a standard deviation of 2–4 K/day in temperature through σ 0.57–0.98 and of 8–13 g/kg/day in vapour at σ
+0.92–0.98, against window means of 1–5 g/kg/day there. On the Moon's row, 38 of 39 sea points pass at 2.5 h; windows of
+5 h put the site's lowest level 1.4 K too cold after midnight, and windows of 25 h 1.5–1.6 K too warm in the evening and
+after midnight, beyond the rules. The checks' first runs stepped the column on PlaSim's leapfrog; the Moon passed with
+differences up to 0.44 K and Earth failed as above, and after the test with windows of one step showed the leapfrog
+leaving the GCM's states within a step, the column steps forward and both checks ran again under the same rules, with
+the results above.
+
+**Limits.**
+
+- In a warm, convecting column the replay follows the GCM for days and then settles into a state of its own; a
+  lunar day's replay at a convecting sea point needs either windows refreshed from the GCM's state or the free
+  troposphere held to the GCM's, choices the mixing tests make before they start.
+- The forcing records one trajectory of the GCM: a column whose physics changes keeps the GCM's dynamics, so that
+  its circulation answers nothing the column does.
+- PlaSim applies each physics tendency over 2π/`ntspd` of its own scaled time, which `ww`, 2π over the sidereal day,
+  makes `sidereal_day/ntspd` seconds a step against the 1,800 s of the physics, the surface modules and the Sun's
+  clock: 0.27% short on Earth's control and 8.3% short on the Moon, whose 1,430 steps a model day cover a solar day
+  of 2,575,191 s and whose sidereal day is 2,360,592 s. The GCM's storage carries the difference, so the forcing
+  holds it in the dynamics' tendencies, and the column applies its physics over the full step; a change of physics in
+  the column then acts about 9% more strongly on the Moon than the same change would in the GCM.
+- The column takes its restart and first state from the GCM and steps alone after them; the work PlaSim does across
+  processes covers the row, as the table states.
+- Untested: the column on a generated level set other than Terluna's fifteen, at T42, in single precision, and on a
+  world locked to its star; a GCM run with the forcing past a lunar day; the forcing with `NLOWIO` 0; and a restart
+  written by a run with the forcing on, which carries none of its sums, so that a segment starts a new window.
+- Physical validation: none. The column replays PlaSim and is set beside no observation or box.
+
+**The mixing tests, at the author's word.** Each runs the column twice from the same restart, state and windows, once
+as the GCM ran and once with the change, and reads θe_B, the lowest level's excess, the vapour's fall and the rain by
+quarter beside the GCM's and CM1's:
+
+- **The stretched lengths:** `changes={'fluxmod_namelist': {'VDIFF_LAMM': 966.0}}`, Blackadar's 160 m for momentum
+  times the gravity ratio, 6.04 on the Moon, with which `vdiff` takes the heat's length from 438 m to 2.65 km (defect
+  log B32).
+- **The wind floor:** `changes={'fluxmod_namelist': {'ZUMIN': 0.1}}`, the least wind shear of `vdiff` at the gust's
+  least wind, CM1's; under `NGUST` 1 the surface transfer takes the gust's own least wind, so the change reaches the
+  diffusion alone.
+- **The nonlocal scheme:** Terluna's Holtslag–Boville profile with YSU's entrainment, `nlpbl` in its fluxmod
+  (`climate/gcm/pbl_fortran.py` on `domain/climate` at `29af5c16`), joins the series first as a patch with its
+  switch off by default and its identity test; the column is then built from that series and the switch set in its
+  fluxmod namelist.
 
 ## Level sets (no source change)
 
