@@ -129,12 +129,17 @@ def test_the_manifest_holds_the_seeds_pins_and_the_data_a_stages_tool_names_alon
 
 
 def test_terlunas_files_enter_the_seeds_only_through_pin_fields():
+    """A world's and a scenario's pin fields, and a study's CM1 case naming the GCM run that forces it, read in place as
+    test input until the lab has runs of its own (crm.<case>.forcing_run)."""
     assert SEEDS
     for path in SEEDS:
         kind = 'world' if path.name == 'world.toml' else 'scenario' if path.parent.name == 'scenarios' else None
+        study = path.parent.name == 'studies'
         for field, value in _strings(tomllib.loads(path.read_text())):
             if value.startswith(('terluna:', 'terluna-drive:')):
-                assert kind and field in data.PIN_FIELDS[kind], (path, field)
+                parts = field.split('.')
+                in_study = study and len(parts) == 3 and parts[0] == 'crm' and parts[2] in data.STUDY_PIN_FIELDS
+                assert in_study or (kind and field in data.PIN_FIELDS[kind]), (path, field)
 
 
 @needs_repo

@@ -137,6 +137,14 @@ Case set-up, run bookkeeping and analysis scripts (`climate/gcm/exoplasim_run.py
 and the CRM analysis modules, `climate/waves/*` runners) stay in Terluna. Model output stays on the research
 drive. Upstream source code is never committed whole.
 
+The lab's CM1 builds, case writer and job wrapper (`lab/worldlab/cm1_builds.py`, `cm1.py`, `jobs.py`, 2026-11-18) are
+written anew for the lab. Each takes a rule from Terluna's `climate/crm/cm1_run.py` at `39c5ee04`, named in its
+code: the arithmetic of `vertical_grid`; the window rule of `restart_windows`, which the wrapper applies to every
+segment; the form of `input_sounding` and `terluna_surface.txt` that `setup` writes for a box; the namelist entries of
+`case_settings` for a box forced from a GCM site, with the output of `RAIN_TEST_OUTPUT`; and the run loop's test of
+CM1's normal end. The estimates of a box's wall time and disk take the records of Terluna's sea boxes (its
+`climate/crm/README.md`; `crm-runs/box_near_side_sea_dgw` on the research drive).
+
 ## Python tools
 
 The in-house reference and calibration tools under `python/` were copied byte for byte from Terluna, at

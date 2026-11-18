@@ -13,7 +13,8 @@
 schema = "worldlab.defaults.cm1/0"
 id = "cm1/defaults"
 upstream = "cm1r22.0"
-patches = ["series-core"]                      # every build; a variant adds its own series
+patches = ["series-core", "series-lab"]        # every build: the core series, then the lab's; a variant adds its
+                                               # own series after them (the thin path builds these two alone)
 parallel = "omp"
 optimization = "-O3 -march=native"             # Terluna's OpenMP default since 2026-09-30
 threads = 6
@@ -75,22 +76,27 @@ soil_top_layer_m = 0.01                        # CM1's slab soil: five layers do
 z_stretch = 1.08                               # the grid's growth per level, a ratio
 start = "sunrise"                              # the hour angle -acos(-tan(latitude) tan(declination)), -90 deg at the equinox
 run_solar_days = 2.0                           # in the world's solar days
-output_s = 10800.0                             # seconds on every world
+output_s = 10800.0                             # seconds on every world: the fields in three dimensions (tapfrq)
+diagnostics_s = 10800.0                        # the domain means (diagfrq), which the coupling test reads
 restart_s = 43200.0
 segment_s = 86400.0
 nudge_tau_s = 259200.0
-nudge_ramp_s = 86400.0
 wind_nudge_tau_s = 7200.0                      # a forced box's wind relaxes on its own time (wind_nudge_tau, patch 09
                                                # of the lab's CM1 series), Terluna's 2 hours, a tenth of the Moon's
                                                # window of local time; the held air keeps nudge_tau_s. A world whose
                                                # windows are shorter states its own (gcm_site.case_inputs records the
                                                # time's share of a window)
 radiation_s = 1800.0
+stats_s = 3600.0                               # CM1's statistics, statfrq
 damping_base_fraction = 0.77                   # the Rayleigh layer from this fraction of the top: zd = 0.77 ztop (cm1_run.py:2004)
 
 [coupling]
 reference_season = "window"                    # the GCM reference averages solar longitudes about the case's season
-season_window_deg = 15.0                       # proposed: +-15 deg, a twelfth of the year
+season_window_deg = 15.0                       # proposed: +-15 deg, a twelfth of the year. The case writer refuses
+                                               # "window" until it reads each record's solar longitude, since
+                                               # gcm_site.site_forcing averages every record of the years; a case
+                                               # states "year", the whole years' mean, with its reason below
+reference_season_reason = ""                   # why a case takes "year": the season's weight on its site
 wind_pulled_from = "gcm-lowest-level"          # a forced box's wind is nudged from the forcing GCM's lowest level up
                                                # (wind_nudge_zmin, patch 09), the levels below left to its surface
                                                # layer and turbulence; "ground" nudges every level, CM1's own
@@ -119,9 +125,22 @@ microphysics = "morrison"                      # ptype 5; its cloud droplets per
 radiation = "rrtmg"                            # radopt 2
 surface_layer = "mm5"                          # sfcmodel 2, oceanmodel 1
 pbl = "cm1-simple"                             # ipbl 2
+pbl_per_mass = true                            # the simple boundary layer's tendencies divided by the air's density
+                                               # (ipbl2_per_mass = 1, patch 01 of the lab's CM1 series), the fix of
+                                               # defect A9, which the registry requires wherever pbl is cm1-simple;
+                                               # false keeps CM1's own code (PLAN.md, Porting)
+gust_over_water = "mm5"                        # the MM5 surface layer's gust over water: CM1's own formula, or
+                                               # "beljaars", its form over land at the run's gravity
+                                               # (gust_over_water = 1, patch 02; registry B35), opt-in until the
+                                               # Earth control's test
 twilight = "none"                              # the curved air's twilight in RRTMG, var20; the twilight variant sets it
 rain_size_limits = "capillary"                 # the [capillary] values; "earth" keeps Morrison's own, the identity
                                                # default of the lab's patch 03 (registry B28)
+rain_fall_law = "morrison"                     # rain's fall law and self-collection: Morrison's power law at the
+                                               # run's gravity and Earth's 5.78 m3/kg/s, or "world", the single-drop
+                                               # solver's table (lab_rain_law.txt) and the world's rate from the
+                                               # site's air at 2 m (patch 04; python/atmosphere/rain/fall_law.py),
+                                               # which takes the capillary limits with it
 warm_rain_rates = "earth"                      # Khairoutdinov and Kogan's rates as Morrison has them, the identity
                                                # default of the lab's patch 05; with "gravity" the case writer hands
                                                # CM1 rain_autoconv_fac = g/9.81 and rain_accr_fac = (g/9.81)^0.6

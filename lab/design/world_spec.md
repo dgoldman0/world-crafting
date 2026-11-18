@@ -389,6 +389,28 @@ on them (`notes/geography.md`):
 - **The record.** `write_run` returns each file's sha256, the switches as resolved, the sunlight at the top with its
   scale and basis, and the surface's kind and land shares, for stage 4's product headers to record.
 
+`lab/worldlab/cm1.py` writes a CM1 site box's case (plan.md, stage 3, its thin path of 18 November 2026):
+
+- **The case's fields.** A box states its `site` (the GCM's cells within half widths of latitude and longitude, its
+  surface `sea`), its `columns` (`nx`, `ny`), its `solar_longitude_deg`, its `reference_model_years`, and the GCM run
+  that forces it: `forcing_run`, a pin of a run's folder read in place, or `forced_by`, a run of its study, which
+  waits for the lab's own runs. `read_solar_days` names the days its analysis reads. The run's length is
+  `unscaled.run_solar_days` of the world's solar day, cut to the last whole restart interval.
+- **The world.** The world's gravity, CO2 and O2 reach CM1 compiled into the build or through the namelist, as
+  `world_constants` states; the soil's top layer is the scaled `diurnal.soil_top_layer_m`, and the Sun's declination
+  that of the case's season (`physics.sun_declination`). The box starts at sunrise at its site's latitude.
+- **The forcing run's own values.** The box takes the forcing run's sunlight at the top (its GSOL0), so that it sees
+  the GCM's Sun, and its sea's mean temperature over the site's cells. The rain's entries come from the site's air at
+  2 m: the GCM's 2 m temperature and its lowest level's vapour at the surface pressure, in the scenario's dry air.
+- **The coupling.** `coupling.coupling_length` is `footprint`, metres, or `radius`, the world's radius; a coupled
+  reference is `gcm-by-hour`, `gcm-mean` or `{ from_case, solar_days }`, another case's own domain mean by local time.
+- **The season.** `coupling.reference_season` is `year`, the whole years' mean of the forcing, with its reason in
+  `coupling.reference_season_reason`; `window`, the solar longitudes about the case's season, is refused until the lab
+  reads each record's season.
+- **The intervals.** Each segment holds a whole number of restart intervals, and the outputs, domain means and
+  statistics each divide the segment, as the wrapper's resumption needs.
+- **The key's read set** holds the scaled values and the paths the study sets, which rule 9 leaves unscaled.
+
 Still to settle, each with the stage whose code first reads it, where stage 1 left them on 2026-10-18: the field
 tables of the defaults, studies, runs and cases, with optional fields and their defaults, as stage 2's and 3's
 adapters read them; and whether sources stay as comments, with stage 4's product headers.

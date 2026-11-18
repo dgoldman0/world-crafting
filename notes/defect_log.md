@@ -62,7 +62,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | `ipbl2_per_mass` (0): the lab's series, patch 01, from Terluna's build `moon_omp_rain_law_pbl` | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | A10 | ExoPlaSim, low-I/O output | `hus` in the mean output is the humidity held from the last output step, where every other field is a mean; the held field is absent from the restart, so each year file's first record holds about 2% of the vapour | 10-27, Terluna `domain/climate` 984606a5 | None in the model; a reader's rule (Terluna's `climate/gcm/year_files.py`, the lab's `python/climate/gcm/year_files.py` since 11-16) | Read as means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as humid | Open in the model; read by rule in Terluna and in the lab; the true mean as a further output still to port | R, P |
 | A11 | CM1 r22.0 | The MM5 surface layer (`sfcmodel = 2`) sets its roughness lengths for heat and moisture over water alone and copies them to the output at every point, so `z0t` and `z0q` over land hold unset memory | 11-11, `lab` 3174a0e | None; a reader takes both over water alone | Output and domain averages alone: NaN or 9.5 × 10²² m over land in the lab's test builds; the model reads neither back, and no analysis of Terluna's or the lab's reads either | Open | L |
-| A12 | CM1 r22.0 | After a restart the large-scale nudging counts its windows again from the first, one a step, since the restart files keep no count (`lsnudge.F`, `solve1.F`) | 11-17, the lab's port of the damped gravity wave | None | Each one-day segment of Terluna's boxes after the first nudged its wind and held air toward earlier windows for as many steps as windows had passed: 35 steps, 47 minutes of model time, at the sea box's thirtieth; under the damped gravity wave the box's own ascent answers those windows too | Open | L, R |
+| A12 | CM1 r22.0 | After a restart the large-scale nudging counts its windows again from the first, one a step, since the restart files keep no count (`lsnudge.F`, `solve1.F`) | 11-17, the lab's port of the damped gravity wave | None | Each one-day segment of Terluna's boxes after the first nudged its wind and held air toward earlier windows for as many steps as windows had passed: 35 steps, 47 minutes of model time, at the sea box's thirtieth; under the damped gravity wave the box's own ascent answers those windows too | Open in CM1; the lab's job wrapper writes each segment's windows from its start | L, R |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant, which the namelist's `world_g` replaces in the lab's series (patch 06, default the build's value); fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`, still compiled in beside the lab's patch 06; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
@@ -375,10 +375,12 @@ as a seventh is an open item of `PLAN.md`.
   counted from its start meets the climb at each segment's start, as the sea box's log shows; Terluna's set-up wrote
   the windows of its run-on cases from their restart's time, which spares those cases the climb at their first
   segment.
-- **Status.** Open. A fix moves the count on until the window holds the step's time, or keeps the count in the restart
-  files; either changes a restarted run's path at the default, so it belongs in a patch of its own with an entry.
-  The lab's wave and nudging read the window CM1 holds (`models/cm1/README.md`, "The box's own large-scale vertical
-  wind", Limits).
+- **Status.** Open in CM1. A fix moves the count on until the window holds the step's time, or keeps the count in the
+  restart files; either changes a restarted run's path at the default, so it belongs in a patch of its own with an
+  entry. The lab's wave and nudging read the window CM1 holds (`models/cm1/README.md`, "The box's own large-scale
+  vertical wind", Limits). Since 18 November 2026 the lab's job wrapper writes each segment's windows from the window
+  that holds its start (`lab/worldlab/jobs.py`, `segment_windows`), so the lab's boxes meet no climb: the imposed sea
+  box's second test day held its own window from its first step (`notes/cm1.md`, "Forcing a slice of the GCM").
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 

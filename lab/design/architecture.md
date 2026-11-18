@@ -228,6 +228,19 @@ socket in the store; `lab serve` starts it, as does the first client that finds 
 - **Clusters,** later, through an adapter that submits a job to a scheduler such as Slurm in place of
   starting it here.
 
+**The thin path** (18 November 2026; plan.md, stage 4). CM1's builds, cases and runs carry keys and headers
+(`lab/worldlab/stages.py`): a case's key covers its producer, the hashes of the writer's modules and of the Python
+tools it calls; its build's key; the forcing run's files by digest, with the years and site it reads; an upstream
+case's key and the run's domain means within the reference's days; its settings' hash; its read set, declared by
+hand as the derived values it takes, with the scaled values and the paths its study sets, since rule 9 leaves a set
+value unscaled; and the environment's class. The producer holds the shared constants the air's and rain's tools read
+(`python/shared/constants.py` and `constants.json`). The store caches the digests of large inputs by size and
+modification time, and the forcing at a site by the run's files, the years and gcm_site's own hash. `python -m
+worldlab plan <study>` computes each box's key from the specifications, finds whether its build, case and run stand
+in the store, prices it from Terluna's sea box, which ran 59 lunar-day-equivalent days in 2.0 hours on 4 threads, and
+lists the registry's checks, all before any run. Read-set tracking and staleness across the stage graph wait for the
+stage.
+
 **The test of the planner.** The dependency map in regeneration.md was worked out by hand from Terluna's
 code. Before `lab make` acts on its plans, the planner's computed staleness must match the map in its
 worked cases (plan.md, stage 4).
@@ -371,7 +384,13 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   build's value, 9.81 in a build without the macro; the registry refuses them off Earth, and the model stops
   on them where the namelist's gravity differs from the build's. Until the namelist build passes its checks
   on one-day segments (plan.md, stage 3), the adapter compiles the values in (`world_constants = "build"` in
-  `cm1/defaults`), and a build's key covers them with its patch set, flags and compiler.
+  `cm1/defaults`), and a build's key covers them with its patch set, flags and compiler. Since 18 November 2026
+  `lab/worldlab/cm1_builds.py` makes the builds of the thin path, the core and lab series on the OpenMP makefile at
+  CM1's flags or `-O3 -march=native`, as `builds.py` makes ExoPlaSim's: each input read once and hashed into the key,
+  the patched sources checked against `expected-series.sha256` before the compile, at nice 10 in a fixed environment,
+  and the build filed at `builds/cm1-<the key's first 16 hex digits>/`, read-only, its executable and the run files
+  CM1 reads beside it, its record written last. A case that names a variant waits for the variants' series to be
+  checked after the lab's.
 - **Points in the series.** A build names how far it applies each patch series, as ExoPlaSim's builds
   name their point in theirs. The lab's patches follow the core series in a series of their own
   (`series-lab`), and each at its identity default gives the output of the build without it: the build's
@@ -429,6 +448,26 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
     model years.
   - For a world locked to its star, a further planned patch holds the star fixed in the sky over the case,
     with the moving Sun as its identity default (plan.md, stage 12).
+- **The case writer** (`lab/worldlab/cm1.py`, 18 November 2026; plan.md, stage 3). From a study's case, its world
+  and scenario, CM1's defaults and the GCM run that forces it, the writer gives a box over the sea everything CM1
+  reads beside the build's own files: the namelist from CM1's radiative–convective template, with the scaled lengths,
+  times and rates, the world's entries of patches 06 to 08, the rain's entries of patches 03 to 05 from the site's air
+  at 2 m, the switches of patches 01 and 02, and gcm_site's entries; the sounding of the air the box starts from, the
+  grid, the sea at the GCM's temperature and the forcing's files, with one solar day of nudging windows. Its forcing
+  run is a setting of the case, a pin read in place (`forcing_run`), or its study's own run (`forced_by`), which waits
+  for block 3; by the author's decision of 18 November 2026 the coupling study's boxes take Terluna's present design
+  climate as test input, the turned run `A28R_301k_design_l15_snow_s938_turned_refit_precession` over its forty
+  settled years. The coupling and its settings pass to
+  `gcm_site.case_inputs` as the case states them, so that coupling `'wtg'` is written once gcm_site takes it, and a
+  coupled box's reference may be another case's own domain mean by local time, read from that case's run
+  (`lab/worldlab/cm1_read.py`). The forcing averages every record of the case's years, since the lab reads no
+  record's season yet: a case states `coupling.reference_season = "year"` with its reason, and the window of solar
+  longitude that the Decisions below set (`"window"`) is refused until the season can be read. The case's intervals
+  are checked as the wrapper's segments need them: each segment a whole number of restart intervals, and the outputs,
+  domain means and statistics each a divisor of the segment, since CM1 counts them from each restart's time. The
+  registry is evaluated on the case's context before it is written. The case lands
+  whole and read-only at `cases/cm1-<key>/`, with `case.json` holding its header and its record, every value with its
+  source, and `index/<study>/<case>` names it. Rings and boxes over land or terrain wait for stage 3's widening.
 - **Refused schemes.** At a gravity more than 0.5% from 9.81 m/s², the registry refuses the schemes that
   hard-code Earth's gravity (`notes/cm1.md`): MYNN, the GFS EDMF and GFDL layers, P3, WSM6, Jensen–Ishmael,
   LFO and Goddard radiation. The tolerance is proposed; it passes the Earth control's 9.80665 m/s².
@@ -556,6 +595,11 @@ gives it, as `<study>:<name>`, becomes an alias of that key.
   environment, beside the system Python that runs `make check`: ExoPlaSim from its pinned archive, with netCDF4
   and the other packages of `lab/requirements.txt`.
 
+**CM1's cases and runs** (18 November 2026). A CM1 case lives at `cases/cm1-<the key's first 16 hex digits>/` and its
+run at `runs/cm1-<the same>/`, so that a case runs once; the run copies the case's files, links the build's
+executable and run files, and keeps its record, `run.json`, beside CM1's output. `index/<study>/<case>` links a
+study's name to its case's folder. The caches sit under `caches/`: `digests.json`, `gcm-site/` and `gcm-mode/`.
+
 **Comparisons with Terluna.** A comparison reads Terluna's records and output in place, under the Terluna
 roots, and reports where the lab's values differ from them and why. It files nothing in the store, and the
 lab's studies take their parents from runs the lab made.
@@ -601,6 +645,34 @@ It adds:
 - **Thread variables set explicitly:** `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `NUMBA_NUM_THREADS`.
 - **Chains as queued targets,** replacing the shell scripts in `session-tools/`.
 - **Disk planning before a case starts.** A 3-D box at Jura's size writes 54 GB over two lunar days.
+
+**The thin path** (18 November 2026; plan.md, stage 7). `lab/worldlab/jobs.py` wraps one CM1 run. The machine's
+budget comes from `lab/local.toml`'s `[budget]`, by default half the cores' threads, nice 10, 20 GB of free disk kept,
+a load ceiling of the core count and a minute between looks at the load. A run asking more threads than the budget's
+stops before it starts. Before each segment the wrapper holds the run back in place, the reason and the readings
+recorded, while the load average from other work and the run's threads together exceed the ceiling, or the free disk
+less the run's remaining estimated need falls below the minimum; between its own segments the run's threads are taken
+out of the load average, which still holds them, and a STOP file or the wall-clock budget ends the wait.
+
+The wrapper checks the build's key against the case's and its executable and the case's files by hash, and
+evaluates the registry on the case's context with the case's overrides and the run's own. Its lock is an exclusive
+`flock` on `run.lock`, whose descriptor the wrapper keeps open and hands CM1 with each segment, so that the kernel holds
+the lock until both have exited; the file's text names the two processes for a reader and decides nothing. CM1 runs
+in segments from its restarts, with the thread variables set, an unlimited stack, and death with its wrapper, checked
+after the `prctl` in case the wrapper died first. SIGTERM or Ctrl-C kills CM1 and records the run as interrupted.
+Before each segment the wrapper writes that segment's nudging windows from the case's solar day of windows, numbered
+from the window that holds its start, so that CM1's count of its windows, which each restart sets back to the first
+(defect log A12), holds the segment's window from its first step, and a case of any length reads at most the few
+windows of a segment, where CM1 reads a hundred. A segment is recorded once CM1 has printed its normal end and its
+restart at the segment's end is complete, since the lab's patches stop CM1 with status 0; its restart set, outputs,
+statistics and wave's record are then written through to the disk, and the record keeps the restart set's sizes and
+hashes, the outputs' sizes, the byte lengths of the statistics and the wave's record, and the values CM1 echoed as it
+read them. A run interrupted mid-segment resumes from its last recorded segment whose files verify against the record,
+falling back past any that fail; the outputs, domain means and restart sets past that time are removed, and the
+statistics and the wave's record truncated in place to the recorded lengths. A STOP file left from before a start,
+when no wrapper held the run, is cleared, and a new record over a folder that already holds CM1's files is refused.
+`python -m worldlab run`, `status`, `stop` and `read` reach a run by the case's key as the caller's worktree computes
+it, leaving the store's shared index of names aside; the runner, its queue and its socket wait for stage 7.
 
 ## A session with the lab
 

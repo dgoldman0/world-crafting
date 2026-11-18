@@ -337,7 +337,14 @@ runs: under the wave its sea box rained 2.85 mm/day against the GCM's 1.42 and 1
 imposed ascent it rained about 0.2, and its dry box dried out under steady descent; so the boxes' couplings disagree by
 more than the two models do (`PLAN.md`, "Decisions", 17 November 2026). After every restart CM1 counts its nudging
 windows up again from the first, one a step (defect log A12), which sets a restarted wave box against earlier windows
-for up to an hour and a half of model time in a box of two lunar days.
+for up to an hour and a half of model time in a box of two lunar days. The lab's job wrapper (`lab/worldlab/jobs.py`,
+18 November 2026) writes each segment's windows anew, numbered from the window that holds the segment's start and
+taken from the case's one solar day of windows at the same phase, as Terluna's set-up wrote the windows of its run-on
+cases, so the count holds the segment's own window from its first step; in the test run of that day the imposed sea
+box's second day, restarted at 86,400 s, held window 1 for 691 steps and window 2 for the rest, where CM1's own count
+would have climbed from the run's first window. The writing also frees a box from CM1's hundred windows: a segment
+reads two or three, so a case of four lunar days runs as one, where Terluna ran its third and fourth days as cases of
+their own.
 
 **What the forcing revealed.** Without the GCM's sideways transport the 45° N ring drifts warm: its lowest
 1.8 km warm from 20.0 to 26.7 °C over two lunar days. The GCM's circulation carries about 15 W/m² of heat
@@ -454,6 +461,28 @@ can resolve (above). Shells above the model's 150 km top are left out with the a
   patch 06 the namelist's (`world_co2`, `world_o2`); the gases set to zero stay so in every build, so an Earth
   case of CM1 runs without Earth's ozone, methane and nitrous oxide until a later patch reads them too.
 
+## What a build still holds of a world
+
+With patches 06 to 08 a build of the core and lab series takes the world's gravity, CO2, O2, soil and Sun from the
+namelist, and on 18 November 2026 one model day of the coupling study's imposed sea box (`lab/studies/
+open-moon-couplings.toml`) gave the same 47 output, domain-mean, statistics, restart and inflow files, byte for byte,
+from the build without macros told the Moon by its namelist and from the build with the Moon compiled in, one thread
+each (`lab/design/plan.md`, stage 3). A scan of the patched sources for what else a world needs finds:
+
+- **The air's gas constant and heat capacity.** `set_constants` holds Earth air's 287.04 and 1005.7 J/kg/K for the
+  dry air whatever its composition, with the vapour's 461.5. The Open Moon's air, 17.5% oxygen at 1.2 atm, has
+  288.38 J/kg/K, so the box's heights, densities and potential temperature run on a gas constant 0.47% low.
+  `gcm_site` writes the box's potential temperature and vapour in CM1's own constants, as CM1 holds them, while the
+  GCM's heights keep the run's own gas constant; a world far from Earth's air, as a carbon dioxide or steam world,
+  needs the two in the namelist, a patch and a registry entry of their own.
+- **Earth's rotation and radius** in the beta plane (`constants.F`, `omega = 2π/86400`, and `earth_radius`), which
+  the boxes and latitude rings leave off (defect log B10). Earth's rotation also reaches the slab soil (`slab.F`,
+  `HM = 1.18 EOMEG (TG0 − TMN)`, with `EOMEG` of `turb.F`), as the force-restore term of a single-layer soil, which
+  CM1's five layers leave unused.
+- **The gases other than CO2 and O2**, set to zero by core patches 06 and 07 ("Radiation inputs and range").
+- **The gravity of MYNN and MYJ**, compiled in, which the registry refuses off Earth and the model stops on
+  (`cm1-earth-g-schemes`).
+
 ## Constant gravity and a thin shell
 
 CM1, like PlaSim, holds gravity constant with height. The cases reach 150 km, where lunar gravity is 15%
@@ -472,7 +501,8 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
    Done on 17 November 2026 as patch 10: the box's own large-scale vertical wind by the damped gravity wave, behind
    entries with identity defaults, its record complete over each segment and its base kept through restarts. Still to
    do: the weak temperature gradient beside it (`lsw_coupling` = 2), and the nudging's count of windows carried
-   through a restart (defect log A12).
+   through a restart (defect log A12), which the lab's job wrapper sidesteps by writing each segment's windows from
+   its start.
 4. Give NSSL's rain the limits, the fall law and the self-collection that Morrison's rain takes since patches 03
    and 04 of the lab's series, and run a box with them on the lab's own builds.
 5. Size the two factors on Morrison's autoconversion and accretion, which patch 05 of the lab's series reads from
