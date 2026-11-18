@@ -128,6 +128,21 @@ ExoPlaSim's output and five open entries to the defect log on the lab's branch (
   cooling aloft and below. And CM1's port 5, the damped gravity wave, comes next, ahead of ExoPlaSim's ports 7 to 10,
   built so that a case states its reference column and coupling length and so that a weak-temperature-gradient
   coupling can join it, for three sea boxes that test the couplings' consistency once the lab's stage 3 runs them.
+- Two lines of code move beside each other on branches of `lab`, each in a worktree of its own (18 November 2026):
+  the weak-temperature-gradient coupling of CM1's series, beside the damped gravity wave of patch 10, and the thin
+  path of block 2 that builds CM1, writes a site box's case and runs it in segments under the lab's bookkeeping. Test
+  runs serve the work; the boxes that test the couplings, and every other full run, wait for the author's word.
+- A trigger for the GCM's convection on the lower troposphere's buoyancy is studied offline, on existing output, after
+  a review of Terluna's history of triggers and closures shows that it repeats none of the efforts that failed there
+  (18 November 2026). The readings of 17 November found the GCM's rain picking up at a buoyancy of −7.5 to −8.6 K,
+  where CM1's and Earth's pick up near nil (`lab/design/gap_series.md`, section 3).
+- The simplified Betts–Miller scheme's relaxation test runs at 10 h, inside the grid's bound of about 11 h at T21 and
+  near the 12 h that gravity's similarity gives (18 November 2026).
+- CM1's count of its nudging windows after a restart (defect log A12) is fixed in a patch of the lab's CM1 series of
+  its own, which leaves CM1 as released at its default and which the lab's case writer turns on by default, since it
+  makes a restarted run follow the run it continues, as the twilight's single count restores a run's own bookkeeping.
+  A12 counts as the eighth defect in the released codes, on the lunar runs' path, since Terluna's boxes ran in
+  restarted segments; the paper takes it in its next revision with A11 (18 November 2026).
 
 ## Each fix: general or the Moon's
 
@@ -301,7 +316,7 @@ model enters only on evidence apart from the comparison, as the agreement test r
 |---|---|---|---|
 | 1 | The slab sea at 15 m | One GCM run of 10–20 years, 1.5–3 hours | The size of the sea's swing through the lunar day, and its share of the rain's timing |
 | 2 | The warm-rain factors at 0.166 and 0.34 | One sea box of two lunar days, about two hours | What Earth's rates cost the boxes' cloud and rain |
-| 3 | The design scheme's relaxation time at 12 h, which Terluna's closures ran only with reference profiles of their own | One GCM run | Its share of the rain's timing and of the upper air's temperature |
+| 3 | The design scheme's relaxation time at 10 h, inside the grid's bound of about 11 h at T21 and near the 12 h of gravity's similarity, a time Terluna ran only beside closures with reference profiles of their own (`lab/design/gap_series.md`, section 3) | One GCM run | Its share of the rain's timing and of the upper air's temperature |
 | 4 | The diffusion's times multiplied by 0.27, read beside the Earth control's spectra | One GCM run | Whether Earth's times leave noise at the Moon's truncation |
 | 5 | CM1's RCEMIP output read through the zero-buoyancy inversion | No runs; a rights review first | Whether the Earth twin of the lunar grid dilutes as ERA5 does |
 | 6 | The Earth control with the Moon's refinements beside Kuo's scheme; CM1 under observed forcing; Earth boxes, forced and making their own ascent | About 16 four-thread hours | Whether the two models pass the agreement test on Earth |
@@ -344,7 +359,7 @@ each stage and a full editorial review to close, each recorded in `paper/review/
 
 | Passage | What version 2 states | Ready, or waiting on |
 |---|---|---|
-| `abstract.tex` 15, `introduction.tex` 85, `assumptions.tex` 92 and its inventory, `changes.tex` and the root README's row | Seven defects in the released codes, the fifth the simple boundary layer's density fault (A9), the sixth the humidity held in ExoPlaSim's mean output (A10) and the seventh the MM5 surface layer's roughness lengths written from unset memory over land (A11); CM1's gust over water and its CAPE diagnostic's 500 m mixed layer (B40) among the Earth values | Six ready (paper branch ff378e2); the seventh and B40 in the next revision, after the author's reading of the present draft |
+| `abstract.tex` 15, `introduction.tex` 85, `assumptions.tex` 92 and its inventory, `changes.tex` and the root README's row | Eight defects in the released codes, the fifth the simple boundary layer's density fault (A9), the sixth the humidity held in ExoPlaSim's mean output (A10), the seventh the MM5 surface layer's roughness lengths written from unset memory over land (A11) and the eighth the nudging's count of its windows after a restart (A12); CM1's gust over water and its CAPE diagnostic's 500 m mixed layer (B40) among the Earth values | Six ready (paper branch ff378e2); the seventh, the eighth and B40 in the next revision, after the author's reading of the present draft |
 | `introduction.tex` 67 | The GCM's convection, levels, gust and rain evaporation as run, convection the open item | The ports |
 | `worlds.tex` 97 (H24), `appendix.tex` 62 | The turned Moon: its tilt of 1.61° and its orientation | Ready; the settled orientation if the orientation check moves it |
 | `repairs.tex` and the appendix's repairs table | The repairs above, each with its kind and limits | The ports |
@@ -390,8 +405,3 @@ the root README's "Where current understanding differs from the paper" then list
 - The wind's nudging time for a forced box on another world. Terluna's 2 hours is a tenth of the Moon's window of
   local time (0.82 days); Earth's windows last 40 minutes, so its boxes in block 4 need a time of their own, as a
   registry rule or a setting scaled with the window.
-- CM1's count of its nudging windows after a restart (defect log A12, found on 17 November 2026): a restarted run
-  climbs from the first window one a step, so each one-day segment of Terluna's boxes after the first nudged toward
-  earlier windows' air for as many steps as windows had passed (35 steps at the sea box's thirtieth). A fix changes a
-  restarted run's path at the default, so it waits for a decision on its own patch, and on whether it counts among
-  the released codes' defects in the paper's next revision.
