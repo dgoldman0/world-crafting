@@ -97,6 +97,9 @@ wind_pulled_from = "gcm-lowest-level"          # a forced box's wind is nudged f
 inflow = "gcm-air"                             # where the mean vertical wind converges it draws in the GCM's mean air
                                                # (inflow_ref_air = 1, patch 09); "box-air" keeps CM1's advection of the
                                                # box's own air, the patch's default
+nudge_window = "by-time"                       # the window a forced box nudges toward is the one that holds the step's
+                                               # time, after a restart too (nudge_window_by_time = 1, patch 12; defect
+                                               # log A12); "count" keeps CM1's count, one window a step from the first
 vertical_wind = "imposed"                      # a forced box's large-scale vertical wind: the GCM's mean, imposed
                                                # (lsw_coupling = 0, the default of patches 10 and 11); "dgw" makes it
                                                # the box's own by the damped gravity wave (lsw_coupling = 1), on the

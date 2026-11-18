@@ -88,7 +88,10 @@ wind down to the ground and the box's own surface layer and turbulence shape it;
 max(d(rho0 w)/dz, 0)/rho0, where CM1's own advection draws in the box's (Daleu, Woolnough and Plant 2012). Where a
 world's window of local time is shorter, the wind follows it less closely on 2 hours, and the record states the time's
 share of the window. Under the imposed wind every window holds the GCM's mean air by default, so the inflow draws
-toward one reference through the run.
+toward one reference through the run. Every forced case also sets nudge_window_by_time (patch 12), on by default
+(NUDGE_WINDOW_BY_TIME): CM1 starts its count of windows at the first whenever a run reads them, a restart included,
+and climbs one window a step (defect log A12), and the entry holds the window of the step's time, so that a box run in
+segments nudges toward the windows of the box run whole.
 
 The box's own large-scale vertical wind. A box forced by the GCM's mean vertical wind takes much of its free
 troposphere's temperature from motion the GCM supplied. With coupling 'dgw' case_inputs writes patch 10's entries of
@@ -193,6 +196,9 @@ WIND_NUDGE_TAU_S = 7200.0                  # the wind's own nudging time: Terlun
 INFLOW = True                              # the windows' air drawn in where the mean wind converges, as Terluna's
                                            # site boxes take it from 28 October 2026 (corrected_inflow at 39c5ee04)
 INFLOW_RATES_FILE = 'lab_inflow_rate.txt'  # where patch 09 of the lab's CM1 series writes the inflow's rates
+NUDGE_WINDOW_BY_TIME = True                # the nudging's window held by the step's time (nudge_window_by_time = 1,
+                                           # patch 12), so that a restarted segment nudges toward the window of the
+                                           # run it continues (defect log A12); CM1's own count climbs from the first
 COUPLING = 'imposed'                       # a box's large-scale vertical wind: the GCM's mean, imposed through CM1's
                                            # own wprof; 'dgw' makes it the box's own by the damped gravity wave
                                            # (lsw_coupling = 1, patch 10 of the lab's CM1 series), 'wtg' by the weak
@@ -1098,7 +1104,8 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
                 reference_vapour: str = 'auto', start: str | None = None, mode: dict | None = None,
                 coupling_length_m: float | None = None, coupling_time_s: float | None = None,
                 coupling_top_m: float | None = None, coupling_base_m: float | None = None,
-                table_heat: str | None = None, coupling_stability_min_k_m: float | None = None) -> dict:
+                table_heat: str | None = None, coupling_stability_min_k_m: float | None = None,
+                window_by_time: bool = NUDGE_WINDOW_BY_TIME) -> dict:
     """What a CM1 case takes from the forcing: its files (terluna_wls.txt, terluna_lsadv.txt and the nudging windows
     lsnudge_0001.dat on, as text), its namelist entries by section, the air it starts from and the record its case
     keeps. The box starts at the local hour angle start_hour_deg and runs length_s seconds of a solar day of
@@ -1112,8 +1119,9 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
     window's start. &param3 holds the three entries of patch 09 of the lab's CM1 series: the wind's own nudging time
     (wind_nudge_tau, wind_nudge_tau_s, 2 hours by default), the height from which CM1 pulls the wind (wind_nudge_zmin,
     wind_from_m, by default the GCM's lowest level to 0.1 m, and 0 for every level) and the inflow of the windows' air
-    where the large-scale wind converges (inflow_ref_air, inflow, on by default). The case is refused on a wind's time
-    of zero or less and on a height outside the box.
+    where the large-scale wind converges (inflow_ref_air, inflow, on by default); and patch 12's entry, the window held
+    by the step's time (nudge_window_by_time, window_by_time, on by default), under every coupling. The case is
+    refused on a wind's time of zero or less and on a height outside the box.
 
     The coupling sets the box's large-scale vertical wind. 'imposed', the default, imposes the GCM's mean vertical
     wind through terluna_wls.txt, lays the circulation's heating and moistening by local time in the table with the
@@ -1190,7 +1198,7 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
                                                       window['u_m_s'], window['v_m_s'])
     namelist = dict(
         param3=dict(wind_nudge_tau=float(wind_nudge_tau_s), wind_nudge_zmin=pulled_from_m,
-                    inflow_ref_air=1 if inflow else 0, **lsw),
+                    inflow_ref_air=1 if inflow else 0, nudge_window_by_time=1 if window_by_time else 0, **lsw),
         param8=dict(var11=1.0, var13=1.0, var14=held['var14'], var15=held['var15'], var18=float(start_hour_deg),
                     var19=round(float(solar_day_s), 1)),
         param19=dict(do_lsnudge=True, do_lsnudge_u=True, do_lsnudge_v=True, do_lsnudge_th=True, do_lsnudge_qv=True,
@@ -1232,6 +1240,9 @@ def case_inputs(forcing: dict, zw, air: dict, *, gravity_m_s2: float, start_hour
                     rate="max(d(rho0 w)/dz, 0)/rho0, the large-scale vertical wind's convergence over CM1's "
                          "base-state density",
                     rates_file=INFLOW_RATES_FILE),
+        windows=dict(by_time=bool(window_by_time),
+                     count="the window that holds the step's time, after a restart too (patch 12)" if window_by_time
+                     else "CM1's: one window a step, from the first after a restart (defect log A12)"),
         coupling=coupled_record, reference=ref['record'],
         start=dict(source=start, hour_angle_deg=float(first_hour) if start == 'reference' else None,
                    air="the reference's air in the first window" if start == 'reference' else

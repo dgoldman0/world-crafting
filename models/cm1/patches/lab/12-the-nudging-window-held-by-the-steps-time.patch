@@ -1,0 +1,111 @@
+--- a/src/cm1.F
++++ b/src/cm1.F
+@@ -428,6 +428,7 @@
+       wind_nudge_tau = 0.0      ! Lab: the wind's nudging time (s); lsnudge_tau unless the namelist gives one
+       wind_nudge_zmin = 0.0     ! Lab: the wind is nudged from this height (m) up; from the ground by default
+       inflow_ref_air = 0        ! Lab: the inflow carries the domain's own air unless the namelist sets 1
++      nudge_window_by_time = 0  ! Lab: lsnudge's count moves one window a step unless the namelist sets 1
+       lsw_coupling = 0          ! Lab: CM1's imposed large-scale vertical wind unless the namelist sets 1 or 2
+       lsw_tau = 0.0             ! Lab: the coupling's adjustment time (s), read with lsw_coupling 1 or 2
+       lsw_mode_speed = 0.0      ! Lab: the first baroclinic mode's speed (m/s), read with lsw_coupling 1
+--- a/src/input.F
++++ b/src/input.F
+@@ -303,6 +303,7 @@
+       real :: wind_nudge_tau   ! Lab: the time (s) on which lsnudge relaxes the wind; 0 takes lsnudge_tau
+       real :: wind_nudge_zmin   ! Lab: the height (m) from which lsnudge pulls the domain-mean wind
+       integer :: inflow_ref_air   ! Lab: 1 draws the nudging reference's air in where the mean wind converges
++      integer :: nudge_window_by_time   ! Lab: 1 moves lsnudge's count on to the window that holds the step's time
+       integer :: lsw_coupling   ! Lab: the large-scale vertical wind: 0 CM1's imposed wprof, 1 the damped gravity wave,
+                                 !      2 the weak temperature gradient
+       real :: lsw_tau   ! Lab: the coupling's adjustment time (s): the first baroclinic mode's, or the WTG's
+@@ -336,6 +337,7 @@
+                         rain_autoconv_fac,rain_accr_fac, &
+                         world_g,world_co2,world_o2,soil_dz1,sun_decl, &
+                         wind_nudge_tau,wind_nudge_zmin,inflow_ref_air, &
++                        nudge_window_by_time, &
+                         lsw_coupling,lsw_tau,lsw_mode_speed,lsw_top,lsw_base,lsw_table_heat, &
+                         lsw_stab_min, &
+                         csound,cstar,solconrce,zenanglrce
+--- a/src/lsnudge.F
++++ b/src/lsnudge.F
+@@ -9,6 +9,7 @@
+   public :: lsnudge_unit,lsnudge_count,lsnudge_maxlevels,        &
+             lsnudge_time1,lsnudge_time2,lsnudge_nmax,lsnudgefac, &
+             read_lsnudge
++  public :: lsnudge_maxcount   ! Lab: the windows read, the bound of nudge_window_by_time (param3) in solve1.F
+ 
+ 
+   ! Notes:
+--- a/src/param.F
++++ b/src/param.F
+@@ -431,6 +431,7 @@
+       call MPI_BCAST(wind_nudge_tau,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)      ! Lab
+       call MPI_BCAST(wind_nudge_zmin,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)     ! Lab
+       call MPI_BCAST(inflow_ref_air,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)   ! Lab
++      call MPI_BCAST(nudge_window_by_time,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)   ! Lab
+       call MPI_BCAST(lsw_coupling,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)     ! Lab
+       call MPI_BCAST(lsw_tau,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)             ! Lab
+       call MPI_BCAST(lsw_mode_speed,1,MPI_REAL,0,MPI_COMM_WORLD,ierr)      ! Lab
+@@ -819,6 +820,18 @@
+       IF( inflow_ref_air.eq.1 .and. .not.( (var13.gt.0.5 .and. var13.lt.1.5) .or.   &
+                                          (var13.lt.0.5 .and. testcase.ge.3 .and. testcase.le.7) ) )THEN
+         if(myid.eq.0) print *,'  Lab nudging: inflow_ref_air reads one profile of large-scale vertical wind (var13 = 1)'
++        call stopcm1
++      ENDIF
++      ! Lab: nudge_window_by_time of param3, 0 by default, under which lsnudge's count of windows moves on by one
++      ! window a step and starts again at the first whenever the run reads its windows, a restart included; 1 moves
++      ! the count on at each step until the window holds the step's time (solve1.F), so that a restarted run nudges
++      ! toward the window of the run it continues.
++      IF( nudge_window_by_time.ne.0 .and. nudge_window_by_time.ne.1 )THEN
++        if(myid.eq.0) print *,'  Lab nudging: nudge_window_by_time must be 0 or 1'
++        call stopcm1
++      ENDIF
++      IF( nudge_window_by_time.eq.1 .and. .not.do_lsnudge )THEN
++        if(myid.eq.0) print *,'  Lab nudging: nudge_window_by_time acts on the windows of lsnudge (do_lsnudge)'
+         call stopcm1
+       ENDIF
+       ! Lab: the coupled large-scale vertical wind of param3. lsw_coupling 0, the default, keeps the wind that CM1
+@@ -3318,6 +3331,7 @@
+       if(dowr) write(outfile,*) 'wind_nudge_tau =',wind_nudge_tau  ! Lab
+       if(dowr) write(outfile,*) 'wind_nudge_zmin =',wind_nudge_zmin  ! Lab
+       if(dowr) write(outfile,*) 'inflow_ref_air =',inflow_ref_air  ! Lab
++      if(dowr) write(outfile,*) 'nudge_window_by_time =',nudge_window_by_time  ! Lab
+       if(dowr) write(outfile,*) 'lsw_coupling =',lsw_coupling  ! Lab
+       if(dowr) write(outfile,*) 'lsw_tau =',lsw_tau  ! Lab
+       if(dowr) write(outfile,*) 'lsw_mode_speed =',lsw_mode_speed  ! Lab
+--- a/src/solve1.F
++++ b/src/solve1.F
+@@ -129,6 +129,7 @@
+                                tscalefac,taumax
+       use lsnudge_module, only : lsnudge_maxlevels,lsnudge_nmax,lsnudge_count,lsnudgefac,  &
+                                  lsnudge_time1,lsnudge_time2
++      use lsnudge_module, only : lsnudge_maxcount   ! Lab: the windows read (nudge_window_by_time, param3)
+ #ifdef MPI
+       use mpi
+ #endif
+@@ -298,6 +299,17 @@
+           donudge = .true.
+           lsnudgefac = 1.0
+ 
++          IF( nudge_window_by_time.eq.1 )THEN
++            ! Lab: the window that holds the step's time (nudge_window_by_time = 1, param3). CM1 moves its count on by
++            ! one window a step, and lsnudge.F starts it at the first window whenever the run reads its windows, a
++            ! restart included, so a restarted run climbs from the first window one a step (defect log A12). Here
++            ! the count moves on, at any step, until the window holds the step's time or is the last one read.
++            do while( timenudge.gt.lsnudge_time2(lsnudge_count) .and. lsnudge_count.lt.lsnudge_maxcount )
++              lsnudge_count = lsnudge_count + 1
++              if( myid.eq.0 ) print *,'  lsnudge times:  time1,timenudge,time2 = ',lsnudge_time1(lsnudge_count),     &
++                                      timenudge,lsnudge_time2(lsnudge_count)
++            enddo
++          ELSE
+           if( donudge .and. timenudge.gt.lsnudge_time2(lsnudge_count) )then
+ 
+             ! update which profile we are nudging towards:
+@@ -305,6 +317,7 @@
+ 
+             if( myid.eq.0 ) print *,'  lsnudge times:  time1,timenudge,time2 = ',lsnudge_time1(lsnudge_count),timenudge,lsnudge_time2(lsnudge_count)
+           endif
++          ENDIF   ! Lab: nudge_window_by_time
+ 
+           ! ramp-up nudging starting at lsnudge_start:
+           if( lsnudge_ramp_time.lt.smeps )then

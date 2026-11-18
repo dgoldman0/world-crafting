@@ -107,7 +107,9 @@ present build's value. The ninth puts Terluna's three changes to the nudging of 
 stands as CM1 has it. The tenth puts Terluna's damped gravity wave, by which a forced box makes its own large-scale
 vertical wind, behind entries of `&param3` (the same file at `29af5c16`); at their defaults CM1 imposes the wind as
 before. The eleventh, the lab's own, adds the weak temperature gradient as a second way for the box to make that wind,
-with one entry of its own; at its defaults too CM1 imposes the wind.
+with one entry of its own; at its defaults too CM1 imposes the wind. The twelfth, the lab's own, holds the nudging's
+window by the step's time, so that a restarted run nudges toward the window of the run it continues (defect log A12);
+at its default CM1 counts its windows as released.
 
 | # | Files | Switch | Change | Kind |
 |---|---|---|---|---|
@@ -122,14 +124,16 @@ with one entry of its own; at its defaults too CM1 imposes the wind.
 | 09 | solve1.F, solve3.F; input.F, cm1.F, param.F | `wind_nudge_tau` > 0; `wind_nudge_zmin` > 0; `inflow_ref_air` = 1 | CM1's large-scale nudging (`lsnudge`) relaxes the wind on its own time, `wind_nudge_tau` seconds, where θ and vapour keep `lsnudge_tau`: the domain-mean wind in `solve1.F` and the base-state and geostrophic wind in `solve3.F`; it pulls the domain-mean wind only at the levels from `wind_nudge_zmin` m up; and with `inflow_ref_air` = 1 the large-scale vertical wind's convergence draws the nudging reference's θ and vapour in, at max(d(ρ₀w)/dz, 0)/ρ₀ (Terluna's `WIND_TAU_PATCH`, `WIND_ALOFT_PATCH` and `INFLOW_PATCH`; the base-state and geostrophic wind's time the lab's) | Coupling: the forcing of a site box ("The wind's own nudging and the inflow", below) |
 | 10 | solve1.F, cm1.F; input.F, param.F | `lsw_coupling` = 1, with `lsw_tau`, `lsw_mode_speed`, `lsw_top`, `lsw_base`; `lsw_table_heat` = 1 | The box's large-scale vertical wind its own, by the damped gravity wave: each step `solve1.F` solves d²ω/dp² = R_d T_v′/(τ c² p) for the domain-mean ω, nil at the ground and from the lid `lsw_top` up, T_v′ the domain-mean virtual temperature less the nudging window's between the coupled layer's base, the domain-mean boundary layer's depth no lower than `lsw_base`, and the lid, and sets `wprof` = −ω/(ρ₀g); with `lsw_table_heat` = 1 the table heats below the base alone; the means over each interval of the domain diagnostics go to `lab_lsw_means.txt`, the run's last interval included (Terluna's `DGW_PATCHES`; the record's timing, the base's mean, its own entries and the stops the lab's) | Coupling: a site box's own ascent ("The box's own large-scale vertical wind", below) |
 | 11 | solve1.F, cm1.F, input.F, param.F | `lsw_coupling` = 2, with `lsw_tau`, `lsw_top`, `lsw_base`, `lsw_stab_min`; `lsw_table_heat` = 1 | The box's large-scale vertical wind its own, by the weak temperature gradient: in patch 10's block `solve1.F` sets w = θ_v′/(τ max(γ, ∂θ_v,r/∂z)) at the w levels from the first above the base to the last below the lid, θ_v′ the domain-mean virtual potential temperature less the nudging window's and ∂θ_v,r/∂z the window's own stability, γ = `lsw_stab_min`, with ω linear in pressure below the base, and sets `wprof` = −ω/(ρ₀g); the record, the table's cut and the base are patch 10's (Edman and Romps 2015, after Raymond and Zeng 2005; the lab's own patch) | Coupling: a site box's own ascent ("The box's own large-scale vertical wind by the weak temperature gradient", below) |
+| 12 | solve1.F, lsnudge.F; input.F, cm1.F, param.F | `nudge_window_by_time` = 1 | CM1's count of its nudging windows moves on at each step until the window holds the step's time, bounded by the windows read, where CM1 moves it one window a step and starts it at the first after each restart; the restart files keep their layout (the lab's own patch) | General repair of a defect (A12) |
 
-Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the eleven patches give the sources
+Applied to pristine CM1 r22.0 on the OpenMP makefile after the core series, the twelve patches give the sources
 `expected-series.sha256` records (`models/check_patches.sh`). The sources of the first two compiled with gfortran and
 OpenMP on 8 November 2026, those of the first four on 11 November under CM1's flags and under `-O3 -march=native`,
 those of the first five the same day under CM1's flags (gfortran 13.3.0, at CM1's own gravity and air), those
 of the first eight the same day under both flag sets, at CM1's own gravity and air and with the Moon's compiled in,
 those of the first nine on 16 November under both flag sets, at CM1's own gravity and air, those of the first ten on
-17 November and those of all eleven on 18 November, each under both flag sets, at CM1's own gravity and air. Where
+17 November, those of the first eleven on 18 November and those of all twelve the same day, each under both flag sets,
+at CM1's own gravity and air. Where
 the rows of patches 02 to 04, their names and their comments say the build's gravity, they mean CM1's `g`, which
 since patch 06 is the run's. Stage 3's CM1
 builds will test the identity at the defaults of a compiled case on the lab's own builds and measure each fix's
@@ -756,8 +760,8 @@ single run from scratch scripts and builds on the project drive, removed after t
   Kuang 2008). Under `-O3 -march=native` the fused products leave a box at its reference a wind below 10⁻⁶ m/s.
 - The reference is the window CM1 holds. After a restart CM1 counts its windows again from the first, one a step
   (defect log A12), so a restarted wave box measures itself against earlier windows for as many steps as windows have
-  passed: 35 steps, 47 minutes of model time, at the start of Terluna's sea box's thirtieth one-day segment. The fix
-  belongs to CM1's nudging and waits for a patch of its own.
+  passed: 35 steps, 47 minutes of model time, at the start of Terluna's sea box's thirtieth one-day segment. Patch 12
+  holds the window by the step's time ("The nudging's window after a restart", below), and `gcm_site` turns it on.
 - Under the wave, patch 09's `lab_inflow_rate.txt` holds the rates of the run's first step, nil at a start from rest,
   and the record holds the inflow's means. A run that CM1 stops on its Courant number leaves its last interval
   unrecorded. CM1 refuses the large-scale vertical wind over terrain, so the wave runs on flat ground alone.
@@ -892,9 +896,90 @@ single run from scratch scripts and builds on the project drive, removed after t
   the step stays stable there is untested.
 - The gradient's wind runs up to the last w level below the lid and is nil from the lid's level up, with no taper
   between. A base at or above that last level leaves the gradient no level, and the wind is nil throughout.
-- The reference is the window CM1 holds, so after a restart the gradient, as the wave, measures the box against
-  earlier windows for as many steps as windows have passed (defect log A12).
+- The reference is the window CM1 holds, so after a restart without patch 12's fix the gradient, as the wave,
+  measures the box against earlier windows for as many steps as windows have passed (defect log A12); `gcm_site`
+  writes the fix on.
 - Each rank of an MPI build takes `lsw_stab_min` by broadcast, a line the OpenMP builds leave uncompiled.
+
+### The nudging's window after a restart (patch 12)
+
+**Why.** CM1's large-scale nudging reads its windows, `lsnudge_0001.dat` on, each time a run starts, a restart
+included, and `lsnudge.F` then sets its count of windows to the first; `solve1.F` moves the count on by one window at a
+step whose time has passed the end of the window it holds. The restart files keep no count, so a restarted run starts
+again at the first window and climbs one window a step until it reaches its own (defect log A12). In the log of the
+thirtieth one-day segment of Terluna's `box_near_side_sea_dgw` the count stepped from window 2 to window 35, one a step,
+before it held window 36, the run's own, for 539 steps; for those 35 steps the box nudged its wind and held air toward
+earlier windows, and under the damped gravity wave measured its own ascent against them. Every box that the lab runs in
+segments meets the climb at each segment's start. Patch 12, the lab's own, fixes it behind an entry whose default
+leaves CM1 as released, and `gcm_site` turns it on for every forced case (`PLAN.md`, "Decisions", 18 November 2026).
+
+**The entry.**
+
+| Entry | Unit | Default | With a value | A forced box (`gcm_site.case_inputs`) |
+|---|---|---|---|---|
+| `nudge_window_by_time` | 0 or 1 | 0: CM1's count, one window a step, from the first after each restart | 1: the count moves on at each step until the window holds the step's time | 1, under the imposed wind, the wave and the gradient; `window_by_time=False` writes 0 |
+
+**What the patch does.** At the top of `solve1.F`, where CM1 decides the window it nudges toward, the branch for
+`nudge_window_by_time` = 1 moves the count on while the step's time, `mtime + dt`, lies past the end of the window it
+holds, as many windows as that takes, and stops at the last window read; CM1's own advance of one window stands whole
+in the other branch. `lsnudge.F` makes its count of windows read, `lsnudge_maxcount`, public for that bound. The
+model prints CM1's line `lsnudge times:` for each window passed, so a restarted run prints the windows it moves past at
+its first step. `param.F` stops as the run starts on an entry other than 0 and 1, and on 1 without lsnudge's windows
+(`do_lsnudge`), each with a line that begins `Lab nudging:`.
+
+**The form.** The count follows from the windows' times, which every run reads afresh, so the fix moves it on by the
+step's time and leaves the restart files as CM1 writes them: no line that writes or reads them changes, so a restart
+file of the build before the patch serves the build after it and the other way round. Keeping the count in the restart files would change their layout, so that
+neither build would read the other's, and it would leave the climb in place wherever a run begins to nudge after its
+first window has passed, as when `lsnudge_start` falls inside a later window. Moving the count on at any step, and at
+the restart's first step among them, gives CM1's count wherever each window spans a step or more, which holds for
+every case `gcm_site` writes (windows of 0.82 days on the Moon), and holds the window of the step's time where windows
+are shorter. Past the last window read the count stays on it, where CM1's moves on to windows the run never read.
+
+**Checks in the suite** (`make check`; `python/climate/tests/test_cm1_nudge_windows.py`, with the forcing in
+`python/climate/tests/test_gcm_site.py`). The block at the top of `solve1.F`, from the step's time through the ramp of
+the nudging's factor, taken from the series before patch 12 and after it, compiles in a program that steps it through
+a run's times, under CM1's OpenMP flags and under `-O3 -march=native`.
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The series on the pinned archive | The sources of `expected-series.sha256`, with every Terluna build still reproduced (`models/check_patches.sh`) | The patches apply |
+| The patch's texts | It follows patch 11, removes no line, and holds no number and nothing cpp reads; the entry is declared, given its default ahead of the namelist's reading, listed in `&param3`, broadcast, checked and printed; `lsnudge_maxcount` is public; CM1's advance stands whole in its branch; no file that writes or reads the restart files changes | Each line the patch changes is found |
+| Identity at the default | The count, the nudging's factor and the printout of every step keep their bits after the patch: a fresh run, a restarted run, windows shorter than a step, a ramp of the factor over 900 s and nudging that starts in a later window, under both flag sets | Identity at the default |
+| The climb, without the fix | A run restarted at 3,640 s, inside the seventh window of 600 s, with steps of 40 s, starts at the first window and moves one a step, printing each, to the seventh in six steps, where the run done whole held the seventh | The defect, in the compiled block |
+| The fix | Restarted at 3,640 s, the run moves from the first window to the seventh at its first step, printing the six it passes, and from there holds the count, the factor and the printout of the run done whole, step for step, through the twelfth window, with the factor at 1 and ramped over 900 s, under both flag sets | A restarted run follows the run it continues |
+| A fresh run | From the run's start, with windows of 600 s and steps of 40 s, the fix gives CM1's count, factor and printout bit for bit | The fix changes nothing where each window spans a step |
+| Short windows and the last window | With windows of 30 s and steps of 40 s, the fix holds at each step the window whose interval holds the step's time, where CM1's count falls further behind each step; past the last window read it holds the last, where CM1's moves on | The count follows the step's time, within the windows read |
+| The stops | `param.F`'s checks, compiled alone: an entry of 2 or −1 and the fix without lsnudge stop with their lines; the default with and without lsnudge and the fix with it run | The model stops on the values it cannot take |
+| The forcing | `case_inputs` writes the entry on under the imposed wind, the wave and the gradient, and 0 where a case turns it off, with the record of which and the files unchanged; beside it, the entries of patch 09 keep the values of Terluna's slots on its sea box | The forcing writes the entry |
+
+**Checks run once,** on 18 November 2026, with gfortran 13.3.0 on an Intel i9-11980HK, one thread to a run. Each is a
+single run from scratch scripts and builds on the project drive, removed after the runs, on the sources of
+`expected-series.sha256`.
+
+| Check | Result | Evidence state |
+|---|---|---|
+| The whole model | Four builds compiled and linked without macros, the series before patch 12 and after it, each under CM1's OpenMP flags and under `-O3 -march=native`; the builds of the series before it are those of patch 11's checks to the byte | The sources compile |
+| CM1's released cases at the default | CM1's released supercell and the world case of patches 06 to 08, between the series before patch 12 and after it: the supercell's 10 files agree byte for byte under both flag sets, and the world case's 10 byte for byte under `-O3 -march=native` and bit for bit under CM1's flags in every field but `z0t`, which CM1's surface layer leaves unset over land; the model prints `nudge_window_by_time` at its default | Identity at the default, of compiled cases of CM1's own |
+| The lunar box at the default | The box of patches 09 to 11, three hours of 8 × 8 columns of 6 km forced through `gcm_site` from Terluna's design run `A28R_301k_design_l15_snow_s934`, years 10–19, read in place, on the run's own constants, imposed, under the wave and under the gradient, with the entry left out and stated at 0: its 28 output and restart files agree byte for byte between the series before patch 12 and after it, the coupled wind's record and the inflow's rates too, under both flag sets | Identity at the default, of a compiled forced box |
+| The box in two segments | The same box under each coupling with its windows re-timed to 600 s each, so that two hours pass twelve windows and a restart at one hour falls inside the seventh. Without the fix the restarted run nudges θ toward windows 2, 3, 4, 5, 6 and 7 over its first six steps, where the run done whole holds the seventh, and parts from it in 22 files, its state among them, from its first output after the restart on, the coupled wind's record too. With the fix it nudges toward the run's own windows from its first step and writes the outputs, restart files and record of the run done whole byte for byte from its next radiation call on; before that call, at the output of 4,800 s, CM1's radiation diagnostics (the fluxes at the top and the ground, cloud forcing and fraction, the Sun's angles) and the statistics' step and Courant number differ, and the second restart file in one double of CM1's output schedule, alike in a control on the series before patch 12 with one window and no climb. Two hours run whole with the fix and without it agree byte for byte in all 49 files. Under both flag sets | A restarted box follows the run it continues; the fix changes nothing in a run without a restart |
+| A restart across builds | Under CM1's flags, the build after the patch, with the fix on, restarted at one hour from the restart file of the build before it (the box with one window), wrote the outputs, domain diagnostics and restart files that the build before it wrote restarted from its own file, against the run done whole; its statistics and metadata files, whose first segment the copied folder left out, aside | A restart file of the build before the patch serves the build after it |
+| The stops in the compiled model | Under CM1's flags, an entry of 2 and the fix with `do_lsnudge` off each end the run as it starts with its `Lab nudging:` line | The model stops on the values it cannot take |
+| Wrong statements | 13, put one at a time into a copy of the patch (10, each a line replaced so that the patch still applies) and of `gcm_site.py` (3): each fails the suite's tests, 12 of them with the tests of the patch's text left out; the other, the entry's default in `cm1.F`, which the compiled tests take as an input, fails the test of the text | The suite's tests find each fault put in |
+
+**Limits.**
+
+- The fix moves the count by the windows' times as the run reads them. A run whose windows' files change between
+  segments nudges toward the windows its segment reads, as CM1 does.
+- Within a segment the fix gives CM1's count wherever each window spans a step or more; where windows are shorter, the
+  run nudges toward the window of the step's time and passes the others, where CM1's count lags by a window a step.
+- The restart files keep their layout, so the fix holds wherever the windows read at a restart match those of the run
+  it continues; a restart with other windows takes the window of its time among them.
+- CM1 keeps its radiation diagnostics out of its restart files, so between a restart and its next radiation call a
+  restarted run writes them unset, with the fix or without it; the model's state and every later output agree with the
+  run done whole. The finding is CM1's own and waits for the defect log's classification.
+- Each rank of an MPI build takes the entry by broadcast and the count of windows read from `read_lsnudge`, lines the
+  OpenMP builds leave uncompiled.
 
 ## Settings of the lunar cases
 

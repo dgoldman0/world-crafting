@@ -9,3 +9,4 @@ patches/lab/08-the-suns-declination-from-the-namelist.patch
 patches/lab/09-the-winds-own-nudging-and-the-inflow-of-the-reference.patch
 patches/lab/10-the-boxs-own-large-scale-vertical-wind-by-the-damped-gravity-wave.patch
 patches/lab/11-the-boxs-own-large-scale-vertical-wind-by-the-weak-temperature-gradient.patch
+patches/lab/12-the-nudging-window-held-by-the-steps-time.patch

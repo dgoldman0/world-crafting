@@ -607,10 +607,13 @@ def test_the_case_takes_its_files_and_entries_as_cm1_reads_them(tmp_path):
     assert record['held']['damping_clearance_m'] == pytest.approx(1.0) and record['wind']['windows'] == 72
     json.dumps(record)                                                         # the record a case keeps is JSON
     # The entries of patch 09 of the lab's CM1 series in &param3, by default: the wind relaxed on its own 2 hours and
-    # pulled from the GCM's lowest level, to 0.1 m, and the windows' air drawn in where the mean wind converges.
+    # pulled from the GCM's lowest level, to 0.1 m, and the windows' air drawn in where the mean wind converges; and
+    # patch 12's, the window held by the step's time.
     lowest = f['profile']['z_m'][-1]
     assert 0.0 < lowest < zw[-1] and lowest != round(lowest, 1)
-    assert case['namelist']['param3'] == dict(wind_nudge_tau=7200.0, wind_nudge_zmin=round(lowest, 1), inflow_ref_air=1)
+    assert case['namelist']['param3'] == dict(wind_nudge_tau=7200.0, wind_nudge_zmin=round(lowest, 1), inflow_ref_air=1,
+                                              nudge_window_by_time=1)
+    assert record['windows']['by_time'] is True
     wind, inflow = record['wind'], record['inflow']
     assert (wind['nudge_tau_s'], wind['pulled_from_m'], wind['pulled_from']) == (7200.0, round(lowest, 1),
                                                                                 "the GCM's lowest level")
@@ -623,7 +626,8 @@ def test_the_case_takes_its_files_and_entries_as_cm1_reads_them(tmp_path):
                   nudge_tau_s=259200.0)
     same = dict(length_s=2.0 * run['solar_day_s'], damping_base_m=held_from + 1.0, **common)
     stated = gs.case_inputs(f, zw, air, wind_nudge_tau_s=3600.0, wind_from_m=0.0, inflow=False, **same)
-    assert stated['namelist']['param3'] == dict(wind_nudge_tau=3600.0, wind_nudge_zmin=0.0, inflow_ref_air=0)
+    assert stated['namelist']['param3'] == dict(wind_nudge_tau=3600.0, wind_nudge_zmin=0.0, inflow_ref_air=0,
+                                                nudge_window_by_time=1)
     assert stated['record']['wind']['pulled_from'] == 'stated' and stated['record']['inflow']['on'] is False
     assert stated['files'] == case['files'] and stated['namelist']['param8'] == p8
     assert gs.case_inputs(f, zw, air, wind_from_m=312.7, **same)['namelist']['param3']['wind_nudge_zmin'] == 312.7
@@ -782,7 +786,8 @@ def test_a_coupled_case_makes_its_own_wind_against_the_gcms_air_by_local_time(tm
     lowest, top = f['profile']['z_m'][-1], f['convection']['top_m']
     footprint = gs.footprint_m(SEA5, run['radius_m'])
     assert case['namelist']['param3'] == dict(
-        wind_nudge_tau=7200.0, wind_nudge_zmin=round(lowest, 1), inflow_ref_air=1, lsw_coupling=1,
+        wind_nudge_tau=7200.0, wind_nudge_zmin=round(lowest, 1), inflow_ref_air=1, nudge_window_by_time=1,
+        lsw_coupling=1,
         lsw_tau=round(footprint / 40.0, 1), lsw_mode_speed=40.0, lsw_top=round(top, 1), lsw_base=round(lowest, 1),
         lsw_table_heat=1)
     assert case['namelist']['param8'] == imposed['namelist']['param8']
@@ -830,7 +835,8 @@ def test_a_coupled_case_makes_its_own_wind_against_the_gcms_air_by_local_time(tm
                                    air="the reference's air in the first window")
     json.dumps(record)
     # The imposed case: no entry of patch 10, the GCM's mean air in every window and at the start.
-    assert set(imposed['namelist']['param3']) == {'wind_nudge_tau', 'wind_nudge_zmin', 'inflow_ref_air'}
+    assert set(imposed['namelist']['param3']) == {'wind_nudge_tau', 'wind_nudge_zmin', 'inflow_ref_air',
+                                                  'nudge_window_by_time'}
     assert imposed['record']['coupling']['kind'] == 'imposed' and imposed['record']['start']['source'] == 'mean'
     assert imposed['record']['reference']['source'] == 'gcm-mean' and imposed['start'] is air
     # Where the GCM's flow spreads and gathers, the table holds its horizontal part, apart from the circulation.
@@ -993,6 +999,24 @@ def test_a_wtg_case_writes_patch_11s_entries_beside_the_waves_files(tmp_path):
     assert entries['lsw_stab_min'] == 1e-5 and entries['lsw_table_heat'] == 0
 
 
+def test_every_forced_case_holds_the_nudging_window_by_the_steps_time(tmp_path):
+    """Patch 12's entry is on in every forced case, imposed, under the wave and under the weak temperature gradient, so
+    that a box run in segments nudges toward the windows of the box run whole (defect log A12); a case turns it off,
+    which leaves CM1's count, and the record says which. The files are the same either way."""
+    run = write_run(tmp_path / 'model', MOON)
+    f = gs.site_forcing(run, (0, 1), SEA5)
+    zw = np.r_[0.0, np.cumsum(np.full(60, 2500.0))]
+    air = gs.reference_air(f, run['gravity_m_s2'], zw[-1])
+    mode = dict(c_m_s=40.0)
+    for settings in (dict(), dict(coupling='dgw', mode=mode), dict(coupling='wtg', mode=mode)):
+        on, off = (coupled(f, run, zw, air, window_by_time=by_time, **settings) for by_time in (True, False))
+        assert coupled(f, run, zw, air, **settings)['namelist'] == on['namelist']
+        assert on['namelist']['param3']['nudge_window_by_time'] == 1 and on['record']['windows']['by_time'] is True
+        assert off['namelist']['param3'] == dict(on['namelist']['param3'], nudge_window_by_time=0)
+        assert off['record']['windows']['by_time'] is False and 'A12' in off['record']['windows']['count']
+        assert off['files'] == on['files']
+
+
 # Terluna's sea box on its design years, from the same GCM run read in place (research drive).
 
 def _drive():
@@ -1075,9 +1099,10 @@ def test_with_terlunas_choices_the_extraction_gives_terlunas_recorded_sea_box(te
     # generic slots its build read them from: the wind's time (var10), its pull's height (var8) and the inflow (var7).
     text = (terluna_box['case'] / 'namelist.input').read_text()
     slot = lambda name: float(re.search(rf'^\s*{name}\s*=\s*([^,\n]+),', text, flags=re.M).group(1))
-    assert case['namelist']['param3'] == dict(wind_nudge_tau=slot('var10'), wind_nudge_zmin=slot('var8'),
-                                              inflow_ref_air=int(slot('var7'))) == \
+    p3 = {k: v for k, v in case['namelist']['param3'].items() if k != 'nudge_window_by_time'}   # patch 12's, the lab's
+    assert p3 == dict(wind_nudge_tau=slot('var10'), wind_nudge_zmin=slot('var8'), inflow_ref_air=int(slot('var7'))) == \
         dict(wind_nudge_tau=7200.0, wind_nudge_zmin=316.1, inflow_ref_air=1)
+    assert case['namelist']['param3']['nudge_window_by_time'] == 1
     assert record['corrected_wind'] == dict(var10=7200.0, var8=316.1)
     # The files, read back: the vertical wind to its printed 1e-9 m/s, the windows' wind and air to their printed
     # digits, their heights to the millimetre to which the box's input_grid_z gives the levels it is read from, and the

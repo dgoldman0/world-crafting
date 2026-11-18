@@ -378,12 +378,14 @@ radiation or a deep-atmosphere core, also has its own patches and identity tests
   gravity and air for patch 06, Morrison's 2.8 mm cap, patch 08's 5–80 cm soil for the lab's patch 07,
   patch 05's equinox Sun for the lab's patch 08, and CM1's nudging, the wind relaxed on `lsnudge_tau` at every
   level and the box's own air drawn in where the mean wind converges, for the lab's patch 09, and the large-scale
-  vertical wind that CM1 imposes, for the lab's patches 10 and 11. The electrified series' companion patch follows its
+  vertical wind that CM1 imposes, for the lab's patches 10 and 11, and CM1's count of its nudging windows, one a step
+  from the first after each restart, for the lab's patch 12. The electrified series' companion patch follows its
   patch 9.
 - **Case kinds,** as Terluna has them:
   - a ring on a circle of latitude, or on a tilted great circle;
   - a box: flat, over terrain, or over terrain with sea;
-  - a window run again from a restart;
+  - a window run again from a restart, which nudges toward the window of its time under the lab's patch 12
+    (defect log A12);
   - another case's inputs with a new build;
   - a finer box;
   - CM1's own samples.

@@ -62,7 +62,8 @@ corrected there. The companion note `verification_record.md` describes the check
 | A9 | CM1 r22.0 | Simple boundary layer (`ipbl = 2`) hands the solver its tendencies multiplied by the air's density | 10-21, Terluna `domain/climate` 13e7123 | `ipbl2_per_mass` (0): the lab's series, patch 01, from Terluna's build `moon_omp_rain_law_pbl` | Boundary layer took 1.32–1.35× the surface's evaporation and 1.46–1.51× its sensible heat; 51 of Terluna's 59 CM1 runs, every reported ring and box among them | Fixed in the lab's series, before any lab run; fixed in Terluna's new builds | R |
 | A10 | ExoPlaSim, low-I/O output | `hus` in the mean output is the humidity held from the last output step, where every other field is a mean; the held field is absent from the restart, so each year file's first record holds about 2% of the vapour | 10-27, Terluna `domain/climate` 984606a5 | None in the model; a reader's rule (Terluna's `climate/gcm/year_files.py`, the lab's `python/climate/gcm/year_files.py` since 11-16) | Read as means, the records misplace the humidity by half an interval, and two windows in every 120 meet air about half as humid | Open in the model; read by rule in Terluna and in the lab; the true mean as a further output still to port | R, P |
 | A11 | CM1 r22.0 | The MM5 surface layer (`sfcmodel = 2`) sets its roughness lengths for heat and moisture over water alone and copies them to the output at every point, so `z0t` and `z0q` over land hold unset memory | 11-11, `lab` 3174a0e | None; a reader takes both over water alone | Output and domain averages alone: NaN or 9.5 × 10²² m over land in the lab's test builds; the model reads neither back, and no analysis of Terluna's or the lab's reads either | Open | L |
-| A12 | CM1 r22.0 | After a restart the large-scale nudging counts its windows again from the first, one a step, since the restart files keep no count (`lsnudge.F`, `solve1.F`) | 11-17, the lab's port of the damped gravity wave | None | Each one-day segment of Terluna's boxes after the first nudged its wind and held air toward earlier windows for as many steps as windows had passed: 35 steps, 47 minutes of model time, at the sea box's thirtieth; under a coupled wind, the damped gravity wave or the weak temperature gradient, the box's own ascent answers those windows too | Open | L, R |
+| A12 | CM1 r22.0 | After a restart the large-scale nudging counts its windows again from the first, one a step, since the restart files keep no count (`lsnudge.F`, `solve1.F`) | 11-17, the lab's port of the damped gravity wave | `nudge_window_by_time` (0): the lab's series, patch 12, moves the count on at each step until the window holds the step's time; `gcm_site` writes it on for every forced case | Each one-day segment of Terluna's boxes after the first nudged its wind and held air toward earlier windows for as many steps as windows had passed: 35 steps, 47 minutes of model time, at the sea box's thirtieth; under a coupled wind, the damped gravity wave or the weak temperature gradient, the box's own ascent answers those windows too | Fixed in the lab's series; open upstream | L, R |
+| A13 | CM1 r22.0 | The restart files keep none of the radiation's diagnostics, so a restarted run writes the fluxes at the top and the ground, the cloud's forcing and fraction and the Sun's angles unset until its next radiation call | 11-18, the lab's fix of A12 | None | The model's state and every output after the next radiation call agree with the run done whole; the outputs, domain means and statistics a run writes between a restart and that call carry the unset values. Whether Terluna's segmented boxes wrote any such record, and whether the paper counts it, is open | Open | L |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant, which the namelist's `world_g` replaces in the lab's series (patch 06, default the build's value); fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`, still compiled in beside the lab's patch 06; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
@@ -145,9 +146,10 @@ makes a fifth on the lunar runs' path; the draft predates it, and its error, whi
 reaches Earth's runs as well. A6, the parting of CM1's threaded runs, most likely in CM1's own threaded loops, and
 A4, PlaSim's cold lowest level, are faults of uncertain cause, since stock CM1 has yet to run with these cases'
 options, which would place A6 in or out of the released code. The paper's second version counts A10, ExoPlaSim's held
-humidity, as a sixth (2026-11-11). A11, CM1's roughness lengths over land, was found in the lab's port of 2026-11-11
-and logged on 2026-11-16, after that count. Its lines run on the lunar runs' path, and whether the paper counts it
-as a seventh is an open item of `PLAN.md`.
+humidity, as a sixth (2026-11-11). A11, CM1's roughness lengths over land, found in the lab's port of 2026-11-11 and
+logged on 2026-11-16, counts as the seventh, its lines on the lunar runs' path (2026-11-16), and A12, CM1's count of
+its nudging windows after a restart, found in the lab's port of 2026-11-17, as the eighth, since Terluna's boxes ran
+in restarted segments (2026-11-18); the paper takes both in its next revision (`PLAN.md`, "Decisions").
 
 ### A1. ExoPlaSim: `solang`'s Sun clock (R)
 
@@ -377,10 +379,36 @@ as a seventh is an open item of `PLAN.md`.
   segments on windows counted from its start meets the climb at each segment's start, as the sea box's log shows;
   Terluna's set-up wrote the windows of its run-on cases from their restart's time, which spares those cases the climb
   at their first segment.
-- **Status.** Open. A fix moves the count on until the window holds the step's time, or keeps the count in the restart
-  files; either changes a restarted run's path at the default, so it belongs in a patch of its own with an entry.
-  The lab's wave, weak temperature gradient and nudging read the window CM1 holds (`models/cm1/README.md`, "The box's
-  own large-scale vertical wind", Limits).
+- **Status.** Fixed in the lab's series by patch 12 (2026-11-18), behind `nudge_window_by_time` of `&param3`, whose
+  default 0 keeps CM1's count: with 1 the count moves on at each step until the window holds the step's time, bounded by
+  the windows read, and the restart files keep their layout, so a restart file of either build serves the other.
+  `gcm_site` writes the entry on for every forced case, imposed, under the wave and under the weak temperature gradient,
+  so the lab's case writer takes it by default. The lab's wave, weak temperature gradient and nudging read the window
+  CM1 holds (`models/cm1/README.md`, "The nudging's window after a restart"). Open upstream; the paper counts it as the
+  eighth defect in the released codes (2026-11-18). In single scratch runs a lunar box of two hours with windows
+  re-timed to 600 s, restarted inside its seventh window, nudged θ toward windows 2 to 7 over its first six steps
+  without the fix, and with it wrote the outputs, restart files and record of the run done whole from its next radiation
+  call on, under each coupling.
+
+### A13. CM1 r22.0: a restarted run writes its radiation's diagnostics unset until the next radiation call (L; open)
+
+- **Defect.** CM1's restart files keep the radiation's tendencies, which the model's state needs, and none of the
+  diagnostics that the radiation sets for output: the fluxes at the top and at the ground, the cloud's forcing and
+  fraction, and the Sun's angles. A restarted run writes those fields unset in every output, domain mean and
+  statistics record that falls between the restart and its next radiation call.
+- **Found** on 2026-11-18 in the restart checks of the lab's patch 12, single scratch runs: a lunar box restarted
+  after one hour wrote the run done whole byte for byte from its next radiation call on, 1,800 s later, with or
+  without patch 12, and alike in a control on the series before it with one nudging window. The checks of patches 10
+  and 11 wrote no record inside that interval, so they met none of it.
+- **Effect.** The model's state is untouched. A record written inside the interval misreports the radiation, and a
+  domain mean over an interval that begins at a restart takes the unset values for the interval's first steps. Terluna
+  ran its boxes in one-day segments with 3-hourly outputs; whether any of its outputs, domain means or statistics fell
+  inside the interval after a restart, and so whether its radiation readings (the gap test's R8 among them) meet the
+  defect, is unchecked.
+- **Status.** Open, upstream and in the lab. A reader of a segmented run can drop the records inside the interval
+  after each restart, and a fix would have the restart files keep the diagnostics or call the radiation at a
+  restart's first step. Whether it counts among the released codes' defects in the paper waits for its effect on the
+  lunar runs.
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 

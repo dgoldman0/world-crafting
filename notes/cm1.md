@@ -337,7 +337,8 @@ runs: under the wave its sea box rained 2.85 mm/day against the GCM's 1.42 and 1
 imposed ascent it rained about 0.2, and its dry box dried out under steady descent; so the boxes' couplings disagree by
 more than the two models do (`PLAN.md`, "Decisions", 17 November 2026). After every restart CM1 counts its nudging
 windows up again from the first, one a step (defect log A12), which sets a restarted wave box against earlier windows
-for up to an hour and a half of model time in a box of two lunar days.
+for up to an hour and a half of model time in a box of two lunar days; patch 12 holds the window by the step's time
+(below).
 
 **The weak temperature gradient.** Patch 11 of the lab's CM1 series (18 November 2026) gives a forced box a second way
 to make its own large-scale vertical wind, the coupling that Edman and Romps (2015) found self-consistent in
@@ -360,6 +361,20 @@ at 59 km, up to 18 mm/s where the window's stability falls to 0.28 K/km, and res
 whole. On the Near-side Sea's first window the GCM's lowest layers are near neutral, 0.013–0.072 K/km from 0.4 to
 2.35 km, so a base below 2.4 km would turn a departure of 0.1 K into a wind of up to 0.7 m/s there; the sea box's base
 held 2.8–3.2 km under the wave. No lab run has read a box under the gradient as a study.
+
+**The nudging's window after a restart.** Patch 12 of the lab's CM1 series (18 November 2026) fixes A12 behind
+`nudge_window_by_time` of `&param3`, whose default keeps CM1's count: with 1, `solve1.F` moves the count on at each step
+until the window holds the step's time, bounded by the windows read, so a restarted run moves to its own window at its
+first step and from there nudges as the run it continues. The count follows from the windows' times, which every run
+reads afresh, so the restart files keep CM1's layout and a restart file of either build serves the other.
+`gcm_site.case_inputs` writes the entry on for every forced case, which the lab's case writer takes by default, since it
+makes a box run in segments follow the box run whole. The suite checks the compiled block: CM1's count, factor and
+printout at the default, the climb without the fix, and with it the restarted run's count, factor and printout step for
+step against the run done whole (`models/cm1/README.md`, "The nudging's window after a restart"). In single scratch runs
+of 18 November a lunar box of two hours, its windows re-timed to 600 s, restarted inside its seventh window: without the
+fix it nudged θ toward windows 2 to 7 over its first six steps and parted from the run done whole; with it the box held
+the run's own windows and wrote the run's outputs, restart files and record byte for byte from its next radiation call
+on, imposed, under the wave and under the gradient, under both flag sets.
 
 **What the forcing revealed.** Without the GCM's sideways transport the 45° N ring drifts warm: its lowest
 1.8 km warm from 20.0 to 26.7 °C over two lunar days. The GCM's circulation carries about 15 W/m² of heat
@@ -494,8 +509,9 @@ which uses g(z), finds the column holding about 5% more air per unit area than p
    Done on 17 November 2026 as patch 10: the box's own large-scale vertical wind by the damped gravity wave, behind
    entries with identity defaults, its record complete over each segment and its base kept through restarts. Done on
    18 November 2026 as patch 11: the weak temperature gradient beside the wave (`lsw_coupling` = 2), in the form
-   Edman and Romps found self-consistent, its floor scaled with gravity (defect log B44). Still to do: the nudging's
-   count of windows carried through a restart (defect log A12).
+   Edman and Romps found self-consistent, its floor scaled with gravity (defect log B44). Done on 18 November 2026 as
+   patch 12: the nudging's window held by the step's time through restarts (defect log A12), on in every forced
+   case.
 4. Give NSSL's rain the limits, the fall law and the self-collection that Morrison's rain takes since patches 03
    and 04 of the lab's series, and run a box with them on the lab's own builds.
 5. Size the two factors on Morrison's autoconversion and accretion, which patch 05 of the lab's series reads from

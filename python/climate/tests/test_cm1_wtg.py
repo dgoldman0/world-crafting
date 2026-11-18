@@ -31,11 +31,11 @@ FLOOR = 1.0e-5 * MOON_G / 9.81       # Edman and Romps's 0.01 K/km at the Moon's
 
 # The patch's texts.
 
-def test_the_wtg_patch_ends_the_labs_series(cm1_series):
+def test_the_wtg_patch_follows_patch_10(cm1_series):
     """The patch follows patch 10 and changes the same four files. The lines it removes are patch 10's own: comments
     that named one coupling, and the checks and messages that the second coupling joins; the wave's statements stay.
     Its added lines fit CM1's sources, hold nothing cpp would read, and no number of a world."""
-    assert cm1_series.names[-1] == PATCH_11 and cm1_series.before(PATCH_11) == PATCH_10
+    assert PATCH_11 in cm1_series.names and cm1_series.before(PATCH_11) == PATCH_10
     text = (cm1_series.folder / PATCH_11).read_text(encoding='latin-1')
     assert re.findall(r'^\+\+\+ b/src/(\S+)', text, flags=re.M) == ['cm1.F', 'input.F', 'param.F', 'solve1.F']
     removed = [line[1:] for line in text.splitlines() if line.startswith('-') and not line.startswith('---')]
