@@ -1,0 +1,932 @@
+{
+ "schema": "worldlab.validation/0",
+ "check": "the replay of a column of PlaSim's physics (python/climate/gcm/plasim_column.py) under the GCM's own forcing (patch 21): part (b), a lunar day and a month of test runs, by rules fixed before each ran; part (a), step for step, is lab/tests/test_plasim_column.py",
+ "made": "2026-11-18",
+ "made_by": "scratch scripts on the research drive (since removed) that wrote the runs with worldlab.exoplasim.write_run, ran the store's builds on two processes, and called plasim_column.prepare, run, windows, joined, replay_series and replay_verdict; the column's builds are those of the series of 21 at 10 and 15 levels",
+ "evidence": "test runs from cold starts: code paths and the replay method, no climate",
+ "rules": "# The column's replay check, part (b): rules fixed 2026-11-18 11:56 EST, before the column's lunar day ran\n\nTest runs only (the lab's writer, two processes): the Open Moon on Terluna's fifteen levels, the simplified\nBetts-Miller scheme at the writer's design settings, Beljaars's gust with the similarity over water, the rain's\ngamma, a first run's calibrations (no curved air, no gas bands), T21. Spin-up: 1430 steps (one model day) from\nExoPlaSim's cold start. Forcing run: 1430 steps from that restart with NCOLFORCE 1 (windows of 5 steps, 2.5 h) and\nNCOLDUMP 1. The column: mode 1, the row of the Near-side Sea site (lat -5, lon -45, half widths 5.6 and 8.5, sea),\nwhose grid point the site machinery picks, from the GCM's state at the forcing run's first step, under the forcing's\nwindows, 1430 steps. The verdict reads the site's grid point.\n\nQuarters of the lunar day by the point's hour angle from the subsolar longitude of each record's mean solar height\n(code 318, gcm_site.subsolar_longitude): morning (-90, 0), afternoon (0, 90), evening (90, 180), after midnight\n(-180, -90), each record by the centre of its window, and the column's steps by the window they fall in.\n\nQuantities, quarter means at the point, column against GCM:\n- R: rain at the ground, convective plus large-scale, mm/day. GCM: codes 142 and 143, means over each output's\n  steps; column: its steps' rain over the same steps.\n- From the state the physics sees at each output step (GCM: codes 246-250; column: its part-1 state at the same\n  steps), by the gap readings' definitions (agents/gap_readings/scripts/gr_common.py: Bolton's theta-e, layers by\n  sigma overlap):\n  - T1, Q1: the lowest level's temperature (K) and specific humidity (g/kg);\n  - E1: the lowest level's theta-e (K);\n  - EB: theta_eB, the boundary layer's theta-e over sigma 1.0-0.85 (K);\n  - XS: the excess E1 - EB (K), the quantity the mixing tests address (4-7 K in the GCM runs read);\n  - DQ: the vapour's fall from the lowest level to the level nearest sigma 0.85 (g/kg).\n- Reported without a verdict: theta*_eL (sigma 0.85-0.50), B_L, and the same quantities with windows of 10 and 50\n  steps (each window's tendencies the step-weighted mean of the 5-step windows it joins), to show what the window's\n  length does.\n\nTolerances, each quarter:\n- R within max(25% of the GCM's, 0.5 mm/day);\n- T1 within 1.0 K; Q1 within 1.0 g/kg; E1 within 2.0 K;\n- EB within 1.5 K; XS within 1.0 K; DQ within 1.0 g/kg.\n\nVerdict: PASS where every quantity holds in every quarter; otherwise FAIL, naming each that breaks. The differences\nare reported as found, with the drift of the column's state over the day and the free troposphere's beside them.\n\n## Second check: rules fixed 2026-11-18 12:02 EST, before its GCM and column ran\n\nThe Open Moon's test runs start from ExoPlaSim's cold state, and after one model day the Near-side Sea's lowest\nlevel stood at 240-258 K with 0.2-0.4 g/kg of vapour: a frozen column, far from the 301 K design climate whose\nboundary layer the mixing tests address. A second check takes a warm sea that convects within days of a cold start:\nEarth's control, whose cold start reads Earth's climatology of the sea's temperature. Test runs only (the lab's\nwriter, two processes): Earth's control on its ten levels, the simplified Betts-Miller scheme at the writer's design\nsettings, Beljaars's gust with the similarity over water, a first run's calibrations, T21. Spin-up: 1440 steps (30\ndays) from the cold start. Forcing run: 1440 steps from that restart with NCOLFORCE 1, windows of 6 steps (3 h),\nNCOLDUMP 1. The column: mode 1, the row of a site in the west Pacific's warm pool (lat 0, lon 160 E, half widths 5.6\nand 8.5, sea), from the GCM's state at the forcing run's first step, under the forcing's windows, through the run. The\nquarters are those of Earth's solar day, by the same rule; the quantities, tolerances and verdict are the first\ncheck's. Reported without a verdict: windows of 12 and 48 steps.\n",
+ "runs": {
+  "moon": "the Open Moon (lab writer, first-run calibrations), Terluna's fifteen levels, the simplified Betts-Miller scheme at the writer's design settings, Beljaars's gust with the similarity over water, rain by gamma, T21, two processes; 1430 steps from ExoPlaSim's cold start, then 1430 steps from that restart with NCOLFORCE 1 (output every 5 steps, 2.5 h) and NCOLDUMP 1. Site: the Near-side Sea, grid point row 17, point 57 (-2.77 N, 315 E)",
+  "earth": "Earth's control (lab writer, first-run calibrations), ten levels, the simplified Betts-Miller scheme at the writer's design settings, Beljaars's gust with the similarity over water, T21, two processes; 1440 steps (30 days) from the cold start, then 1440 steps from that restart with NCOLFORCE 1 (output every 6 steps, 3 h) and NCOLDUMP 1; again from the same restart with output every 2 steps and every step. Site: the west Pacific's warm pool (0 N, 160 E), grid point row 16, point 29 (2.77 N, 157.5 E)"
+ },
+ "results": {
+  "moon_forward_2.5h": {
+   "verdict": "PASS",
+   "breaks": [],
+   "quarters": {
+    "rain_mm_day": {
+     "morning": {
+      "gcm": 0.032,
+      "column": 0.027,
+      "difference": -0.004,
+      "limit": 0.5,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": 2.598,
+      "column": 2.599,
+      "difference": 0.002,
+      "limit": 0.649,
+      "holds": true
+     },
+     "evening": {
+      "gcm": 0.023,
+      "column": 0.022,
+      "difference": -0.001,
+      "limit": 0.5,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": 0.004,
+      "column": 0.002,
+      "difference": -0.002,
+      "limit": 0.5,
+      "holds": true
+     }
+    },
+    "t_low_k": {
+     "morning": {
+      "gcm": 248.777,
+      "column": 248.753,
+      "difference": -0.024,
+      "limit": 1.0,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": 258.493,
+      "column": 258.52,
+      "difference": 0.028,
+      "limit": 1.0,
+      "holds": true
+     },
+     "evening": {
+      "gcm": 247.046,
+      "column": 247.03,
+      "difference": -0.016,
+      "limit": 1.0,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": 240.498,
+      "column": 240.346,
+      "difference": -0.152,
+      "limit": 1.0,
+      "holds": true
+     }
+    },
+    "q_low_g_kg": {
+     "morning": {
+      "gcm": 0.24,
+      "column": 0.242,
+      "difference": 0.002,
+      "limit": 1.0,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": 0.415,
+      "column": 0.42,
+      "difference": 0.005,
+      "limit": 1.0,
+      "holds": true
+     },
+     "evening": {
+      "gcm": 0.307,
+      "column": 0.307,
+      "difference": 0.001,
+      "limit": 1.0,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": 0.17,
+      "column": 0.162,
+      "difference": -0.008,
+      "limit": 1.0,
+      "holds": true
+     }
+    },
+    "theta_e_low_k": {
+     "morning": {
+      "gcm": 235.78,
+      "column": 235.763,
+      "difference": -0.017,
+      "limit": 2.0,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": 245.659,
+      "column": 245.698,
+      "difference": 0.039,
+      "limit": 2.0,
+      "holds": true
+     },
+     "evening": {
+      "gcm": 234.302,
+      "column": 234.288,
+      "difference": -0.014,
+      "limit": 2.0,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": 227.663,
+      "column": 227.5,
+      "difference": -0.163,
+      "limit": 2.0,
+      "holds": true
+     }
+    },
+    "theta_e_b_k": {
+     "morning": {
+      "gcm": 241.096,
+      "column": 241.099,
+      "difference": 0.003,
+      "limit": 1.5,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": 246.133,
+      "column": 246.177,
+      "difference": 0.044,
+      "limit": 1.5,
+      "holds": true
+     },
+     "evening": {
+      "gcm": 241.513,
+      "column": 241.549,
+      "difference": 0.036,
+      "limit": 1.5,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": 239.739,
+      "column": 239.767,
+      "difference": 0.028,
+      "limit": 1.5,
+      "holds": true
+     }
+    },
+    "excess_k": {
+     "morning": {
+      "gcm": -5.316,
+      "column": -5.335,
+      "difference": -0.02,
+      "limit": 1.0,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": -0.474,
+      "column": -0.478,
+      "difference": -0.005,
+      "limit": 1.0,
+      "holds": true
+     },
+     "evening": {
+      "gcm": -7.211,
+      "column": -7.261,
+      "difference": -0.05,
+      "limit": 1.0,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": -12.076,
+      "column": -12.267,
+      "difference": -0.191,
+      "limit": 1.0,
+      "holds": true
+     }
+    },
+    "vapour_fall_g_kg": {
+     "morning": {
+      "gcm": 0.211,
+      "column": 0.213,
+      "difference": 0.003,
+      "limit": 1.0,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": 0.147,
+      "column": 0.154,
+      "difference": 0.007,
+      "limit": 1.0,
+      "holds": true
+     },
+     "evening": {
+      "gcm": 0.221,
+      "column": 0.229,
+      "difference": 0.008,
+      "limit": 1.0,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": 0.109,
+      "column": 0.102,
+      "difference": -0.007,
+      "limit": 1.0,
+      "holds": true
+     }
+    },
+    "theta_e_sat_l_k": {
+     "morning": {
+      "gcm": 247.97,
+      "column": 247.97,
+      "difference": 0.0,
+      "limit": null,
+      "holds": null
+     },
+     "afternoon": {
+      "gcm": 248.504,
+      "column": 248.487,
+      "difference": -0.018,
+      "limit": null,
+      "holds": null
+     },
+     "evening": {
+      "gcm": 249.315,
+      "column": 249.292,
+      "difference": -0.023,
+      "limit": null,
+      "holds": null
+     },
+     "after_midnight": {
+      "gcm": 250.285,
+      "column": 250.266,
+      "difference": -0.019,
+      "limit": null,
+      "holds": null
+     }
+    },
+    "b_l_k": {
+     "morning": {
+      "gcm": -3.773,
+      "column": -3.772,
+      "difference": 0.001,
+      "limit": null,
+      "holds": null
+     },
+     "afternoon": {
+      "gcm": -1.345,
+      "column": -1.314,
+      "difference": 0.03,
+      "limit": null,
+      "holds": null
+     },
+     "evening": {
+      "gcm": -4.234,
+      "column": -4.207,
+      "difference": 0.027,
+      "limit": null,
+      "holds": null
+     },
+     "after_midnight": {
+      "gcm": -5.709,
+      "column": -5.688,
+      "difference": 0.021,
+      "limit": null,
+      "holds": null
+     }
+    }
+   }
+  },
+  "earth_forward_3h": {
+   "verdict": "FAIL",
+   "breaks": [
+    "rain_mm_day morning",
+    "rain_mm_day afternoon",
+    "rain_mm_day evening",
+    "rain_mm_day after_midnight",
+    "q_low_g_kg morning",
+    "q_low_g_kg afternoon",
+    "q_low_g_kg evening",
+    "q_low_g_kg after_midnight",
+    "theta_e_low_k morning",
+    "theta_e_low_k afternoon",
+    "theta_e_low_k evening",
+    "theta_e_low_k after_midnight",
+    "theta_e_b_k morning",
+    "theta_e_b_k afternoon",
+    "theta_e_b_k evening",
+    "theta_e_b_k after_midnight"
+   ],
+   "quarters": {
+    "rain_mm_day": {
+     "morning": {
+      "gcm": 3.592,
+      "column": 2.178,
+      "difference": -1.415,
+      "limit": 0.898,
+      "holds": false
+     },
+     "afternoon": {
+      "gcm": 4.633,
+      "column": 2.907,
+      "difference": -1.726,
+      "limit": 1.158,
+      "holds": false
+     },
+     "evening": {
+      "gcm": 4.665,
+      "column": 3.065,
+      "difference": -1.6,
+      "limit": 1.166,
+      "holds": false
+     },
+     "after_midnight": {
+      "gcm": 5.411,
+      "column": 3.901,
+      "difference": -1.51,
+      "limit": 1.353,
+      "holds": false
+     }
+    },
+    "t_low_k": {
+     "morning": {
+      "gcm": 299.997,
+      "column": 300.399,
+      "difference": 0.401,
+      "limit": 1.0,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": 300.006,
+      "column": 300.371,
+      "difference": 0.365,
+      "limit": 1.0,
+      "holds": true
+     },
+     "evening": {
+      "gcm": 300.126,
+      "column": 300.56,
+      "difference": 0.434,
+      "limit": 1.0,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": 299.911,
+      "column": 300.364,
+      "difference": 0.453,
+      "limit": 1.0,
+      "holds": true
+     }
+    },
+    "q_low_g_kg": {
+     "morning": {
+      "gcm": 15.296,
+      "column": 16.928,
+      "difference": 1.632,
+      "limit": 1.0,
+      "holds": false
+     },
+     "afternoon": {
+      "gcm": 15.383,
+      "column": 17.084,
+      "difference": 1.701,
+      "limit": 1.0,
+      "holds": false
+     },
+     "evening": {
+      "gcm": 15.342,
+      "column": 17.057,
+      "difference": 1.716,
+      "limit": 1.0,
+      "holds": false
+     },
+     "after_midnight": {
+      "gcm": 15.232,
+      "column": 17.002,
+      "difference": 1.77,
+      "limit": 1.0,
+      "holds": false
+     }
+    },
+    "theta_e_low_k": {
+     "morning": {
+      "gcm": 345.848,
+      "column": 351.332,
+      "difference": 5.484,
+      "limit": 2.0,
+      "holds": false
+     },
+     "afternoon": {
+      "gcm": 346.277,
+      "column": 351.94,
+      "difference": 5.663,
+      "limit": 2.0,
+      "holds": false
+     },
+     "evening": {
+      "gcm": 346.117,
+      "column": 351.91,
+      "difference": 5.793,
+      "limit": 2.0,
+      "holds": false
+     },
+     "after_midnight": {
+      "gcm": 345.66,
+      "column": 351.634,
+      "difference": 5.973,
+      "limit": 2.0,
+      "holds": false
+     }
+    },
+    "theta_e_b_k": {
+     "morning": {
+      "gcm": 341.549,
+      "column": 347.532,
+      "difference": 5.982,
+      "limit": 1.5,
+      "holds": false
+     },
+     "afternoon": {
+      "gcm": 341.75,
+      "column": 347.681,
+      "difference": 5.93,
+      "limit": 1.5,
+      "holds": false
+     },
+     "evening": {
+      "gcm": 341.625,
+      "column": 347.812,
+      "difference": 6.187,
+      "limit": 1.5,
+      "holds": false
+     },
+     "after_midnight": {
+      "gcm": 341.346,
+      "column": 347.761,
+      "difference": 6.416,
+      "limit": 1.5,
+      "holds": false
+     }
+    },
+    "excess_k": {
+     "morning": {
+      "gcm": 4.298,
+      "column": 3.801,
+      "difference": -0.498,
+      "limit": 1.0,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": 4.527,
+      "column": 4.26,
+      "difference": -0.267,
+      "limit": 1.0,
+      "holds": true
+     },
+     "evening": {
+      "gcm": 4.492,
+      "column": 4.098,
+      "difference": -0.394,
+      "limit": 1.0,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": 4.315,
+      "column": 3.872,
+      "difference": -0.443,
+      "limit": 1.0,
+      "holds": true
+     }
+    },
+    "vapour_fall_g_kg": {
+     "morning": {
+      "gcm": 5.218,
+      "column": 4.771,
+      "difference": -0.447,
+      "limit": 1.0,
+      "holds": true
+     },
+     "afternoon": {
+      "gcm": 5.305,
+      "column": 4.936,
+      "difference": -0.369,
+      "limit": 1.0,
+      "holds": true
+     },
+     "evening": {
+      "gcm": 5.245,
+      "column": 4.838,
+      "difference": -0.407,
+      "limit": 1.0,
+      "holds": true
+     },
+     "after_midnight": {
+      "gcm": 5.147,
+      "column": 4.721,
+      "difference": -0.426,
+      "limit": 1.0,
+      "holds": true
+     }
+    },
+    "theta_e_sat_l_k": {
+     "morning": {
+      "gcm": 348.678,
+      "column": 341.559,
+      "difference": -7.119,
+      "limit": null,
+      "holds": null
+     },
+     "afternoon": {
+      "gcm": 349.054,
+      "column": 342.072,
+      "difference": -6.982,
+      "limit": null,
+      "holds": null
+     },
+     "evening": {
+      "gcm": 348.651,
+      "column": 341.525,
+      "difference": -7.126,
+      "limit": null,
+      "holds": null
+     },
+     "after_midnight": {
+      "gcm": 348.098,
+      "column": 340.771,
+      "difference": -7.326,
+      "limit": null,
+      "holds": null
+     }
+    },
+    "b_l_k": {
+     "morning": {
+      "gcm": -9.537,
+      "column": -0.891,
+      "difference": 8.645,
+      "limit": null,
+      "holds": null
+     },
+     "afternoon": {
+      "gcm": -9.717,
+      "column": -1.176,
+      "difference": 8.542,
+      "limit": null,
+      "holds": null
+     },
+     "evening": {
+      "gcm": -9.46,
+      "column": -0.701,
+      "difference": 8.759,
+      "limit": null,
+      "holds": null
+     },
+     "after_midnight": {
+      "gcm": -9.093,
+      "column": -0.076,
+      "difference": 9.016,
+      "limit": null,
+      "holds": null
+     }
+    }
+   }
+  },
+  "window_lengths_without_verdict": {
+   "moon_forward_5h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "t_low_k after_midnight",
+     "excess_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 0.098,
+     "t_low_k": 1.399,
+     "q_low_g_kg": 0.018,
+     "theta_e_low_k": 1.35,
+     "theta_e_b_k": 0.226,
+     "excess_k": 1.542,
+     "vapour_fall_g_kg": 0.026,
+     "theta_e_sat_l_k": 0.239,
+     "b_l_k": 0.247
+    }
+   },
+   "moon_forward_25h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "t_low_k evening",
+     "t_low_k after_midnight",
+     "excess_k evening",
+     "excess_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 0.313,
+     "t_low_k": 1.614,
+     "q_low_g_kg": 0.084,
+     "theta_e_low_k": 1.667,
+     "theta_e_b_k": 0.339,
+     "excess_k": 1.992,
+     "vapour_fall_g_kg": 0.063,
+     "theta_e_sat_l_k": 0.437,
+     "b_l_k": 0.308
+    }
+   },
+   "earth_forward_30min": {
+    "verdict": "FAIL",
+    "breaks": [
+     "rain_mm_day morning",
+     "rain_mm_day afternoon",
+     "rain_mm_day evening",
+     "rain_mm_day after_midnight",
+     "q_low_g_kg morning",
+     "q_low_g_kg afternoon",
+     "q_low_g_kg evening",
+     "q_low_g_kg after_midnight",
+     "theta_e_low_k morning",
+     "theta_e_low_k afternoon",
+     "theta_e_low_k evening",
+     "theta_e_low_k after_midnight",
+     "theta_e_b_k morning",
+     "theta_e_b_k afternoon",
+     "theta_e_b_k evening",
+     "theta_e_b_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 1.994,
+     "t_low_k": 0.428,
+     "q_low_g_kg": 1.682,
+     "theta_e_low_k": 5.675,
+     "theta_e_b_k": 5.972,
+     "excess_k": 0.524,
+     "vapour_fall_g_kg": 0.454,
+     "theta_e_sat_l_k": 7.035,
+     "b_l_k": 8.636
+    }
+   },
+   "earth_forward_1h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "rain_mm_day morning",
+     "rain_mm_day afternoon",
+     "rain_mm_day evening",
+     "rain_mm_day after_midnight",
+     "q_low_g_kg morning",
+     "q_low_g_kg afternoon",
+     "q_low_g_kg evening",
+     "q_low_g_kg after_midnight",
+     "theta_e_low_k morning",
+     "theta_e_low_k afternoon",
+     "theta_e_low_k evening",
+     "theta_e_low_k after_midnight",
+     "theta_e_b_k morning",
+     "theta_e_b_k afternoon",
+     "theta_e_b_k evening",
+     "theta_e_b_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 1.87,
+     "t_low_k": 0.451,
+     "q_low_g_kg": 1.705,
+     "theta_e_low_k": 5.775,
+     "theta_e_b_k": 6.13,
+     "excess_k": 0.546,
+     "vapour_fall_g_kg": 0.418,
+     "theta_e_sat_l_k": 6.958,
+     "b_l_k": 8.612
+    }
+   },
+   "earth_forward_6h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "rain_mm_day morning",
+     "rain_mm_day afternoon",
+     "rain_mm_day evening",
+     "rain_mm_day after_midnight",
+     "q_low_g_kg morning",
+     "q_low_g_kg afternoon",
+     "q_low_g_kg evening",
+     "q_low_g_kg after_midnight",
+     "theta_e_low_k morning",
+     "theta_e_low_k afternoon",
+     "theta_e_low_k evening",
+     "theta_e_low_k after_midnight",
+     "theta_e_b_k morning",
+     "theta_e_b_k afternoon",
+     "theta_e_b_k evening",
+     "theta_e_b_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 1.909,
+     "t_low_k": 0.498,
+     "q_low_g_kg": 1.786,
+     "theta_e_low_k": 6.068,
+     "theta_e_b_k": 6.66,
+     "excess_k": 0.592,
+     "vapour_fall_g_kg": 0.521,
+     "theta_e_sat_l_k": 7.059,
+     "b_l_k": 9.036
+    }
+   },
+   "earth_forward_24h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "rain_mm_day morning",
+     "rain_mm_day afternoon",
+     "rain_mm_day evening",
+     "rain_mm_day after_midnight",
+     "q_low_g_kg morning",
+     "q_low_g_kg afternoon",
+     "q_low_g_kg evening",
+     "q_low_g_kg after_midnight",
+     "theta_e_low_k morning",
+     "theta_e_low_k afternoon",
+     "theta_e_low_k evening",
+     "theta_e_low_k after_midnight",
+     "theta_e_b_k morning",
+     "theta_e_b_k afternoon",
+     "theta_e_b_k evening",
+     "theta_e_b_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 1.962,
+     "t_low_k": 0.618,
+     "q_low_g_kg": 1.922,
+     "theta_e_low_k": 6.425,
+     "theta_e_b_k": 6.795,
+     "excess_k": 0.37,
+     "vapour_fall_g_kg": 0.419,
+     "theta_e_sat_l_k": 5.271,
+     "b_l_k": 7.422
+    }
+   }
+  },
+  "first_runs_on_plasims_leapfrog": {
+   "note": "the checks' first runs stepped the column on PlaSim's leapfrog and filter; the Earth check failed, a test with windows of one step showed the leapfrog leaving the GCM's states within a step, where the forward step retraces them, and the column now steps forward; both checks were run again under the same rules",
+   "moon_2.5h": {
+    "verdict": "PASS",
+    "breaks": [],
+    "largest_quarter_difference": {
+     "rain_mm_day": 0.03,
+     "t_low_k": 0.421,
+     "q_low_g_kg": 0.016,
+     "theta_e_low_k": 0.441,
+     "theta_e_b_k": 0.14,
+     "excess_k": 0.301,
+     "vapour_fall_g_kg": 0.01,
+     "theta_e_sat_l_k": 0.067,
+     "b_l_k": 0.115
+    }
+   },
+   "moon_5h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "t_low_k after_midnight",
+     "excess_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 0.054,
+     "t_low_k": 1.576,
+     "q_low_g_kg": 0.022,
+     "theta_e_low_k": 1.533,
+     "theta_e_b_k": 0.136,
+     "excess_k": 1.669,
+     "vapour_fall_g_kg": 0.041,
+     "theta_e_sat_l_k": 0.187,
+     "b_l_k": 0.19
+    }
+   },
+   "moon_25h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "t_low_k evening",
+     "t_low_k after_midnight",
+     "excess_k evening",
+     "excess_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 0.332,
+     "t_low_k": 1.606,
+     "q_low_g_kg": 0.084,
+     "theta_e_low_k": 1.657,
+     "theta_e_b_k": 0.296,
+     "excess_k": 1.92,
+     "vapour_fall_g_kg": 0.062,
+     "theta_e_sat_l_k": 0.488,
+     "b_l_k": 0.327
+    }
+   },
+   "earth_3h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "rain_mm_day morning",
+     "rain_mm_day afternoon",
+     "rain_mm_day after_midnight",
+     "q_low_g_kg morning",
+     "q_low_g_kg afternoon",
+     "q_low_g_kg evening",
+     "q_low_g_kg after_midnight",
+     "theta_e_low_k morning",
+     "theta_e_low_k afternoon",
+     "theta_e_low_k evening",
+     "theta_e_low_k after_midnight",
+     "theta_e_b_k morning",
+     "theta_e_b_k afternoon",
+     "theta_e_b_k evening",
+     "theta_e_b_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 2.113,
+     "t_low_k": 0.423,
+     "q_low_g_kg": 1.631,
+     "theta_e_low_k": 5.418,
+     "theta_e_b_k": 5.96,
+     "excess_k": 0.625,
+     "vapour_fall_g_kg": 0.438,
+     "theta_e_sat_l_k": 6.923,
+     "b_l_k": 8.557
+    }
+   },
+   "earth_6h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "rain_mm_day morning",
+     "rain_mm_day afternoon",
+     "rain_mm_day evening",
+     "rain_mm_day after_midnight",
+     "q_low_g_kg morning",
+     "q_low_g_kg afternoon",
+     "q_low_g_kg evening",
+     "q_low_g_kg after_midnight",
+     "theta_e_low_k morning",
+     "theta_e_low_k afternoon",
+     "theta_e_low_k evening",
+     "theta_e_low_k after_midnight",
+     "theta_e_b_k morning",
+     "theta_e_b_k afternoon",
+     "theta_e_b_k evening",
+     "theta_e_b_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 1.891,
+     "t_low_k": 0.468,
+     "q_low_g_kg": 1.736,
+     "theta_e_low_k": 5.788,
+     "theta_e_b_k": 6.439,
+     "excess_k": 0.651,
+     "vapour_fall_g_kg": 0.473,
+     "theta_e_sat_l_k": 6.774,
+     "b_l_k": 8.69
+    }
+   },
+   "earth_24h": {
+    "verdict": "FAIL",
+    "breaks": [
+     "rain_mm_day morning",
+     "rain_mm_day afternoon",
+     "rain_mm_day evening",
+     "rain_mm_day after_midnight",
+     "q_low_g_kg morning",
+     "q_low_g_kg afternoon",
+     "q_low_g_kg evening",
+     "q_low_g_kg after_midnight",
+     "theta_e_low_k morning",
+     "theta_e_low_k afternoon",
+     "theta_e_low_k evening",
+     "theta_e_low_k after_midnight",
+     "theta_e_b_k morning",
+     "theta_e_b_k afternoon",
+     "theta_e_b_k evening",
+     "theta_e_b_k after_midnight"
+    ],
+    "largest_quarter_difference": {
+     "rain_mm_day": 2.272,
+     "t_low_k": 0.573,
+     "q_low_g_kg": 1.845,
+     "theta_e_low_k": 6.13,
+     "theta_e_b_k": 6.555,
+     "excess_k": 0.425,
+     "vapour_fall_g_kg": 0.408,
+     "theta_e_sat_l_k": 4.995,
+     "b_l_k": 7.115
+    }
+   }
+  },
+  "departure_at_the_earth_site": {
+   "30min": {
+    "first_day_lowest_vapour_off_by_0_1_g_kg": 9.21,
+    "first_day_off_by_0_5_g_kg": 9.25
+   },
+   "1h": {
+    "first_day_lowest_vapour_off_by_0_1_g_kg": 3.71,
+    "first_day_off_by_0_5_g_kg": 9.25
+   },
+   "3h": {
+    "first_day_lowest_vapour_off_by_0_1_g_kg": 3.62,
+    "first_day_off_by_0_5_g_kg": 10.62
+   },
+   "6h": {
+    "first_day_lowest_vapour_off_by_0_1_g_kg": 0.5,
+    "first_day_off_by_0_5_g_kg": 5.88
+   },
+   "24h": {
+    "first_day_lowest_vapour_off_by_0_1_g_kg": 0.25,
+    "first_day_off_by_0_5_g_kg": 1.88
+   }
+  },
+  "the_rows_sea_points_by_the_same_rules": {
+   "moon_2.5h": "38 of 39 PASS",
+   "earth_3h": "28 of 50 PASS",
+   "earth_30min": "44 of 50 PASS",
+   "note": "each sea grid point of the site row judged by the rules at its own hour angle; the site point fails on Earth in both"
+  },
+  "one_step_windows_retrace": "Earth's control from the month's end, 48 steps with an output and a dump at every step: from the GCM's first state, the forward column retraces every grid point of row 16 within 1.4e-7 K and 2.4e-10 kg/kg over 47 steps, its convective rain the GCM's; PlaSim's leapfrog under the same windows leaves it by 1.9 K within one step",
+  "variability_within_3h_windows_at_the_earth_site": "per-step dynamics' tendencies over one day at the site's point, from the run with a window every step: within 3 h windows the temperature tendency's standard deviation is 3.2-4.4 K/day at sigma 0.57-0.82 and 3.2 K/day at the lowest level, the vapour's 8.3-12.9 g/kg/day at sigma 0.92-0.98, against window means of -1.4 to -4.9 g/kg/day there"
+ }
+}

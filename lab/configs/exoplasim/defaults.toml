@@ -6,11 +6,11 @@
 schema = "worldlab.defaults.exoplasim/0"
 id = "exoplasim/defaults"
 upstream = "exoplasim-3.4.2"                   # models/pins.sha256
-patches = "models/exoplasim/patches/series"    # all twenty applied: Terluna's ten, the lab's patch 11, and
+patches = "models/exoplasim/patches/series"    # all twenty-one applied: Terluna's ten, the lab's patch 11,
                                                # patches 12 to 20, written here from Terluna's gust, similarity, rain
                                                # from its drops, two corrections of the twilight, its wind at 10 m and
-                                               # its simplified Betts-Miller convection; each switch below, at its
-                                               # default when omitted
+                                               # its simplified Betts-Miller convection, and the lab's forcing of a
+                                               # column, patch 21; each switch below, at its default when omitted
 
 resolution = "T21"
 levels = 10                                    # the released model's own ten sigma levels, which PlaSim computes from
@@ -98,6 +98,19 @@ wind_10m = true                                # 17: NWIND10. true writes the wi
                                                # released model does. On by default, since a diagnostic that changes no
                                                # state leaves the Earth control's test nothing to gate; a run on a
                                                # build before patch 17 writes none (PLAN.md, "Decisions", 2026-11-16)
+column_forcing = false                         # 21: NCOLFORCE. true writes, at each output, the dynamics' tendencies
+                                               # of temperature, vapour, the two winds and the surface pressure's log
+                                               # over the window since the last output, as the storage of the state the
+                                               # physics sees less the physics' tendencies, with that state at the
+                                               # output's step (codes 241-250): the forcing of a column of PlaSim's
+                                               # physics (python/climate/gcm/plasim_column.py). A diagnostic that
+                                               # leaves the model's state as it was; off by default, since it adds
+                                               # eight fields on every level to each output, 0.68 MB at T21 on ten
+                                               # levels, and refused on a series before patch 21
+column_dump_steps = 0                          # 21: NCOLDUMP. The count of a run's first steps whose physics inputs
+                                               # and outputs at every grid point go to plasim_column, in double
+                                               # precision: the state a column starts from, and the steps on which the
+                                               # column's physics is set beside the GCM's. 0 writes none
 convection = "kuo"                             # 18-20: NPRC. "kuo" keeps PlaSim's own deep convection, Kuo's scheme
                                                # (NPRC 1); "betts_miller" takes Frierson's (2007) simplified
                                                # Betts-Miller scheme in its place (NPRC 2), by the settings of

@@ -107,6 +107,11 @@ BETTS_MILLER = {'relaxation_s': (PATCH_18, 'TAU_BM', 7200.0), 'reference_humidit
                 'parcel_mixing': (PATCH_18, 'EPS_BM', 0.0), 'inhibition_limit_j_kg': (PATCH_18, 'CIN_BM', 0.0),
                 'depth_share': (PATCH_19, 'DSIGDEEP_BM', 0.0), 'mixing_steps': (PATCH_19, 'NSUB_BM', 1),
                 'shallow_cap': (PATCH_20, 'NSHCAP_BM', False)}
+# The forcing of a column of PlaSim's physics, diagnostics that leave the model's state as it was (patch 21): at each
+# output the dynamics' tendencies of temperature, vapour, the winds and the surface pressure's log over the window
+# since the last output, with the state the physics sees at the output's step (NCOLFORCE), and the physics' inputs and
+# outputs at every grid point over a run's first steps, written to plasim_column (NCOLDUMP, their count).
+PATCH_21 = '21-column-forcing.patch'
 # PlaSim presets parts of rainmod for pairs of truncation and level count (rainmod.f90, rainini): at T42 its ten levels
 # evaporate falling rain with a gamma of 0.007, where every other count keeps 0.01, and at T21 five levels switch its
 # shallow convection off. A generated set that would run on another such preset than the released ten at its
@@ -155,7 +160,7 @@ GENERATED_LEVELS = (('plasim_namelist', 'NEQSIG'), 'for a generated level set th
 # diagnostics, a generated set's half levels and top friction, PlaSim's water continuum, and the patch series' switches
 # and calibrations.
 ADDITIONS = {
-    'plasim_namelist': ('SEED', 'NDIAGCF', 'NDIAGGP', 'SIGH', 'TFRC'),
+    'plasim_namelist': ('SEED', 'NDIAGCF', 'NDIAGGP', 'SIGH', 'TFRC', 'NCOLFORCE', 'NCOLDUMP'),
     'radmod_namelist': ('TH2OC', 'RAYSCALE', 'NSUNCLOCK', 'SWH2OSCALE', 'IRTOPDAY', 'IRTOPNIGHT', 'NTWILIGHT',
                         'NTWILW', 'ZMLUNAR', 'NGASBANDS', 'ZGASQ', 'ZGASW', 'ZMAIRLUNAR', 'NLWCORR', 'NICEOPT',
                         'TICEOPT', 'ZICEW', 'NTWLCLEAR', 'NTWLZERO'),
@@ -446,7 +451,8 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
     default, takes patch 07's passes on a series that stops before patch 16, as the ice weights take patch 10's. The
     wind at 10 m, a diagnostic on by default, holds in a first run as in any other, and a series that stops before
     patch 17 writes none. The simplified Betts-Miller scheme is refused on a series without patch 18, and its own
-    settings on a series without the patch that reads them (`betts_miller`)."""
+    settings on a series without the patch that reads them (`betts_miller`). The forcing of a column and the steps whose
+    physics a run writes out, both off by default, are refused on a series without patch 21."""
     switches = dict(run['switches'])
     if world is not None and locked(world):
         switches['sun_clock'] = 'plasim'
@@ -484,6 +490,14 @@ def resolve(run: dict, calibrations: Calibrations, world: dict | None = None) ->
                         f'{switches.get("convection")!r}')
     if switches['convection'] == 'betts_miller' and PATCH_18 not in series(run):
         raise SpecError(f"switches.convection 'betts_miller' takes {PATCH_18}, which the run's series lacks")
+    switches['column_forcing'] = bool(_switch(switches.get('column_forcing'), 'switches.column_forcing'))
+    steps = _integer(switches.get('column_dump_steps'), 'switches.column_dump_steps')
+    if steps < 0:
+        raise SpecError(f'switches.column_dump_steps counts steps from 0 up, where the run states {steps!r}')
+    switches['column_dump_steps'] = steps
+    for name, on in (('column_forcing', switches['column_forcing']), ('column_dump_steps', steps > 0)):
+        if on and PATCH_21 not in series(run):
+            raise SpecError(f"switches.{name} takes {PATCH_21}, which the run's series lacks")
     return switches
 
 
@@ -585,6 +599,9 @@ def namelists(world: dict, scenario: dict, run: dict, *, top: TopOfAir,
                   N_DAYS_PER_YEAR=cal['n_days_per_year'], N_RUN_STEPS=cal['run_steps_per_year'],
                   SEED=_integer(run['seed'], 'seed'), NDIAGCF=_switch(run['clear_sky'], 'clear_sky'),
                   NDIAGGP=_switch(run['heating_diagnostics'], 'heating_diagnostics'))
+    # The forcing of a column and the steps whose physics the run writes out, where the run's series holds patch 21.
+    if PATCH_21 in series(run):
+        plasim.update(NCOLFORCE=int(switches['column_forcing']), NCOLDUMP=switches['column_dump_steps'])
     level_set = derive.levels(run, world, scenario)
     plasim.update(level_entries(level_set, run, where))     # nothing for the released model's own levels
 

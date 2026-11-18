@@ -108,6 +108,16 @@ bits of that of Terluna's deployed build `moon_omp_rain_law_pbl_wind_gust_aloft_
 `cm1/build/`, `solve1.F` sha256 `c723f391d1107582…`) in 72 runs on test domains, 36 under each of CM1's flags and
 `-O3 -march=native`, its slots given the lab's values and its record left unwritten.
 
+ExoPlaSim's patch 21 and the column of PlaSim's physics (`python/climate/gcm/plasim_column.py`, `plasim_column.f90`,
+`plasim_column_mpi.f90`), written on 2026-11-18, are the lab's own; no code came from Terluna. Terluna's process
+diagnostics (`HEATING`, `MOISTENING` and `BUDGET` in `climate/gcm/exoplasim_run.py` on `domain/climate` at
+`29af5c16`) and its single columns (`climate/gcm/pbl_column.py` with `pbl_scheme.py`, `pbl_mixing.py` and
+`pbl_fortran.py`, Python copies of parts of PlaSim forced by CM1's boxes) were read as references. The column's
+message-passing layer keeps the routine list of ExoPlaSim's `mpimod_stub.f90` and the restart and surface routines of
+its `mpimod.f90`, and its `makeareas` the formula of ExoPlaSim's `utilities.f90`, all under the GNU GPL version 3 as
+ExoPlaSim distributes them; the measures of its replay check take the definitions of the gap readings' scripts on the
+research drive (`agents/gap_readings/scripts/gr_common.py`, 17 November 2026).
+
 The runners themselves, which insert this code at build time, stay in Terluna. Applying the series to
 the pinned sources reproduces the deployed sources (see each model's README and `models/check_patches.sh`).
 

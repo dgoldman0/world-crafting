@@ -179,8 +179,8 @@ def test_the_templates_come_from_the_pinned_archive_alone(tmp_path):
 
 def test_the_switches_resolve_to_what_the_build_does():
     assert ex.series(DESIGN)[10:] == ('11-ice-weights.patch', ex.PATCH_12, ex.PATCH_13, ex.PATCH_14, ex.PATCH_15,
-                                      ex.PATCH_16, ex.PATCH_17, ex.PATCH_18, ex.PATCH_19, ex.PATCH_20)
-    assert len(ex.series(DESIGN)) == 20
+                                      ex.PATCH_16, ex.PATCH_17, ex.PATCH_18, ex.PATCH_19, ex.PATCH_20, ex.PATCH_21)
+    assert len(ex.series(DESIGN)) == 21
     first, later = ex.resolve(DESIGN, ex.Calibrations.identity()), ex.resolve(LW_ICE, _given())
     assert (first['twilight'], first['gas_bands'], first['ice_weights']) == ('none', False, 'from-spectrum')
     assert (later['twilight'], later['gas_bands'], later['ice_weights'], later['ice_optics']) == \
@@ -259,6 +259,23 @@ def test_the_switches_resolve_to_what_the_build_does():
     for value in ('mass_flux', None, 2):
         with pytest.raises(SpecError, match='switches.convection is one of'):
             ex.resolve(_with(DESIGN, switches={'convection': value}), _given())
+    # The forcing of a column and the steps whose physics a run writes out: off and 0 by default, in a first run as in
+    # any other; on as the run states them, and refused on a series that lacks patch 21.
+    assert (first['column_forcing'], first['column_dump_steps'], later['column_forcing']) == (False, 0, False)
+    forced = _with(DESIGN, switches={'column_forcing': True, 'column_dump_steps': 4})
+    assert (ex.resolve(forced, ex.Calibrations.identity())['column_forcing'],
+            ex.resolve(forced, _given())['column_dump_steps']) == (True, 4)
+    twenty = list(ex.series(DESIGN))[:20]
+    assert ex.resolve({**DESIGN, 'patches': twenty}, _given())['column_forcing'] is False
+    for switches in ({'column_forcing': True}, {'column_dump_steps': 1}):
+        with pytest.raises(SpecError, match=f"takes {re.escape(ex.PATCH_21)}, which the run's series lacks"):
+            ex.resolve({**_with(DESIGN, switches=switches), 'patches': twenty}, _given())
+    for value in (1, 'yes', None):
+        with pytest.raises(SpecError, match='switches.column_forcing is true or false'):
+            ex.resolve(_with(DESIGN, switches={'column_forcing': value}), _given())
+    for value, message in ((-1, 'counts steps from 0 up'), (1.5, 'is an integer'), (True, 'is an integer')):
+        with pytest.raises(SpecError, match=f'switches.column_dump_steps {message}'):
+            ex.resolve(_with(DESIGN, switches={'column_dump_steps': value}), _given())
 
 
 # The rules each entry follows.
@@ -401,6 +418,21 @@ def test_the_wind_at_10_m_sets_its_entry_where_the_series_holds_patch_17():
         {'NGUST': 1, 'NSIMW': 1, 'NWIND10': 1}
     assert entries({**DESIGN, 'patches': list(ex.series(DESIGN))[:16]}) == {'NGUST': 0, 'NSIMW': 0}
     assert 'NWIND10' in ex.ADDITIONS['fluxmod_namelist']
+
+
+def test_the_forcing_of_a_column_sets_its_entries_where_the_series_holds_patch_21():
+    """Patch 21: NCOLFORCE and NCOLDUMP in plasim_namelist where the run's series holds the patch, 0 by default, and
+    as the run states them; a series that stops before the patch writes neither, so that its build reads a namelist
+    of the names it knows."""
+    def entries(run, calibrations=None, top=LATER):
+        written = ex.namelists(MOON, OPEN_MOON, run, top=top, calibrations=calibrations or _given())['plasim_namelist']
+        return {k: written[k] for k in ('NCOLFORCE', 'NCOLDUMP') if k in written}
+
+    assert entries(DESIGN) == {'NCOLFORCE': 0, 'NCOLDUMP': 0}
+    assert entries(_with(DESIGN, switches={'column_forcing': True, 'column_dump_steps': 2}), ex.Calibrations.identity(),
+                   FIRST) == {'NCOLFORCE': 1, 'NCOLDUMP': 2}
+    assert entries({**DESIGN, 'patches': list(ex.series(DESIGN))[:20]}) == {}
+    assert {'NCOLFORCE', 'NCOLDUMP'} <= set(ex.ADDITIONS['plasim_namelist'])
 
 
 def test_the_convection_sets_its_entries_where_the_series_holds_patches_18_to_20():
@@ -859,7 +891,8 @@ def test_the_design_runs_namelists_are_terlunas_but_for_five_entries_each_with_i
                         ('radmod_namelist', 'IRTOPNIGHT'): '0.0', ('radmod_namelist', 'NICEOPT'): '0',
                         ('radmod_namelist', 'NLWCORR'): '0', ('rainmod_namelist', 'NEVAPPREC'): '1',
                         ('radmod_namelist', 'NTWLCLEAR'): '0', ('radmod_namelist', 'NTWLZERO'): '1',
-                        ('rainmod_namelist', 'NPRC'): '1'}
+                        ('rainmod_namelist', 'NPRC'): '1', ('plasim_namelist', 'NCOLFORCE'): '0',
+                        ('plasim_namelist', 'NCOLDUMP'): '0'}
     assert set(found) == {('planet_namelist', k) for k in ('GA', 'PLARAD', 'ECCEN', 'GSOL0')} | \
         {('rainmod_namelist', 'CWSCALE')}
     lab, terluna = ({key: float(pair[i]) for key, pair in found.items()} for i in (0, 1))

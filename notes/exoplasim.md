@@ -1,8 +1,9 @@
 # ExoPlaSim on a breathable Moon: correctness, limits and room for improvement
 
-Notes on the twenty patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten, the lab's patch 11 and
+Notes on the twenty-one patches in [../models/exoplasim/](../models/exoplasim/), Terluna's ten, the lab's patch 11,
 patches 12 to 20, which the lab wrote from Terluna's surface transfer, its rain from drop sizes, its two corrections
-of the twilight, its wind at 10 m and its simplified Betts–Miller convection, the settings that
+of the twilight, its wind at 10 m and its simplified Betts–Miller convection, and the lab's patch 21, the forcing of a
+column of PlaSim's physics, with that column; the settings that
 carry the Moon, the level set generated for a world, the offline copies of PlaSim's radiation, surface transfer and
 falling rain in `python/climate/gcm/`, and what in PlaSim stays Earth's. References to Terluna are at commit 186b294
 unless another commit is named; to ExoPlaSim, at the 3.4.2 source distribution.
@@ -18,7 +19,7 @@ physical validation of a lunar climate, which no observation can supply.
 
 - Applied with GNU patch to pristine ExoPlaSim 3.4.2, patches 01–10 reproduce the copy every Terluna run
   imported on 2026-10-17 byte for byte (`models/check_patches.sh`; `models/exoplasim/expected.sha256`), and the
-  series of twenty gives the sources of `models/exoplasim/expected-series.sha256`.
+  series of twenty-one gives the sources of `models/exoplasim/expected-series.sha256`.
 - Prefixes of the series reproduce the source hashes 32 Terluna runs recorded, so each reported result
   can be rebuilt from the series (`models/exoplasim/runs.json`). The two exceptions are explained there.
 - The deployed copy compiled and ran in Terluna's runs. The lab compiles each point of the series in its store
@@ -536,6 +537,44 @@ reference, passed none of its tests. One relaxation time, reference humidity and
 Earth's value by default, and the similarity that scales the time is untested on the scheme. The Earth control's test
 and the gap's runs (`PLAN.md`, blocks 3 and 4) are still to come, and until then the writer keeps Kuo's scheme.
 
+### A column of PlaSim's physics and its forcing (patch 21, `NCOLFORCE`, `NCOLDUMP`; `plasim_column.py`)
+
+**What it is.** Patch 21 writes, at each output, the dynamics' tendencies of temperature, vapour, the winds and the
+surface pressure's log over the window since the last output, the storage of the state the physics sees less the
+physics' tendencies summed over the window's steps, beside that state, and over a run's first steps the physics'
+inputs and outputs at every grid point. The column compiles PlaSim's own physics from the lab's series for one row of
+the GCM's grid, starts from the GCM's restart and state through PlaSim's own `prolog`, and steps the row's grid points
+through the physics in `gridpointd`'s order, given the GCM's state each step or forced by the patch's windows. Four of
+PlaSim's routines give way to the driver's (`master`, `mkdqtgp`, `makeareas`, `oroini`); everything else is the
+GCM's code ([../models/exoplasim/README.md](../models/exoplasim/README.md), "The forcing of a column and the column of
+PlaSim's physics").
+
+**Correctness.** By evidence state:
+
+| Evidence | What it shows | Where |
+|---|---|---|
+| Identity | On Earth's control over 96 steps the whole series' build gives the output and restart of the build of patches 01–20 byte for byte, with the entries unstated and stated as 0; with `NCOLFORCE` 1 the restart stays byte for byte and the output gains codes 241–250 alone; with `NCOLDUMP` the output and restart stay byte for byte | `lab/tests/test_plasim_column.py` |
+| Reproduction | Each window's written tendencies equal the dump's storage less its physics within 2 × 10⁻⁶ of their scale, and its written state the dump's in single precision; given the GCM's state each step, the column gives every field of the GCM's physics bit for bit at rows from pole to pole, on Earth's control under Kuo's scheme and on the Open Moon with every switch of the series on; forced by windows of one step, it retraces the GCM's states within 10⁻⁵ K and 10⁻⁸ kg/kg | `lab/tests/test_plasim_column.py` |
+| Replay, test runs of 18 November 2026 under rules fixed beforehand | The Open Moon's frozen first lunar day at the Near-side Sea: PASS, every quarter within 0.2 K and 0.01 g/kg; Earth's warm pool over a month: FAIL, the column's lowest level 1.8 g/kg moister and its θe_B 6 K higher, its rain a third less, after it left the GCM 6–11 days in | `lab/validation/column_replay.json`; the README |
+
+**Limits.** A column forced by one trajectory of the GCM keeps that trajectory's dynamics whatever its own physics
+does, so at a convecting point it follows the GCM for days and then settles into a state of its own; the mixing tests
+choose between short replays and a free troposphere held to the GCM's before they start. Work PlaSim does across
+processes covers the row. The column's physics acts over the full step where the GCM's acts over
+`sidereal_day/ntspd` of it (below), so a change of physics weighs about 9% more in the column on the Moon than in the
+GCM. The checks so far are test runs from cold starts.
+
+**PlaSim's two clocks.** The spectral model scales its time by `ww`, 2π over the sidereal day (`initpm`), and steps
+it by `delt` = 2π/`ntspd`, `ntspd` the steps in a solar day, so that each step advances the dynamics and applies the
+physics' tendencies, divided by `ww` in `gridpointd`, over `sidereal_day/ntspd` seconds. The physics computes those
+tendencies, the surface modules integrate their fluxes and the Sun's clock of patch 04 turns over `deltsec`, the
+1,800 s of `MPSTEP`. The two agree within 0.27% on Earth's control, whose `readnl` sets the sidereal day to 364/365 of
+86,400 s, and differ by 8.3% on the Moon, whose 1,430 steps a model day span a solar day of 2,575,191 s against a
+sidereal day of 2,360,592 s: every step, the atmosphere's dynamics and its share of the physics advance 1,651 s while
+the ground, the slab sea and the Sun advance 1,800 s. Read from the code and from `ww` as Earth's dumps give it
+(`lab/tests/test_plasim_column.py`); its effect on a lunar climate is unmeasured, and the defect log holds no entry
+for it yet.
+
 ## Settings and inputs
 
 - **Whole model days** (`runsteps` 17,160): before 2026-09-29 each year ran 17,280 steps and the output
@@ -643,3 +682,6 @@ gives the copy's tendencies and precipitation to 10⁻¹⁰ ("Rain from its drop
 14. Run the simplified Betts–Miller scheme at the world's relaxation time beside 2 h (`PLAN.md`, block 4, step 3),
    fit its reference humidity and depth on cloud-resolving boxes of the world, and take it through the Earth
    control's test.
+15. Take the column of PlaSim's physics through a replay of a settled warm climate, with short replays or a free
+   troposphere held to the GCM's, before it tests the boundary layer's mixing; and measure PlaSim's two clocks on the
+   Moon, the step its dynamics take against the one its surface and Sun take.

@@ -588,6 +588,15 @@ the lab's own code.
   5). Its tests run under `make check` wherever gfortran is, the sky solver's among them, which pytest leaves
   uncollected where numba is missing.
 - **Threads** follow the models' `OMP_NUM_THREADS`, within the machine budget.
+- **A model's own routines whole.** Where a tool runs a whole set of a model's routines in their own order, as the
+  column of PlaSim's physics does (`python/climate/gcm/plasim_column.py`, since 18 November 2026), the model's own
+  makefile compiles them from the pinned archive and the run's series with the flags ExoPlaSim's `configure` wrote,
+  and the tool supplies only what the model's layout lets it swap or what it must replace: a message-passing layer
+  through the makefile's `MPIMOD`, and four routines whose symbols objcopy weakens in PlaSim's objects so that the
+  tool's driver takes their place, each named with its reason. The tool runs as a program in a folder of the model's
+  own files, read by the model's own start-up, and the Python beside it writes the folder, runs the program and reads
+  its output, so that a stop or a trapped fault in the model ends the model's own process. The build lands in the
+  store's `builds/` under a key of its inputs, read-only and written whole, as the GCM's builds are.
 
 ## Jobs and the machine
 
