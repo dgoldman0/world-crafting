@@ -143,6 +143,16 @@ ExoPlaSim's output and five open entries to the defect log on the lab's branch (
   makes a restarted run follow the run it continues, as the twilight's single count restores a run's own bookkeeping.
   A12 counts as the eighth defect in the released codes, on the lunar runs' path, since Terluna's boxes ran in
   restarted segments; the paper takes it in its next revision with A11 (18 November 2026).
+- The trigger on the lower troposphere's buoyancy is set aside (18 November 2026). Offline it shuts all of the GCM's
+  deep convection, the afternoon's with the night's, since no record of the GCM's reaches Earth's onset, the failure of
+  Terluna's closure (c); the GCM's buoyancy is set by its state, a boundary layer whose lowest level stands 4–7 K above
+  its mean in θe beneath a warm free troposphere (`agents/trigger_study/` and `agents/subcloud_check/` on the lab's
+  research drive).
+- A driver that replays the GCM's own physics in one column under the GCM's own forcing is built in a third worktree
+  (`lab-column`, 18 November 2026), with the diagnostic that writes the forcing, so that PlaSim's vertical mixing
+  (defect log B32) can be tested in minutes under the forcing CM1's boxes receive; the replay is checked before any
+  test reads it, and the two-year rerun that writes a settled climate's forcing and the mixing tests wait for the
+  author's word.
 
 ## Each fix: general or the Moon's
 
