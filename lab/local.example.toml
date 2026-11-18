@@ -7,3 +7,12 @@ terluna = "/path/to/terluna"                      # Terluna's repository, read b
 terluna-drive = "/path/to/terluna-research"       # its research drive: gcm-runs, crm-runs, cm1/build
 store = "/path/to/worldlab-store"                 # the lab's own store
 env = "/path/to/worldlab-venv"                    # the lab's Python environment (lab/requirements.txt)
+
+[budget]                                          # the machine's budget for the lab's runs (lab/worldlab/jobs.py); each
+                                                  # value left out takes the default shown
+threads = 8                                       # the most a run takes: half the cores
+nice = 10                                         # the priority at which CM1 runs
+min_free_gb = 20.0                                # the free disk a run leaves the store, beside its own estimated need
+load_ceiling = 16.0                               # the load average from other work with a run's own threads stays
+                                                  # at or below this before each segment: the core count
+poll_s = 60.0                                     # seconds between looks at the load while a run is held back

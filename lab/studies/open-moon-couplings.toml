@@ -1,0 +1,70 @@
+# The coupling test: four sea boxes over the Near-side Sea that test whether the ways of coupling a CM1 box to the GCM
+# agree with themselves, before either model's convection changes again (lab/design/gap_series.md, section 3; PLAN.md,
+# "Decisions", 17 November 2026). Under the GCM's imposed ascent Terluna's sea box rained about 0.2 mm/day after
+# midnight, and making its own ascent by the damped gravity wave it rained 1.6-1.7, against the GCM's 1.21, so the
+# night gap rests on the coupling. The test is path 2 of the review of that day (research drive,
+# agents/gap_alternatives/report.md, with corrections.md beside it): the damped gravity wave measured against the
+# imposed box's own domain mean by local time (Edman and Romps 2015), the wave at the planet's scale, and a
+# weak-temperature-gradient coupling once its patch joins CM1's series. Each box runs four lunar days, two of spin-up
+# and two read. Draft schema 0 (lab/design/world_spec.md); written and checked by the lab's commands, run at the
+# author's word.
+#
+# The forcing run is a setting of the first case, which the others inherit. By the author's decision of 18 November
+# 2026 it is Terluna's present design climate, read in place on Terluna's research drive as test input: the corrected
+# run on the turned geography, A28R_301k_design_l15_snow_s938_turned_refit_precession, over its forty settled years,
+# 10-49, at the Near-side Sea as carried with the ground when the Moon turned. The lab's own design run comes in block
+# 3 of PLAN.md.
+
+schema = "worldlab.study/0"
+id = "open-moon-couplings"
+scenario = "moon/open-moon"
+
+[crm.sea_imposed]
+model = "cm1"
+extends = "cm1/defaults"
+forcing_run = "terluna-drive:gcm-runs/A28R_301k_design_l15_snow_s938_turned_refit_precession"   # read in place
+reference_model_years = [10, 49]                 # the run's forty settled years
+kind = "box"
+solar_longitude_deg = 0.0                        # the equinox
+site = { lat_deg = -9.24, lon_deg = -52.01, half_lat_deg = 5.6, half_lon_deg = 8.5, surface = "sea" }
+                                                 # the Near-side Sea carried with the ground into the turned frame
+                                                 # (gcm_site.TERLUNA_OPEN_MOON_SITES, near_side_sea_turned): the GCM's
+                                                 # sea cells within 5.6 deg of latitude and 8.5 of longitude
+columns = { nx = 32, ny = 32 }                   # Terluna's sea box: 192 km square at 6 km
+read_solar_days = [2.0, 4.0]                     # spin-up over the first two lunar days, the last two read
+purpose = "the sea box under the GCM's imposed ascent: its mean vertical wind, its heating and moistening by local time and its air held above the GCM's convection"
+
+[crm.sea_imposed.set]                            # changed from cm1/defaults as Terluna's sea boxes took them
+"unscaled.run_solar_days" = 4.0
+"physics.gust_over_water" = "beljaars"           # Beljaars's gust over water (registry B35), as from 28 October 2026
+"physics.rain_fall_law" = "world"                # the single-drop solver's table and the world's self-collection
+"coupling.reference_season" = "year"             # the forty years' whole mean: the lab reads no record's season yet
+"coupling.reference_season_reason" = "the Open Moon's equator lies within 1.6 degrees of its orbit's plane, so that the season moves the Sun's declination at the site by 1.6 degrees at most, and the coupling test compares boxes forced alike"
+
+[crm.sea_dgw]
+extends = "sea_imposed"
+purpose = "the sea box making its own large-scale vertical wind by the damped gravity wave, against the GCM's air by local time, at its site's footprint"
+
+[crm.sea_dgw.set]
+"coupling.vertical_wind" = "dgw"
+
+[crm.sea_dgw_self]
+extends = "sea_dgw"
+purpose = "the damped gravity wave measured against the imposed box's own domain mean by local time over its two read days, the test of self-consistency of Edman and Romps (2015)"
+
+[crm.sea_dgw_self.set]
+"coupling.coupled_reference" = { from_case = "sea_imposed", solar_days = [2.0, 4.0] }   # waits on sea_imposed's run
+
+[crm.sea_dgw_planet]
+extends = "sea_dgw"
+purpose = "the damped gravity wave at the planet's scale, the Moon's radius as the length the box stands for"
+
+[crm.sea_dgw_planet.set]
+"coupling.coupling_length" = "radius"            # 1,737 km, about 11.9 h at the first mode's 40.8 m/s
+
+[crm.sea_wtg]
+extends = "sea_dgw"
+purpose = "the weak-temperature-gradient coupling (patch 11 of the lab's CM1 series) against the GCM's air by local time, its least stability scaled by gravity"
+
+[crm.sea_wtg.set]
+"coupling.vertical_wind" = "wtg"

@@ -1,10 +1,11 @@
-# The registry of Earth assumptions: a seed of twenty entries in draft schema 0 (lab/design/architecture.md,
+# The registry of Earth assumptions: a seed of twenty-five entries in draft schema 0 (lab/design/architecture.md,
 # "The registry of Earth assumptions and the reach report"). Ids are the defect log's (notes/defect_log.md) where
 # it has one; the rest are named by model. Conditions are all-of lists of tests on derived quantities (q),
 # specification fields (field), the run's settings (config: its model's defaults with the study's changes) or a
 # calibration's envelope (calibration). Tolerances are relative (rel_tolerance).
 # Thresholds marked "proposed" come from the design and await the author's decision before the reach report uses
-# them. A field a world leaves out holds no value, so that `ne` holds for it: A1 tests every world but one locked to
+# them. worldlab.registry evaluates the entries for a run; an entry of action refuse or require-* whose test reads a
+# quantity the run's context lacks, or a NaN, stops the run as one that holds would, unless overridden. A field a world leaves out holds no value, so that `ne` holds for it: A1 tests every world but one locked to
 # its star (rotation.locked_to), whose star ExoPlaSim's synchronous mode holds still.
 #
 # action: require-switch | require-build | require-refit | warn | refuse
@@ -39,17 +40,34 @@ action = "require-switch"
 evidence = ["notes/defect_log.md A2"]
 
 [[entry]]
+id = "A9"
+model = "cm1"
+where = "turb.F, the ipbl = 2 block: turbsz, turbuz and turbvz return the air's density times each change per second (turbtend.F:686, 697, 1541, 2333), which solve1.F adds as a change per second (:1208, 1500)"
+form = "latent defect"
+assumes = "the simple boundary layer's tendencies per unit volume, handed to a solver that adds them per unit mass"
+when = [{ config = "cm1.physics.pbl", eq = "cm1-simple" }, { config = "cm1.physics.pbl_per_mass", ne = true }]
+effect = "under air near 1.4 kg/m3 Terluna's boxes' boundary layer took 1.32-1.35 times the surface's evaporation and 1.46-1.51 times its sensible heat, the drag inflated alike; on Earth's 1.0-1.2 kg/m3, by the code, up to about 20%, untested on an Earth case"
+state = "repaired"
+repair = { patch = "lab/01-the-simple-boundary-layers-tendencies-per-unit-mass", switch = "ipbl2_per_mass", value = 1, default = 0, setting = "cm1.physics.pbl_per_mass" }
+action = "require-switch"
+note = "a coding defect of CM1's own, whose fix PLAN.md's porting table has the registry require in every run with ipbl = 2, so cm1/defaults takes it on (physics.pbl_per_mass = true) and a case that turns it off is refused unless overridden; Terluna's build moon_omp_rain_law_pbl made the same fix, with which its boxes' boundary layer passed on 0.995-1.000 of the evaporation; the lab's runs have yet to measure its effect (plan stage 3)"
+evidence = ["notes/defect_log.md A9", "notes/cm1.md, The simple boundary layer's density", "PLAN.md, Porting: confidence, form and cost"]
+
+[[entry]]
 id = "B1"
 model = "cm1"
 where = "constants.F, module_ra_etc.F, getcape.F, morrison.F (g = 9.81)"
 form = "constant"
 assumes = "g = 9.81 m/s2"
-when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 1e-6 }]
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 1e-6 },
+        { q = "cm1_build_gravity_departure", gt = 1e-6 }]   # the build's compiled gravity, TERLUNA_G or 9.81, against
+                                                             # the world's, a share of it: nil where the build compiles
+                                                             # the world's gravity in
 effect = "dynamics, RRTMG's layer masses, CAPE and fall speeds at Earth's gravity"
 state = "repaired"
 repair = { patches = ["core/01-04", "lab/06-gravity-co2-and-o2-from-the-namelist"], build_constant = "TERLUNA_G", namelist = ["world_g"], default = "the build's TERLUNA_G: 9.81 in a build without the macro", setting = "cm1.world_constants" }
 action = "require-build"
-note = "since 11 November 2026 patch 06 of the lab's CM1 series reads g from the namelist as world_g, whose default is the build's TERLUNA_G, with RRTMG's CO2 and O2 beside it as world_co2 and world_o2 (defect log B8); the action stays require-build, and cm1/defaults keeps world_constants = \"build\", until the one-day ring segments and the timing of plan stage 3 pass, when it becomes require-switch; in the suite the constants, the CAPE diagnostic, one column of RRTMG and one of Morrison's scheme told the Moon's gravity return the bits of the same code with it compiled in, and in single scratch runs of 11 November 2026 three hours of Terluna's 45 N ring, output and restart files alike, agreed byte for byte between a build with the Moon compiled in and one build told the Moon by the namelist, under both flag sets (models/cm1/README.md); the electrified series' NSSL still reads TERLUNA_G for its fall speeds, so an electrified build compiles the gravity in until its companion patch, and the model stops on the MYNN and MYJ schemes, which hold the build's gravity, where world_g differs from it"
+note = "since 11 November 2026 patch 06 of the lab's CM1 series reads g from the namelist as world_g, whose default is the build's TERLUNA_G, with RRTMG's CO2 and O2 beside it as world_co2 and world_o2 (defect log B8); the action stays require-build, and cm1/defaults keeps world_constants = \"build\", until the one-day ring segments and the timing of plan stage 3 pass, when it becomes require-switch; in the suite the constants, the CAPE diagnostic, one column of RRTMG and one of Morrison's scheme told the Moon's gravity return the bits of the same code with it compiled in, and in single scratch runs of 11 November 2026 three hours of Terluna's 45 N ring, output and restart files alike, agreed byte for byte between a build with the Moon compiled in and one build told the Moon by the namelist, under both flag sets (models/cm1/README.md); the electrified series' NSSL still reads TERLUNA_G for its fall speeds, so an electrified build compiles the gravity in until its companion patch, and the model stops on the MYNN and MYJ schemes, which hold the build's gravity, where world_g differs from it; since 18 November 2026 the entry tests the build's compiled gravity against the world's (cm1_build_gravity_departure, worldlab.cm1), so that a case whose build compiles the world's gravity in passes, and a case told its world by the namelist runs only on an override until the action becomes require-switch; one model day of the coupling study's imposed sea box gave the same 47 files byte for byte from the two builds (notes/cm1.md, What a build still holds of a world)"
 evidence = ["notes/defect_log.md B1", "notes/cm1.md, Gravity", "models/cm1/README.md, the lab's patches 06 to 08"]
 
 [[entry]]
@@ -276,6 +294,21 @@ note = "the factors are a scaling law from the scheme's two fall-speed exponents
 evidence = ["notes/defect_log.md B38", "notes/cm1.md, Fall speeds", "models/cm1/README.md, the lab's patch 05"]
 
 [[entry]]
+id = "B35"
+model = "cm1"
+where = "sfclay.F (sfcmodel = 2): the convective gust in the bulk formulas, Beljaars's vconvc (g/T_s h B)^(1/3) over land and the old MM5 formula sqrt(dthv) m/s over water"
+form = "fit beyond its range"
+assumes = "a gust over water fitted on Earth, whose formula holds no gravity"
+when = [{ q = "gravity_m_s2", ne = 9.81, rel_tolerance = 0.005 }, { config = "cm1.physics.surface_layer", eq = "mm5" },
+        { config = "cm1.physics.gust_over_water", ne = "beljaars" }]
+effect = "over the lunar sea, with the air 3-4 K below the sea in virtual temperature, the formula gave a gust of 1.6-2.1 m/s and raised the wind in the bulk formulas 1.6-1.8 times, where Beljaars's form from the box's own fluxes raises it 1.1-1.2 times"
+state = "repaired"
+repair = { patch = "lab/02-beljaars-gust-over-water", switch = "gust_over_water", value = 1, default = 0, setting = "cm1.physics.gust_over_water" }
+action = "warn"
+note = "the fix enters opt-in and waits on the Earth control's test (PLAN.md, Porting: confidence, form and cost), so cm1/defaults keeps CM1's formula (physics.gust_over_water = \"mm5\") and the entry warns off Earth's gravity; Terluna's site boxes took Beljaars's gust from 28 October 2026, and a case compared with them sets it; a stable surface layer takes no gust"
+evidence = ["notes/defect_log.md B35", "models/cm1/README.md, the lab's patch 02"]
+
+[[entry]]
 id = "cm1-soil-day"
 model = "cm1"
 where = "init_surface.F, slab_dzs: five layers doubling from CM1's 1 cm top layer; Terluna's patch 08 sets 5 cm on every world"
@@ -326,5 +359,5 @@ when = [{ q = "cm1_damping_clearance_m", lt = 0.0 }]          # proposed (PLAN.m
 effect = "unmeasured: the box would relax toward its base state air that the GCM's convection reaches, beside the forcing the GCM's circulation brings there; Terluna's boxes ran clear of it, their damping from 115.5 km above the GCM's convection top at 72-73 km and its next level at 93-95 km"
 state = "bounded"
 action = "refuse"
-note = "the threshold is proposed and awaits the author's decision; python/climate/crm/gcm_site.py refuses such a case as it writes the forcing (case_inputs) and states the clearance in the case's record; on Terluna's design run at the Near-side Sea the clearance is 20.8 km, the convection's top at 73.4 km and its next level at 94.7 km in the run's own gas constant; on Earth's defaults the damping begins at 18.6 km (lab/design/terluna_fixes.md, row 6), close above a tropical tropopause of 16-17 km, so an Earth box's clearance depends on the forcing GCM's levels there; the forcing reaches the box's top whatever the clearance, and the rule bounds where the box's own damping meets it"
+note = "the threshold is proposed and awaits the author's decision; python/climate/crm/gcm_site.py refuses such a case as it writes the forcing (case_inputs) and states the clearance in the case's record; on Terluna's design run at the Near-side Sea the clearance is 20.8 km, the convection's top at 73.4 km and its next level at 94.7 km in the run's own gas constant; on Earth's defaults the damping begins at 18.6 km (lab/design/terluna_fixes.md, row 6), close above a tropical tropopause of 16-17 km, so an Earth box's clearance depends on the forcing GCM's levels there; the forcing reaches the box's top whatever the clearance, and the rule bounds where the box's own damping meets it; an override of this entry lets no case through, since gcm_site.case_inputs refuses such a case as it writes the forcing, whatever the registry's checks allow"
 evidence = ["lab/design/terluna_fixes.md, row 6", "notes/cm1.md, The nudging and the convection", "python/climate/tests/test_gcm_site.py"]

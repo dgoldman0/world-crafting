@@ -46,7 +46,7 @@ def test_every_seed_loads():
     assert {'A1', 'B1', 'B28', 'B30', 'B31', 'B34', 'B39', 'cm1-rain-limits-range', 'cm1-soil-day', 'cm1-equinox-sun',
             'exoplasim-ice-weights', 'exoplasim-rain-births', 'exoplasim-longwave-fit', 'cm1-damping-below-convection'} <= \
         {e['id'] for e in LIB.registry()}
-    assert len(LIB.registry()) == 23
+    assert {'A9', 'B35'} <= {e['id'] for e in LIB.registry()} and len(LIB.registry()) == 25
 
 
 def test_a_moon_takes_its_hosts_orbit():
@@ -80,9 +80,11 @@ def test_cm1_variants_add_their_series_in_the_builds_order():
     study = LIB.study('open-moon')
     ring, twilight, box = (study.crm[n] for n in ('ring_45n', 'ring_45n_twilight', 'box_jura'))
     assert ring.settings['physics']['twilight'] == 'none' and twilight.settings['physics']['twilight'] == 'full'
-    assert twilight.settings['patches'] == ['series-core', 'series-twilight'] and twilight.delta['variants'] == ['twilight']
-    # The box's series apply in the order of models/cm1/builds.json: core, terrain, sea, then twilight.
-    assert box.settings['patches'] == ['series-core', 'series-terrain', 'series-sea', 'series-twilight']
+    assert twilight.settings['patches'] == ['series-core', 'series-lab', 'series-twilight']
+    assert twilight.delta['variants'] == ['twilight']
+    # The box's series apply after the core and the lab's in the order of models/cm1/builds.json: terrain, sea, then
+    # twilight.
+    assert box.settings['patches'] == ['series-core', 'series-lab', 'series-terrain', 'series-sea', 'series-twilight']
 
 
 def test_the_study_runs_on_the_labs_own_values():
@@ -360,7 +362,7 @@ def test_variants_added_along_a_chain_resolve_as_variants_added_at_once(tmp_path
         ''')
     at_once, then = study.crm['at_once'], study.crm['then']
     assert then.settings['patches'] == at_once.settings['patches'] == [
-        'series-core', 'series-terrain', 'series-sea', 'series-twilight']
+        'series-core', 'series-lab', 'series-terrain', 'series-sea', 'series-twilight']
     assert then.settings_hash == at_once.settings_hash and then.delta['variants'] == ['terrain', 'sea']
 
 

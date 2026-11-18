@@ -233,8 +233,9 @@ def _remove(path: Path) -> None:
     shutil.rmtree(path)
 
 
-def _abandoned(builds: Path) -> None:
-    """Partial builds older than the longest compile, left by a process stopped mid-build, removed."""
-    for partial in builds.glob('.exoplasim-*.part-*'):
+def _abandoned(builds: Path, prefix: str = 'exoplasim') -> None:
+    """Partial builds of a model (`prefix`, its folders' prefix) older than the longest compile, left by a process
+    stopped mid-build, removed."""
+    for partial in builds.glob(f'.{prefix}-*.part-*'):
         if time.time() - partial.stat().st_mtime > TIMEOUT_S:
             _remove(partial)

@@ -37,6 +37,9 @@ SCHEMA = 'worldlab.manifest/0'
 ROOTS = ('terluna', 'terluna-drive')
 # The fields of a world and of a scenario that hold a pin, or one of the words that name no pin.
 PIN_FIELDS = {'world': ('star.spectrum', 'surface.geometry'), 'scenario': ('sunlight.filter', 'water.lakes_start')}
+# A study's CM1 case may name the GCM run that forces it by a pin, read in place as test input until the lab has runs
+# of its own (plan.md, the stages' preamble; lab/worldlab/cm1.py, `forcing_run`): crm.<case>.forcing_run.
+STUDY_PIN_FIELDS = ('forcing_run',)
 WORDS = frozenset({'none', 'model-default', 'unchosen'})
 FIELD_WORDS = {'star.spectrum': frozenset({'blackbody'}), 'surface.geometry': frozenset({'ocean'})}   # words that
                                      # name no pin in one field alone: a blackbody star, a world all ocean
