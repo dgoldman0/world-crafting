@@ -277,6 +277,19 @@ with their records, and a run that fails a registry check is refused. The block'
 segments of about five minutes each, three for each build timed, and the ledger's fifty minutes. The unified
 interface gets its design step once the thin path runs.
 
+**State on 18 November 2026.** CM1's half of the thin path is in the lab (`lab` 0de269a, from a1742e7): CM1's builds
+keyed and filed in the store, the registry evaluated for a CM1 case, the case writer for a forced site box, and the
+job wrapper that runs a case in segments, resumes after an interruption and refuses a run that fails a registry check,
+all from `python -m worldlab`; a fresh reviewer's fourteen findings are fixed in it. The imposed sea box ran its first
+two model days as a test, its second stopped and resumed. The coupling test of `lab/design/gap_series.md` stands as
+the study `open-moon-couplings`, forced by Terluna's present design climate: four boxes ready to run, about 4–5
+four-thread hours each, and the wave against the imposed box's own mean after that box's run; the runs and their output
+settings wait for the author. A column that steps PlaSim's own physics under the GCM's dynamics, with patch 21 of
+ExoPlaSim's series to write them, is in the lab too (`lab` 295e657, from 88ae254): given the GCM's state each step it
+gives the GCM's physics bit for bit, and run freely under one-way forcing it holds the GCM for days before it drifts,
+so the mixing tests of B32 wait for a settled warm forcing run, at the author's word. The GCM's half of the thin path,
+a year of the Earth control under the lab's bookkeeping, is still to come.
+
 **The orientation check.** Stage 2 derives a world's orientation, and stage 4 tracks it.
 
 - `geology/orientation.py`, `climate/gcm/turned.py` and `climate/gcm/carry.py` enter `python/` and extend to any
@@ -428,3 +441,10 @@ the root README's "Where current understanding differs from the paper" then list
   restarted run writes the fluxes at the top and the ground, the cloud's forcing and the Sun's angles unset until its
   next radiation call, its state untouched. Whether Terluna's segmented boxes wrote any record inside that interval,
   so that their radiation readings meet it, is to be checked, and on that rests whether the paper counts it.
+- ExoPlaSim's two clocks (defect log A14, found on 18 November 2026 by the column driver): the dynamics, and the
+  physics' tendencies they carry, step `sidereal_day/ntspd` seconds while the physics' own clock, the surface and the
+  Sun step the solar day's share, 8.3% apart on the Moon. Whether to fix it in a patch of the lab's series, the run that
+  would size its effect, and whether the paper counts it are open with the author.
+- `models/check_patches.sh` orders the files it hashes by the caller's locale, so its CM1 digests change under the C
+  locale; the lab's builds pin en_US.UTF-8 meanwhile. The script and its digest files move to the C locale in a change
+  of their own.
