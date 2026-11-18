@@ -64,6 +64,7 @@ corrected there. The companion note `verification_record.md` describes the check
 | A11 | CM1 r22.0 | The MM5 surface layer (`sfcmodel = 2`) sets its roughness lengths for heat and moisture over water alone and copies them to the output at every point, so `z0t` and `z0q` over land hold unset memory | 11-11, `lab` 3174a0e | None; a reader takes both over water alone | Output and domain averages alone: NaN or 9.5 × 10²² m over land in the lab's test builds; the model reads neither back, and no analysis of Terluna's or the lab's reads either | Open | L |
 | A12 | CM1 r22.0 | After a restart the large-scale nudging counts its windows again from the first, one a step, since the restart files keep no count (`lsnudge.F`, `solve1.F`) | 11-17, the lab's port of the damped gravity wave | `nudge_window_by_time` (0): the lab's series, patch 12, moves the count on at each step until the window holds the step's time; `gcm_site` writes it on for every forced case; the lab's job wrapper also writes each segment's windows from its start | Each one-day segment of Terluna's boxes after the first nudged its wind and held air toward earlier windows for as many steps as windows had passed: 35 steps, 47 minutes of model time, at the sea box's thirtieth; under a coupled wind, the damped gravity wave or the weak temperature gradient, the box's own ascent answers those windows too | Fixed in the lab's series; open upstream | L, R |
 | A13 | CM1 r22.0 | The restart files keep none of the radiation's diagnostics, so a restarted run writes the fluxes at the top and the ground, the cloud's forcing and fraction and the Sun's angles unset until its next radiation call | 11-18, the lab's fix of A12 | None | The model's state and every output after the next radiation call agree with the run done whole; the outputs, domain means and statistics a run writes between a restart and that call carry the unset values. Whether Terluna's segmented boxes wrote any such record, and whether the paper counts it, is open | Open | L |
+| A14 | ExoPlaSim 3.4.2 | Two clocks: the dynamics, and the physics' tendencies they carry, step `sidereal_day/ntspd` seconds (`delt` = 2π/`ntspd` in units of the rotation, `ww` = 2π/`sidereal_day`), while the physics' own clock, the surface, the slab sea and the Sun step `deltsec` = `day_24hr`/`mtspd` (plasim.f90) | 11-18, the lab's column driver | None | 0.27% on Earth's control; on the Moon the air advances 1,651 s a step against the ground's, the sea's and the Sun's 1,800 s, so that it lives a 27.3-day day under a 29.5-day Sun. Each part balances its own rates, so the error falls on timing; unmeasured on any climate | Open | L |
 | B1 | CM1 | `g = 9.81` in dynamics, RRTMG, CAPE and Morrison; Morrison fall speeds and caps at Earth's g | 09-27, 16319e1 | `TERLUNA_G` build constant, which the namelist's `world_g` replaces in the lab's series (patch 06, default the build's value); fall speeds × (g/9.81)^((B+1)/3) | Required for any lunar run | Fixed | R |
 | B2 | WRF-ELEC NSSL | `gr = 9.8` twice; fall-speed laws at Earth's g | 10-02 a21a615; 10-04 6027230 | `TERLUNA_G`, still compiled in beside the lab's patch 06; same scaling | Required | Fixed | R |
 | B3 | WRF-ELEC NSSL | Rain and cloud-ice ventilation tied to Earth fall-speed coefficients | 10-06, 1fa7f41 | Scaled at 11 places; no switch | Lunar rain evaporated 1.3–1.5× too fast | Fixed | R |
@@ -412,6 +413,28 @@ in restarted segments (2026-11-18); the paper takes both in its next revision (`
   after each restart, and a fix would have the restart files keep the diagnostics or call the radiation at a
   restart's first step. Whether it counts among the released codes' defects in the paper waits for its effect on the
   lunar runs.
+
+### A14. ExoPlaSim 3.4.2: the dynamics' clock and the physics' (L; open)
+
+- **Defect.** PlaSim scales its spectral model's time by the rotation, `ww` = 2π/`sidereal_day` (`plasim.f90`, line
+  1316), and steps it by `delt` = 2π/`ntspd` (line 588), so each step advances the dynamics, and the physics'
+  tendencies that `gridpointd` hands them, by `sidereal_day/ntspd` seconds. The physics computes those tendencies, the
+  surface modules integrate their fluxes and the Sun's clock turns over `deltsec` = `day_24hr`/`mtspd` (line 586), the
+  solar day's share. ExoPlaSim's own comment asks that `mpstep` × 60 × `ntspd` equal `day_24hr` (line 1340), which ties
+  the physics' step alone to the solar day.
+- **Found** on 2026-11-18 by the lab's column driver (`python/climate/gcm/plasim_column.py`), whose test reads `ww`
+  from Earth's dumps as 2π over 364/365 of 86,400 s (`lab/tests/test_plasim_column.py`), and checked in the pinned
+  source.
+- **Effect.** On Earth's control the clocks differ by 0.27%. On the Moon, whose 1,430 steps a model day span a solar
+  day of 2,575,191 s against a sidereal day of 2,360,592 s, the air advances 1,651 s a step while the ground, the slab
+  sea and the Sun advance 1,800 s, so that the air's dynamics and physics run through 27.3 days of their own time in
+  each 29.5-day day of the Sun. Each part balances its own rates, so a settled climate's means keep their balance; the
+  error falls on timing, the night as the air lives it running about 8% short, and on the exchange between the air and
+  the ground at each step. Unmeasured on any climate.
+- **Status.** Open, upstream and in the lab. A fix sets the dynamics' step from the physics', `delt` = `ww` ×
+  `deltsec`, behind an entry whose default keeps PlaSim's step; a two-year run from the design climate would size its
+  effect. Patch 21's forcing of a column folds the two clocks in, so a column whose physics equals the GCM's retraces
+  the GCM step by step (`models/exoplasim/README.md`, patch 21).
 
 ## (b) Earth constants, units, geometry and fitted forms in upstream code
 
